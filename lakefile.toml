@@ -1,0 +1,15 @@
+name = "mean"
+version = "0.1.0"
+defaultTargets = ["Mean", "Examples"]
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.31.0"
+
+[[lean_lib]]
+name = "Mean"
+
+[[lean_lib]]
+name = "Examples"
+globs = ["Examples.+"]
