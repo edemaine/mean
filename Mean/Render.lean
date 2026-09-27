@@ -67,12 +67,32 @@ private def witnessText (ty : Expr) (name : Option String) : MetaM String := do
     return s!"a natural number{suffix}"
   return s!"an element{suffix} of {← atomText ty}"
 
-/-- Recognize supported logical structure without unfolding mathematical constants. -/
-partial def renderExpr (e : Expr) (sentenceEnd := false) : MetaM String := do
+/-- Parentheses preserve binder scope and the right associativity of connectives. -/
+private def groupOperand (e : Expr) (parent : Name) (left : Bool) (text : String) : String :=
+  let e := e.consumeMData
+  let grouped := e.isForall || e.isAppOfArity ``Exists 2 ||
+    (parent == ``And && e.isAppOfArity ``Or 2) ||
+    (left && e.isAppOfArity parent 2)
+  if grouped then "(" ++ text ++ ")" else text
+
+/-- Recognize supported logical structure without unfolding mathematical constants.
+Embedded implications stay inline; standalone implications introduce a block.
+Quantifiers retain their block layout in either context. -/
+partial def renderExpr (e : Expr) (sentenceEnd := false)
+    (inlineContext := false) : MetaM String := do
   let e := e.consumeMData
   match e with
-  | .letE _ _ value body _ => renderExpr (body.instantiate1 value) sentenceEnd
+  | .letE _ _ value body _ => renderExpr (body.instantiate1 value) sentenceEnd inlineContext
   | .forallE n ty body bi =>
+    if bi == .default && (← isProp ty) && !body.hasLooseBVars && (← isProp e) then
+      let premise ← renderExpr ty false true
+      let premise := if ty.isForall then "(" ++ premise ++ ")" else premise
+      let conclusion ← renderExpr body sentenceEnd inlineContext
+      let text := if inlineContext then
+        s!"if {premise} then {conclusion}"
+      else
+        s!"if {premise} then\n{indented conclusion}"
+      return ← sentenceTail text sentenceEnd
     -- The current Mean surface binds pairs. Other binder shapes stay ordinary Lean.
     if bi == .default && !(← isProp ty) then
       let n ← freshName n
@@ -90,6 +110,13 @@ partial def renderExpr (e : Expr) (sentenceEnd := false) : MetaM String := do
         | _ => leafText e sentenceEnd
     else leafText e sentenceEnd
   | _ =>
+    if e.isAppOfArity ``And 2 || e.isAppOfArity ``Or 2 then
+      let op := e.getAppFn.constName!
+      let args := e.getAppArgs
+      let left := groupOperand args[0]! op true (← renderExpr args[0]! false true)
+      let right := groupOperand args[1]! op false (← renderExpr args[1]! sentenceEnd true)
+      let word := if op == ``And then "and" else "or"
+      return ← sentenceTail s!"{left} {word} {right}" sentenceEnd
     if e.isAppOfArity ``Exists 2 then
       let args := e.getAppArgs
       let ty := args[0]!

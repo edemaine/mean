@@ -62,6 +62,22 @@ def withAssumption (n : Nat) (h : n > 0) : Prop := n ≥ 1 ∧ h = h
 #mean_term_compare ∀ n m : Nat, (n = m → m = n)
 #mean_term_compare ∀ n m : Nat, (n = m ∧ m = n) ∨ n ≠ m
 
+-- Grouping preserves the expression, including left-associated connectives.
+section
+variable (P Q R : Prop)
+#mean_term_compare (P ∨ Q) ∧ R
+#mean_term_compare P ∨ (Q ∧ R)
+#mean_term_compare (P ∧ Q) ∧ R
+#mean_term_compare (P ∨ Q) ∨ R
+#mean_term_compare (P → Q) → R
+#mean_term_compare P → Q → R
+#mean_term_compare P ∧ (Q → R)
+#mean_term_compare (∃ n : Nat, n = 0) ∧ P
+#mean_term_compare P → ∃ n : Nat, n = 0 ∧ Q
+end
+
+#mean_compare zeroOrPositive
+
 -- The checker must reject changed meaning even when the printed text parses.
 open Lean Elab Term in
 run_elab do

@@ -169,8 +169,18 @@ The grammar separates logical structure from mathematical vocabulary:
 | Quantified bindings | `u and v in V`, `vertices u and v of G` |
 | Existential quantifier | `there is <witness description> [such that <proposition>]` |
 | Witness description | `a path p in G from u to v`, `a natural number n`, `an element x of T` |
+| Logical connectives | `P and Q`, `P or Q`, `if P then Q` |
 
 Here `T` is any type in scope; the typed-element form is not specific to natural numbers.
+
+`and` and `or` mean Lean's `∧` and `∨`, with the same precedence and right
+associativity: `P or Q and R` means `P ∨ (Q ∧ R)`. Parentheses change the grouping.
+`if P then Q` means propositional implication `P → Q`; its conclusion can contain
+connectives or another implication. Lean's `if P then X else Y` remains an ordinary
+conditional. The renderer prefers the English forms and adds parentheses where
+needed to preserve grouping and quantifier scope. Embedded implications stay
+inline (for example, `if (if P then Q) then …`); standalone implications put their
+conclusion on an indented line. Quantifiers retain their block layout.
 
 For example:
 
@@ -205,8 +215,9 @@ vocabulary can be extended independently.
 ## Current coverage and limitations
 
 The renderer recognizes the current graph, natural-number, and typed-element
-subjects; paired universal quantifiers; existential witnesses; and optional
-conditions. It canonically omits unused witness names and graph component names.
+subjects; paired universal quantifiers; existential witnesses; optional
+conditions; conjunctions, disjunctions, and nondependent propositional implications.
+It canonically omits unused witness names and graph component names.
 It substitutes local `let` aliases, so `E` may render as `G.edgeSet`.
 
 Unsupported forms remain ordinary Lean, provided that text passes the same
@@ -220,8 +231,8 @@ coverage, not failed verification.** Current gaps include:
   universe-polymorphic graph subject.
 - Recursive rendering inside some unsupported outer structures. In particular,
   an outer implicit binder can cause a whole theorem statement to remain Lean.
-- English forms for general connectives, unrestricted predicate applications
-  after `is`, and broader mathematical vocabulary.
+- Additional English connectives such as negation and equivalence, unrestricted
+  predicate applications after `is`, and broader mathematical vocabulary.
 
 Some gaps require more Mean syntax; others only require the renderer to translate
 supported subexpressions while retaining an ordinary Lean outer structure.

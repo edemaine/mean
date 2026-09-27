@@ -1,5 +1,24 @@
 import Mean.Syntax
 
+-- English connectives match Lean's precedence and associativity exactly.
+example (P Q R : Prop) : (P and Q or R) = ((P ∧ Q) ∨ R) := rfl
+example (P Q R : Prop) : (P or Q and R) = (P ∨ (Q ∧ R)) := rfl
+example (P Q R : Prop) : (P and Q and R) = (P ∧ (Q ∧ R)) := rfl
+example (P Q R : Prop) : ((P or Q) and R) = ((P ∨ Q) ∧ R) := rfl
+example (P Q R : Prop) : (if P then Q and R) = (P → Q ∧ R) := rfl
+example (P Q R : Prop) : (if P then if Q then R) = (P → Q → R) := rfl
+example (P Q R : Prop) : (if (if P then Q) then R) = ((P → Q) → R) := rfl
+
+-- Ordinary Lean conditionals with else still select a value or proposition.
+example : (if true then 1 else 2) = 1 := rfl
+example (P Q R : Prop) [Decidable P] : (if P then Q else R) = ite P Q R := rfl
+
+Definition:
+  a natural number n is zeroOrPositive if
+    n = 0 or (if n ≠ 0 then n > 0).
+
+example (n : Nat) : zeroOrPositive n = (n = 0 ∨ (n ≠ 0 → n > 0)) := rfl
+
 Definition:
   a simple graph G is preconnectedViaVertices if
     for all vertices u and v of G:

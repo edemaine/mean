@@ -13,6 +13,18 @@ abbrev SimpleGraph.V {α : Type*} (_ : SimpleGraph α) := α
 
 namespace Mean
 
+/-! Logical connectives use Lean's usual precedence: `and` binds tighter than
+`or`; both associate to the right. An `if … then …` without `else` is implication.
+Lean's ordinary `if … then … else …` remains available. -/
+syntax:35 term:36 " and " term:35 : term
+syntax:30 term:31 " or " term:30 : term
+syntax:25 "if" term "then" term:25 : term
+macro_rules
+  | `($p:term and $q:term) => `(And $p $q)
+  | `($p:term or $q:term) => `(Or $p $q)
+  | `(if $premise:term then $conclusion:term) =>
+      `(∀ (_ : ($premise : Prop)), ($conclusion : Prop))
+
 /-- Keep the sentence's period out of Lean's field-completion parser. -/
 def sentenceBody : Lean.Parser.Parser :=
   Lean.Parser.withForbidden "." Lean.Parser.termParser
