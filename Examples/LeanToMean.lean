@@ -42,6 +42,7 @@ def truthy (b : Bool) : Prop := b = true
 #mean_term_compare ∃ _n : Nat, True
 #mean_term_compare ∃ x : Bool, x = true
 #mean_term_compare ∃ _x : Bool, True
+-- Regression check: an existential with body False must not render as "there is no".
 #mean_term_compare ∃ _n : Nat, False
 
 section
@@ -143,3 +144,23 @@ def complexZero (x : Complex) : Prop := x = 0
 
 #mean_term_compare ∀ x : Bool, x = x
 #mean_term_compare ∀ x y : Bool, x = y
+
+-- Negated existence; a False existential body must stay positive existence.
+#mean_compare hasNoSmallerSquare
+#mean_term_compare ¬ ∃ x : Real, x * x < 0
+#mean_term_compare ¬ ∃ _x : Int, True
+#mean_term_compare ¬ ∃ _x : Empty, True
+#mean_term_compare ∃ _x : Empty, False
+#mean_term_compare ¬ ∃ _x : Int, False
+#mean_term_compare ¬ ∃ x : Int, ¬ ∃ y : Int, x = y
+section
+variable {T : Type*} (P : T → Prop) (Q : Prop)
+#mean_term_compare (¬ ∃ x : T, P x) ∧ Q
+#mean_term_compare Q ∨ (¬ ∃ x : T, P x)
+#mean_term_compare (¬ ∃ x : T, P x) → Q
+end
+section
+variable {V : Type*} (G : SimpleGraph V) (u v : V)
+#mean_term_compare ¬ ∃ _p : G.Path u v, True
+#mean_term_compare ¬ ∃ p : G.Path u v, p.val.length = 0
+end

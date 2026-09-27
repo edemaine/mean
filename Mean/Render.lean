@@ -72,19 +72,30 @@ private def scalarDescription? (ty : Expr) : Option String := do
   return (if ty.isConstOf ``Int then "an " else "a ") ++ singular
 
 /-- Domain vocabulary is independent of existential quantification. -/
-private def witnessText (ty : Expr) (name : Option String) : MetaM String := do
+private def witnessText (ty : Expr) (name : Option String) (negative := false) : MetaM String := do
   let suffix := name.map (" " ++ ·) |>.getD ""
+  let article := if negative then "no" else "a"
   if ty.isAppOfArity ``SimpleGraph.Path 4 then
     let args := ty.getAppArgs
-    return s!"a path{suffix} in {← atomText args[1]!} from {← atomText args[2]!} to {← atomText args[3]!}"
+    return s!"{article} path{suffix} in {← atomText args[1]!} from {← atomText args[2]!} to {← atomText args[3]!}"
+  if negative then
+    if let some (singular, _) := scalarNouns? ty then
+      return s!"no {singular}{suffix}"
   if let some description := scalarDescription? ty then
     return description ++ suffix
-  return s!"an element{suffix} of {← atomText ty}"
+  let article := if negative then "no" else "an"
+  return s!"{article} element{suffix} of {← atomText ty}"
+
+private def negatedExists? (e : Expr) : Option Expr :=
+  if e.isAppOfArity ``Not 1 then
+    let body := e.getAppArgs[0]!.consumeMData
+    if body.isAppOfArity ``Exists 2 then some body else none
+  else none
 
 /-- Parentheses preserve binder scope and the right associativity of connectives. -/
 private def groupOperand (e : Expr) (parent : Name) (left : Bool) (text : String) : String :=
   let e := e.consumeMData
-  let grouped := e.isForall || e.isAppOfArity ``Exists 2 ||
+  let grouped := e.isForall || e.isAppOfArity ``Exists 2 || (negatedExists? e).isSome ||
     (parent == ``And && e.isAppOfArity ``Or 2) ||
     (left && e.isAppOfArity parent 2)
   if grouped then "(" ++ text ++ ")" else text
@@ -138,8 +149,10 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
       let right := groupOperand args[1]! op false (← renderExpr args[1]! sentenceEnd true)
       let word := if op == ``And then "and" else "or"
       return ← sentenceTail s!"{left} {word} {right}" sentenceEnd
-    if e.isAppOfArity ``Exists 2 then
-      let args := e.getAppArgs
+    let negative := negatedExists? e
+    let existential := negative.getD e
+    if existential.isAppOfArity ``Exists 2 then
+      let args := existential.getAppArgs
       let ty := args[0]!
       let predicate := args[1]!
       let suggested := match predicate with
@@ -150,7 +163,7 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
         let body := (predicate.beta #[x]).consumeMData
         let used := body.containsFVar x.fvarId!
         let witnessName ← nameText n
-        let description ← witnessText ty (if used then some witnessName else none)
+        let description ← witnessText ty (if used then some witnessName else none) negative.isSome
         if body.isConstOf ``True then return ← sentenceTail s!"there is {description}" sentenceEnd
         return s!"there is {description} such that\n{indented (← renderExpr body sentenceEnd)}"
     else

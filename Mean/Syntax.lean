@@ -137,45 +137,62 @@ macro_rules
       `(forallOver% $u:ident and $v:ident in SimpleGraph.V $g => $body)
 
 /-! Existential quantification is independent of its witness description.
-New noun phrases implement `existsOver%`, without changing `there is`. -/
-declare_syntax_cat meanWitness
-syntax "an" "element" (ppSpace ident)? "of" term : meanWitness
-syntax "a" "natural" "number" (ppSpace ident)? : meanWitness
-syntax "an" "integer" (ppSpace ident)? : meanWitness
-syntax "a" "rational" "number" (ppSpace ident)? : meanWitness
-syntax "a" "real" "number" (ppSpace ident)? : meanWitness
-syntax "a" "complex" "number" (ppSpace ident)? : meanWitness
-syntax "a" "boolean" (ppSpace ident)? : meanWitness
-syntax "a" "path" (ppSpace ident)? "in" term "from" term "to" term : meanWitness
+New noun phrases implement `existsWitness%`; `existsOver%` handles articles.
+Positive and negative existence share the noun and optional condition. -/
+declare_syntax_cat meanWitnessNoun
+syntax "element" (ppSpace ident)? "of" term : meanWitnessNoun
+syntax "natural" "number" (ppSpace ident)? : meanWitnessNoun
+syntax "integer" (ppSpace ident)? : meanWitnessNoun
+syntax "rational" "number" (ppSpace ident)? : meanWitnessNoun
+syntax "real" "number" (ppSpace ident)? : meanWitnessNoun
+syntax "complex" "number" (ppSpace ident)? : meanWitnessNoun
+syntax "boolean" (ppSpace ident)? : meanWitnessNoun
+syntax "path" (ppSpace ident)? "in" term "from" term "to" term : meanWitnessNoun
 
+declare_syntax_cat meanWitness
+syntax "a" meanWitnessNoun : meanWitness
+syntax "an" meanWitnessNoun : meanWitness
+
+syntax "existsWitness%" meanWitnessNoun "=>" term : term
 syntax "existsOver%" meanWitness "=>" term : term
+syntax "there" "is" "no" meanWitnessNoun ("such" "that" term)? : term
 syntax "there" "is" meanWitness ("such" "that" term)? : term
 
 macro_rules
+  | `(there is no $description:meanWitnessNoun
+        $[such that $condition:term]?) => do
+      let condition ← match condition with
+        | some body => pure body
+        | none => `(True)
+      `(¬ (existsWitness% $description => $condition))
+  | `(existsOver% a $description:meanWitnessNoun => $body:term) =>
+      `(existsWitness% $description => $body)
+  | `(existsOver% an $description:meanWitnessNoun => $body:term) =>
+      `(existsWitness% $description => $body)
   | `(there is $description:meanWitness
         $[such that $condition:term]?) => do
       let condition ← match condition with
         | some body => pure body
         | none => `(True)
       `(existsOver% $description => $condition)
-  | `(existsOver% an element $[$x:ident]? of $ty:term => $body:term) => do
+  | `(existsWitness% element $[$x:ident]? of $ty:term => $body:term) => do
       let witness ← match x with
         | some name => pure name
         | none => `(ident| existentialWitness)
       `(∃ ($witness:ident : $ty), $body)
-  | `(existsOver% a natural number $[$n:ident]? => $body:term) =>
+  | `(existsWitness% natural number $[$n:ident]? => $body:term) =>
       `(existsOver% an element $[$n:ident]? of Nat => $body)
-  | `(existsOver% an integer $[$x:ident]? => $body:term) =>
+  | `(existsWitness% integer $[$x:ident]? => $body:term) =>
       `(existsOver% an element $[$x:ident]? of Int => $body)
-  | `(existsOver% a rational number $[$x:ident]? => $body:term) =>
+  | `(existsWitness% rational number $[$x:ident]? => $body:term) =>
       `(existsOver% an element $[$x:ident]? of Rat => $body)
-  | `(existsOver% a real number $[$x:ident]? => $body:term) =>
+  | `(existsWitness% real number $[$x:ident]? => $body:term) =>
       `(existsOver% an element $[$x:ident]? of Real => $body)
-  | `(existsOver% a complex number $[$x:ident]? => $body:term) =>
+  | `(existsWitness% complex number $[$x:ident]? => $body:term) =>
       `(existsOver% an element $[$x:ident]? of Complex => $body)
-  | `(existsOver% a boolean $[$x:ident]? => $body:term) =>
+  | `(existsWitness% boolean $[$x:ident]? => $body:term) =>
       `(existsOver% an element $[$x:ident]? of Bool => $body)
-  | `(existsOver% a path $[$p:ident]? in $g:term from $u:term to $v:term
+  | `(existsWitness% path $[$p:ident]? in $g:term from $u:term to $v:term
         => $body:term) =>
       `(existsOver% an element $[$p:ident]? of SimpleGraph.Path $g $u $v => $body)
 

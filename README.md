@@ -168,6 +168,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Universal quantifier | `for all <bindings>: <proposition>`, `for every …` |
 | Quantified bindings | `u and v in V`, `vertices u and v of G` |
 | Existential quantifier | `there is <witness description> [such that <proposition>]` |
+| Negated existential | `there is no <witness noun> [such that <proposition>]` |
 | Witness description | `a path p in G from u to v`, `a natural number n`, `a boolean x`, `an element x of T` |
 | Logical connectives | `P and Q`, `P or Q`, `if P then Q` |
 
@@ -182,6 +183,12 @@ and existential witnesses (where the name is optional):
 | `a real number x` | `Real` | `ℝ` |
 | `a complex number z` | `Complex` | `ℂ` |
 | `a boolean x` | `Bool` | — |
+
+`there is no` replaces the article (`a` or `an`) with `no`, keeping the noun
+singular: `there is no integer`, or `there is no path p in G from u to v such that …`.
+It means `¬ ∃ …`, with `True` as the default body when `such that` is omitted.
+An existential with body `False` stays `there is … such that False`; it is not
+negated existence.
 
 `Real` and `Complex` are mathlib types, not floating-point approximations.
 Universal quantifiers accept one or two names, for example `for every real number x:`
@@ -224,14 +231,14 @@ loops; neither finiteness nor nonemptiness is assumed. The abbreviation `G.V`
 exposes mathlib's existing vertex-type parameter without changing its representation.
 
 To extend the forward language, add a subject, domain, or witness description and
-its interpretation. A new witness description implements `existsOver%`; it does
+its interpretation. A new witness noun implements `existsWitness%`; it does
 not require another rule for `there is … such that …`. The corresponding renderer
 vocabulary can be extended independently.
 
 ## Current coverage and limitations
 
 The renderer recognizes the current graph, standard scalar, and typed-element
-subjects; paired universal quantifiers and single scalar quantifiers; existential witnesses; optional
+subjects; paired universal quantifiers and single scalar quantifiers; positive and negative existential witnesses; optional
 conditions; conjunctions, disjunctions, and nondependent propositional implications.
 It canonically omits unused witness names and graph component names.
 It substitutes local `let` aliases, so `E` may render as `G.edgeSet`.
@@ -247,7 +254,7 @@ coverage, not failed verification.** Current gaps include:
   universe-polymorphic graph subject.
 - Recursive rendering inside some unsupported outer structures. In particular,
   an outer implicit binder can cause a whole theorem statement to remain Lean.
-- Additional English connectives such as negation and equivalence, unrestricted
+- Additional English connectives such as general negation and equivalence, unrestricted
   predicate applications after `is`, and broader mathematical vocabulary.
 
 Some gaps require more Mean syntax; others only require the renderer to translate

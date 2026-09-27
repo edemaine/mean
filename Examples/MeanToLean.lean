@@ -250,3 +250,36 @@ example : (for all complex numbers x and y: x = y) = (∀ x y : Complex, x = y) 
 
 example : (for every boolean x: x = x) = (∀ x : Bool, x = x) := rfl
 example : (for all booleans x and y: x = y) = (∀ x y : Bool, x = y) := rfl
+
+-- Negative existence shares witness vocabulary and negates the whole existential.
+example : (there is no real number x such that x * x < 0) =
+    (¬ ∃ x : Real, x * x < 0) := rfl
+example {T : Type*} : (there is no element of T) = (¬ ∃ _x : T, True) := rfl
+example {T : Type*} (P : T → Prop) :
+    (there is no element x of T such that P x) = (¬ ∃ x : T, P x) := rfl
+example {V : Type*} (G : SimpleGraph V) (u v : V) :
+    (there is no path in G from u to v) = (¬ ∃ _p : G.Path u v, True) := rfl
+example {V : Type*} (G : SimpleGraph V) (u v : V) :
+    (there is no path p in G from u to v such that p.val.length = 0) =
+    (¬ ∃ p : G.Path u v, p.val.length = 0) := rfl
+
+-- An empty domain distinguishes negated existence from an existential of False.
+example : there is no element of Empty := by rintro ⟨x, _⟩; cases x
+example : ¬ (∃ _x : Empty, False) := by rintro ⟨_, h⟩; exact h
+
+Definition:
+  a real number x is hasNoSmallerSquare if
+    there is no real number y such that y * y < x.
+example (x : Real) : hasNoSmallerSquare x = (¬ ∃ y : Real, y * y < x) := rfl
+
+example : (there is no natural number) = (¬ ∃ _x : Nat, True) := rfl
+
+example : (there is no integer) = (¬ ∃ _x : Int, True) := rfl
+
+example : (there is no rational number) = (¬ ∃ _x : Rat, True) := rfl
+
+example : (there is no real number) = (¬ ∃ _x : Real, True) := rfl
+
+example : (there is no complex number) = (¬ ∃ _x : Complex, True) := rfl
+
+example : (there is no boolean) = (¬ ∃ _x : Bool, True) := rfl
