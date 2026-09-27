@@ -7,14 +7,6 @@ Definition:
     for all vertices u and v of G:
       there is a path in G from u to v.
 
-def preconnectedViaVertices : {Vertex : Type u_1} → SimpleGraph Vertex → Prop :=
-  fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => ∀ (u v : G.V), ∃ (existentialWitness : G.Path u v), True
--> MEAN
-Definition:
-  a simple graph G is preconnectedViaVertices if
-    for all vertices u and v of G:
-      there is a path in G from u to v.
-
 def zeroLengthLinked : {Vertex : Type u_1} → SimpleGraph Vertex → Prop :=
   fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => ∀ (u v : G.V), ∃ (p : G.Path u v), (↑p : G.Walk u v).length = 0
 -> MEAN
@@ -38,13 +30,6 @@ def zero : ℕ → Prop :=
 -> MEAN
 Definition:
   a natural number n is zero if
-    (n = 0).
-
-def zeroViaType : ℕ → Prop :=
-  fun (n : ℕ) => n = 0
--> MEAN
-Definition:
-  a natural number n is zeroViaType if
     (n = 0).
 
 def boundsPairSums : ℕ → Prop :=

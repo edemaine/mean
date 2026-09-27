@@ -15,11 +15,9 @@ info: Definition:
 #mean ordinaryPreconnected
 
 #mean_compare ordinaryPreconnected
-#mean_compare preconnectedViaVertices
 #mean_compare zeroLengthLinked
 #mean_compare edgeless
 #mean_compare zero
-#mean_compare zeroViaType
 #mean_compare boundsPairSums
 
 -- The explicit subject is retained when the body names the vertex type.
