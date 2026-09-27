@@ -116,6 +116,24 @@ lake build
 Lean and mathlib are pinned to v4.31.0. `lake build` checks both directions and the
 round-trip tests.
 
+To also check the examples' exact before/after output, using Python 3.9 or newer:
+
+```sh
+python test.py
+```
+
+This builds the project, runs the renderer examples, and compares their output
+with [Examples/LeanToMean.out](Examples/LeanToMean.out). Changes produce
+a diff and a nonzero exit status. Source locations are ignored; wording,
+parentheses, indentation, and blank lines are checked. LF and CRLF are equivalent.
+The forward examples and round-trip meaning checks still run as part of the build.
+
+After an intentional output change, regenerate the snapshot and review its diff:
+
+```sh
+python test.py --update
+```
+
 There are runnable examples in both directions:
 
 | Direction | File | What it demonstrates |
@@ -290,3 +308,5 @@ the statement expresses the intended mathematics.
 | `Mean/Render.lean` | Lean → Mean renderer and display commands |
 | [Examples/MeanToLean.lean](Examples/MeanToLean.lean) | Forward-language examples, exact-meaning checks, and mathlib equivalence proofs |
 | [Examples/LeanToMean.lean](Examples/LeanToMean.lean) | Before/after examples and round-trip checks, including rejection of changed predicates and universe signatures |
+| `test.py` | Builds the project and checks the rendered examples against their expected output |
+| `Examples/LeanToMean.out` | Reviewed before/after output, including exact formatting |

@@ -1,0 +1,386 @@
+
+def ordinaryPreconnected : {V : Type u_1} → SimpleGraph V → Prop :=
+  fun {V : Type u_1} (G : SimpleGraph V) => ∀ (u v : V), ∃ (_p : G.Path u v), True
+-> MEAN
+Definition:
+  a simple graph G is ordinaryPreconnected if
+    for all vertices u and v of G:
+      there is a path in G from u to v.
+
+def preconnectedViaVertices : {Vertex : Type u_1} → SimpleGraph Vertex → Prop :=
+  fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => ∀ (u v : G.V), ∃ (existentialWitness : G.Path u v), True
+-> MEAN
+Definition:
+  a simple graph G is preconnectedViaVertices if
+    for all vertices u and v of G:
+      there is a path in G from u to v.
+
+def zeroLengthLinked : {Vertex : Type u_1} → SimpleGraph Vertex → Prop :=
+  fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => ∀ (u v : G.V), ∃ (p : G.Path u v), (↑p : G.Walk u v).length = 0
+-> MEAN
+Definition:
+  a simple graph G is zeroLengthLinked if
+    for all vertices u and v of G:
+      there is a path p in G from u to v such that
+        ((↑p : G.Walk u v).length = 0).
+
+def edgeless : {V : Type u_1} → SimpleGraph V → Prop :=
+  fun {V : Type u_1} (G : SimpleGraph V) =>
+    have E := G.edgeSet;
+    E = ∅
+-> MEAN
+Definition:
+  a simple graph G is edgeless if
+    G.edgeSet = ∅.
+
+def zero : ℕ → Prop :=
+  fun (n : ℕ) => n = 0
+-> MEAN
+Definition:
+  a natural number n is zero if
+    (n = 0).
+
+def zeroViaType : ℕ → Prop :=
+  fun (n : ℕ) => n = 0
+-> MEAN
+Definition:
+  a natural number n is zeroViaType if
+    (n = 0).
+
+def boundsPairSums : ℕ → Prop :=
+  fun (n : ℕ) => ∀ (x y : ℕ), x + y ≤ n
+-> MEAN
+Definition:
+  a natural number n is boundsPairSums if
+    for all natural numbers x and y:
+      x + y ≤ n.
+
+def inhabitedVertices : {V : Type u_1} → SimpleGraph V → Prop :=
+  fun {V : Type u_1} (G : SimpleGraph V) => Nonempty V ∧ G = G
+-> MEAN
+Definition:
+  a simple graph G = (V, E) is inhabitedVertices if
+    Nonempty V and G = G.
+
+def smallGraph : {V : Type} → SimpleGraph V → Prop :=
+  fun {V : Type} (G : SimpleGraph V) => ∀ (u v : V), ∃ (_p : G.Path u v), True
+-> MEAN
+def smallGraph : {V : Type} → SimpleGraph V → Prop :=
+  fun {V : Type} (G : SimpleGraph V) => ∀ (u v : V), ∃ (_p : G.Path u v), True
+
+def compoundGraph : {V : Type (max u v)} → SimpleGraph V → Prop :=
+  fun {V : Type (max u v)} (G : SimpleGraph V) => ∀ (x y : V), ∃ (_p : G.Path x y), True
+-> MEAN
+def compoundGraph : {V : Type (max u v)} → SimpleGraph V → Prop :=
+  fun {V : Type (max u v)} (G : SimpleGraph V) => ∀ (x y : V), ∃ (_p : G.Path x y), True
+
+def truthy : Bool → Prop :=
+  fun (b : Bool) => b = true
+-> MEAN
+Definition:
+  a boolean b is truthy if
+    b = true.
+
+∃ (n : ℕ) (m : ℕ), m = n + 1
+-> MEAN
+there is a natural number n such that
+  there is a natural number m such that
+    m = n + 1
+
+∃ (_n : ℕ), True
+-> MEAN
+there is a natural number
+
+∃ (x : Bool), x = true
+-> MEAN
+there is a boolean x such that
+  x = true
+
+∃ (_x : Bool), True
+-> MEAN
+there is a boolean
+
+∃ (_n : ℕ), False
+-> MEAN
+there is a natural number such that
+  False
+
+∃ (p : G.Path u v), (↑p : G.Walk u v).length = 0
+-> MEAN
+there is a path p in G from u to v such that
+  (↑p : G.Walk u v).length = 0
+
+def withAssumption : (n : ℕ) → n > 0 → Prop :=
+  fun (n : ℕ) (h : n > 0) => n ≥ 1 ∧ h = h
+-> MEAN
+def withAssumption : (n : ℕ) → n > 0 → Prop :=
+  fun (n : ℕ) (h : n > 0) => n ≥ 1 ∧ h = h
+
+-- Universe parameters: u_1
+-- Statement of preconnected_iff_mathlib_preconnected
+∀ {V : Type u_1} (G : SimpleGraph V), preconnected G ↔ G.Preconnected
+-> MEAN
+∀ {V : Type u_1} (G : SimpleGraph V), preconnected G ↔ G.Preconnected
+
+∀ («a» «graph» : ℕ), ∃ («path» : ℕ), «path» = «a» + «graph»
+-> MEAN
+for all natural numbers «a» and «graph»:
+  there is a natural number «path» such that
+    «path» = «a» + «graph»
+
+∃ (_n : ℕ) (_n : ℕ), _n = 0
+-> MEAN
+there is a natural number such that
+  there is a natural number _n_1 such that
+    _n_1 = 0
+
+∀ (n : ℕ) (i : Fin n), (↑i : ℕ) < n
+-> MEAN
+for every natural number n:
+  ∀ (i : Fin n), (↑i : ℕ) < n
+
+∀ (n m : ℕ), n = m → m = n
+-> MEAN
+for all natural numbers n and m:
+  if n = m then
+    m = n
+
+∀ (n m : ℕ), n = m ∧ m = n ∨ n ≠ m
+-> MEAN
+for all natural numbers n and m:
+  n = m and m = n or n ≠ m
+
+(P ∨ Q) ∧ R
+-> MEAN
+(P or Q) and R
+
+P ∨ Q ∧ R
+-> MEAN
+P or Q and R
+
+(P ∧ Q) ∧ R
+-> MEAN
+(P and Q) and R
+
+(P ∨ Q) ∨ R
+-> MEAN
+(P or Q) or R
+
+(P → Q) → R
+-> MEAN
+if (if P then Q) then
+  R
+
+P → Q → R
+-> MEAN
+if P then
+  if Q then
+    R
+
+P ∧ (Q → R)
+-> MEAN
+P and (if Q then R)
+
+(∃ (n : ℕ), n = 0) ∧ P
+-> MEAN
+(there is a natural number n such that
+  n = 0) and P
+
+P → ∃ (n : ℕ), n = 0 ∧ Q
+-> MEAN
+if P then
+  there is a natural number n such that
+    n = 0 and Q
+
+def zeroOrPositive : ℕ → Prop :=
+  fun (n : ℕ) => n = 0 ∨ (n ≠ 0 → n > 0)
+-> MEAN
+Definition:
+  a natural number n is zeroOrPositive if
+    n = 0 or (if n ≠ 0 then (n > 0)).
+
+def intZero : ℤ → Prop :=
+  fun (x : ℤ) => x = 0
+-> MEAN
+Definition:
+  an integer x is intZero if
+    (x = 0).
+
+∃ (x : ℤ), x = 0
+-> MEAN
+there is an integer x such that
+  x = 0
+
+∃ (_x : ℤ), True
+-> MEAN
+there is an integer
+
+def ratZero : ℚ → Prop :=
+  fun (x : ℚ) => x = 0
+-> MEAN
+Definition:
+  a rational number x is ratZero if
+    (x = 0).
+
+∃ (x : ℚ), x = 0
+-> MEAN
+there is a rational number x such that
+  x = 0
+
+∃ (_x : ℚ), True
+-> MEAN
+there is a rational number
+
+def realZero : ℝ → Prop :=
+  fun (x : ℝ) => x = 0
+-> MEAN
+Definition:
+  a real number x is realZero if
+    (x = 0).
+
+∃ (x : ℝ), x = 0
+-> MEAN
+there is a real number x such that
+  x = 0
+
+∃ (_x : ℝ), True
+-> MEAN
+there is a real number
+
+def complexZero : ℂ → Prop :=
+  fun (x : ℂ) => x = 0
+-> MEAN
+Definition:
+  a complex number x is complexZero if
+    (x = 0).
+
+∃ (x : ℂ), x = 0
+-> MEAN
+there is a complex number x such that
+  x = 0
+
+∃ (_x : ℂ), True
+-> MEAN
+there is a complex number
+
+∀ (x : ℕ), x = x
+-> MEAN
+for every natural number x:
+  x = x
+
+∀ (x y : ℕ), x = y
+-> MEAN
+for all natural numbers x and y:
+  x = y
+
+∀ (x : ℤ), x = x
+-> MEAN
+for every integer x:
+  x = x
+
+∀ (x y : ℤ), x = y
+-> MEAN
+for all integers x and y:
+  x = y
+
+∀ (x : ℚ), x = x
+-> MEAN
+for every rational number x:
+  x = x
+
+∀ (x y : ℚ), x = y
+-> MEAN
+for all rational numbers x and y:
+  x = y
+
+∀ (x : ℝ), x = x
+-> MEAN
+for every real number x:
+  x = x
+
+∀ (x y : ℝ), x = y
+-> MEAN
+for all real numbers x and y:
+  x = y
+
+∀ (x : ℂ), x = x
+-> MEAN
+for every complex number x:
+  x = x
+
+∀ (x y : ℂ), x = y
+-> MEAN
+for all complex numbers x and y:
+  x = y
+
+∀ (x : Bool), x = x
+-> MEAN
+for every boolean x:
+  x = x
+
+∀ (x y : Bool), x = y
+-> MEAN
+for all booleans x and y:
+  x = y
+
+def hasNoSmallerSquare : ℝ → Prop :=
+  fun (x : ℝ) => ¬∃ (y : ℝ), y * y < x
+-> MEAN
+Definition:
+  a real number x is hasNoSmallerSquare if
+    there is no real number y such that
+      y * y < x.
+
+¬∃ (x : ℝ), x * x < 0
+-> MEAN
+there is no real number x such that
+  x * x < 0
+
+¬∃ (_x : ℤ), True
+-> MEAN
+there is no integer
+
+¬∃ (_x : Empty), True
+-> MEAN
+there is no element of Empty
+
+∃ (_x : Empty), False
+-> MEAN
+there is an element of Empty such that
+  False
+
+¬∃ (_x : ℤ), False
+-> MEAN
+there is no integer such that
+  False
+
+¬∃ (x : ℤ), ¬∃ (y : ℤ), x = y
+-> MEAN
+there is no integer x such that
+  there is no integer y such that
+    x = y
+
+(¬∃ (x : T), P x) ∧ Q
+-> MEAN
+(there is no element x of T such that
+  P x) and Q
+
+Q ∨ ¬∃ (x : T), P x
+-> MEAN
+Q or (there is no element x of T such that
+  P x)
+
+(¬∃ (x : T), P x) → Q
+-> MEAN
+if there is no element x of T such that
+  P x then
+  Q
+
+¬∃ (_p : G.Path u v), True
+-> MEAN
+there is no path in G from u to v
+
+¬∃ (p : G.Path u v), (↑p : G.Walk u v).length = 0
+-> MEAN
+there is no path p in G from u to v such that
+  (↑p : G.Walk u v).length = 0
