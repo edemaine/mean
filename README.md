@@ -164,14 +164,30 @@ The grammar separates logical structure from mathematical vocabulary:
 | Component | Examples |
 |---|---|
 | Definition clause | `Definition: <subject> is <name> if <proposition>.` |
-| Subject | `a simple graph G`, `a natural number n`, `an element x of T` |
+| Subject | `a simple graph G`, `a natural number n`, `a boolean x`, `an element x of T` |
 | Universal quantifier | `for all <bindings>: <proposition>`, `for every …` |
 | Quantified bindings | `u and v in V`, `vertices u and v of G` |
 | Existential quantifier | `there is <witness description> [such that <proposition>]` |
-| Witness description | `a path p in G from u to v`, `a natural number n`, `an element x of T` |
+| Witness description | `a path p in G from u to v`, `a natural number n`, `a boolean x`, `an element x of T` |
 | Logical connectives | `P and Q`, `P or Q`, `if P then Q` |
 
-Here `T` is any type in scope; the typed-element form is not specific to natural numbers.
+Here `T` is any type in scope. Standard scalar vocabulary works in subjects, universal quantifiers,
+and existential witnesses (where the name is optional):
+
+| Mean | Lean type | Mathematical notation |
+| --- | --- | --- |
+| `a natural number n` | `Nat` | `ℕ` |
+| `an integer n` | `Int` | `ℤ` |
+| `a rational number x` | `Rat` | `ℚ` |
+| `a real number x` | `Real` | `ℝ` |
+| `a complex number z` | `Complex` | `ℂ` |
+| `a boolean x` | `Bool` | — |
+
+`Real` and `Complex` are mathlib types, not floating-point approximations.
+Universal quantifiers accept one or two names, for example `for every real number x:`
+and `for all integers x and y:`. Both `for all` and `for every` accept these domains,
+including natural numbers and booleans. The renderer uses singular nouns for one
+name and plural nouns for two.
 
 `and` and `or` mean Lean's `∧` and `∨`, with the same precedence and right
 associativity: `P or Q and R` means `P ∨ (Q ∧ R)`. Parentheses change the grouping.
@@ -214,8 +230,8 @@ vocabulary can be extended independently.
 
 ## Current coverage and limitations
 
-The renderer recognizes the current graph, natural-number, and typed-element
-subjects; paired universal quantifiers; existential witnesses; optional
+The renderer recognizes the current graph, standard scalar, and typed-element
+subjects; paired universal quantifiers and single scalar quantifiers; existential witnesses; optional
 conditions; conjunctions, disjunctions, and nondependent propositional implications.
 It canonically omits unused witness names and graph component names.
 It substitutes local `let` aliases, so `E` may render as `G.edgeSet`.
@@ -224,8 +240,8 @@ Unsupported forms remain ordinary Lean, provided that text passes the same
 round-trip check. **Identical before/after examples show gaps in rendering
 coverage, not failed verification.** Current gaps include:
 
-- Single-variable and dependent quantifiers; Mean's universal syntax currently
-  binds two names with a shared domain.
+- Single-variable quantifiers outside the standard scalar domains, and general
+  dependent domains; their unsupported portions remain ordinary Lean.
 - Definition subjects with additional parameters or hypotheses.
 - Fixed or compound universe signatures, which cannot safely use the current
   universe-polymorphic graph subject.

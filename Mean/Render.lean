@@ -57,14 +57,28 @@ private def graphFor? (ty : Expr) : MetaM (Option Expr) := do
         if ← withReducible (isDefEq args[0]! ty) then return some decl.toExpr
   return none
 
+/-- Singular/plural scalar vocabulary shared by all binding forms. -/
+private def scalarNouns? (ty : Expr) : Option (String × String) :=
+  if ty.isConstOf ``Nat then some ("natural number", "natural numbers") else
+  if ty.isConstOf ``Int then some ("integer", "integers") else
+  if ty.isConstOf ``Rat then some ("rational number", "rational numbers") else
+  if ty.isConstOf ``Real then some ("real number", "real numbers") else
+  if ty.isConstOf ``Complex then some ("complex number", "complex numbers") else
+  if ty.isConstOf ``Bool then some ("boolean", "booleans") else
+  none
+
+private def scalarDescription? (ty : Expr) : Option String := do
+  let (singular, _) ← scalarNouns? ty
+  return (if ty.isConstOf ``Int then "an " else "a ") ++ singular
+
 /-- Domain vocabulary is independent of existential quantification. -/
 private def witnessText (ty : Expr) (name : Option String) : MetaM String := do
   let suffix := name.map (" " ++ ·) |>.getD ""
   if ty.isAppOfArity ``SimpleGraph.Path 4 then
     let args := ty.getAppArgs
     return s!"a path{suffix} in {← atomText args[1]!} from {← atomText args[2]!} to {← atomText args[3]!}"
-  if ty.isConstOf ``Nat then
-    return s!"a natural number{suffix}"
+  if let some description := scalarDescription? ty then
+    return description ++ suffix
   return s!"an element{suffix} of {← atomText ty}"
 
 /-- Parentheses preserve binder scope and the right associativity of connectives. -/
@@ -93,10 +107,15 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
       else
         s!"if {premise} then\n{indented conclusion}"
       return ← sentenceTail text sentenceEnd
-    -- The current Mean surface binds pairs. Other binder shapes stay ordinary Lean.
+    -- Scalar domains also support single binders; other domains currently bind pairs.
     if bi == .default && !(← isProp ty) then
       let n ← freshName n
       withLocalDecl n bi ty fun x => do
+        let renderSingle : MetaM String := do
+          if let some (singular, _) := scalarNouns? ty then
+            let rest ← renderExpr (body.instantiate1 x) sentenceEnd
+            return s!"for every {singular} {← nameText n}:\n{indented rest}"
+          leafText e sentenceEnd
         match body.instantiate1 x with
         | .forallE m ty₂ body₂ bi₂ =>
           if bi₂ == .default && ty == ty₂ then
@@ -104,10 +123,12 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
             withLocalDecl m bi₂ ty₂ fun y => do
               let binding ← match ← graphFor? ty with
                 | some g => pure s!"vertices {← nameText n} and {← nameText m} of {← atomText g}"
-                | none => pure s!"{← nameText n} and {← nameText m} in {← atomText ty}"
+                | none => match scalarNouns? ty with
+                  | some (_, plural) => pure s!"{plural} {← nameText n} and {← nameText m}"
+                  | none => pure s!"{← nameText n} and {← nameText m} in {← atomText ty}"
               return s!"for all {binding}:\n{indented (← renderExpr (body₂.instantiate1 y) sentenceEnd)}"
-          else leafText e sentenceEnd
-        | _ => leafText e sentenceEnd
+          else renderSingle
+        | _ => renderSingle
     else leafText e sentenceEnd
   | _ =>
     if e.isAppOfArity ``And 2 || e.isAppOfArity ``Or 2 then
@@ -172,8 +193,9 @@ def renderDefinition (name : Name) (value : Expr) : MetaM String := do
     let result ← withLocalDeclD n ty fun x => do
       let body := body.instantiate1 x
       if !(← isProp body) then return none
-      let subject ← if ty.isConstOf ``Nat then pure s!"a natural number {← nameText n}"
-        else pure s!"an element {← nameText n} of {← atomText ty}"
+      let subject ← match scalarDescription? ty with
+        | some description => pure s!"{description} {← nameText n}"
+        | none => pure s!"an element {← nameText n} of {← atomText ty}"
       return some s!"Definition:\n  {subject} is {nameStr} if\n{indented (indented ((← renderExpr body true) ++ "."))}"
     if let some text := result then return text
   | _ => pure ()

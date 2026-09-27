@@ -1,4 +1,5 @@
 import Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected
+import Mathlib.Data.Complex.Basic
 import Lean
 
 /-! # Mean: compositional controlled mathematical syntax inside Lean.
@@ -36,6 +37,11 @@ syntax "a" "simple" "graph" ident : meanSubject
 syntax "a" "simple" "graph" ident "=" "(" ident "," ident ")" : meanSubject
 syntax "an" "element" ident "of" term : meanSubject
 syntax "a" "natural" "number" ident : meanSubject
+syntax "an" "integer" ident : meanSubject
+syntax "a" "rational" "number" ident : meanSubject
+syntax "a" "real" "number" ident : meanSubject
+syntax "a" "complex" "number" ident : meanSubject
+syntax "a" "boolean" ident : meanSubject
 
 -- Internal composition point: subject bindings scoped over a proposition.
 syntax "predicateOn%" meanSubject "=>" term : term
@@ -55,6 +61,16 @@ macro_rules
       `(fun ($x : $ty) => ($body : Prop))
   | `(predicateOn% a natural number $n:ident => $body:term) =>
       `(predicateOn% an element $n of Nat => $body)
+  | `(predicateOn% an integer $x:ident => $body:term) =>
+      `(predicateOn% an element $x of Int => $body)
+  | `(predicateOn% a rational number $x:ident => $body:term) =>
+      `(predicateOn% an element $x of Rat => $body)
+  | `(predicateOn% a real number $x:ident => $body:term) =>
+      `(predicateOn% an element $x of Real => $body)
+  | `(predicateOn% a complex number $x:ident => $body:term) =>
+      `(predicateOn% an element $x of Complex => $body)
+  | `(predicateOn% a boolean $x:ident => $body:term) =>
+      `(predicateOn% an element $x of Bool => $body)
 
 /-! The definition clause knows nothing about graphs or other subject types. -/
 syntax "Definition" ":" meanSubject
@@ -65,9 +81,41 @@ macro_rules
         is $name:ident if $body:term .) =>
       `(command| def $name:ident := predicateOn% $subject => $body)
 
+/-! Scalar domains used by universal quantifiers. `scalarType%` translates a noun
+phrase to its Lean type; binding and quantifier wording are independent. -/
+declare_syntax_cat meanScalarDomain
+syntax "natural" "number" : meanScalarDomain
+syntax "natural" "numbers" : meanScalarDomain
+syntax "integer" : meanScalarDomain
+syntax "integers" : meanScalarDomain
+syntax "rational" "number" : meanScalarDomain
+syntax "rational" "numbers" : meanScalarDomain
+syntax "real" "number" : meanScalarDomain
+syntax "real" "numbers" : meanScalarDomain
+syntax "complex" "number" : meanScalarDomain
+syntax "complex" "numbers" : meanScalarDomain
+syntax "boolean" : meanScalarDomain
+syntax "booleans" : meanScalarDomain
+syntax "scalarType%" meanScalarDomain : term
+
+macro_rules
+  | `(scalarType% natural number) => `(Nat)
+  | `(scalarType% natural numbers) => `(Nat)
+  | `(scalarType% integer) => `(Int)
+  | `(scalarType% integers) => `(Int)
+  | `(scalarType% rational number) => `(Rat)
+  | `(scalarType% rational numbers) => `(Rat)
+  | `(scalarType% real number) => `(Real)
+  | `(scalarType% real numbers) => `(Real)
+  | `(scalarType% complex number) => `(Complex)
+  | `(scalarType% complex numbers) => `(Complex)
+  | `(scalarType% boolean) => `(Bool)
+  | `(scalarType% booleans) => `(Bool)
+
 /-! Quantified bindings are independent of both the definition and its subject.
 New domains implement `forallOver%`, shared by `for all` and `for every`. -/
 declare_syntax_cat meanQuantified
+syntax meanScalarDomain ident ("and" ident)? : meanQuantified
 syntax ident "and" ident "in" term : meanQuantified
 syntax "vertices" ident "and" ident "of" term : meanQuantified
 syntax "forallOver%" meanQuantified "=>" term : term
@@ -79,6 +127,10 @@ macro_rules
       `(forallOver% $binding => $body)
   | `(for all $binding:meanQuantified : $body:term) =>
       `(forallOver% $binding => $body)
+  | `(forallOver% $domain:meanScalarDomain $x:ident $[and $y:ident]? => $body:term) => do
+      match y with
+      | some y => `(∀ ($x : scalarType% $domain) ($y : scalarType% $domain), $body)
+      | none => `(∀ ($x : scalarType% $domain), $body)
   | `(forallOver% $u:ident and $v:ident in $ty:term => $body:term) =>
       `(∀ ($u : $ty) ($v : $ty), $body)
   | `(forallOver% vertices $u:ident and $v:ident of $g:term => $body:term) =>
@@ -89,6 +141,11 @@ New noun phrases implement `existsOver%`, without changing `there is`. -/
 declare_syntax_cat meanWitness
 syntax "an" "element" (ppSpace ident)? "of" term : meanWitness
 syntax "a" "natural" "number" (ppSpace ident)? : meanWitness
+syntax "an" "integer" (ppSpace ident)? : meanWitness
+syntax "a" "rational" "number" (ppSpace ident)? : meanWitness
+syntax "a" "real" "number" (ppSpace ident)? : meanWitness
+syntax "a" "complex" "number" (ppSpace ident)? : meanWitness
+syntax "a" "boolean" (ppSpace ident)? : meanWitness
 syntax "a" "path" (ppSpace ident)? "in" term "from" term "to" term : meanWitness
 
 syntax "existsOver%" meanWitness "=>" term : term
@@ -108,6 +165,16 @@ macro_rules
       `(∃ ($witness:ident : $ty), $body)
   | `(existsOver% a natural number $[$n:ident]? => $body:term) =>
       `(existsOver% an element $[$n:ident]? of Nat => $body)
+  | `(existsOver% an integer $[$x:ident]? => $body:term) =>
+      `(existsOver% an element $[$x:ident]? of Int => $body)
+  | `(existsOver% a rational number $[$x:ident]? => $body:term) =>
+      `(existsOver% an element $[$x:ident]? of Rat => $body)
+  | `(existsOver% a real number $[$x:ident]? => $body:term) =>
+      `(existsOver% an element $[$x:ident]? of Real => $body)
+  | `(existsOver% a complex number $[$x:ident]? => $body:term) =>
+      `(existsOver% an element $[$x:ident]? of Complex => $body)
+  | `(existsOver% a boolean $[$x:ident]? => $body:term) =>
+      `(existsOver% an element $[$x:ident]? of Bool => $body)
   | `(existsOver% a path $[$p:ident]? in $g:term from $u:term to $v:term
         => $body:term) =>
       `(existsOver% an element $[$p:ident]? of SimpleGraph.Path $g $u $v => $body)

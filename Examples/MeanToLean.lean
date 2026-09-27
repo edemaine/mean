@@ -69,6 +69,16 @@ example {V : Type*} (G : SimpleGraph V) (u v : V) (existentialWitness : Nat) :
     (there is a path in G from u to v such that existentialWitness = 0) =
     (∃ _p : G.Path u v, existentialWitness = 0) := rfl
 
+Definition:
+  a boolean x is trueBoolean if x = true.
+
+example (x : Bool) : trueBoolean x = (x = true) := rfl
+
+example : (there is a boolean x such that x = true) =
+    (∃ x : Bool, x = true) := rfl
+
+example : (there is a boolean) = (∃ _x : Bool, True) := rfl
+
 -- The same existential grammar works with unrelated witness descriptions.
 example : (there is a natural number n such that n = 0) =
     (∃ n : Nat, n = 0) := rfl
@@ -190,3 +200,53 @@ example : ¬ preconnected (⊥ : SimpleGraph Bool) := by
 #guard_msgs in
 Definition:
   a simple graph G = (V, G) is ambiguous if True.
+
+Definition:
+  an integer x is intZeroFromMean if (x = 0).
+
+example (x : Int) : intZeroFromMean x = (x = 0) := rfl
+example : (there is an integer x such that x = 0) =
+    (∃ x : Int, x = 0) := rfl
+example : (there is an integer) = (∃ _x : Int, True) := rfl
+
+Definition:
+  a rational number x is ratZeroFromMean if (x = 0).
+
+example (x : Rat) : ratZeroFromMean x = (x = 0) := rfl
+example : (there is a rational number x such that x = 0) =
+    (∃ x : Rat, x = 0) := rfl
+example : (there is a rational number) = (∃ _x : Rat, True) := rfl
+
+Definition:
+  a real number x is realZeroFromMean if (x = 0).
+
+example (x : Real) : realZeroFromMean x = (x = 0) := rfl
+example : (there is a real number x such that x = 0) =
+    (∃ x : Real, x = 0) := rfl
+example : (there is a real number) = (∃ _x : Real, True) := rfl
+
+Definition:
+  a complex number x is complexZeroFromMean if (x = 0).
+
+example (x : Complex) : complexZeroFromMean x = (x = 0) := rfl
+example : (there is a complex number x such that x = 0) =
+    (∃ x : Complex, x = 0) := rfl
+example : (there is a complex number) = (∃ _x : Complex, True) := rfl
+
+example : (for every natural number x: x = x) = (∀ x : Nat, x = x) := rfl
+example : (for all natural numbers x and y: x = y) = (∀ x y : Nat, x = y) := rfl
+
+example : (for every integer x: x = x) = (∀ x : Int, x = x) := rfl
+example : (for all integers x and y: x = y) = (∀ x y : Int, x = y) := rfl
+
+example : (for every rational number x: x = x) = (∀ x : Rat, x = x) := rfl
+example : (for all rational numbers x and y: x = y) = (∀ x y : Rat, x = y) := rfl
+
+example : (for every real number x: x = x) = (∀ x : Real, x = x) := rfl
+example : (for all real numbers x and y: x = y) = (∀ x y : Real, x = y) := rfl
+
+example : (for every complex number x: x = x) = (∀ x : Complex, x = x) := rfl
+example : (for all complex numbers x and y: x = y) = (∀ x y : Complex, x = y) := rfl
+
+example : (for every boolean x: x = x) = (∀ x : Bool, x = x) := rfl
+example : (for all booleans x and y: x = y) = (∀ x y : Bool, x = y) := rfl

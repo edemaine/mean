@@ -35,12 +35,13 @@ def compoundGraph.{u, v} {V : Type (max u v)} (G : SimpleGraph V) : Prop :=
   ∀ x y : V, ∃ _p : G.Path x y, True
 #mean_compare compoundGraph
 
-def boolPredicate (b : Bool) : Prop := b = true
-#mean_compare boolPredicate
+def truthy (b : Bool) : Prop := b = true
+#mean_compare truthy
 
 #mean_term_compare ∃ n : Nat, ∃ m : Nat, m = n + 1
 #mean_term_compare ∃ _n : Nat, True
 #mean_term_compare ∃ x : Bool, x = true
+#mean_term_compare ∃ _x : Bool, True
 #mean_term_compare ∃ _n : Nat, False
 
 section
@@ -100,3 +101,45 @@ run_elab do
     pure false
   catch _ => pure true
   unless rejected do throwError "round-trip checker accepted a changed universe signature"
+
+-- Standard Int vocabulary, including unnamed witnesses.
+def intZero (x : Int) : Prop := x = 0
+#mean_compare intZero
+#mean_term_compare ∃ x : Int, x = 0
+#mean_term_compare ∃ _x : Int, True
+
+-- Standard Rat vocabulary, including unnamed witnesses.
+def ratZero (x : Rat) : Prop := x = 0
+#mean_compare ratZero
+#mean_term_compare ∃ x : Rat, x = 0
+#mean_term_compare ∃ _x : Rat, True
+
+-- Standard Real vocabulary, including unnamed witnesses.
+def realZero (x : Real) : Prop := x = 0
+#mean_compare realZero
+#mean_term_compare ∃ x : Real, x = 0
+#mean_term_compare ∃ _x : Real, True
+
+-- Standard Complex vocabulary, including unnamed witnesses.
+def complexZero (x : Complex) : Prop := x = 0
+#mean_compare complexZero
+#mean_term_compare ∃ x : Complex, x = 0
+#mean_term_compare ∃ _x : Complex, True
+
+#mean_term_compare ∀ x : Nat, x = x
+#mean_term_compare ∀ x y : Nat, x = y
+
+#mean_term_compare ∀ x : Int, x = x
+#mean_term_compare ∀ x y : Int, x = y
+
+#mean_term_compare ∀ x : Rat, x = x
+#mean_term_compare ∀ x y : Rat, x = y
+
+#mean_term_compare ∀ x : Real, x = x
+#mean_term_compare ∀ x y : Real, x = y
+
+#mean_term_compare ∀ x : Complex, x = x
+#mean_term_compare ∀ x y : Complex, x = y
+
+#mean_term_compare ∀ x : Bool, x = x
+#mean_term_compare ∀ x y : Bool, x = y
