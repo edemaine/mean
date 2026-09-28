@@ -100,6 +100,23 @@ private def groupOperand (e : Expr) (parent : Name) (left : Bool) (text : String
     (left && e.isAppOfArity parent 2)
   if grouped then "(" ++ text ++ ")" else text
 
+/-- Independent inverse vocabulary: predicate, full application arity, adjective.
+The subject is the final argument; earlier arguments are implicit type parameters. -/
+private def adjectiveView? (e : Expr) : Option (Expr × String) := do
+  let vocabulary : List (Name × Nat × String) := [
+    (``Nonempty, 1, "nonempty"),
+    (``IsEmpty, 1, "empty"),
+    (``Finite, 1, "finite"),
+    (``Infinite, 1, "infinite"),
+    (``Countable, 1, "countable"),
+    (``Function.Injective, 3, "injective"),
+    (``Function.Surjective, 3, "surjective"),
+    (``Function.Bijective, 3, "bijective")]
+  for (predicate, arity, word) in vocabulary do
+    if e.isAppOfArity predicate arity then
+      return (e.getAppArgs[arity - 1]!, word)
+  none
+
 /-- Recognize supported logical structure without unfolding mathematical constants.
 Embedded implications stay inline; standalone implications introduce a block.
 Quantifiers retain their block layout in either context. -/
@@ -142,6 +159,8 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
         | _ => renderSingle
     else leafText e sentenceEnd
   | _ =>
+    if let some (subject, adjective) := adjectiveView? e then
+      return ← sentenceTail s!"{← atomText subject} is {adjective}" sentenceEnd
     if e.isAppOfArity ``And 2 || e.isAppOfArity ``Or 2 then
       let op := e.getAppFn.constName!
       let args := e.getAppArgs

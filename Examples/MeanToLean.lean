@@ -283,3 +283,34 @@ example : (there is no real number) = (¬ ∃ _x : Real, True) := rfl
 example : (there is no complex number) = (¬ ∃ _x : Complex, True) := rfl
 
 example : (there is no boolean) = (¬ ∃ _x : Bool, True) := rfl
+
+-- Type inhabitation is preserved directly, including universes and precedence.
+example {T : Sort u} : (T is nonempty) = Nonempty T := rfl
+example {T : Sort u} : (T is empty) = IsEmpty T := rfl
+example {T : Sort u} (P : Prop) : (T is nonempty and P) = (Nonempty T ∧ P) := rfl
+example {T : Sort u} (P : Prop) : (if T is empty then P) = (IsEmpty T → P) := rfl
+example (n : Nat) : ((Fin n) is nonempty) = Nonempty (Fin n) := rfl
+example (n : Nat) : ((Fin n) is empty) = IsEmpty (Fin n) := rfl
+
+Definition:
+  a simple graph G is hasVertices if G.V is nonempty.
+Definition:
+  a simple graph G is hasNoVertices if G.V is empty.
+example {V : Type*} (G : SimpleGraph V) : hasVertices G = Nonempty V := rfl
+example {V : Type*} (G : SimpleGraph V) : hasNoVertices G = IsEmpty V := rfl
+
+-- Adjectives share application syntax while retaining distinct Lean predicates.
+example {T : Sort u} : (T is finite) = Finite T := rfl
+example {T : Sort u} : (T is infinite) = Infinite T := rfl
+example {T : Sort u} : (T is countable) = Countable T := rfl
+example {A : Sort u} {B : Sort v} (f : A → B) :
+    (f is injective) = Function.Injective f := rfl
+example {A : Sort u} {B : Sort v} (f : A → B) :
+    (f is surjective) = Function.Surjective f := rfl
+example {A : Sort u} {B : Sort v} (f : A → B) :
+    (f is bijective) = Function.Bijective f := rfl
+example {A B : Type*} (f : A → B) :
+    (f is injective and f is surjective) = (Function.Injective f ∧ Function.Surjective f) := rfl
+Definition:
+  an element f of (Nat → Nat) is oneToOne if f is injective.
+example (f : Nat → Nat) : oneToOne f = Function.Injective f := rfl

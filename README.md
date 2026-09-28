@@ -101,8 +101,9 @@ accept alternatives while the renderer chooses a consistent style—for example,
 `for all` rather than `for every`. Different *mathematical formulations* may require
 more than definitional equality: `Nonempty (G.Path u v)` and
 `∃ p : G.Path u v, True` are logically equivalent but not definitionally equal.
-Checked equivalence rules are a future extension; the renderer currently leaves
-`Nonempty` as ordinary Lean.
+Checked equivalence rules are a future extension. The renderer preserves
+`Nonempty T` as `T is nonempty`, rather than rewriting it to an existential.
+Similarly, `IsEmpty T` renders as `T is empty`. These phrases describe types.
 
 ## Try it
 
@@ -188,6 +189,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Existential quantifier | `there is <witness description> [such that <proposition>]` |
 | Negated existential | `there is no <witness noun> [such that <proposition>]` |
 | Witness description | `a path p in G from u to v`, `a natural number n`, `a boolean x`, `an element x of T` |
+| Adjectives | `<term> is <adjective>` |
 | Logical connectives | `P and Q`, `P or Q`, `if P then Q` |
 
 Here `T` is any type in scope. Standard scalar vocabulary works in subjects, universal quantifiers,
@@ -252,6 +254,27 @@ To extend the forward language, add a subject, domain, or witness description an
 its interpretation. A new witness noun implements `existsWitness%`; it does
 not require another rule for `there is … such that …`. The corresponding renderer
 vocabulary can be extended independently.
+
+## Adjectives
+
+`<term> is <adjective>` uses one grammar rule. Each adjective supplies a Lean
+predicate through `adjectivePredicate%`; Lean checks the subject's type.
+The renderer maintains an independent inverse mapping and checks each round trip.
+
+| Adjective | Lean predicate | Subject |
+| --- | --- | --- |
+| `nonempty` | `Nonempty` | Type |
+| `empty` | `IsEmpty` | Type |
+| `finite` | `Finite` | Type |
+| `infinite` | `Infinite` | Type |
+| `countable` | `Countable` | Type |
+| `injective` | `Function.Injective` | Function |
+| `surjective` | `Function.Surjective` | Function |
+| `bijective` | `Function.Bijective` | Function |
+
+For example, `f is injective and f is surjective` preserves both predicates.
+`finite` asserts finiteness without supplying a `Fintype` enumeration. Set predicates
+such as `Set.Finite` are not yet overloaded onto this vocabulary.
 
 ## Current coverage and limitations
 

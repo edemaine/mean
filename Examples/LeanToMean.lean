@@ -21,8 +21,21 @@ info: Definition:
 #mean_compare boundsPairSums
 
 -- The explicit subject is retained when the body names the vertex type.
-def inhabitedVertices {V : Type*} (G : SimpleGraph V) : Prop := Nonempty V ∧ G = G
+def inhabitedVertices {V : Type*} (_G : SimpleGraph V) : Prop := Nonempty V
 #mean_compare inhabitedVertices
+
+def emptyVertices {V : Type*} (_G : SimpleGraph V) : Prop := IsEmpty V
+#mean_compare emptyVertices
+
+section
+variable {T : Sort u} (P : Prop) (n : Nat)
+#mean_term_compare Nonempty T
+#mean_term_compare IsEmpty T
+#mean_term_compare Nonempty T ∧ P
+#mean_term_compare IsEmpty T → P
+#mean_term_compare Nonempty (Fin n)
+#mean_term_compare IsEmpty (Fin n)
+end
 
 -- Fixed and compound universes cannot be generalized to a Mean graph subject.
 def smallGraph {V : Type} (G : SimpleGraph V) : Prop :=
@@ -162,3 +175,18 @@ variable {V : Type*} (G : SimpleGraph V) (u v : V)
 #mean_term_compare ¬ ∃ _p : G.Path u v, True
 #mean_term_compare ¬ ∃ p : G.Path u v, p.val.length = 0
 end
+
+-- Type and function adjectives use the same rendering rule.
+section
+variable {T : Sort u} {A : Sort v} {B : Sort w} (f : A → B)
+#mean_term_compare Finite T
+#mean_term_compare Infinite T
+#mean_term_compare Countable T
+#mean_term_compare Function.Injective f
+#mean_term_compare Function.Surjective f
+#mean_term_compare Function.Bijective f
+#mean_term_compare Function.Injective f ∧ Function.Surjective f
+#mean_term_compare Finite T → Countable T
+#mean_term_compare Function.Injective (fun x : Nat => x + 1)
+end
+#mean_compare oneToOne

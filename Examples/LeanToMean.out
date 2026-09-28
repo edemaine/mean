@@ -41,11 +41,43 @@ Definition:
       x + y ≤ n.
 
 def inhabitedVertices : {V : Type u_1} → SimpleGraph V → Prop :=
-  fun {V : Type u_1} (G : SimpleGraph V) => Nonempty V ∧ G = G
+  fun {V : Type u_1} (_G : SimpleGraph V) => Nonempty V
 -> MEAN
 Definition:
-  a simple graph G = (V, E) is inhabitedVertices if
-    Nonempty V and G = G.
+  a simple graph _G = (V, E) is inhabitedVertices if
+    V is nonempty.
+
+def emptyVertices : {V : Type u_1} → SimpleGraph V → Prop :=
+  fun {V : Type u_1} (_G : SimpleGraph V) => IsEmpty V
+-> MEAN
+Definition:
+  a simple graph _G = (V, E) is emptyVertices if
+    V is empty.
+
+Nonempty T
+-> MEAN
+T is nonempty
+
+IsEmpty T
+-> MEAN
+T is empty
+
+Nonempty T ∧ P
+-> MEAN
+T is nonempty and P
+
+IsEmpty T → P
+-> MEAN
+if T is empty then
+  P
+
+Nonempty (Fin n)
+-> MEAN
+(Fin n) is nonempty
+
+IsEmpty (Fin n)
+-> MEAN
+(Fin n) is empty
 
 def smallGraph : {V : Type} → SimpleGraph V → Prop :=
   fun {V : Type} (G : SimpleGraph V) => ∀ (u v : V), ∃ (_p : G.Path u v), True
@@ -369,3 +401,47 @@ there is no path in G from u to v
 -> MEAN
 there is no path p in G from u to v such that
   (↑p : G.Walk u v).length = 0
+
+Finite T
+-> MEAN
+T is finite
+
+Infinite T
+-> MEAN
+T is infinite
+
+Countable T
+-> MEAN
+T is countable
+
+Function.Injective f
+-> MEAN
+f is injective
+
+Function.Surjective f
+-> MEAN
+f is surjective
+
+Function.Bijective f
+-> MEAN
+f is bijective
+
+Function.Injective f ∧ Function.Surjective f
+-> MEAN
+f is injective and f is surjective
+
+Finite T → Countable T
+-> MEAN
+if T is finite then
+  T is countable
+
+Function.Injective fun (x : ℕ) => x + 1
+-> MEAN
+(fun (x : ℕ) => x + 1) is injective
+
+def oneToOne : (ℕ → ℕ) → Prop :=
+  fun (f : ℕ → ℕ) => Function.Injective f
+-> MEAN
+Definition:
+  an element f of (ℕ → ℕ) is oneToOne if
+    f is injective.

@@ -1,5 +1,6 @@
 import Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected
 import Mathlib.Data.Complex.Basic
+import Mathlib.Data.Countable.Defs
 import Lean
 
 /-! # Mean: compositional controlled mathematical syntax inside Lean.
@@ -26,16 +27,45 @@ macro_rules
   | `(if $premise:term then $conclusion:term) =>
       `(∀ (_ : ($premise : Prop)), ($conclusion : Prop))
 
+/-! Adjectives share one application rule. New adjectives implement
+`adjectivePredicate%` with their Lean predicate; Lean checks the subject's type. -/
+declare_syntax_cat meanAdjective
+syntax "nonempty" : meanAdjective
+syntax "empty" : meanAdjective
+syntax "finite" : meanAdjective
+syntax "infinite" : meanAdjective
+syntax "countable" : meanAdjective
+syntax "injective" : meanAdjective
+syntax "surjective" : meanAdjective
+syntax "bijective" : meanAdjective
+syntax "adjectivePredicate%" meanAdjective : term
+syntax:50 term:51 " is " meanAdjective : term
+macro_rules
+  | `($subject:term is $adjective:meanAdjective) =>
+      `((adjectivePredicate% $adjective) $subject)
+  | `(adjectivePredicate% nonempty) => `(Nonempty)
+  | `(adjectivePredicate% empty) => `(IsEmpty)
+  | `(adjectivePredicate% finite) => `(Finite)
+  | `(adjectivePredicate% infinite) => `(Infinite)
+  | `(adjectivePredicate% countable) => `(Countable)
+  | `(adjectivePredicate% injective) => `(Function.Injective)
+  | `(adjectivePredicate% surjective) => `(Function.Surjective)
+  | `(adjectivePredicate% bijective) => `(Function.Bijective)
+
 /-- Keep the sentence's period out of Lean's field-completion parser. -/
 def sentenceBody : Lean.Parser.Parser :=
   Lean.Parser.withForbidden "." Lean.Parser.termParser
+
+/-- The definition's `is` ends an unparenthesized subject type. -/
+def subjectType : Lean.Parser.Parser :=
+  Lean.Parser.withForbidden "is" Lean.Parser.termParser
 
 /-! Subjects specify bindings, independently of the definition clause.
 New subject forms implement `predicateOn%`; the definition command is unchanged. -/
 declare_syntax_cat meanSubject
 syntax "a" "simple" "graph" ident : meanSubject
 syntax "a" "simple" "graph" ident "=" "(" ident "," ident ")" : meanSubject
-syntax "an" "element" ident "of" term : meanSubject
+syntax "an" "element" ident "of" subjectType : meanSubject
 syntax "a" "natural" "number" ident : meanSubject
 syntax "an" "integer" ident : meanSubject
 syntax "a" "rational" "number" ident : meanSubject
