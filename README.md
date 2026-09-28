@@ -324,6 +324,71 @@ statement being written or reviewed. Canonical wording, inspectable mappings, an
 checked round trips are the tools for doing that; the human still decides whether
 the statement expresses the intended mathematics.
 
+## Related projects
+
+- **[Verbose Lean 4](https://github.com/PatrickMassot/verbose-lean4)** provides
+  controlled-language tactics and commands inside Lean 4, with teaching examples
+  and exercise libraries. This is an implemented Lean library, aimed primarily at
+  teaching students to write proofs that transfer to paper. Its
+  [configuration guide](https://github.com/PatrickMassot/verbose-lean4/blob/master/basic-configuration.md)
+  describes how to customize its behavior; adapting teaching support to a new
+  subject can require configuring automation or extending the library. Verbose Lean
+  served as the model for Mean's approach to controlled mathematical language
+  implemented directly inside Lean. Mean extends this direction toward rendering
+  existing definitions and statements with checked round trips.
+
+- **[ForTheL / Naproche](https://github.com/naproche/naproche)** is an implemented
+  system for checking mathematical texts in controlled language, including LaTeX.
+  ForTheL is the language; Naproche is a checker using automated theorem provers,
+  with a distributed Isabelle/jEdit integration. Its documented end-user workflow
+  does not use Lean. There have been real Lean translation experiments:
+  [Koepke's 2020 talk](https://www.andrew.cmu.edu/user/avigad/meetings/fomm2020/slides/fomm_koepke.pdf)
+  shows generated Lean declarations, with a theorem proof omitted, and discusses
+  the remaining translation work. As of September 2026, we did not find a
+  documented, maintained, general ForTheL-to-Lean-4 bridge in these project
+  materials. Its language design is relevant to Mean, but its checking
+  infrastructure is separate from Lean.
+
+- **[GFLean](https://github.com/pkshashank/GFLeanTransfer)** translates a simplified
+  ForTheL into Lean expressions using Grammatical Framework and Haskell. The
+  [2024 paper](https://arxiv.org/html/2404.01234v1) reports translating 42 of 62
+  statements from a textbook chapter after minor rephrasing. It also documents a
+  small fixed vocabulary, no runtime extension through new definitions, and no
+  communication with Lean's environment; examples contain `sorry` proofs. This is
+  a concrete controlled-language-to-Lean prototype, not a general mathlib frontend
+  or a checked Lean-to-English renderer.
+
+- **[Informath](https://github.com/GrammaticalFramework/informath)** is especially
+  close to Mean's readability goal: symbolic translation between formal statements
+  and several natural languages, using Dedukti as an intermediate language and
+  Grammatical Framework for linguistic structure. Its README gives a working
+  recipe for generating Lean text and checking examples after adding
+  `BaseConstants.lean`. However, its
+  [implementation notes](https://github.com/GrammaticalFramework/informath/blob/main/doc/informath-under-the-hood.md)
+  explicitly describe partial conversions: valid Dedukti input can produce code
+  that fails Lean type checking. Import from Lean relies on external translators,
+  and readable domain vocabulary needs symbol mappings. It should not be treated
+  as an established arbitrary-mathlib round-trip pipeline. Its grammar and
+  separation of meaning from wording are valuable references for Mean.
+
+- **[Lean2dk](https://github.com/Deducteam/lean2dk)** is relevant to that external
+  translation step: it exports Lean to Dedukti, rather than to English. Its README
+  labels it work in progress and documents a branch that checks a Lean natural-number
+  module using a patched Dedukti kernel and some stubbed constants. This is useful
+  interoperability research, but does not by itself establish a complete,
+  meaning-preserving Lean–Informath pipeline.
+
+- **[Informalean](https://github.com/sglasman/informalean)** trains a language model
+  to turn Lean theorem statements into English and provides generated examples.
+  It directly addresses informalization of Lean, but uses learned paraphrasing;
+  the project does not document a deterministic inverse or a Lean-checked
+  meaning-preservation guarantee for those outputs. It is a useful comparison for
+  fluent output whose fidelity still requires human review.
+
+Mean's particular experiment is to keep both directions inside Lean and check the
+actual rendered text against the elaborated original, while accepting a much
+smaller vocabulary and falling back to Lean for unsupported expressions.
+
 ## Files
 
 | File | Purpose |
