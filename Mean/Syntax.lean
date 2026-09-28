@@ -60,18 +60,52 @@ def sentenceBody : Lean.Parser.Parser :=
 def subjectType : Lean.Parser.Parser :=
   Lean.Parser.withForbidden "is" Lean.Parser.termParser
 
+/-! One scalar noun-to-type mapping serves subjects and all quantifiers.
+Plural domains delegate to their singular noun through `scalarDomainType%`. -/
+declare_syntax_cat meanScalar
+syntax "natural" "number" : meanScalar
+syntax "integer" : meanScalar
+syntax "rational" "number" : meanScalar
+syntax "real" "number" : meanScalar
+syntax "complex" "number" : meanScalar
+syntax "boolean" : meanScalar
+syntax "scalarType%" meanScalar : term
+
+macro_rules
+  | `(scalarType% natural number) => `(Nat)
+  | `(scalarType% integer) => `(Int)
+  | `(scalarType% rational number) => `(Rat)
+  | `(scalarType% real number) => `(Real)
+  | `(scalarType% complex number) => `(Complex)
+  | `(scalarType% boolean) => `(Bool)
+
+declare_syntax_cat meanScalarDomain
+syntax meanScalar : meanScalarDomain
+syntax "natural" "numbers" : meanScalarDomain
+syntax "integers" : meanScalarDomain
+syntax "rational" "numbers" : meanScalarDomain
+syntax "real" "numbers" : meanScalarDomain
+syntax "complex" "numbers" : meanScalarDomain
+syntax "booleans" : meanScalarDomain
+syntax "scalarDomainType%" meanScalarDomain : term
+
+macro_rules
+  | `(scalarDomainType% $noun:meanScalar) => `(scalarType% $noun)
+  | `(scalarDomainType% natural numbers) => `(scalarType% natural number)
+  | `(scalarDomainType% integers) => `(scalarType% integer)
+  | `(scalarDomainType% rational numbers) => `(scalarType% rational number)
+  | `(scalarDomainType% real numbers) => `(scalarType% real number)
+  | `(scalarDomainType% complex numbers) => `(scalarType% complex number)
+  | `(scalarDomainType% booleans) => `(scalarType% boolean)
+
 /-! Subjects specify bindings, independently of the definition clause.
 New subject forms implement `predicateOn%`; the definition command is unchanged. -/
 declare_syntax_cat meanSubject
 syntax "a" "simple" "graph" ident : meanSubject
 syntax "a" "simple" "graph" ident "=" "(" ident "," ident ")" : meanSubject
 syntax "an" "element" ident "of" subjectType : meanSubject
-syntax "a" "natural" "number" ident : meanSubject
-syntax "an" "integer" ident : meanSubject
-syntax "a" "rational" "number" ident : meanSubject
-syntax "a" "real" "number" ident : meanSubject
-syntax "a" "complex" "number" ident : meanSubject
-syntax "a" "boolean" ident : meanSubject
+syntax "a" meanScalar ident : meanSubject
+syntax "an" meanScalar ident : meanSubject
 
 -- Internal composition point: subject bindings scoped over a proposition.
 syntax "predicateOn%" meanSubject "=>" term : term
@@ -89,18 +123,10 @@ macro_rules
           ($body : Prop))
   | `(predicateOn% an element $x:ident of $ty:term => $body:term) =>
       `(fun ($x : $ty) => ($body : Prop))
-  | `(predicateOn% a natural number $n:ident => $body:term) =>
-      `(predicateOn% an element $n of Nat => $body)
-  | `(predicateOn% an integer $x:ident => $body:term) =>
-      `(predicateOn% an element $x of Int => $body)
-  | `(predicateOn% a rational number $x:ident => $body:term) =>
-      `(predicateOn% an element $x of Rat => $body)
-  | `(predicateOn% a real number $x:ident => $body:term) =>
-      `(predicateOn% an element $x of Real => $body)
-  | `(predicateOn% a complex number $x:ident => $body:term) =>
-      `(predicateOn% an element $x of Complex => $body)
-  | `(predicateOn% a boolean $x:ident => $body:term) =>
-      `(predicateOn% an element $x of Bool => $body)
+  | `(predicateOn% a $noun:meanScalar $x:ident => $body:term) =>
+      `(predicateOn% an element $x of (scalarType% $noun) => $body)
+  | `(predicateOn% an $noun:meanScalar $x:ident => $body:term) =>
+      `(predicateOn% an element $x of (scalarType% $noun) => $body)
 
 /-! The definition clause knows nothing about graphs or other subject types. -/
 syntax "Definition" ":" meanSubject
@@ -110,37 +136,6 @@ macro_rules
   | `(command| Definition: $subject:meanSubject
         is $name:ident if $body:term .) =>
       `(command| def $name:ident := predicateOn% $subject => $body)
-
-/-! Scalar domains used by universal quantifiers. `scalarType%` translates a noun
-phrase to its Lean type; binding and quantifier wording are independent. -/
-declare_syntax_cat meanScalarDomain
-syntax "natural" "number" : meanScalarDomain
-syntax "natural" "numbers" : meanScalarDomain
-syntax "integer" : meanScalarDomain
-syntax "integers" : meanScalarDomain
-syntax "rational" "number" : meanScalarDomain
-syntax "rational" "numbers" : meanScalarDomain
-syntax "real" "number" : meanScalarDomain
-syntax "real" "numbers" : meanScalarDomain
-syntax "complex" "number" : meanScalarDomain
-syntax "complex" "numbers" : meanScalarDomain
-syntax "boolean" : meanScalarDomain
-syntax "booleans" : meanScalarDomain
-syntax "scalarType%" meanScalarDomain : term
-
-macro_rules
-  | `(scalarType% natural number) => `(Nat)
-  | `(scalarType% natural numbers) => `(Nat)
-  | `(scalarType% integer) => `(Int)
-  | `(scalarType% integers) => `(Int)
-  | `(scalarType% rational number) => `(Rat)
-  | `(scalarType% rational numbers) => `(Rat)
-  | `(scalarType% real number) => `(Real)
-  | `(scalarType% real numbers) => `(Real)
-  | `(scalarType% complex number) => `(Complex)
-  | `(scalarType% complex numbers) => `(Complex)
-  | `(scalarType% boolean) => `(Bool)
-  | `(scalarType% booleans) => `(Bool)
 
 /-! Quantified bindings are independent of both the definition and its subject.
 New domains implement `forallOver%`, shared by `for all` and `for every`. -/
@@ -159,8 +154,8 @@ macro_rules
       `(forallOver% $binding => $body)
   | `(forallOver% $domain:meanScalarDomain $x:ident $[and $y:ident]? => $body:term) => do
       match y with
-      | some y => `(∀ ($x : scalarType% $domain) ($y : scalarType% $domain), $body)
-      | none => `(∀ ($x : scalarType% $domain), $body)
+      | some y => `(∀ ($x : scalarDomainType% $domain) ($y : scalarDomainType% $domain), $body)
+      | none => `(∀ ($x : scalarDomainType% $domain), $body)
   | `(forallOver% $u:ident and $v:ident in $ty:term => $body:term) =>
       `(∀ ($u : $ty) ($v : $ty), $body)
   | `(forallOver% vertices $u:ident and $v:ident of $g:term => $body:term) =>
@@ -171,12 +166,7 @@ New noun phrases implement `existsWitness%`; `existsOver%` handles articles.
 Positive and negative existence share the noun and optional condition. -/
 declare_syntax_cat meanWitnessNoun
 syntax "element" (ppSpace ident)? "of" term : meanWitnessNoun
-syntax "natural" "number" (ppSpace ident)? : meanWitnessNoun
-syntax "integer" (ppSpace ident)? : meanWitnessNoun
-syntax "rational" "number" (ppSpace ident)? : meanWitnessNoun
-syntax "real" "number" (ppSpace ident)? : meanWitnessNoun
-syntax "complex" "number" (ppSpace ident)? : meanWitnessNoun
-syntax "boolean" (ppSpace ident)? : meanWitnessNoun
+syntax meanScalar (ppSpace ident)? : meanWitnessNoun
 syntax "path" (ppSpace ident)? "in" term "from" term "to" term : meanWitnessNoun
 
 declare_syntax_cat meanWitness
@@ -210,18 +200,8 @@ macro_rules
         | some name => pure name
         | none => `(ident| existentialWitness)
       `(∃ ($witness:ident : $ty), $body)
-  | `(existsWitness% natural number $[$n:ident]? => $body:term) =>
-      `(existsOver% an element $[$n:ident]? of Nat => $body)
-  | `(existsWitness% integer $[$x:ident]? => $body:term) =>
-      `(existsOver% an element $[$x:ident]? of Int => $body)
-  | `(existsWitness% rational number $[$x:ident]? => $body:term) =>
-      `(existsOver% an element $[$x:ident]? of Rat => $body)
-  | `(existsWitness% real number $[$x:ident]? => $body:term) =>
-      `(existsOver% an element $[$x:ident]? of Real => $body)
-  | `(existsWitness% complex number $[$x:ident]? => $body:term) =>
-      `(existsOver% an element $[$x:ident]? of Complex => $body)
-  | `(existsWitness% boolean $[$x:ident]? => $body:term) =>
-      `(existsOver% an element $[$x:ident]? of Bool => $body)
+  | `(existsWitness% $noun:meanScalar $[$x:ident]? => $body:term) =>
+      `(existsOver% an element $[$x:ident]? of (scalarType% $noun) => $body)
   | `(existsWitness% path $[$p:ident]? in $g:term from $u:term to $v:term
         => $body:term) =>
       `(existsOver% an element $[$p:ident]? of SimpleGraph.Path $g $u $v => $body)

@@ -211,6 +211,9 @@ An existential with body `False` stays `there is … such that False`; it is not
 negated existence.
 
 `Real` and `Complex` are mathlib types, not floating-point approximations.
+All forward scalar forms share `scalarType%`: subjects, existential witnesses,
+and singular or plural universal domains. Plurals delegate to the singular noun.
+The renderer keeps its independent inverse vocabulary for round-trip checking.
 Universal quantifiers accept one or two names, for example `for every real number x:`
 and `for all integers x and y:`. Both `for all` and `for every` accept these domains,
 including natural numbers and booleans. The renderer uses singular nouns for one
