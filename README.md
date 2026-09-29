@@ -270,6 +270,9 @@ vocabulary can be extended independently.
 The renderer chooses the first form, including inside equalities, membership,
 and other Lean expressions. Complex owners use parentheses, such as
 `the edge set of (G ⊔ H)`; the possessive form currently takes an identifier.
+Property phrases bind above comparisons but below arithmetic and set operations:
+`the vertex type of G is nonempty` needs no parentheses, while a union renders as
+`(the edge set of G) ∪ (the edge set of H)`.
 
 | Property phrase | Lean expression |
 | --- | --- |

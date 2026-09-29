@@ -58,7 +58,8 @@ declare_syntax_cat meanProperty
 syntax "edge" "set" : meanProperty
 syntax "vertex" "type" : meanProperty
 syntax "propertyOf%" meanProperty "of" term:arg : term
-syntax:max "the " meanProperty " of " term:arg : term
+-- Bind above comparisons but below arithmetic, so printing groups property operands.
+syntax:60 "the " meanProperty " of " term:arg : term
 def possessiveOwner : Lean.Parser.Parser :=
   Lean.Parser.identNoAntiquot >> Lean.Parser.checkStackTop
     (fun stx => stx.getId.toString.endsWith "'s") "possessive identifier such as G's"
@@ -99,7 +100,7 @@ syntax meanVertexSet "of" : meanVertexProperty
 syntax "set" "of" "neighbors" "of" : meanVertexProperty
 syntax "set" "of" "edges" "incident" "to" : meanVertexProperty
 syntax "vertexPropertyOf%" meanVertexProperty term:arg "in" term:arg : term
-syntax:max "the " meanVertexProperty ppSpace term:arg " in " term:arg : term
+syntax:60 "the " meanVertexProperty ppSpace term:arg " in " term:arg : term
 macro_rules
   | `(the $property:meanVertexProperty $v:term in $g:term) =>
       `(vertexPropertyOf% $property $v in $g)

@@ -56,9 +56,18 @@ private def leanText (e : Expr) : MetaM String := do
 private def propertyText (e : Expr) : MetaM String :=
   withOptions (fun opts => opts.setBool `mean.renderProperties true) (leanText e)
 
-private def atomText (e : Expr) : MetaM String := do
+private def atomText (e : Expr) (propertySubject := false) : MetaM String := do
   let text ← propertyText e
   if e.isFVar || e.isConst || e.isLit then return text
+  -- Property phrases bind tightly enough to be adjective subjects, but not application arguments.
+  if propertySubject then
+    match Parser.runParserCategory (← getEnv) `term text with
+    | .ok stx =>
+      match stx with
+      | `(the $_:meanProperty of $_:term) => return text
+      | `(the $_:meanVertexProperty $_:term in $_:term) => return text
+      | _ => pure ()
+    | .error _ => pure ()
   return "(" ++ text ++ ")"
 
 private def indented (s : String) : String :=
@@ -192,7 +201,7 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
     else leafText e sentenceEnd
   | _ =>
     if let some (subject, adjective) := adjectiveView? e then
-      return ← sentenceTail s!"{← atomText subject} is {adjective}" sentenceEnd
+      return ← sentenceTail s!"{← atomText subject true} is {adjective}" sentenceEnd
     if e.isAppOfArity ``And 2 || e.isAppOfArity ``Or 2 then
       let op := e.getAppFn.constName!
       let args := e.getAppArgs

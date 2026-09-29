@@ -474,13 +474,25 @@ G.edgeSet ⊆ H.edgeSet
 -> MEAN
 the edge set of G ⊆ the edge set of H
 
+G.edgeSet ∪ H.edgeSet
+-> MEAN
+(the edge set of G) ∪ (the edge set of H)
+
+G.neighborSet u ∩ H.neighborSet v
+-> MEAN
+(the set of neighbors of u in G) ∩ (the set of neighbors of v in H)
+
+G.edgeSet.Nonempty
+-> MEAN
+(the edge set of G).Nonempty
+
 (G ⊔ H).edgeSet = G.edgeSet ∪ H.edgeSet
 -> MEAN
-the edge set of (G ⊔ H) = the edge set of G ∪ the edge set of H
+the edge set of (G ⊔ H) = (the edge set of G) ∪ (the edge set of H)
 
 Nonempty G.V
 -> MEAN
-(the vertex type of G) is nonempty
+the vertex type of G is nonempty
 
 G.edgeSet = ∅ ∧ H.edgeSet = ∅
 -> MEAN

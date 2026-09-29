@@ -201,6 +201,9 @@ variable {V : Type*} (G H : SimpleGraph V) (u v : V)
 #mean_term_compare (G ⊔ H).neighborSet u
 #mean_term_compare v ∈ G.neighborSet u
 #mean_term_compare G.edgeSet ⊆ H.edgeSet
+#mean_term_compare G.edgeSet ∪ H.edgeSet
+#mean_term_compare G.neighborSet u ∩ H.neighborSet v
+#mean_term_compare Set.Nonempty G.edgeSet
 #mean_term_compare (G ⊔ H).edgeSet = G.edgeSet ∪ H.edgeSet
 #mean_term_compare Nonempty G.V
 #mean_term_compare G.edgeSet = ∅ ∧ H.edgeSet = ∅
