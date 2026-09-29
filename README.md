@@ -1,24 +1,29 @@
 # Mean
 
-Mean explores **readable, checkable presentations of formal mathematics in Lean**.
-Its main goal is to help a human check that an LLM-generated formalization says
-what the mathematician intended.
+***Mean*** is a language layer built on top of Lean that aims to make
+formal definitions and theorem statements in Lean read like ordinary
+mathematical English, while still representing a precise formalization.
 
-Lean checks that a proof establishes its formal statement. A human still needs to
-check that the definitions, hypotheses, and conclusion express the intended
-mathematics. Mean aims to make that review easier by presenting those statements
-in controlled mathematical English with a precise interpretation in Lean.
+The main goal is to help a human check that an LLM-generated formalization says
+what the mathematician intended, *without having to understand Lean syntax*.
+Lean checks that a proof establishes the claimed theorems. A human still needs
+to check that the definitions, hypotheses, and theorems express the intended
+mathematics. Mean aims to make that human review easier by presenting those
+statements as mathematical English.
 
 Mean supports two complementary workflows:
 
-- **Read existing Lean in Mean.** Render formal definitions and statements into
-  controlled English, with a checked round trip back to Lean.
-- **Write mathematics directly in Mean.** Use the same readable language to define
-  predicates and express propositions that elaborate into ordinary Lean and work
-  with Lean proofs and mathlib.
+- **Translate existing Lean into Mean.** Render formal definitions and
+  statements into controlled English, with a checked round trip back to Lean.
+- **Write mathematics directly in Mean.** Humans or LLMs can use the same
+  readable language to define predicates and express propositions that
+  elaborate into ordinary Lean and work with Lean proofs and mathlib.
 
-Both workflows use an ordinary Lean library. The current implementation is a proof
-of concept, with a small vocabulary and partial rendering coverage.
+Both workflows are implemented in an ordinary Lean 4 library, using its
+[flexible metaprogramming features](https://leanprover-community.github.io/lean4-metaprogramming-book/).
+
+The current implementation is a proof of concept, with a small vocabulary and
+partial rendering coverage.
 
 ## Review a Lean formalization
 
