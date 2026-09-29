@@ -52,6 +52,80 @@ macro_rules
   | `(adjectivePredicate% surjective) => `(Function.Surjective)
   | `(adjectivePredicate% bijective) => `(Function.Bijective)
 
+/-! Properties share both surface forms; each noun supplies its interpretation.
+Lean lexes `G's` as one identifier, so the possessive rule removes that suffix. -/
+declare_syntax_cat meanProperty
+syntax "edge" "set" : meanProperty
+syntax "vertex" "type" : meanProperty
+syntax "propertyOf%" meanProperty "of" term:arg : term
+syntax:max "the " meanProperty " of " term:arg : term
+def possessiveOwner : Lean.Parser.Parser :=
+  Lean.Parser.identNoAntiquot >> Lean.Parser.checkStackTop
+    (fun stx => stx.getId.toString.endsWith "'s") "possessive identifier such as G's"
+syntax:max (name := possessiveProperty) possessiveOwner meanProperty : term
+
+/-- Recover the name shared by possessive property and neighbor phrases. -/
+private def possessiveName (owner : Lean.Syntax) : Lean.MacroM (Lean.TSyntax `ident) := do
+  let .str namePrefix last := owner.getId
+    | Lean.Macro.throwErrorAt owner "expected a possessive identifier such as G's"
+  unless last.length > 2 do
+    Lean.Macro.throwErrorAt owner "expected a name before 's"
+  return Lean.mkIdentFrom owner (.str namePrefix (last.dropEnd 2).toString)
+
+@[macro possessiveProperty]
+def expandPossessiveProperty : Lean.Macro := fun stx => do
+  let owner ← possessiveName stx[0]
+  let property : Lean.TSyntax `meanProperty := ⟨stx[1]⟩
+  `(propertyOf% $property of $owner:ident)
+
+macro_rules
+  | `(the $property:meanProperty of $owner:term) =>
+      `(propertyOf% $property of $owner)
+  | `(propertyOf% edge set of $g:term) => `(SimpleGraph.edgeSet $g)
+  | `(propertyOf% vertex type of $g:term) => `(SimpleGraph.V $g)
+
+/-! Vertex-relative properties share one interpretation per set kind.
+Surface variants place the vertex before the ambient graph. -/
+declare_syntax_cat meanVertexSet
+syntax "neighbor" "set" : meanVertexSet
+syntax "incidence" "set" : meanVertexSet
+syntax "vertexSetOf%" meanVertexSet "at" term:arg "in" term:arg : term
+macro_rules
+  | `(vertexSetOf% neighbor set at $v:term in $g:term) => `(SimpleGraph.neighborSet $g $v)
+  | `(vertexSetOf% incidence set at $v:term in $g:term) => `(SimpleGraph.incidenceSet $g $v)
+
+declare_syntax_cat meanVertexProperty
+syntax meanVertexSet "of" : meanVertexProperty
+syntax "set" "of" "neighbors" "of" : meanVertexProperty
+syntax "set" "of" "edges" "incident" "to" : meanVertexProperty
+syntax "vertexPropertyOf%" meanVertexProperty term:arg "in" term:arg : term
+syntax:max "the " meanVertexProperty ppSpace term:arg " in " term:arg : term
+macro_rules
+  | `(the $property:meanVertexProperty $v:term in $g:term) =>
+      `(vertexPropertyOf% $property $v in $g)
+  | `(vertexPropertyOf% $kind:meanVertexSet of $v:term in $g:term) =>
+      `(vertexSetOf% $kind at $v in $g)
+  | `(vertexPropertyOf% set of neighbors of $v:term in $g:term) =>
+      `(vertexSetOf% neighbor set at $v in $g)
+  | `(vertexPropertyOf% set of edges incident to $v:term in $g:term) =>
+      `(vertexSetOf% incidence set at $v in $g)
+
+syntax:max (name := possessiveVertexSet) possessiveOwner meanVertexSet "in" term:arg : term
+@[macro possessiveVertexSet]
+def expandPossessiveVertexSet : Lean.Macro := fun stx => do
+  let v ← possessiveName stx[0]
+  let kind : Lean.TSyntax `meanVertexSet := ⟨stx[1]⟩
+  let g : Lean.TSyntax `term := ⟨stx[3]⟩
+  `(vertexSetOf% $kind at $v:ident in $g)
+
+syntax:max (name := possessiveNeighbors)
+  "the" "set" "of" possessiveOwner "neighbors" "in" term:arg : term
+@[macro possessiveNeighbors]
+def expandPossessiveNeighbors : Lean.Macro := fun stx => do
+  let v ← possessiveName stx[3]
+  let g : Lean.TSyntax `term := ⟨stx[6]⟩
+  `(vertexSetOf% neighbor set at $v:ident in $g)
+
 /-- Keep the sentence's period out of Lean's field-completion parser. -/
 def sentenceBody : Lean.Parser.Parser :=
   Lean.Parser.withForbidden "." Lean.Parser.termParser

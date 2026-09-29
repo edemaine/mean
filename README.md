@@ -194,6 +194,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Existential quantifier | `there is <witness description> [such that <proposition>]` |
 | Negated existential | `there is no <witness noun> [such that <proposition>]` |
 | Witness description | `a path p in G from u to v`, `a natural number n`, `a boolean x`, `an element x of T` |
+| Properties | `the edge set of G`, `G's edge set` |
 | Adjectives | `<term> is <adjective>` |
 | Logical connectives | `P and Q`, `P or Q`, `if P then Q` |
 
@@ -262,6 +263,34 @@ To extend the forward language, add a subject, domain, or witness description an
 its interpretation. A new witness noun implements `existsWitness%`; it does
 not require another rule for `there is … such that …`. The corresponding renderer
 vocabulary can be extended independently.
+
+## Properties
+
+`the <property> of <term>` and `<name>'s <property>` share `propertyOf%` mappings.
+The renderer chooses the first form, including inside equalities, membership,
+and other Lean expressions. Complex owners use parentheses, such as
+`the edge set of (G ⊔ H)`; the possessive form currently takes an identifier.
+
+| Property phrase | Lean expression |
+| --- | --- |
+| `the edge set of G` | `G.edgeSet` |
+| `the vertex type of G` | `G.V` |
+| `the set of neighbors of u in G` | `G.neighborSet u` |
+| `the set of edges incident to u in G` | `G.incidenceSet u` |
+
+Vertex-relative properties share `the <property> <vertex> in <graph>` syntax.
+The shorter forms `the neighbor set of u in G` and `the incidence set of u in G`
+are also accepted, as is `the set of u's neighbors in G`. They share the same
+interpretations; the renderer uses the
+longer phrases in the table. Possessive forms are `u's neighbor set in G` and
+`u's incidence set in G`: the vertex owns the set, and the graph is its context.
+All variants share one `vertexSetOf%` interpretation per set kind.
+
+For example, `G's edge set = ∅` defines the same proposition as `G.edgeSet = ∅`.
+The vertex property is called a **type**, matching Lean's representation. Neighbors
+are a set of vertices; the incidence set contains edges incident to the given vertex.
+These are explicit mappings, not automatic conversions of arbitrary field names.
+Ordinary Lean output in before/after comparisons retains its original notation.
 
 ## Adjectives
 

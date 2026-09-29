@@ -314,3 +314,31 @@ example {A B : Type*} (f : A → B) :
 Definition:
   an element f of (Nat → Nat) is oneToOne if f is injective.
 example (f : Nat → Nat) : oneToOne f = Function.Injective f := rfl
+
+-- Property phrases share their meaning across definite and possessive forms.
+section
+variable {V : Type*} (G H : SimpleGraph V) (u : V)
+example : (the edge set of G) = G.edgeSet := rfl
+example : (G's edge set) = G.edgeSet := rfl
+example : (the vertex type of G) = G.V := rfl
+example : (G's vertex type) = G.V := rfl
+example : (the set of neighbors of u in G) = G.neighborSet u := rfl
+example : (the neighbor set of u in G) = G.neighborSet u := rfl
+example : (the set of u's neighbors in G) = G.neighborSet u := rfl
+example : (the set of edges incident to u in G) = G.incidenceSet u := rfl
+example : (the incidence set of u in G) = G.incidenceSet u := rfl
+example : (the set of neighbors of u in (G ⊔ H)) = (G ⊔ H).neighborSet u := rfl
+example : (u's neighbor set in G) = G.neighborSet u := rfl
+example : (u's incidence set in G) = G.incidenceSet u := rfl
+example : (the edge set of (G ⊔ H)) = (G ⊔ H).edgeSet := rfl
+example : (G's edge set = ∅ and H's edge set = ∅) =
+    (G.edgeSet = ∅ ∧ H.edgeSet = ∅) := rfl
+example : (the vertex type of G is nonempty) = Nonempty G.V := rfl
+end
+
+Definition:
+  a simple graph G is hasNoEdges if the edge set of G = ∅.
+Definition:
+  a simple graph G is hasNoEdgesPossessive if G's edge set = ∅.
+example {V : Type*} (G : SimpleGraph V) : hasNoEdges G = (G.edgeSet = ∅) := rfl
+example {V : Type*} (G : SimpleGraph V) : hasNoEdges G = hasNoEdgesPossessive G := rfl

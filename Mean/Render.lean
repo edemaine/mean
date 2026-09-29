@@ -4,8 +4,36 @@ import Mean.RoundTrip
 Import this module and use `#mean declaration` or `#mean_term proposition`.
 No declarations are added by the checker. -/
 
+register_option mean.renderProperties : Bool := {
+  defValue := false
+  descr := "Render registered Mean property phrases inside expressions"
+}
+
 namespace Mean.Render
 open Lean Meta Elab Term
+
+-- These delaborators run only for the Mean view, leaving ordinary Lean output intact.
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.SimpleGraph.edgeSet, delab app.SimpleGraph.V,
+  delab app.SimpleGraph.neighborSet, delab app.SimpleGraph.incidenceSet]
+def delabProperty : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  let e ← getExpr
+  if e.isAppOfArity ``SimpleGraph.edgeSet 2 then
+    let g ← withAppArg delab
+    `(the edge set of $g)
+  else if e.isAppOfArity ``SimpleGraph.V 2 then
+    let g ← withAppArg delab
+    `(the vertex type of $g)
+  else if e.isAppOfArity ``SimpleGraph.neighborSet 3 then
+    let g ← withAppFn <| withAppArg delab
+    let v ← withAppArg delab
+    `(the set of neighbors of $v in $g)
+  else if e.isAppOfArity ``SimpleGraph.incidenceSet 3 then
+    let g ← withAppFn <| withAppArg delab
+    let v ← withAppArg delab
+    `(the set of edges incident to $v in $g)
+  else failure
 
 private def freshName (suggestion : Name) : MetaM Name := do
   let base := suggestion.eraseMacroScopes
@@ -24,8 +52,12 @@ private def leanText (e : Expr) : MetaM String := do
   withOptions (fun opts => opts.setBool `pp.coercions.types true |>.setBool `pp.funBinderTypes true) do
     return (← Meta.ppExpr e).pretty
 
+/-- Translate properties recursively even inside otherwise ordinary Lean syntax. -/
+private def propertyText (e : Expr) : MetaM String :=
+  withOptions (fun opts => opts.setBool `mean.renderProperties true) (leanText e)
+
 private def atomText (e : Expr) : MetaM String := do
-  let text ← leanText e
+  let text ← propertyText e
   if e.isFVar || e.isConst || e.isLit then return text
   return "(" ++ text ++ ")"
 
@@ -42,7 +74,7 @@ private def sentenceTail (text : String) (ending : Bool) : MetaM String := do
   | .error _ => return "(" ++ text ++ ")"
 
 private def leafText (e : Expr) (ending : Bool) : MetaM String := do
-  sentenceTail (← leanText e) ending
+  sentenceTail (← propertyText e) ending
 
 private def mentionsName (text : String) (name : Name) : MetaM Bool := do
   match Parser.runParserCategory (← getEnv) `term text with
@@ -200,10 +232,10 @@ def renderDefinition (name : Name) (value : Expr) : MetaM String := do
       | _ => false
     if universeFits && vertexInfo.isImplicit then
       let vertexName ← freshName vertexName
-      let result ← withLocalDecl vertexName vertexInfo vertexSort fun vertex => do
-        match graphLambda.instantiate1 vertex with
+      let result ← withLocalDecl vertexName vertexInfo vertexSort fun vertexType => do
+        match graphLambda.instantiate1 vertexType with
         | .lam graphName graphTy body .default =>
-          if graphTy.isAppOfArity ``SimpleGraph 1 && graphTy.getAppArgs[0]! == vertex then
+          if graphTy.isAppOfArity ``SimpleGraph 1 && graphTy.getAppArgs[0]! == vertexType then
             let graphName ← freshName graphName
             withLocalDeclD graphName graphTy fun g => do
               let body := body.instantiate1 g

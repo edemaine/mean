@@ -23,7 +23,7 @@ def edgeless : {V : Type u_1} → SimpleGraph V → Prop :=
 -> MEAN
 Definition:
   a simple graph G is edgeless if
-    G.edgeSet = ∅.
+    the edge set of G = ∅.
 
 def zero : ℕ → Prop :=
   fun (n : ℕ) => n = 0
@@ -445,3 +445,43 @@ def oneToOne : (ℕ → ℕ) → Prop :=
 Definition:
   an element f of (ℕ → ℕ) is oneToOne if
     f is injective.
+
+G.edgeSet
+-> MEAN
+the edge set of G
+
+G.V
+-> MEAN
+the vertex type of G
+
+G.neighborSet u
+-> MEAN
+the set of neighbors of u in G
+
+G.incidenceSet u
+-> MEAN
+the set of edges incident to u in G
+
+(G ⊔ H).neighborSet u
+-> MEAN
+the set of neighbors of u in (G ⊔ H)
+
+v ∈ G.neighborSet u
+-> MEAN
+v ∈ the set of neighbors of u in G
+
+G.edgeSet ⊆ H.edgeSet
+-> MEAN
+the edge set of G ⊆ the edge set of H
+
+(G ⊔ H).edgeSet = G.edgeSet ∪ H.edgeSet
+-> MEAN
+the edge set of (G ⊔ H) = the edge set of G ∪ the edge set of H
+
+Nonempty G.V
+-> MEAN
+(the vertex type of G) is nonempty
+
+G.edgeSet = ∅ ∧ H.edgeSet = ∅
+-> MEAN
+the edge set of G = ∅ and the edge set of H = ∅

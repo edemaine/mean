@@ -190,3 +190,18 @@ variable {T : Sort u} {A : Sort v} {B : Sort w} (f : A → B)
 #mean_term_compare Function.Injective (fun x : Nat => x + 1)
 end
 #mean_compare oneToOne
+
+-- Properties render inside ordinary expressions as well as on their own.
+section
+variable {V : Type*} (G H : SimpleGraph V) (u v : V)
+#mean_term_compare G.edgeSet
+#mean_term_compare G.V
+#mean_term_compare G.neighborSet u
+#mean_term_compare G.incidenceSet u
+#mean_term_compare (G ⊔ H).neighborSet u
+#mean_term_compare v ∈ G.neighborSet u
+#mean_term_compare G.edgeSet ⊆ H.edgeSet
+#mean_term_compare (G ⊔ H).edgeSet = G.edgeSet ∪ H.edgeSet
+#mean_term_compare Nonempty G.V
+#mean_term_compare G.edgeSet = ∅ ∧ H.edgeSet = ∅
+end
