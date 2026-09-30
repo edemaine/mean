@@ -12,19 +12,23 @@ private def parseText (category : Name) (text : String) : TermElabM Syntax := do
 
 /-- Check actual printed text, not just an intermediate syntax tree.
 The kernel checks an equality certificate after elaboration and metavariable checks. -/
-def checkText (original : Expr) (text : String) (isDefinition := false) : TermElabM Unit := do
-  let stx ← parseText (if isDefinition then `command else `term) text
+def checkText (original : Expr) (text : String) (category : Name := `term) : TermElabM Unit := do
+  let stx ← parseText category text
   let graphSubject := match stx with
     | `(command| Definition: a simple graph $_:ident is $_:ident if $_:term .) => true
     | `(command| Definition: a simple graph $_:ident = ($_:ident, $_:ident)
         is $_:ident if $_:term .) => true
     | _ => false
-  let term ← if isDefinition then
+  let term ← if category == `command then
     match stx with
     | `(command| Definition: $subject:meanSubject is $_:ident if $body:term .) =>
       `(predicateOn% $subject => $body)
     | `(command| def $_:ident : $ty:term := $body:term) => `(($body : $ty))
     | _ => throwError "unsupported rendered declaration"
+  else if category == `meanTheoremStatement then
+    match stx with
+    | `(meanTheoremStatement| Theorem $_:ident : $statement:term) => pure statement
+    | _ => throwError "unsupported rendered theorem statement"
   else pure ⟨stx⟩
   let expected ← if graphSubject then pure none else pure (some (← inferType original))
   let reparsed ← elabTermEnsuringType term expected (implicitLambda := false)

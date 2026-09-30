@@ -1,5 +1,59 @@
 import Mean.Syntax
 
+-- Statements reuse Mean propositions; proofs remain ordinary Lean terms or tactics.
+namespace TheoremExamples
+
+Theorem natTrans3:
+  for all natural numbers x and y:
+    for all natural numbers z and w:
+      if x = y and z = y and z = w then x = w
+Proof: by
+  intro x y z w ⟨hxy, hzy, hzw⟩
+  exact hxy.trans (hzy.symm.trans hzw)
+
+Theorem zeroExists:
+  there is a natural number n such that n = 0
+Proof:
+  ⟨0, rfl⟩
+
+example : ∀ x y z w : Nat, x = y ∧ z = y ∧ z = w → x = w := natTrans3
+example : ∃ n : Nat, n = 0 := zeroExists
+
+Lemma natAddZero:
+  for every natural number n:
+    n + 0 = n
+Proof: by
+  intro n
+  rfl
+
+Example:
+  for every natural number n:
+    n + 0 = n
+Proof: natAddZero
+
+Example:
+  there is a natural number n such that n = 0
+Proof: by
+  exact zeroExists
+
+section
+variable {V : Type*} (G : SimpleGraph V)
+
+Lemma edgeSubsetSelf:
+  the edge set of G ⊆ the edge set of G
+Proof: by
+  intro e he
+  exact he
+
+example : G.edgeSet ⊆ G.edgeSet := edgeSubsetSelf G
+
+Example:
+  the edge set of G ⊆ the edge set of G
+Proof: edgeSubsetSelf G
+end
+
+end TheoremExamples
+
 -- English connectives match Lean's precedence and associativity exactly.
 example (P Q R : Prop) : (P and Q or R) = ((P ∧ Q) ∨ R) := rfl
 example (P Q R : Prop) : (P or Q and R) = (P ∨ (Q ∧ R)) := rfl

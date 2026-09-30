@@ -1,6 +1,32 @@
 import Examples.MeanToLean
 import Mean
 
+-- Theorem rendering checks the statement and omits the proof.
+theorem ordinaryNatTrans3 (x y z w : Nat) (h : x = y ∧ z = y ∧ z = w) : x = w := by
+  exact h.1.trans (h.2.1.symm.trans h.2.2)
+
+#mean_compare ordinaryNatTrans3
+#mean_compare TheoremExamples.zeroExists
+#mean_compare TheoremExamples.edgeSubsetSelf
+#mean_compare TheoremExamples.natAddZero
+
+/--
+info: Theorem TheoremExamples.zeroExists:
+  there is a natural number n such that
+    n = 0
+-/
+#guard_msgs in
+#mean TheoremExamples.zeroExists
+
+open Lean Elab Term in
+run_elab do
+  let original := (← getConstInfo ``TheoremExamples.zeroExists).type
+  let rejected ← try
+    Mean.RoundTrip.checkText original "Theorem changed: False" `meanTheoremStatement
+    pure false
+  catch _ => pure true
+  unless rejected do throwError "round-trip checker accepted a changed theorem statement"
+
 -- The input may be ordinary Lean, with no Mean macros in its source.
 def ordinaryPreconnected {V : Type*} (G : SimpleGraph V) : Prop :=
   ∀ u v : V, ∃ _p : G.Path u v, True
@@ -109,7 +135,7 @@ run_elab do
   let original := (← getConstInfo ``smallGraph).value!
   let rejected ← try
     Mean.RoundTrip.checkText original
-      "Definition: a simple graph G is smallGraph if for all vertices x and y of G: there is a path in G from x to y." true
+      "Definition: a simple graph G is smallGraph if for all vertices x and y of G: there is a path in G from x to y." `command
     pure false
   catch _ => pure true
   unless rejected do throwError "round-trip checker accepted a changed universe signature"

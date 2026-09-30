@@ -61,6 +61,46 @@ It creates a normal predicate named `preconnected`, usable in ordinary Lean theo
 statements and proofs. Mean propositions can also be embedded within Lean, and
 Mean definition bodies can contain ordinary Lean expressions.
 
+Theorems use the same proposition syntax, followed by an ordinary Lean proof:
+
+```lean
+Theorem natTrans3:
+  for all natural numbers x and y:
+    for all natural numbers z and w:
+      if x = y and z = y and z = w then x = w
+Proof: by
+  intro x y z w ⟨hxy, hzy, hzw⟩
+  exact hxy.trans (hzy.symm.trans hzw)
+```
+
+`Proof:` accepts any Lean proof term, including `by` tactic blocks. There is no
+period after the statement. Namespaces and section variables work as in Lean;
+parameters can also be quantified in the statement using Mean or Lean syntax.
+The command creates an ordinary Lean theorem named `natTrans3`.
+`#mean natTrans3` renders its `Theorem natTrans3:` header and statement, omitting
+the proof. Add `Proof: …` to turn that statement view into a declaration.
+
+`Lemma name:` is an alias for `Theorem name:`. Both render canonically as
+`Theorem`, since Lean does not retain the distinction. Similarly, Mathlib provides
+[`lemma`](https://github.com/leanprover-community/mathlib4/blob/v4.31.0/Mathlib/Tactic/Lemma.lean)
+as a macro expanding to core Lean's `theorem`. Mean expands to `theorem` through
+its own `Theorem` syntax; going through Mathlib's `lemma` would add an equivalent
+step without preserving the label.
+
+`Example:` checks an anonymous declaration with the same statement and proof syntax:
+
+```lean
+Example:
+  for every natural number n:
+    n + 0 = n
+Proof: by
+  intro n
+  rfl
+```
+
+Examples do not introduce a name for use with `#mean`; use `#mean_term` to render
+their propositions.
+
 `import Mean` provides the complete library; use `import Mean.Syntax` if you only
 want the writing syntax, without the renderer.
 
@@ -83,7 +123,7 @@ the forward syntax macros. This gives two implementations to compare, although
 independence alone is not a correctness guarantee.
 
 Every successful rendering is checked by parsing the actual output text,
-elaborating its expression or definition body, testing definitional equality,
+elaborating its expression, definition body, or theorem statement, testing definitional equality,
 and asking Lean's kernel to check an equality certificate. The comparison permits
 renaming fresh universe parameters introduced by `Type*`, but does not specialize
 them to fixed levels. Checks reject unresolved metavariables and expressions
@@ -188,6 +228,9 @@ The grammar separates logical structure from mathematical vocabulary:
 | Component | Examples |
 |---|---|
 | Definition clause | `Definition: <subject> is <name> if <proposition>.` |
+| Theorem clause | `Theorem <name>: <proposition> Proof: <Lean proof>` |
+| Lemma clause | `Lemma <name>: <proposition> Proof: <Lean proof>` |
+| Example clause | `Example: <proposition> Proof: <Lean proof>` |
 | Subject | `a simple graph G`, `a natural number n`, `a boolean x`, `an element x of T` |
 | Universal quantifier | `for all <bindings>: <proposition>`, `for every …` |
 | Quantified bindings | `u and v in V`, `vertices u and v of G` |

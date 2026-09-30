@@ -1,4 +1,35 @@
 
+theorem ordinaryNatTrans3 :
+  ∀ (x y z w : ℕ), x = y ∧ z = y ∧ z = w → x = w
+-> MEAN
+Theorem ordinaryNatTrans3:
+  for all natural numbers x and y:
+    for all natural numbers z and w:
+      if x = y and z = y and z = w then
+        x = w
+
+theorem TheoremExamples.zeroExists :
+  ∃ (n : ℕ), n = 0
+-> MEAN
+Theorem TheoremExamples.zeroExists:
+  there is a natural number n such that
+    n = 0
+
+-- Universe parameters: u_1
+theorem TheoremExamples.edgeSubsetSelf :
+  ∀ {V : Type u_1} (G : SimpleGraph V), G.edgeSet ⊆ G.edgeSet
+-> MEAN
+-- Universe parameters: u_1
+Theorem TheoremExamples.edgeSubsetSelf:
+  ∀ {V : Type u_1} (G : SimpleGraph V), the edge set of G ⊆ the edge set of G
+
+theorem TheoremExamples.natAddZero :
+  ∀ (n : ℕ), n + 0 = n
+-> MEAN
+Theorem TheoremExamples.natAddZero:
+  for every natural number n:
+    n + 0 = n
+
 def ordinaryPreconnected : {V : Type u_1} → SimpleGraph V → Prop :=
   fun {V : Type u_1} (G : SimpleGraph V) => ∀ (u v : V), ∃ (_p : G.Path u v), True
 -> MEAN
@@ -134,10 +165,12 @@ def withAssumption : (n : ℕ) → n > 0 → Prop :=
   fun (n : ℕ) (h : n > 0) => n ≥ 1 ∧ h = h
 
 -- Universe parameters: u_1
--- Statement of preconnected_iff_mathlib_preconnected
-∀ {V : Type u_1} (G : SimpleGraph V), preconnected G ↔ G.Preconnected
+theorem preconnected_iff_mathlib_preconnected :
+  ∀ {V : Type u_1} (G : SimpleGraph V), preconnected G ↔ G.Preconnected
 -> MEAN
-∀ {V : Type u_1} (G : SimpleGraph V), preconnected G ↔ G.Preconnected
+-- Universe parameters: u_1
+Theorem preconnected_iff_mathlib_preconnected:
+  ∀ {V : Type u_1} (G : SimpleGraph V), preconnected G ↔ G.Preconnected
 
 ∀ («a» «graph» : ℕ), ∃ («path» : ℕ), «path» = «a» + «graph»
 -> MEAN

@@ -212,6 +212,23 @@ macro_rules
         is $name:ident if $body:term .) =>
       `(command| def $name:ident := predicateOn% $subject => $body)
 
+/-! Theorem statements reuse ordinary terms, including all Mean propositions.
+The separate statement category also supports rendering without a proof. -/
+declare_syntax_cat meanTheoremStatement
+syntax "Theorem" ident ":" term : meanTheoremStatement
+syntax meanTheoremStatement "Proof" ":" term : command
+
+macro_rules
+  | `(command| Theorem $name:ident : $statement:term Proof: $proof:term) =>
+      `(command| theorem $name:ident : $statement := $proof)
+
+-- Lemmas share theorem semantics; examples use Lean's anonymous declaration form.
+macro "Lemma" name:ident ":" statement:term "Proof" ":" proof:term : command =>
+  `(command| Theorem $name:ident : $statement Proof: $proof)
+
+macro "Example" ":" statement:term "Proof" ":" proof:term : command =>
+  `(command| example : $statement := $proof)
+
 /-! Quantified bindings are independent of both the definition and its subject.
 New domains implement `forallOver%`, shared by `for all` and `for every`. -/
 declare_syntax_cat meanQuantified

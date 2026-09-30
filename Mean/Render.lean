@@ -298,11 +298,20 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
     match info with
     | .defnInfo d =>
       let text ← renderDefinition n d.value
-      RoundTrip.checkText d.value text true
+      RoundTrip.checkText d.value text `command
       if compare then
         let before := s!"def {← nameText n} : {← leanText info.type} :=\n{indented (← leanText d.value)}"
         logInfo s!"\n{before}\n-> MEAN\n{text}"
       else logInfo text
+    | .thmInfo _ =>
+      let text := s!"Theorem {← nameText n}:\n{indented (← renderExpr info.type)}"
+      RoundTrip.checkText info.type text `meanTheoremStatement
+      let context := if info.levelParams.isEmpty then "" else
+        "-- Universe parameters: " ++ String.intercalate ", " (info.levelParams.map toString) ++ "\n"
+      if compare then
+        let before := s!"theorem {← nameText n} :\n{indented (← leanText info.type)}"
+        logInfo s!"\n{context}{before}\n-> MEAN\n{context}{text}"
+      else logInfo s!"{context}{text}"
     | _ =>
       let text ← renderChecked info.type
       let context := if info.levelParams.isEmpty then "" else
