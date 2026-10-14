@@ -213,6 +213,9 @@ syntax "an" "implicit" meanScalar ident : meanSubject
 syntax "an" "implicit" "element" ident "of" subjectType : meanSubject
 syntax "a" "strictly" "implicit" meanScalar ident : meanSubject
 syntax "a" "strictly" "implicit" "element" ident "of" subjectType : meanSubject
+syntax "a" "proof" ident "that" subjectType : meanSubject
+syntax "an" "implicit" "proof" ident "that" subjectType : meanSubject
+syntax "a" "strictly" "implicit" "proof" ident "that" subjectType : meanSubject
 
 /-- Keep binder separators out of an unparenthesized element type. -/
 def functionSubject : Lean.Parser.Parser :=
@@ -257,6 +260,12 @@ macro_rules
       `(fun ⦃$x : $ty⦄ => $body)
   | `(functionOn% a strictly implicit $noun:meanScalar $x:ident => $body:term) =>
       `(functionOn% a strictly implicit element $x of (scalarType% $noun) => $body)
+  | `(functionOn% a proof $h:ident that $p:term => $body:term) =>
+      `(functionOn% an element $h of ($p : Prop) => $body)
+  | `(functionOn% an implicit proof $h:ident that $p:term => $body:term) =>
+      `(functionOn% an implicit element $h of ($p : Prop) => $body)
+  | `(functionOn% a strictly implicit proof $h:ident that $p:term => $body:term) =>
+      `(functionOn% a strictly implicit element $h of ($p : Prop) => $body)
   | `(functionOn% a $noun:meanScalar $x:ident => $body:term) =>
       `(functionOn% an element $x of (scalarType% $noun) => $body)
   | `(functionOn% an $noun:meanScalar $x:ident => $body:term) =>
@@ -281,15 +290,15 @@ syntax "Theorem" ident ":" term : meanTheoremStatement
 syntax meanTheoremStatement "Proof" ":" term : command
 
 macro_rules
-  | `(command| Theorem $name:ident : $statement:term Proof: $proof:term) =>
-      `(command| theorem $name:ident : $statement := $proof)
+  | `(command| Theorem $name:ident : $statement:term Proof: $proofTerm:term) =>
+      `(command| theorem $name:ident : $statement := $proofTerm)
 
 -- Lemmas share theorem semantics; examples use Lean's anonymous declaration form.
-macro "Lemma" name:ident ":" statement:term "Proof" ":" proof:term : command =>
-  `(command| Theorem $name:ident : $statement Proof: $proof)
+macro "Lemma" name:ident ":" statement:term "Proof" ":" proofTerm:term : command =>
+  `(command| Theorem $name:ident : $statement Proof: $proofTerm)
 
-macro "Example" ":" statement:term "Proof" ":" proof:term : command =>
-  `(command| example : $statement := $proof)
+macro "Example" ":" statement:term "Proof" ":" proofTerm:term : command =>
+  `(command| example : $statement := $proofTerm)
 
 /-! Quantified bindings are independent of both the definition and its subject.
 New domains implement `forallOver%`, shared by `for all` and `for every`. -/
@@ -320,6 +329,7 @@ New noun phrases implement `existsWitness%`; `existsOver%` handles articles.
 Positive and negative existence share the noun and optional condition. -/
 declare_syntax_cat meanWitnessNoun
 syntax "element" (ppSpace ident)? "of" term : meanWitnessNoun
+syntax "proof" (ppSpace ident)? "that" term : meanWitnessNoun
 syntax meanScalar (ppSpace ident)? : meanWitnessNoun
 syntax "path" (ppSpace ident)? "in" term "from" term "to" term : meanWitnessNoun
 
@@ -356,6 +366,8 @@ macro_rules
       `(∃ ($witness:ident : $ty), $body)
   | `(existsWitness% $noun:meanScalar $[$x:ident]? => $body:term) =>
       `(existsOver% an element $[$x:ident]? of (scalarType% $noun) => $body)
+  | `(existsWitness% proof $[$h:ident]? that $p:term => $body:term) =>
+      `(existsWitness% element $[$h:ident]? of ($p : Prop) => $body)
   | `(existsWitness% path $[$p:ident]? in $g:term from $u:term to $v:term
         => $body:term) =>
       `(existsOver% an element $[$p:ident]? of SimpleGraph.Path $g $u $v => $body)

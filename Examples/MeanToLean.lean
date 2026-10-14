@@ -171,6 +171,42 @@ example {V : Type*} (G : SimpleGraph V) : adjacent G = (fun u v : V => s(u, v) �
 
 end ValueExamples
 
+namespace ProofExamples
+section
+variable (P Q : Prop)
+Definition: identity is the function mapping a proof h that P to h.
+Definition: implicitIdentity is the function mapping an implicit proof h that P to h.
+Definition: strictIdentity is the function mapping a strictly implicit proof h that P and
+  a proof _eq that h = h to h.
+example (h : P) : identity P h = h := rfl
+example (h : P) : implicitIdentity P (h := h) = h := rfl
+example (h : P) : strictIdentity P (h := h) rfl = h := rfl
+example : (the function mapping a proof h that (P and Q) and a boolean _b to h) =
+    (fun (h : P ∧ Q) (_b : Bool) => h) := rfl
+-- Generic element syntax remains accepted for propositions.
+example : (the function mapping an element h of P to h) = identity P := rfl
+end
+Definition: a proof h that True is reflexive if h = h.
+example : reflexive True.intro := rfl
+Definition: zero is the function : True → Int mapping a proof _h that True to (0).
+example : zero True.intro = (0 : Int) := rfl
+end ProofExamples
+
+-- Proof witnesses share named, unnamed, positive, and negative existential forms.
+example (P : Prop) : (there is a proof that P) = (∃ _h : P, True) := rfl
+example (P : Prop) : (there is a proof h that P such that h = h) =
+    (∃ h : P, h = h) := rfl
+example (P : Prop) : (there is no proof that P) = (¬ ∃ _h : P, True) := rfl
+example (P : Prop) : (there is no proof h that P such that h = h) =
+    (¬ ∃ h : P, h = h) := rfl
+example (P Q : Prop) : (there is a proof that (P and Q)) = (∃ _h : P ∧ Q, True) := rfl
+example (P : Prop) (existentialWitness : Nat) :
+    (there is a proof that P such that existentialWitness = 0) =
+    (∃ _h : P, existentialWitness = 0) := rfl
+example (n : Nat) : (there is a proof h that n > 0 such that h = h) =
+    (∃ h : n > 0, h = h) := rfl
+example (P : Prop) : (there is an element of P) = (there is a proof that P) := rfl
+
 -- Statements reuse Mean propositions; proofs remain ordinary Lean terms or tactics.
 namespace TheoremExamples
 

@@ -109,7 +109,7 @@ The renderer combines consecutive explicit, implicit, and strict implicit functi
 binders this way. Nested function phrases remain accepted. Parameter types such as
 `Type`, `Sort u`, `Fin n`, and `SimpleGraph V` need no surrounding parentheses.
 Parentheses delimit a conjunction used as a subject type, such as
-`an element h of (P and Q)`, because `and` also separates parameters.
+`a proof h that (P and Q)`, because `and` also separates parameters.
 
 Use `an implicit <scalar> <name>` or `an implicit element <name> of <type>`
 for an argument Lean may infer from context:
@@ -139,6 +139,26 @@ argument when a later explicit argument is supplied, so `strictIndex (2 : Fin 3)
 infers `n = 3`. Ordinary implicit arguments are inserted eagerly. Prefer strict
 implicit parameters with a later explicit parameter that determines them.
 These forms also support the optional whole-function type.
+
+For a parameter whose type is a proposition, use `a proof <name> that <proposition>`:
+
+```lean
+the function mapping a natural number n and a proof h that n > 0 to h
+```
+
+This means `fun (n : Nat) (h : n > 0) => h`. The forms
+`an implicit proof h that P` and `a strictly implicit proof h that P` preserve
+their corresponding Lean binder kinds. Proof subjects also work in predicate
+definitions, for example `Definition: a proof h that True is reflexive if h = h.`
+The proposition after `that` is checked to have type `Prop`.
+
+The renderer prefers proof wording wherever it would otherwise describe an
+element of a proposition, including definition subjects and existential witnesses:
+`there is a proof h that P such that h = h`, `there is a proof that P`, and
+`there is no proof that P`. These retain the existing existential semantics,
+including the default condition `True`; they are not simplified to `P` or `¬ P`.
+Generic element syntax remains accepted. An element of `Prop` itself is a
+proposition, so it continues to use element wording.
 
 Definitions end with a period, as in the predicate form. Function bodies extend
 as far as the term grammar permits; dedenting does not close them. Use parentheses
@@ -344,11 +364,12 @@ The grammar separates logical structure from mathematical vocabulary:
 | Subject | `a simple graph G`, `a natural number n`, `a boolean x`, `an element x of T` |
 | Implicit subject | `an implicit natural number n`, `an implicit element x of T` |
 | Strict implicit subject | `a strictly implicit natural number n`, `a strictly implicit element x of T` |
+| Proof subject | `a proof h that P`, `an implicit proof h that P`, `a strictly implicit proof h that P` |
 | Universal quantifier | `for all <bindings>: <proposition>`, `for every …` |
 | Quantified bindings | `u and v in V`, `vertices u and v of G` |
 | Existential quantifier | `there is <witness description> [such that <proposition>]` |
 | Negated existential | `there is no <witness noun> [such that <proposition>]` |
-| Witness description | `a path p in G from u to v`, `a natural number n`, `a boolean x`, `an element x of T` |
+| Witness description | `a path p in G from u to v`, `a natural number n`, `a boolean x`, `an element x of T`, `a proof h that P` |
 | Properties | `the edge set of G`, `G's edge set` |
 | Adjectives | `<term> is <adjective>` |
 | Logical connectives | `P and Q`, `P or Q`, `if P then Q` |
@@ -475,7 +496,7 @@ such as `Set.Finite` are not yet overloaded onto this vocabulary.
 
 ## Current coverage and limitations
 
-The renderer recognizes the current graph, standard scalar, and typed-element
+The renderer recognizes the current graph, standard scalar, proof, and typed-element
 subjects; paired universal quantifiers and single scalar quantifiers; positive and negative existential witnesses; optional
 conditions; conjunctions, disjunctions, and nondependent propositional implications;
 and functions with explicit, implicit, and strict implicit binders, including nested and dependent functions.

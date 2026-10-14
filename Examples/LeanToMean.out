@@ -274,6 +274,45 @@ Definition:
     the function mapping a strictly implicit element T of Type and an element x of T to
       x.
 
+def ProofExamples.identity : ∀ (P : Prop), P → P :=
+  fun (P : Prop) (h : P) => h
+-> MEAN
+Definition:
+  ProofExamples.identity is
+    the function mapping an element P of Prop and a proof h that P to
+      h.
+
+def ProofExamples.implicitIdentity : ∀ (P : Prop) {h : P}, P :=
+  fun (P : Prop) {h : P} => h
+-> MEAN
+Definition:
+  ProofExamples.implicitIdentity is
+    the function mapping an element P of Prop and an implicit proof h that P to
+      h.
+
+def ProofExamples.strictIdentity : ∀ (P : Prop) ⦃h : P⦄, h = h → P :=
+  fun (P : Prop) ⦃h : P⦄ (_eq : h = h) => h
+-> MEAN
+Definition:
+  ProofExamples.strictIdentity is
+    the function mapping an element P of Prop and a strictly implicit proof h that P and a proof _eq that h = h to
+      h.
+
+def ProofExamples.reflexive : True → Prop :=
+  fun (h : True) => h = h
+-> MEAN
+Definition:
+  a proof h that True is ProofExamples.reflexive if
+    h = h.
+
+def ProofExamples.zero : True → ℤ :=
+  fun (_h : True) => 0
+-> MEAN
+Definition:
+  ProofExamples.zero is
+    the function : True → ℤ mapping a proof _h that True to
+      (0).
+
 def ValueExamples.graphEdges : {V : Type u_1} → SimpleGraph V → Set (Sym2 V) :=
   fun {V : Type u_1} (G : SimpleGraph V) =>
     have E := G.edgeSet;
@@ -361,8 +400,64 @@ the function mapping a strictly implicit element _x of T and an element y of T t
 
 fun (h : True ∧ True) (_b : Bool) => h
 -> MEAN
-the function mapping an element h of True ∧ True and a boolean _b to
+the function mapping a proof h that True ∧ True and a boolean _b to
   h
+
+fun (h : P ∧ Q) => h
+-> MEAN
+the function mapping a proof h that P ∧ Q to
+  h
+
+fun (h : P) ⦃_eq : h = h⦄ => h
+-> MEAN
+the function mapping a proof h that P and a strictly implicit proof _eq that h = h to
+  h
+
+∃ (_ : P), True
+-> MEAN
+there is a proof that P
+
+∃ (h : P), h = h
+-> MEAN
+there is a proof h that P such that
+  h = h
+
+¬∃ (_ : P), True
+-> MEAN
+there is no proof that P
+
+¬∃ (h : P), h = h
+-> MEAN
+there is no proof h that P such that
+  h = h
+
+∃ (_ : P), False
+-> MEAN
+there is a proof that P such that
+  False
+
+∃ (_ : P ∧ Q), True
+-> MEAN
+there is a proof that (P ∧ Q)
+
+∃ (h : n > 0), h = h
+-> MEAN
+there is a proof h that (n > 0) such that
+  h = h
+
+(∃ (_ : P), True) ∧ Q
+-> MEAN
+(there is a proof that P) and Q
+
+(¬∃ (_ : P), True) → Q
+-> MEAN
+if there is no proof that P then
+  Q
+
+fun (P : Prop) => P
+-> MEAN
+the function mapping an element P of Prop to
+  P
 
 theorem ordinaryNatTrans3 :
   ∀ (x y z w : ℕ), x = y ∧ z = y ∧ z = w → x = w
@@ -534,7 +629,7 @@ def withAssumption : (n : ℕ) → n > 0 → Prop :=
 -> MEAN
 Definition:
   withAssumption is
-    the function mapping a natural number n and an element h of n > 0 to
+    the function mapping a natural number n and a proof h that n > 0 to
       n ≥ 1 and h = h.
 
 -- Universe parameters: u_1

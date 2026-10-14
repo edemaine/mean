@@ -126,6 +126,23 @@ private def scalarDescription? (ty : Expr) : Option String := do
   let (singular, _) ← scalarNouns? ty
   return (if ty.isConstOf ``Int then "an " else "a ") ++ singular
 
+/-- Propositions describe proofs; other types describe scalar or generic elements.
+Use the same vocabulary for function parameters and predicate subjects. -/
+private def subjectText (ty : Expr) (n : Name) (bi : BinderInfo)
+    (predicate := false) : MetaM String := do
+  let name ← nameText n
+  let modifier := match bi with
+    | .implicit => some "an implicit"
+    | .strictImplicit => some "a strictly implicit"
+    | _ => none
+  let typeText := if predicate then atomText ty else functionSubjectTypeText ty
+  if ← isProp ty then
+    return s!"{modifier.getD "a"} proof {name} that {← typeText}"
+  if let some (noun, _) := scalarNouns? ty then
+    if let some modifier := modifier then return s!"{modifier} {noun} {name}"
+    if let some description := scalarDescription? ty then return s!"{description} {name}"
+  return s!"{modifier.getD "an"} element {name} of {← typeText}"
+
 /-- Recognize numeral syntax without evaluating arbitrary arithmetic. -/
 private def unsignedNumeral? (e : Expr) : Option Nat :=
   match e.consumeMData with
@@ -165,6 +182,8 @@ private def scalarLiteralText? (e : Expr) : MetaM (Option String) := do
 private def witnessText (ty : Expr) (name : Option String) (negative := false) : MetaM String := do
   let suffix := name.map (" " ++ ·) |>.getD ""
   let article := if negative then "no" else "a"
+  if ← isProp ty then
+    return s!"{article} proof{suffix} that {← atomText ty}"
   if ty.isAppOfArity ``SimpleGraph.Path 4 then
     let args := ty.getAppArgs
     return s!"{article} path{suffix} in {← atomText args[1]!} from {← atomText args[2]!} to {← atomText args[3]!}"
@@ -223,15 +242,7 @@ where
       if functionBinderFits bi then
         let n ← freshName n
         return ← withLocalDecl n bi ty fun x => do
-          let subject ← if bi == .implicit || bi == .strictImplicit then
-            let modifier := if bi == .implicit then "an implicit" else "a strictly implicit"
-            match scalarNouns? ty with
-            | some (noun, _) => pure s!"{modifier} {noun} {← nameText n}"
-            | none => pure s!"{modifier} element {← nameText n} of {← functionSubjectTypeText ty}"
-          else
-            match scalarDescription? ty with
-            | some description => pure s!"{description} {← nameText n}"
-            | none => pure s!"an element {← nameText n} of {← functionSubjectTypeText ty}"
+          let subject ← subjectText ty n bi
           go (body.instantiate1 x) (subjects.push subject)
     | _ => pure ()
     let signature := annotation.map (" : " ++ ·) |>.getD ""
@@ -352,9 +363,7 @@ def renderDefinition (name : Name) (value : Expr) : TermElabM String := do
     let result ← withLocalDeclD n ty fun x => do
       let body := body.instantiate1 x
       if !(← isProp body) then return none
-      let subject ← match scalarDescription? ty with
-        | some description => pure s!"{description} {← nameText n}"
-        | none => pure s!"an element {← nameText n} of {← atomText ty}"
+      let subject ← subjectText ty n .default true
       return some s!"Definition:\n  {subject} is {nameStr} if\n{indented (indented ((← renderExpr body true) ++ "."))}"
     if let some text := result then return text
   | _ => pure ()

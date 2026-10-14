@@ -77,6 +77,11 @@ info: Definition:
 #mean_compare ValueExamples.strictConstant
 #mean_compare ValueExamples.strictAdd
 #mean_compare ValueExamples.strictIdentity
+#mean_compare ProofExamples.identity
+#mean_compare ProofExamples.implicitIdentity
+#mean_compare ProofExamples.strictIdentity
+#mean_compare ProofExamples.reflexive
+#mean_compare ProofExamples.zero
 #mean_compare ValueExamples.graphEdges
 #mean_term_compare fun n : Nat => 2 * n
 #mean_term_compare fun n : Nat => fun i : Fin n => i.val
@@ -112,6 +117,31 @@ variable {T : Sort u}
 #mean_term_compare fun ⦃_x : T⦄ (y : T) => y
 #mean_term_compare fun (h : True and True) (_b : Bool) => h
 end
+
+/--
+info: the function mapping a natural number n and a proof h that n > 0 to
+  h
+-/
+#guard_msgs in
+#mean_term fun (n : Nat) (h : n > 0) => h
+
+section
+variable (P Q : Prop) (n : Nat)
+#mean_term_compare fun (h : P ∧ Q) => h
+#mean_term_compare fun (h : P) ⦃_eq : h = h⦄ => h
+#mean_term_compare ∃ _h : P, True
+#mean_term_compare ∃ h : P, h = h
+#mean_term_compare ¬ ∃ _h : P, True
+#mean_term_compare ¬ ∃ h : P, h = h
+#mean_term_compare ∃ _h : P, False
+#mean_term_compare ∃ _h : P ∧ Q, True
+#mean_term_compare ∃ h : n > 0, h = h
+#mean_term_compare (∃ _h : P, True) ∧ Q
+#mean_term_compare (¬ ∃ _h : P, True) → Q
+end
+
+-- The type Prop contains propositions, rather than proofs of one proposition.
+#mean_term_compare fun (P : Prop) => P
 
 open Lean Elab Term in
 run_elab do
@@ -152,6 +182,25 @@ run_elab do
       pure false
     catch _ => pure true
   unless rejected do throwError "round-trip checker accepted erased argument implicitness"
+
+open Lean Elab Term in
+run_elab do
+  let original := (← getConstInfo ``ValueExamples.double).value!
+  let rejected ← withoutModifyingState do
+    try
+      Mean.RoundTrip.checkText original
+        "Definition: changed is the function mapping a proof n that Nat to 2 * n." `command
+      pure false
+    catch _ => pure true
+  unless rejected do throwError "proof parameter accepted a non-proposition"
+  let original ← elabTerm (← `(∃ n : Nat, n = 0)) none
+  let rejected ← withoutModifyingState do
+    try
+      Mean.RoundTrip.checkText original
+        "there is a proof n that Nat such that n = 0"
+      pure false
+    catch _ => pure true
+  unless rejected do throwError "proof witness accepted a non-proposition"
 
 open Lean Elab Term in
 run_elab do
