@@ -73,6 +73,20 @@ private def atomText (e : Expr) (propertySubject := false) : MetaM String := do
 private def indented (s : String) : String :=
   "  " ++ s.replace "\n" "\n  "
 
+/-- Function subject types accept applications and sorts without grouping.
+Probe the surrounding grammar to protect types containing binder separators. -/
+private def functionSubjectTypeText (e : Expr) : MetaM String := do
+  let text ← propertyText e
+  let probe := s!"the function mapping an element typeProbe of {text} and a boolean binderProbe to binderProbe"
+  match Parser.runParserCategory (← getEnv) `term probe with
+  | .ok stx =>
+    match stx with
+    | `(the function mapping an element $_:ident of $_:term and a boolean $_:ident to $_:term) =>
+      return text
+    | _ => pure ()
+  | .error _ => pure ()
+  return "(" ++ text ++ ")"
+
 /-- Only protect a sentence-ending expression when punctuation requires it
 (e.g. a numeral before the period or a compound field projection). -/
 private def sentenceTail (text : String) (ending : Bool) : MetaM String := do
@@ -111,6 +125,41 @@ private def scalarNouns? (ty : Expr) : Option (String × String) :=
 private def scalarDescription? (ty : Expr) : Option String := do
   let (singular, _) ← scalarNouns? ty
   return (if ty.isConstOf ``Int then "an " else "a ") ++ singular
+
+/-- Recognize numeral syntax without evaluating arbitrary arithmetic. -/
+private def unsignedNumeral? (e : Expr) : Option Nat :=
+  match e.consumeMData with
+  | .lit (.natVal n) => some n
+  | e =>
+    if e.isAppOfArity ``OfNat.ofNat 3 then
+      match e.getAppArgs[1]!.consumeMData with
+      | .lit (.natVal n) => some n
+      | _ => none
+    else none
+
+/-- Independent inverse vocabulary for typed scalar literals. -/
+private def scalarLiteralText? (e : Expr) : MetaM (Option String) := do
+  let ty ← inferType e
+  let some (noun, _) := scalarNouns? ty | return none
+  let e := e.consumeMData
+  if ty.isConstOf ``Bool then
+    if e.isConstOf ``Bool.true then return some "the boolean true"
+    if e.isConstOf ``Bool.false then return some "the boolean false"
+    return none
+  if let some n := unsignedNumeral? e then return some s!"the {noun} {n}"
+  if e.isAppOfArity ``Neg.neg 3 then
+    if let some n := unsignedNumeral? e.getAppArgs[2]! then
+      return some s!"the {noun} -{n}"
+  -- Lean's delaborator preserves scientific literal notation and normalized
+  -- constructor numerals. Accept only a single numeric token, optionally negated.
+  let text ← propertyText e
+  let magnitude := if text.startsWith "-" then (text.drop 1).toString.trimAscii.copy else text
+  match Parser.runParserCategory (← getEnv) `term magnitude with
+  | .ok stx =>
+    if stx.isOfKind numLitKind || stx.isOfKind scientificLitKind then
+      return some s!"the {noun} {text}"
+  | .error _ => pure ()
+  return none
 
 /-- Domain vocabulary is independent of existential quantification. -/
 private def witnessText (ty : Expr) (name : Option String) (negative := false) : MetaM String := do
@@ -158,6 +207,36 @@ private def adjectiveView? (e : Expr) : Option (Expr × String) := do
       return (e.getAppArgs[arity - 1]!, word)
   none
 
+/-- Function phrases support explicit, implicit, and strict implicit binders. -/
+private def functionBinderFits (bi : BinderInfo) : Bool :=
+  bi == .default || bi == .implicit || bi == .strictImplicit
+
+/-- Share function wording and binding scope between plain and typed forms. -/
+private partial def functionText (n : Name) (ty body : Expr) (bi : BinderInfo)
+    (renderBody : Expr → MetaM String)
+    (annotation : Option String := none) : MetaM String :=
+  go (.lam n ty body bi) #[]
+where
+  go (e : Expr) (subjects : Array String) : MetaM String := do
+    match e.consumeMData with
+    | .lam n ty body bi =>
+      if functionBinderFits bi then
+        let n ← freshName n
+        return ← withLocalDecl n bi ty fun x => do
+          let subject ← if bi == .implicit || bi == .strictImplicit then
+            let modifier := if bi == .implicit then "an implicit" else "a strictly implicit"
+            match scalarNouns? ty with
+            | some (noun, _) => pure s!"{modifier} {noun} {← nameText n}"
+            | none => pure s!"{modifier} element {← nameText n} of {← functionSubjectTypeText ty}"
+          else
+            match scalarDescription? ty with
+            | some description => pure s!"{description} {← nameText n}"
+            | none => pure s!"an element {← nameText n} of {← functionSubjectTypeText ty}"
+          go (body.instantiate1 x) (subjects.push subject)
+    | _ => pure ()
+    let signature := annotation.map (" : " ++ ·) |>.getD ""
+    return s!"the function{signature} mapping {String.intercalate " and " subjects.toList} to\n{indented (← renderBody e)}"
+
 /-- Recognize supported logical structure without unfolding mathematical constants.
 Embedded implications stay inline; standalone implications introduce a block.
 Quantifiers retain their block layout in either context. -/
@@ -166,6 +245,10 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
   let e := e.consumeMData
   match e with
   | .letE _ _ value body _ => renderExpr (body.instantiate1 value) sentenceEnd inlineContext
+  | .lam n ty body bi =>
+    if functionBinderFits bi then
+      functionText n ty body bi (fun body => renderExpr body sentenceEnd)
+    else leafText e sentenceEnd
   | .forallE n ty body bi =>
     if bi == .default && (← isProp ty) && !body.hasLooseBVars && (← isProp e) then
       let premise ← renderExpr ty false true
@@ -229,9 +312,12 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
     else
       leafText e sentenceEnd
 
-/-- Render a supported unary predicate as a Mean definition. Others use a Lean def. -/
-def renderDefinition (name : Name) (value : Expr) : MetaM String := do
+/-- Prefer predicate subjects; other values use named definitions.
+Instance function binders retain ordinary Lean syntax. -/
+def renderDefinition (name : Name) (value : Expr) : TermElabM String := do
   let nameStr ← nameText name
+  if let some text ← scalarLiteralText? value then
+    return s!"Definition:\n  {nameStr} is\n{indented (indented (text ++ "."))}"
   match value.consumeMData with
   | .lam vertexName vertexSort graphLambda vertexInfo =>
     -- Mean's graph subject quantifies one fresh universe. Fixed or compound
@@ -239,7 +325,7 @@ def renderDefinition (name : Name) (value : Expr) : MetaM String := do
     let universeFits := match vertexSort with
       | .sort (.succ (.param _)) => true
       | _ => false
-    if universeFits && vertexInfo.isImplicit then
+    if universeFits && vertexInfo == .implicit then
       let vertexName ← freshName vertexName
       let result ← withLocalDecl vertexName vertexInfo vertexSort fun vertexType => do
         match graphLambda.instantiate1 vertexType with
@@ -272,6 +358,23 @@ def renderDefinition (name : Name) (value : Expr) : MetaM String := do
       return some s!"Definition:\n  {subject} is {nameStr} if\n{indented (indented ((← renderExpr body true) ++ "."))}"
     if let some text := result then return text
   | _ => pure ()
+  unless value.consumeMData.isLambda && !(functionBinderFits value.consumeMData.binderInfo) do
+    let valueText ← renderExpr value
+    let text := s!"Definition:\n  {nameStr} is\n{indented (indented ((← sentenceTail valueText true) ++ "."))}"
+    -- Prefer the plain value when its text independently infers the right type.
+    let untypedFits ← withoutModifyingState do
+      try
+        RoundTrip.checkText value text `command
+        pure true
+      catch _ => pure false
+    if untypedFits then return text
+    -- Overloaded constants or function results may need their original type.
+    if let .lam n ty body bi := value.consumeMData then
+      let typedValue ← functionText n ty body bi (fun body => renderExpr body true)
+        (some (← leanText (← inferType value)))
+      return s!"Definition:\n  {nameStr} is\n{indented (indented (typedValue ++ "."))}"
+    let typedValue := s!"({valueText} : {← leanText (← inferType value)})."
+    return s!"Definition:\n  {nameStr} is\n{indented (indented typedValue)}"
   return s!"def {nameStr} : {← leanText (← inferType value)} :=\n{indented (← leanText value)}"
 
 /-- Return text only after checking its meaning. -/

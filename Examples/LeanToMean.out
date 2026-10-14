@@ -1,4 +1,369 @@
 
+def ValueExamples.double : ℕ → ℕ :=
+  fun (n : ℕ) => 2 * n
+-> MEAN
+Definition:
+  ValueExamples.double is
+    the function mapping a natural number n to
+      2 * n.
+
+def ValueExamples.answer : ℤ :=
+  42
+-> MEAN
+Definition:
+  ValueExamples.answer is
+    the integer 42.
+
+def ValueExamples.naturalAnswer : ℕ :=
+  42
+-> MEAN
+Definition:
+  ValueExamples.naturalAnswer is
+    the natural number 42.
+
+def ValueExamples.negativeAnswer : ℤ :=
+  -42
+-> MEAN
+Definition:
+  ValueExamples.negativeAnswer is
+    the integer -42.
+
+def ValueExamples.rationalAnswer : ℚ :=
+  42
+-> MEAN
+Definition:
+  ValueExamples.rationalAnswer is
+    the rational number 42.
+
+def ValueExamples.realAnswer : ℝ :=
+  42
+-> MEAN
+Definition:
+  ValueExamples.realAnswer is
+    the real number 42.
+
+def ValueExamples.complexAnswer : ℂ :=
+  42
+-> MEAN
+Definition:
+  ValueExamples.complexAnswer is
+    the complex number 42.
+
+def ValueExamples.booleanAnswer : Bool :=
+  true
+-> MEAN
+Definition:
+  ValueExamples.booleanAnswer is
+    the boolean true.
+
+def ValueExamples.decimalAnswer : ℚ :=
+  1.5
+-> MEAN
+Definition:
+  ValueExamples.decimalAnswer is
+    the rational number 1.5.
+
+def ValueExamples.negativeDecimalAnswer : ℚ :=
+  -1.5
+-> MEAN
+Definition:
+  ValueExamples.negativeDecimalAnswer is
+    the rational number -1.5.
+
+def ValueExamples.exponentAnswer : ℝ :=
+  42e2
+-> MEAN
+Definition:
+  ValueExamples.exponentAnswer is
+    the real number 42e2.
+
+def ValueExamples.underscoreAnswer : ℤ :=
+  1000
+-> MEAN
+Definition:
+  ValueExamples.underscoreAnswer is
+    the integer 1000.
+
+def ValueExamples.hexAnswer : ℤ :=
+  42
+-> MEAN
+Definition:
+  ValueExamples.hexAnswer is
+    the integer 42.
+
+def ValueExamples.computedAnswer : ℤ :=
+  2 + 3
+-> MEAN
+Definition:
+  ValueExamples.computedAnswer is
+    (2 + 3 : ℤ).
+
+def ValueExamples.add : ℕ → ℕ → ℕ :=
+  fun (n m : ℕ) => n + m
+-> MEAN
+Definition:
+  ValueExamples.add is
+    the function mapping a natural number n and a natural number m to
+      n + m.
+
+def ValueExamples.integerDouble : ℤ → ℤ :=
+  fun (n : ℤ) => 2 * n
+-> MEAN
+Definition:
+  ValueExamples.integerDouble is
+    the function mapping an integer n to
+      2 * n.
+
+def ValueExamples.rationalDouble : ℚ → ℚ :=
+  fun (x : ℚ) => 2 * x
+-> MEAN
+Definition:
+  ValueExamples.rationalDouble is
+    the function mapping a rational number x to
+      2 * x.
+
+def ValueExamples.realDouble : ℝ → ℝ :=
+  fun (x : ℝ) => 2 * x
+-> MEAN
+Definition:
+  ValueExamples.realDouble is
+    the function mapping a real number x to
+      2 * x.
+
+def ValueExamples.complexDouble : ℂ → ℂ :=
+  fun (z : ℂ) => 2 * z
+-> MEAN
+Definition:
+  ValueExamples.complexDouble is
+    the function mapping a complex number z to
+      2 * z.
+
+def ValueExamples.booleanIdentity : Bool → Bool :=
+  fun (b : Bool) => b
+-> MEAN
+Definition:
+  ValueExamples.booleanIdentity is
+    the function mapping a boolean b to
+      b.
+
+def ValueExamples.indexValue : (n : ℕ) → Fin n → ℕ :=
+  fun (n : ℕ) (i : Fin n) => (↑i : ℕ)
+-> MEAN
+Definition:
+  ValueExamples.indexValue is
+    the function mapping a natural number n and an element i of Fin n to
+      (↑i : ℕ).
+
+def ValueExamples.zeroInteger : ℕ → ℤ :=
+  fun (_n : ℕ) => 0
+-> MEAN
+Definition:
+  ValueExamples.zeroInteger is
+    the function : ℕ → ℤ mapping a natural number _n to
+      (0).
+
+def ValueExamples.identityOnT : {T : Sort u} → T → T :=
+  fun {T : Sort u} (x : T) => x
+-> MEAN
+Definition:
+  ValueExamples.identityOnT is
+    the function mapping an implicit element T of Sort u and an element x of T to
+      x.
+
+def ValueExamples.shifted : ℕ → ℕ → ℕ :=
+  fun (offset n : ℕ) => n + offset
+-> MEAN
+Definition:
+  ValueExamples.shifted is
+    the function mapping a natural number offset and a natural number n to
+      n + offset.
+
+def ValueExamples.mixedSum : ℕ → ℤ → ℤ :=
+  fun (n : ℕ) (z : ℤ) => (↑n : ℤ) + z
+-> MEAN
+Definition:
+  ValueExamples.mixedSum is
+    the function mapping a natural number n and an integer z to
+      (↑n : ℤ) + z.
+
+def ValueExamples.sumThree : ℕ → ℕ → ℕ → ℕ :=
+  fun (x y z : ℕ) => x + y + z
+-> MEAN
+Definition:
+  ValueExamples.sumThree is
+    the function mapping a natural number x and a natural number y and a natural number z to
+      x + y + z.
+
+def ValueExamples.constantInteger : ℕ → Bool → ℤ :=
+  fun (_n : ℕ) (_b : Bool) => 0
+-> MEAN
+Definition:
+  ValueExamples.constantInteger is
+    the function : ℕ → Bool → ℤ mapping a natural number _n and a boolean _b to
+      (0).
+
+def ValueExamples.implicitAdd : ℕ → {m : ℕ} → ℕ :=
+  fun (n : ℕ) {m : ℕ} => n + m
+-> MEAN
+Definition:
+  ValueExamples.implicitAdd is
+    the function mapping a natural number n and an implicit natural number m to
+      n + m.
+
+def ValueExamples.implicitIndex : {n : ℕ} → Fin n → ℕ :=
+  fun {n : ℕ} (i : Fin n) => (↑i : ℕ)
+-> MEAN
+Definition:
+  ValueExamples.implicitIndex is
+    the function mapping an implicit natural number n and an element i of Fin n to
+      (↑i : ℕ).
+
+def ValueExamples.implicitIntegerNext : {x : ℤ} → ℤ :=
+  fun {x : ℤ} => x + 1
+-> MEAN
+Definition:
+  ValueExamples.implicitIntegerNext is
+    (the function mapping an implicit integer x to
+      x + 1).
+
+def ValueExamples.implicitConstant : ℕ → {_m : ℕ} → ℤ :=
+  fun (_n : ℕ) {_m : ℕ} => 0
+-> MEAN
+Definition:
+  ValueExamples.implicitConstant is
+    the function : ℕ → {_m : ℕ} → ℤ mapping a natural number _n and an implicit natural number _m to
+      (0).
+
+def ValueExamples.implicitIdentityOnT : {T : Sort u} → {x : T} → T :=
+  fun {T : Sort u} {x : T} => x
+-> MEAN
+Definition:
+  ValueExamples.implicitIdentityOnT is
+    the function mapping an implicit element T of Sort u and an implicit element x of T to
+      x.
+
+def ValueExamples.strictIndex : ⦃n : ℕ⦄ → Fin n → ℕ :=
+  fun ⦃n : ℕ⦄ (i : Fin n) => (↑i : ℕ)
+-> MEAN
+Definition:
+  ValueExamples.strictIndex is
+    the function mapping a strictly implicit natural number n and an element i of Fin n to
+      (↑i : ℕ).
+
+def ValueExamples.strictConstant : ⦃n : ℕ⦄ → Fin n → ℤ :=
+  fun ⦃n : ℕ⦄ (_i : Fin n) => 0
+-> MEAN
+Definition:
+  ValueExamples.strictConstant is
+    the function : ⦃n : ℕ⦄ → Fin n → ℤ mapping a strictly implicit natural number n and an element _i of Fin n to
+      (0).
+
+def ValueExamples.strictAdd : ℕ → ⦃m : ℕ⦄ → ℕ :=
+  fun (n : ℕ) ⦃m : ℕ⦄ => n + m
+-> MEAN
+Definition:
+  ValueExamples.strictAdd is
+    the function mapping a natural number n and a strictly implicit natural number m to
+      n + m.
+
+def ValueExamples.strictIdentity : ⦃T : Type⦄ → T → T :=
+  fun ⦃T : Type⦄ (x : T) => x
+-> MEAN
+Definition:
+  ValueExamples.strictIdentity is
+    the function mapping a strictly implicit element T of Type and an element x of T to
+      x.
+
+def ValueExamples.graphEdges : {V : Type u_1} → SimpleGraph V → Set (Sym2 V) :=
+  fun {V : Type u_1} (G : SimpleGraph V) =>
+    have E := G.edgeSet;
+    E
+-> MEAN
+Definition:
+  ValueExamples.graphEdges is
+    the function mapping an implicit element V of Type u_1 and an element G of SimpleGraph V to
+      the edge set of G.
+
+fun (n : ℕ) => 2 * n
+-> MEAN
+the function mapping a natural number n to
+  2 * n
+
+fun (n : ℕ) (i : Fin n) => (↑i : ℕ)
+-> MEAN
+the function mapping a natural number n and an element i of Fin n to
+  (↑i : ℕ)
+
+fun («a» «graph» : ℕ) => «a» + «graph»
+-> MEAN
+the function mapping a natural number «a» and a natural number «graph» to
+  «a» + «graph»
+
+fun (_n _n_1 : ℕ) => _n_1
+-> MEAN
+the function mapping a natural number _n and a natural number _n_1 to
+  _n_1
+
+fun (n : ℕ) {m : ℕ} => n + m
+-> MEAN
+the function mapping a natural number n and an implicit natural number m to
+  n + m
+
+fun {n : ℕ} (i : Fin n) => (↑i : ℕ)
+-> MEAN
+the function mapping an implicit natural number n and an element i of Fin n to
+  (↑i : ℕ)
+
+fun {n : ℕ} (m : ℕ) {k : ℕ} => n + m + k
+-> MEAN
+the function mapping an implicit natural number n and a natural number m and an implicit natural number k to
+  n + m + k
+
+fun (n : ℕ) ⦃m : ℕ⦄ => n + m
+-> MEAN
+the function mapping a natural number n and a strictly implicit natural number m to
+  n + m
+
+fun ⦃n : ℕ⦄ (m : ℕ) {k : ℕ} => n + m + k
+-> MEAN
+the function mapping a strictly implicit natural number n and a natural number m and an implicit natural number k to
+  n + m + k
+
+fun (n : ℕ) [Inhabited ℕ] => n + default
+-> MEAN
+the function mapping a natural number n to
+  fun [Inhabited ℕ] => n + default
+
+fun (_n : ℕ) => 0
+-> MEAN
+the function mapping a natural number _n to
+  0
+
+fun (x : T) => x
+-> MEAN
+the function mapping an element x of T to
+  x
+
+fun (_x y : T) => y
+-> MEAN
+the function mapping an element _x of T and an element y of T to
+  y
+
+fun {_x : T} (y : T) => y
+-> MEAN
+the function mapping an implicit element _x of T and an element y of T to
+  y
+
+fun ⦃_x : T⦄ (y : T) => y
+-> MEAN
+the function mapping a strictly implicit element _x of T and an element y of T to
+  y
+
+fun (h : True ∧ True) (_b : Bool) => h
+-> MEAN
+the function mapping an element h of True ∧ True and a boolean _b to
+  h
+
 theorem ordinaryNatTrans3 :
   ∀ (x y z w : ℕ), x = y ∧ z = y ∧ z = w → x = w
 -> MEAN
@@ -113,14 +478,20 @@ IsEmpty (Fin n)
 def smallGraph : {V : Type} → SimpleGraph V → Prop :=
   fun {V : Type} (G : SimpleGraph V) => ∀ (u v : V), ∃ (_p : G.Path u v), True
 -> MEAN
-def smallGraph : {V : Type} → SimpleGraph V → Prop :=
-  fun {V : Type} (G : SimpleGraph V) => ∀ (u v : V), ∃ (_p : G.Path u v), True
+Definition:
+  smallGraph is
+    the function mapping an implicit element V of Type and an element G of SimpleGraph V to
+      for all vertices u and v of G:
+        there is a path in G from u to v.
 
 def compoundGraph : {V : Type (max u v)} → SimpleGraph V → Prop :=
   fun {V : Type (max u v)} (G : SimpleGraph V) => ∀ (x y : V), ∃ (_p : G.Path x y), True
 -> MEAN
-def compoundGraph : {V : Type (max u v)} → SimpleGraph V → Prop :=
-  fun {V : Type (max u v)} (G : SimpleGraph V) => ∀ (x y : V), ∃ (_p : G.Path x y), True
+Definition:
+  compoundGraph is
+    the function mapping an implicit element V of Type (max u v) and an element G of SimpleGraph V to
+      for all vertices x and y of G:
+        there is a path in G from x to y.
 
 def truthy : Bool → Prop :=
   fun (b : Bool) => b = true
@@ -161,8 +532,10 @@ there is a path p in G from u to v such that
 def withAssumption : (n : ℕ) → n > 0 → Prop :=
   fun (n : ℕ) (h : n > 0) => n ≥ 1 ∧ h = h
 -> MEAN
-def withAssumption : (n : ℕ) → n > 0 → Prop :=
-  fun (n : ℕ) (h : n > 0) => n ≥ 1 ∧ h = h
+Definition:
+  withAssumption is
+    the function mapping a natural number n and an element h of n > 0 to
+      n ≥ 1 and h = h.
 
 -- Universe parameters: u_1
 theorem preconnected_iff_mathlib_preconnected :

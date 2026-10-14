@@ -16,7 +16,7 @@ Mean supports two complementary workflows:
 - **Translate existing Lean into Mean.** Render formal definitions and
   statements into controlled English, with a checked round trip back to Lean.
 - **Write mathematics directly in Mean.** Humans or LLMs can use the same
-  readable language to define predicates and express propositions that
+  readable language to define values and predicates and express propositions that
   elaborate into ordinary Lean and work with Lean proofs and mathlib.
 
 Both workflows are implemented in an ordinary Lean 4 library, using its
@@ -60,6 +60,111 @@ After `import Mean`, the readable definition above is executable Lean syntax.
 It creates a normal predicate named `preconnected`, usable in ordinary Lean theorem
 statements and proofs. Mean propositions can also be embedded within Lean, and
 Mean definition bodies can contain ordinary Lean expressions.
+
+Named values use `Definition: <name> is <value>.`:
+
+```lean
+Definition: double is the function mapping a natural number n to 2 * n.
+```
+
+This creates `def double := fun (n : Nat) => 2 * n`. The function phrase is an
+expression that also works inside ordinary Lean terms, independently of
+`Definition`. It accepts the same subjects as predicate definitions, including
+`an integer n`, `an element x of T`, and `a simple graph G`. Its body can be any
+Lean or Mean expression, including another function or a proposition:
+
+```lean
+Definition: add is the function mapping a natural number n to
+  the function mapping a natural number m to n + m.
+Definition: answer is the integer 42.
+```
+
+`the <scalar> <value>` is a typed expression, usable independently of `Definition`.
+For example, `the integer 42` means `(42 : Int)`, and `the natural number 42`
+means `(42 : Nat)`. It uses the same scalar nouns as bindings, including rational,
+real, and complex numbers and booleans. Group compound operands with parentheses:
+
+```lean
+the integer (2 * n)
+the boolean false
+```
+
+A scalar numeral can directly precede the definition's final period, as in
+`the integer 42.` or `the integer -42.`. Decimal fractions and scientific
+notation retain their usual Lean meaning, for example `the rational number 1.5`.
+
+Join full subject phrases with `and` to bind successive arguments:
+
+```lean
+Definition: shifted is
+  the function mapping a natural number offset and a natural number n to n + offset.
+Definition: indexValue is
+  the function mapping a natural number n and an element i of Fin n to i.val.
+```
+
+These mean `fun (offset n : Nat) => n + offset` and
+`fun (n : Nat) (i : Fin n) => i.val`. Earlier names are in scope in later subjects
+and the body. Subjects may have different types, and more than two can be joined.
+The renderer combines consecutive explicit, implicit, and strict implicit function
+binders this way. Nested function phrases remain accepted. Parameter types such as
+`Type`, `Sort u`, `Fin n`, and `SimpleGraph V` need no surrounding parentheses.
+Parentheses delimit a conjunction used as a subject type, such as
+`an element h of (P and Q)`, because `and` also separates parameters.
+
+Use `an implicit <scalar> <name>` or `an implicit element <name> of <type>`
+for an argument Lean may infer from context:
+
+```lean
+Definition: implicitAdd is
+  the function mapping a natural number n and an implicit natural number m to n + m.
+```
+
+This means `fun (n : Nat) {m : Nat} => n + m`. For example,
+`implicitAdd 3 (m := 4)` returns `7`. Implicit and explicit subjects may appear
+in any order, with earlier names still in scope in later types. For example,
+`an implicit natural number n and an element i of Fin n` lets Lean infer `n`
+from the type of `i`. The optional function type applies to these forms too.
+
+Use `a strictly implicit <scalar> <name>` or
+`a strictly implicit element <name> of <type>` for Lean's `⦃…⦄` binders:
+
+```lean
+Definition: strictIndex is
+  the function mapping a strictly implicit natural number n and
+    an element i of Fin n to i.val.
+```
+
+This means `fun ⦃n : Nat⦄ (i : Fin n) => i.val`. Lean inserts a strict implicit
+argument when a later explicit argument is supplied, so `strictIndex (2 : Fin 3)`
+infers `n = 3`. Ordinary implicit arguments are inserted eagerly. Prefer strict
+implicit parameters with a later explicit parameter that determines them.
+These forms also support the optional whole-function type.
+
+Definitions end with a period, as in the predicate form. Function bodies extend
+as far as the term grammar permits; dedenting does not close them. Use parentheses
+to apply a function or use it as an adjective's subject:
+
+```lean
+(the function mapping a natural number n to 2 * n) 3
+(the function mapping a natural number n to n + 1) is injective
+```
+
+An optional type annotates the whole function and guides inference in its body:
+
+```lean
+Definition: zeroInteger is
+  the function : Nat → Int mapping a natural number _n to (0).
+```
+
+Here `0` is an integer. Lean checks that the type's domain agrees with the subject.
+Types can include dependent arrows; the typed function phrase works anywhere
+the untyped one does, including with subjects joined by `and`.
+
+`#mean double` renders a checked named value definition. The renderer uses
+`the function : <type> mapping …` only when the untyped phrase cannot infer the
+correct type. Scalar literals render as typed value phrases, such as `the integer 42`;
+more complicated values may retain ordinary type annotations.
+Predicate definitions continue to render with the existing `is … if …` form.
 
 Theorems use the same proposition syntax, followed by an ordinary Lean proof:
 
@@ -124,7 +229,9 @@ independence alone is not a correctness guarantee.
 
 Every successful rendering is checked by parsing the actual output text,
 elaborating its expression, definition body, or theorem statement, testing definitional equality,
-and asking Lean's kernel to check an equality certificate. The comparison permits
+and asking Lean's kernel to check an equality certificate. Function argument
+implicitness is checked separately, since kernel definitional equality ignores
+that calling convention. The comparison permits
 renaming fresh universe parameters introduced by `Type*`, but does not specialize
 them to fixed levels. Checks reject unresolved metavariables and expressions
 containing `sorry`. A failed round trip produces an error instead of a displayed
@@ -228,10 +335,15 @@ The grammar separates logical structure from mathematical vocabulary:
 | Component | Examples |
 |---|---|
 | Definition clause | `Definition: <subject> is <name> if <proposition>.` |
+| Named value clause | `Definition: <name> is <value>.` |
+| Function expression | `the function [: <type>] mapping <subject> [and <subject> …] to <value>` |
+| Typed scalar value | `the <scalar> <value>`, `the integer 42`, `the real number (2 * x)` |
 | Theorem clause | `Theorem <name>: <proposition> Proof: <Lean proof>` |
 | Lemma clause | `Lemma <name>: <proposition> Proof: <Lean proof>` |
 | Example clause | `Example: <proposition> Proof: <Lean proof>` |
 | Subject | `a simple graph G`, `a natural number n`, `a boolean x`, `an element x of T` |
+| Implicit subject | `an implicit natural number n`, `an implicit element x of T` |
+| Strict implicit subject | `a strictly implicit natural number n`, `a strictly implicit element x of T` |
 | Universal quantifier | `for all <bindings>: <proposition>`, `for every …` |
 | Quantified bindings | `u and v in V`, `vertices u and v of G` |
 | Existential quantifier | `there is <witness description> [such that <proposition>]` |
@@ -241,7 +353,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Adjectives | `<term> is <adjective>` |
 | Logical connectives | `P and Q`, `P or Q`, `if P then Q` |
 
-Here `T` is any type in scope. Standard scalar vocabulary works in subjects, universal quantifiers,
+Here `T` is any type in scope. Standard scalar vocabulary works in subjects, function bindings, universal quantifiers,
 and existential witnesses (where the name is optional):
 
 | Mean | Lean type | Mathematical notation |
@@ -260,7 +372,7 @@ An existential with body `False` stays `there is … such that False`; it is not
 negated existence.
 
 `Real` and `Complex` are mathlib types, not floating-point approximations.
-All forward scalar forms share `scalarType%`: subjects, existential witnesses,
+All forward scalar forms share `scalarType%`: typed values, subjects, existential witnesses,
 and singular or plural universal domains. Plurals delegate to the singular noun.
 The renderer keeps its independent inverse vocabulary for round-trip checking.
 Universal quantifiers accept one or two names, for example `for every real number x:`
@@ -303,7 +415,9 @@ loops; neither finiteness nor nonemptiness is assumed. The abbreviation `G.V`
 exposes mathlib's existing vertex-type parameter without changing its representation.
 
 To extend the forward language, add a subject, domain, or witness description and
-its interpretation. A new witness noun implements `existsWitness%`; it does
+its interpretation. A subject implements `functionOn%`, shared by function expressions
+and predicate definitions; `predicateOn%` additionally requires a proposition body.
+A new witness noun implements `existsWitness%`; it does
 not require another rule for `there is … such that …`. The corresponding renderer
 vocabulary can be extended independently.
 
@@ -363,9 +477,12 @@ such as `Set.Finite` are not yet overloaded onto this vocabulary.
 
 The renderer recognizes the current graph, standard scalar, and typed-element
 subjects; paired universal quantifiers and single scalar quantifiers; positive and negative existential witnesses; optional
-conditions; conjunctions, disjunctions, and nondependent propositional implications.
+conditions; conjunctions, disjunctions, and nondependent propositional implications;
+and functions with explicit, implicit, and strict implicit binders, including nested and dependent functions.
 It canonically omits unused witness names and graph component names.
 It substitutes local `let` aliases, so `E` may render as `G.edgeSet`.
+Graph carrier types with fixed or compound universes can render through generic
+typed-element function bindings; the dedicated graph subject still uses `Type*`.
 
 Unsupported forms remain ordinary Lean, provided that text passes the same
 round-trip check. **Identical before/after examples show gaps in rendering
@@ -373,11 +490,12 @@ coverage, not failed verification.** Current gaps include:
 
 - Single-variable quantifiers outside the standard scalar domains, and general
   dependent domains; their unsupported portions remain ordinary Lean.
-- Definition subjects with additional parameters or hypotheses.
-- Fixed or compound universe signatures, which cannot safely use the current
-  universe-polymorphic graph subject.
+- Predicate subject forms with additional parameters or hypotheses; named values
+  can express these through nested function bindings.
+- Function expressions with instance (`[…]`) binders;
+  these retain ordinary Lean syntax.
 - Recursive rendering inside some unsupported outer structures. In particular,
-  an outer implicit binder can cause a whole theorem statement to remain Lean.
+  an outer implicit universal binder can cause a whole theorem statement to remain Lean.
 - Additional English connectives such as general negation and equivalence, unrestricted
   predicate applications after `is`, and broader mathematical vocabulary.
 

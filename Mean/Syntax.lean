@@ -131,9 +131,12 @@ def expandPossessiveNeighbors : Lean.Macro := fun stx => do
 def sentenceBody : Lean.Parser.Parser :=
   Lean.Parser.withForbidden "." Lean.Parser.termParser
 
-/-- The definition's `is` ends an unparenthesized subject type. -/
+/-- Definitions end a subject type at `is`; function lists end it at `and`.
+Parentheses disable these delimiters inside a compound type. -/
 def subjectType : Lean.Parser.Parser :=
-  Lean.Parser.withForbidden "is" Lean.Parser.termParser
+  Lean.Parser.adaptCacheableContext
+    (fun ctx => if ctx.forbiddenTk? == some "and" then ctx
+      else { ctx with forbiddenTk? := some "is" }) Lean.Parser.termParser
 
 /-! One scalar noun-to-type mapping serves subjects and all quantifiers.
 Plural domains delegate to their singular noun through `scalarDomainType%`. -/
@@ -153,6 +156,31 @@ macro_rules
   | `(scalarType% real number) => `(Real)
   | `(scalarType% complex number) => `(Complex)
   | `(scalarType% boolean) => `(Bool)
+
+/-- Treat a bare trailing decimal point as sentence punctuation in a typed
+scalar operand. Decimal fractions, exponents, and ordinary Lean terms retain
+their normal parsing. The numeral node preserves its original source range. -/
+def scalarOperandFn (normalFn : Lean.Parser.ParserFn) : Lean.Parser.ParserFn :=
+  fun ctx s =>
+    if ctx.forbiddenTk? == some "." && (ctx.get s.pos).isDigit then
+      let digits := Lean.Parser.takeDigitsFn Char.isDigit "decimal number" true ctx s
+      let following := ctx.get (ctx.next digits.pos)
+      if !digits.hasError && ctx.get digits.pos == '.' &&
+          !following.isDigit && following != 'e' && following != 'E' && following != '.' then
+        Lean.Parser.mkNodeToken Lean.numLitKind s.pos true ctx digits
+      else normalFn ctx s
+    else normalFn ctx s
+
+-- Preserve Lean's term formatter and parenthesizer for the operand.
+def scalarOperand : Lean.Parser.Parser :=
+  Lean.Parser.withFn scalarOperandFn (Lean.Parser.termParser Lean.Parser.argPrec)
+
+-- Scalar descriptions annotate values independently of definitions and binders.
+syntax:max "the" meanScalar ppSpace scalarOperand : term
+syntax:max "the" meanScalar "-" scalarOperand : term
+macro_rules
+  | `(the $noun:meanScalar $value:term) => `(($value : scalarType% $noun))
+  | `(the $noun:meanScalar - $value:term) => `((-$value : scalarType% $noun))
 
 declare_syntax_cat meanScalarDomain
 syntax meanScalar : meanScalarDomain
@@ -174,43 +202,77 @@ macro_rules
   | `(scalarDomainType% booleans) => `(scalarType% boolean)
 
 /-! Subjects specify bindings, independently of the definition clause.
-New subject forms implement `predicateOn%`; the definition command is unchanged. -/
+New subject forms implement `functionOn%`, shared by functions and predicates. -/
 declare_syntax_cat meanSubject
 syntax "a" "simple" "graph" ident : meanSubject
 syntax "a" "simple" "graph" ident "=" "(" ident "," ident ")" : meanSubject
 syntax "an" "element" ident "of" subjectType : meanSubject
 syntax "a" meanScalar ident : meanSubject
 syntax "an" meanScalar ident : meanSubject
+syntax "an" "implicit" meanScalar ident : meanSubject
+syntax "an" "implicit" "element" ident "of" subjectType : meanSubject
+syntax "a" "strictly" "implicit" meanScalar ident : meanSubject
+syntax "a" "strictly" "implicit" "element" ident "of" subjectType : meanSubject
 
--- Internal composition point: subject bindings scoped over a proposition.
+/-- Keep binder separators out of an unparenthesized element type. -/
+def functionSubject : Lean.Parser.Parser :=
+  Lean.Parser.withForbidden "and" (Lean.Parser.categoryParser `meanSubject 0)
+
+-- Internal composition point: subject bindings scoped over a value.
+syntax "functionOn%" meanSubject "=>" term : term
+syntax "functionOver%" functionSubject ("and" functionSubject)* "=>" term : term
 syntax "predicateOn%" meanSubject "=>" term : term
+syntax "the" "function" "mapping" functionSubject ("and" functionSubject)* "to" term : term
+syntax "the" "function" ":" term "mapping" functionSubject ("and" functionSubject)* "to" term : term
 
 macro_rules
-  | `(predicateOn% a simple graph $g:ident => $body:term) =>
-      `(fun {Vertex : Type*} ($g : SimpleGraph Vertex) => ($body : Prop))
-  | `(predicateOn% a simple graph $g:ident = ($vs:ident, $es:ident) => $body:term) => do
+  | `(the function mapping $subject:meanSubject $[and $subjects:meanSubject]* to $body:term) =>
+      `(functionOver% $subject $[and $subjects]* => $body)
+  | `(the function : $ty:term mapping $subject:meanSubject $[and $subjects:meanSubject]* to $body:term) =>
+      `(((functionOver% $subject $[and $subjects]* => $body) : $ty))
+  | `(functionOver% $subject:meanSubject $[and $subjects:meanSubject]* => $body:term) => do
+      let mut body := body
+      for subject in subjects.reverse do
+        body ← `(functionOn% $subject => $body)
+      `(functionOn% $subject => $body)
+  | `(predicateOn% $subject:meanSubject => $body:term) =>
+      `(functionOn% $subject => ($body : Prop))
+  | `(functionOn% a simple graph $g:ident => $body:term) =>
+      `(fun {Vertex : Type*} ($g : SimpleGraph Vertex) => $body)
+  | `(functionOn% a simple graph $g:ident = ($vs:ident, $es:ident) => $body:term) => do
       let names := [g.getId, vs.getId, es.getId]
       unless names.eraseDups.length == names.length do
         Lean.Macro.throwErrorAt g
           "the graph, vertex type, and edge set must have distinct names"
       `(fun {$vs : Type*} ($g : SimpleGraph $vs) =>
           let $es := SimpleGraph.edgeSet $g
-          ($body : Prop))
-  | `(predicateOn% an element $x:ident of $ty:term => $body:term) =>
-      `(fun ($x : $ty) => ($body : Prop))
-  | `(predicateOn% a $noun:meanScalar $x:ident => $body:term) =>
-      `(predicateOn% an element $x of (scalarType% $noun) => $body)
-  | `(predicateOn% an $noun:meanScalar $x:ident => $body:term) =>
-      `(predicateOn% an element $x of (scalarType% $noun) => $body)
+          $body)
+  | `(functionOn% an element $x:ident of $ty:term => $body:term) =>
+      `(fun ($x : $ty) => $body)
+  | `(functionOn% an implicit element $x:ident of $ty:term => $body:term) =>
+      `(fun {$x : $ty} => $body)
+  | `(functionOn% an implicit $noun:meanScalar $x:ident => $body:term) =>
+      `(functionOn% an implicit element $x of (scalarType% $noun) => $body)
+  | `(functionOn% a strictly implicit element $x:ident of $ty:term => $body:term) =>
+      `(fun ⦃$x : $ty⦄ => $body)
+  | `(functionOn% a strictly implicit $noun:meanScalar $x:ident => $body:term) =>
+      `(functionOn% a strictly implicit element $x of (scalarType% $noun) => $body)
+  | `(functionOn% a $noun:meanScalar $x:ident => $body:term) =>
+      `(functionOn% an element $x of (scalarType% $noun) => $body)
+  | `(functionOn% an $noun:meanScalar $x:ident => $body:term) =>
+      `(functionOn% an element $x of (scalarType% $noun) => $body)
 
 /-! The definition clause knows nothing about graphs or other subject types. -/
 syntax "Definition" ":" meanSubject
   "is" ident "if" sentenceBody "." : command
+syntax "Definition" ":" ident "is" sentenceBody "." : command
 
 macro_rules
   | `(command| Definition: $subject:meanSubject
         is $name:ident if $body:term .) =>
       `(command| def $name:ident := predicateOn% $subject => $body)
+  | `(command| Definition: $name:ident is $value:term .) =>
+      `(command| def $name:ident := $value)
 
 /-! Theorem statements reuse ordinary terms, including all Mean propositions.
 The separate statement category also supports rendering without a proof. -/

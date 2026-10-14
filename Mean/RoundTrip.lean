@@ -10,6 +10,20 @@ private def parseText (category : Name) (text : String) : TermElabM Syntax := do
   | .ok stx => return stx
   | .error message => throwError "Mean renderer produced unparseable text:\n{message}\n{text}"
 
+/-- Kernel definitional equality ignores binder information. Function rendering
+must also preserve which arguments Lean expects callers to supply or infer. -/
+private partial def checkFunctionBinders (original reparsed : Expr) : TermElabM Unit := do
+  let original := original.consumeMData
+  let reparsed := reparsed.consumeMData
+  match original, reparsed with
+  | .letE _ _ value body _, _ => checkFunctionBinders (body.instantiate1 value) reparsed
+  | _, .letE _ _ value body _ => checkFunctionBinders original (body.instantiate1 value)
+  | .lam _ _ body bi, .lam _ _ body' bi' =>
+    unless bi == bi' do
+      throwError "Mean round-trip changed function argument implicitness"
+    checkFunctionBinders body body'
+  | _, _ => pure ()
+
 /-- Check actual printed text, not just an intermediate syntax tree.
 The kernel checks an equality certificate after elaboration and metavariable checks. -/
 def checkText (original : Expr) (text : String) (category : Name := `term) : TermElabM Unit := do
@@ -23,6 +37,7 @@ def checkText (original : Expr) (text : String) (category : Name := `term) : Ter
     match stx with
     | `(command| Definition: $subject:meanSubject is $_:ident if $body:term .) =>
       `(predicateOn% $subject => $body)
+    | `(command| Definition: $_:ident is $value:term .) => pure value
     | `(command| def $_:ident : $ty:term := $body:term) => `(($body : $ty))
     | _ => throwError "unsupported rendered declaration"
   else if category == `meanTheoremStatement then
@@ -30,7 +45,9 @@ def checkText (original : Expr) (text : String) (category : Name := `term) : Ter
     | `(meanTheoremStatement| Theorem $_:ident : $statement:term) => pure statement
     | _ => throwError "unsupported rendered theorem statement"
   else pure ⟨stx⟩
-  let expected ← if graphSubject then pure none else pure (some (← inferType original))
+  -- A declaration must infer its type from the printed text, just as a new def
+  -- would. Supplying the original type could hide a missing type annotation.
+  let expected ← if category == `command then pure none else pure (some (← inferType original))
   let reparsed ← elabTermEnsuringType term expected (implicitLambda := false)
   synthesizeSyntheticMVarsNoPostponing
   let mut reparsed ← instantiateMVars reparsed
@@ -47,6 +64,7 @@ def checkText (original : Expr) (text : String) (category : Name := `term) : Ter
     throwError "Mean round-trip check refuses expressions containing sorry"
   if reparsed.hasMVar || original.hasMVar then
     throwError "Mean round-trip check has unresolved metavariables:\n{text}\n{reparsed}"
+  checkFunctionBinders original reparsed
   unless ← isDefEq original reparsed do
     throwError "Mean round-trip check failed: rendered text changed the expression"
   let equality ← mkEq original reparsed

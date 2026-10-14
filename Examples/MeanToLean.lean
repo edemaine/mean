@@ -1,5 +1,176 @@
 import Mean.Syntax
 
+-- Named values and function construction are independent syntax forms.
+namespace ValueExamples
+
+Definition: double is the function mapping a natural number n to 2 * n.
+example : double = (fun n : Nat => 2 * n) := rfl
+example : double 7 = 14 := rfl
+
+Definition: answer is the integer 42.
+example : answer = (42 : Int) := rfl
+
+-- Typed values reuse scalar vocabulary; the numeral need not be parenthesized.
+Definition: naturalAnswer is the natural number 42.
+Definition: negativeAnswer is the integer -42.
+Definition: rationalAnswer is the rational number 42.
+Definition: realAnswer is the real number 42.
+Definition: complexAnswer is the complex number 42.
+Definition: booleanAnswer is the boolean true.
+Definition: decimalAnswer is the rational number 1.5.
+Definition: negativeDecimalAnswer is the rational number -1.5.
+Definition: exponentAnswer is the real number 42.e2.
+Definition: underscoreAnswer is the integer 1_000.
+Definition: hexAnswer is the integer 0x2a.
+Definition: computedAnswer is the integer (2 + 3).
+example : naturalAnswer = (42 : Nat) := rfl
+example : negativeAnswer = (-42 : Int) := rfl
+example : rationalAnswer = (42 : Rat) := rfl
+example : realAnswer = (42 : Real) := rfl
+example : complexAnswer = (42 : Complex) := rfl
+example : booleanAnswer = true := rfl
+example : decimalAnswer = (1.5 : Rat) := rfl
+example : negativeDecimalAnswer = (-1.5 : Rat) := rfl
+example : exponentAnswer = (42.e2 : Real) := rfl
+example : underscoreAnswer = (1000 : Int) := rfl
+example : hexAnswer = (42 : Int) := rfl
+example : computedAnswer = (2 + 3 : Int) := rfl
+example (n : Int) : (the integer (2 * n)) = 2 * n := rfl
+example : (the integer 42) = (42 : Int) := rfl
+example : (the integer -42) = (-42 : Int) := rfl
+example : (the integer 2 + 3) = (5 : Int) := rfl
+example : (the boolean false) = false := rfl
+
+Definition: add is the function mapping a natural number n to
+  the function mapping a natural number m to n + m.
+example : add = (fun n m : Nat => n + m) := rfl
+
+-- Each subject supplies a successive argument, with earlier names in scope.
+Definition: addCurried is the function mapping a natural number n and a natural number m to n + m.
+example : addCurried = add := rfl
+Definition: mixedSum is the function mapping a natural number n and an integer z to n + z.
+example : mixedSum = (fun (n : Nat) (z : Int) => n + z) := rfl
+Definition: sumThree is the function mapping a natural number x and
+  a natural number y and a natural number z to x + y + z.
+example : sumThree = (fun x y z : Nat => x + y + z) := rfl
+Definition: constantInteger is the function : Nat → Bool → Int mapping
+  a natural number _n and a boolean _b to (0).
+example : constantInteger = (fun (_n : Nat) (_b : Bool) => (0 : Int)) := rfl
+
+Definition: integerDouble is the function mapping an integer n to 2 * n.
+Definition: rationalDouble is the function mapping a rational number x to 2 * x.
+Definition: realDouble is the function mapping a real number x to 2 * x.
+Definition: complexDouble is the function mapping a complex number z to 2 * z.
+Definition: booleanIdentity is the function mapping a boolean b to b.
+example : integerDouble = (fun n : Int => 2 * n) := rfl
+example : rationalDouble = (fun x : Rat => 2 * x) := rfl
+example : realDouble = (fun x : Real => 2 * x) := rfl
+example : complexDouble = (fun z : Complex => 2 * z) := rfl
+example : booleanIdentity = (fun b : Bool => b) := rfl
+
+-- The body may be a proposition, a dependent function, or ordinary Lean.
+Definition: isZero is the function mapping a natural number n to (n = 0).
+example : isZero = (fun n : Nat => n = 0) := rfl
+Definition: indexValue is the function mapping a natural number n to
+  the function mapping an element i of (Fin n) to i.val.
+example : indexValue = (fun (n : Nat) (i : Fin n) => i.val) := rfl
+Definition: indexCurried is the function mapping a natural number n and
+  an element i of (Fin n) to i.val.
+example : indexCurried = indexValue := rfl
+example : (the function : (n : Nat) → Fin n → Nat mapping
+    a natural number n and an element i of (Fin n) to i.val) = indexValue := rfl
+Definition: zeroInteger is the function : Nat → Int mapping a natural number _n to (0).
+example : zeroInteger = (fun _n : Nat => (0 : Int)) := rfl
+
+-- Implicit subjects preserve Lean's calling convention and dependent inference.
+Definition: implicitAdd is the function mapping a natural number n and
+  an implicit natural number m to n + m.
+example : implicitAdd 3 (m := 4) = 7 := rfl
+example : implicitAdd = (fun (n : Nat) {m : Nat} => n + m) := rfl
+Definition: implicitIndex is the function mapping an implicit natural number n and
+  an element i of (Fin n) to i.val.
+example : implicitIndex (2 : Fin 3) = 2 := rfl
+Definition: implicitIntegerNext is the function mapping an implicit integer x to (x + 1).
+example : implicitIntegerNext (x := 4) = (5 : Int) := rfl
+Definition: implicitConstant is the function : Nat → {_m : Nat} → Int mapping
+  a natural number _n and an implicit natural number _m to (0).
+example : implicitConstant 3 (_m := 4) = (0 : Int) := rfl
+example : (the function mapping an implicit integer x and a boolean b to
+    if b then x else -x) = (fun {x : Int} (b : Bool) => if b then x else -x) := rfl
+
+-- Strict implicit arguments are inferred when a later explicit argument is supplied.
+Definition: strictIndex is the function mapping a strictly implicit natural number n and
+  an element i of Fin n to i.val.
+example : strictIndex (2 : Fin 3) = 2 := rfl
+Definition: strictConstant is the function : ⦃n : Nat⦄ → Fin n → Int mapping
+  a strictly implicit natural number n and an element _i of Fin n to (0).
+example : strictConstant (2 : Fin 3) = (0 : Int) := rfl
+Definition: strictAdd is the function mapping a natural number n and
+  a strictly implicit natural number m to n + m.
+example : strictAdd 3 = (fun ⦃m : Nat⦄ => 3 + m) := rfl
+example : strictAdd 3 (m := 4) = 7 := rfl
+example : (the function mapping a strictly implicit integer x and a boolean b to
+    if b then x else -x) = (fun ⦃x : Int⦄ (b : Bool) => if b then x else -x) := rfl
+Definition: strictIdentity is the function mapping a strictly implicit element T of Type and
+  an element x of T to x.
+example : strictIdentity 3 = (3 : Nat) := rfl
+
+-- The optional type constrains the entire function, including nested bodies.
+example : (the function : Nat → Int mapping a natural number _n to 0) =
+    (fun _n : Nat => (0 : Int)) := rfl
+example : (the function : Nat → Prop mapping a natural number n to n = 0) =
+    (fun n : Nat => n = 0) := rfl
+example : (the function : (n : Nat) → Fin n → Nat mapping a natural number n to
+    the function : Fin n → Nat mapping an element i of (Fin n) to i.val) =
+    (fun (n : Nat) (i : Fin n) => i.val) := rfl
+example : (the function : Nat → Int mapping a natural number n to n) 3 = (3 : Int) := rfl
+
+-- Parentheses delimit the function body in an application or adjective subject.
+example : (the function mapping a natural number n to 2 * n) 3 = 6 := rfl
+example : ((the function mapping a natural number n to n + 1) is injective) =
+    Function.Injective (fun n : Nat => n + 1) := rfl
+
+section
+variable {T : Sort u} (offset : Nat)
+example : (the function mapping an implicit element _x of T and an element y of T to y) =
+    (fun {_x : T} (y : T) => y) := rfl
+example : (the function mapping a strictly implicit element _x of T and an element y of T to y) =
+    (fun ⦃_x : T⦄ (y : T) => y) := rfl
+example : (the function mapping an implicit element S of Sort u and an element x of S to x) =
+    (fun {S : Sort u} (x : S) => x) := rfl
+example : (the function mapping an implicit element V of Type and an element G of SimpleGraph V to G) =
+    (fun {V : Type} (G : SimpleGraph V) => G) := rfl
+Definition: implicitIdentityOnT is the function mapping an implicit element x of T to x.
+example (x : T) : implicitIdentityOnT (x := x) = x := rfl
+-- Typed-element subjects may precede other subjects; parentheses delimit type conjunctions.
+example : (the function mapping an element x of T and a natural number _n to x) =
+    (fun (x : T) (_n : Nat) => x) := rfl
+example : (the function mapping an element _x of T and an element y of T to y) =
+    (fun (_x : T) (y : T) => y) := rfl
+example (P Q : Prop) : (the function mapping an element h of (P and Q) and a boolean _b to h) =
+    (fun (h : P ∧ Q) (_b : Bool) => h) := rfl
+example : (the function mapping a natural number _n and a natural number _n to _n) =
+    (fun (_x : Nat) (y : Nat) => y) := rfl
+example : (the function : T → T mapping an element x of T to x) = (fun x : T => x) := rfl
+Definition: identityOnT is the function mapping an element x of T to x.
+Definition: shifted is the function mapping a natural number n to n + offset.
+example : identityOnT = (fun x : T => x) := rfl
+example : shifted offset = (fun n : Nat => n + offset) := rfl
+-- A binder shadows the surrounding variable with the same name.
+example : (the function mapping a natural number offset to offset + 1) =
+    (fun n : Nat => n + 1) := rfl
+end
+
+Definition: graphVertices is the function mapping a simple graph G to G.V.
+example {V : Type*} (G : SimpleGraph V) : graphVertices G = V := rfl
+Definition: graphEdges is the function mapping a simple graph G = (V, E) to E.
+example {V : Type*} (G : SimpleGraph V) : graphEdges G = G.edgeSet := rfl
+Definition: adjacent is the function mapping a simple graph G = (V, E) and
+  an element u of V and an element v of V to s(u, v) ∈ E.
+example {V : Type*} (G : SimpleGraph V) : adjacent G = (fun u v : V => s(u, v) ∈ G.edgeSet) := rfl
+
+end ValueExamples
+
 -- Statements reuse Mean propositions; proofs remain ordinary Lean terms or tactics.
 namespace TheoremExamples
 

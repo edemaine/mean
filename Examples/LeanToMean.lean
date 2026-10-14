@@ -1,6 +1,171 @@
 import Examples.MeanToLean
 import Mean
 
+-- Function values render independently of named definitions.
+#mean_compare ValueExamples.double
+
+/--
+info: Definition:
+  ValueExamples.double is
+    the function mapping a natural number n to
+      2 * n.
+-/
+#guard_msgs in
+#mean ValueExamples.double
+
+#mean_compare ValueExamples.answer
+
+/--
+info: Definition:
+  ValueExamples.answer is
+    the integer 42.
+-/
+#guard_msgs in
+#mean ValueExamples.answer
+
+#mean_compare ValueExamples.naturalAnswer
+#mean_compare ValueExamples.negativeAnswer
+#mean_compare ValueExamples.rationalAnswer
+#mean_compare ValueExamples.realAnswer
+#mean_compare ValueExamples.complexAnswer
+#mean_compare ValueExamples.booleanAnswer
+#mean_compare ValueExamples.decimalAnswer
+#mean_compare ValueExamples.negativeDecimalAnswer
+#mean_compare ValueExamples.exponentAnswer
+#mean_compare ValueExamples.underscoreAnswer
+#mean_compare ValueExamples.hexAnswer
+#mean_compare ValueExamples.computedAnswer
+#mean_compare ValueExamples.add
+#mean_compare ValueExamples.integerDouble
+#mean_compare ValueExamples.rationalDouble
+#mean_compare ValueExamples.realDouble
+#mean_compare ValueExamples.complexDouble
+#mean_compare ValueExamples.booleanIdentity
+#mean_compare ValueExamples.indexValue
+#mean_compare ValueExamples.zeroInteger
+
+/--
+info: Definition:
+  ValueExamples.zeroInteger is
+    the function : ℕ → ℤ mapping a natural number _n to
+      (0).
+-/
+#guard_msgs in
+#mean ValueExamples.zeroInteger
+
+#mean_compare ValueExamples.identityOnT
+#mean_compare ValueExamples.shifted
+
+/--
+info: Definition:
+  ValueExamples.shifted is
+    the function mapping a natural number offset and a natural number n to
+      n + offset.
+-/
+#guard_msgs in
+#mean ValueExamples.shifted
+
+#mean_compare ValueExamples.mixedSum
+#mean_compare ValueExamples.sumThree
+#mean_compare ValueExamples.constantInteger
+#mean_compare ValueExamples.implicitAdd
+#mean_compare ValueExamples.implicitIndex
+#mean_compare ValueExamples.implicitIntegerNext
+#mean_compare ValueExamples.implicitConstant
+#mean_compare ValueExamples.implicitIdentityOnT
+#mean_compare ValueExamples.strictIndex
+#mean_compare ValueExamples.strictConstant
+#mean_compare ValueExamples.strictAdd
+#mean_compare ValueExamples.strictIdentity
+#mean_compare ValueExamples.graphEdges
+#mean_term_compare fun n : Nat => 2 * n
+#mean_term_compare fun n : Nat => fun i : Fin n => i.val
+#mean_term_compare fun «a» : Nat => fun «graph» : Nat => «a» + «graph»
+#mean_term_compare fun _n : Nat => fun _n : Nat => _n
+-- Ordinary implicit binders join the function phrase without changing inference.
+#mean_term_compare fun n : Nat => fun {m : Nat} => n + m
+/--
+info: the function mapping a natural number n and an implicit natural number m to
+  n + m
+-/
+#guard_msgs in
+#mean_term fun (n : Nat) {m : Nat} => n + m
+#mean_term_compare fun {n : Nat} (i : Fin n) => i.val
+#mean_term_compare fun {n : Nat} (m : Nat) {k : Nat} => n + m + k
+-- Strict implicit subjects preserve delayed inference, including trailing binders.
+#mean_term_compare fun n : Nat => fun ⦃m : Nat⦄ => n + m
+/--
+info: the function mapping a strictly implicit natural number n and an element i of Fin n to
+  (↑i : ℕ)
+-/
+#guard_msgs in
+#mean_term fun ⦃n : Nat⦄ (i : Fin n) => i.val
+#mean_term_compare fun ⦃n : Nat⦄ (m : Nat) {k : Nat} => n + m + k
+-- Instance binders retain ordinary Lean syntax.
+#mean_term_compare fun (n : Nat) [inst : Inhabited Nat] => n + @default Nat inst
+#mean_term_compare fun _n : Nat => (0 : Int)
+section
+variable {T : Sort u}
+#mean_term_compare fun x : T => x
+#mean_term_compare fun (_x : T) (y : T) => y
+#mean_term_compare fun {_x : T} (y : T) => y
+#mean_term_compare fun ⦃_x : T⦄ (y : T) => y
+#mean_term_compare fun (h : True and True) (_b : Bool) => h
+end
+
+open Lean Elab Term in
+run_elab do
+  let original := (← getConstInfo ``ValueExamples.double).value!
+  let rejected ← try
+    Mean.RoundTrip.checkText original
+      "Definition: changed is the function mapping a natural number n to 3 * n." `command
+    pure false
+  catch _ => pure true
+  unless rejected do throwError "round-trip checker accepted a changed function definition"
+
+open Lean Elab Term in
+run_elab do
+  -- An unannotated numeral must not inherit its type from the original definition.
+  for (name, text) in [
+      (``ValueExamples.answer, "Definition: changed is (42)."),
+      (``ValueExamples.answer, "Definition: changed is the natural number 42."),
+      (``ValueExamples.answer, "Definition: changed is the integer true."),
+      (``ValueExamples.zeroInteger,
+        "Definition: changed is the function mapping a natural number _n to (0)."),
+      (``ValueExamples.zeroInteger,
+        "Definition: changed is the function : Int → Int mapping a natural number _n to (0).") ] do
+    let original := (← getConstInfo name).value!
+    let rejected ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkText original text `command
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "round-trip checker accepted a changed inferred type"
+
+open Lean Elab Term in
+run_elab do
+  let original := (← getConstInfo ``ValueExamples.implicitAdd).value!
+  let rejected ← withoutModifyingState do
+    try
+      Mean.RoundTrip.checkText original
+        "Definition: changed is the function mapping a natural number n and a natural number m to n + m." `command
+      pure false
+    catch _ => pure true
+  unless rejected do throwError "round-trip checker accepted erased argument implicitness"
+
+open Lean Elab Term in
+run_elab do
+  let original := (← getConstInfo ``ValueExamples.strictIndex).value!
+  -- Definitional equality alone cannot distinguish these calling conventions.
+  for modifier in ["an implicit", "a"] do
+    let rejected ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkText original
+          s!"Definition: changed is the function mapping {modifier} natural number n and an element i of Fin n to i.val." `command
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "round-trip checker accepted changed strict implicitness"
+
 -- Theorem rendering checks the statement and omits the proof.
 theorem ordinaryNatTrans3 (x y z w : Nat) (h : x = y ∧ z = y ∧ z = w) : x = w := by
   exact h.1.trans (h.2.1.symm.trans h.2.2)
@@ -87,7 +252,7 @@ variable {V : Type*} (G : SimpleGraph V) (u v : V)
 #mean_term_compare ∃ p : G.Path u v, p.val.length = 0
 end
 
--- Unsupported shapes retain explicit Lean, without losing their assumptions.
+-- Additional explicit parameters and hypotheses use nested function expressions.
 def withAssumption (n : Nat) (h : n > 0) : Prop := n ≥ 1 ∧ h = h
 #mean_compare withAssumption
 #mean_compare preconnected_iff_mathlib_preconnected
