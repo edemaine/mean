@@ -133,7 +133,9 @@ def checkDefinition (originalName : Name) (text : String) : TermElabM Unit :=
     let levelNames := original.levelParams
     let actualName := currNamespace ++ fresh
     liftCommandElabM do
-      Command.withScope (fun scope => { scope with currNamespace, openDecls, levelNames }) do
+      -- Module declarations default to private; keep the temporary name predictable.
+      Command.withScope (fun scope =>
+          { scope with currNamespace, openDecls, levelNames, isPublic := true }) do
         Command.elabCommand renamed
     let .defnInfo actual ← getConstInfo actualName
       | throwError "Mean round-trip changed the declaration kind"

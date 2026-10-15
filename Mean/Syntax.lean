@@ -1,6 +1,6 @@
 import Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected
-import Mathlib.Data.Complex.Basic
-import Mathlib.Data.Countable.Defs
+import Mathlib.Basic.Complex.Basic
+import Mathlib.Basic.Countable.Defs
 import Lean
 
 /-! # Mean: compositional controlled mathematical syntax inside Lean.
@@ -135,8 +135,8 @@ def sentenceBody : Lean.Parser.Parser :=
 Parentheses disable these delimiters inside a compound type. -/
 def subjectType : Lean.Parser.Parser :=
   Lean.Parser.adaptCacheableContext
-    (fun ctx => if ctx.forbiddenTk? == some "and" then ctx
-      else { ctx with forbiddenTk? := some "is" }) Lean.Parser.termParser
+    (fun ctx => if ctx.forbiddenTks.contains "and" then ctx
+      else { ctx with forbiddenTks := #["is"] }) Lean.Parser.termParser
 
 /-! One scalar noun-to-type mapping serves subjects and all quantifiers.
 Plural domains delegate to their singular noun through `scalarDomainType%`. -/
@@ -162,7 +162,7 @@ scalar operand. Decimal fractions, exponents, and ordinary Lean terms retain
 their normal parsing. The numeral node preserves its original source range. -/
 def scalarOperandFn (normalFn : Lean.Parser.ParserFn) : Lean.Parser.ParserFn :=
   fun ctx s =>
-    if ctx.forbiddenTk? == some "." && (ctx.get s.pos).isDigit then
+    if ctx.forbiddenTks.contains "." && (ctx.get s.pos).isDigit then
       let digits := Lean.Parser.takeDigitsFn Char.isDigit "decimal number" true ctx s
       let following := ctx.get (ctx.next digits.pos)
       if !digits.hasError && ctx.get digits.pos == '.' &&

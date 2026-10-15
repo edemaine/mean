@@ -174,8 +174,12 @@ end ValueExamples
 namespace ProofExamples
 section
 variable (P Q : Prop)
+-- These definitions deliberately test functions returning proofs.
+set_option linter.defProp false in
 Definition: identity is the function mapping a proof h that P to h.
+set_option linter.defProp false in
 Definition: implicitIdentity is the function mapping an implicit proof h that P to h.
+set_option linter.defProp false in
 Definition: strictIdentity is the function mapping a strictly implicit proof h that P and
   a proof _eq that h = h to h.
 example (h : P) : identity P h = h := rfl

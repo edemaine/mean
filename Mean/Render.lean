@@ -415,6 +415,15 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
   withLevelNames info.levelParams do
     let context := if info.levelParams.isEmpty then "" else
       "-- Universe parameters: " ++ String.intercalate ", " (info.levelParams.map toString) ++ "\n"
+    -- Module exports omit theorem proofs and may present them as axioms.
+    if wasOriginallyTheorem (← getEnv) n then
+      let text := s!"Theorem {← nameText n}:\n{indented (← renderExpr info.type)}"
+      RoundTrip.checkText info.type text `meanTheoremStatement
+      if compare then
+        let before := s!"theorem {← nameText n} :\n{indented (← leanText info.type)}"
+        logInfo (comparisonText (context ++ before) (context ++ text))
+      else logInfo s!"{context}{text}"
+      return
     match info with
     | .defnInfo d =>
       let abbreviation := d.hints.isAbbrev
@@ -425,13 +434,6 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
         let before := s!"{keyword} {← nameText n} : {← leanText info.type} :=\n{indented (← leanText d.value)}"
         logInfo (comparisonText before text)
       else logInfo text
-    | .thmInfo _ =>
-      let text := s!"Theorem {← nameText n}:\n{indented (← renderExpr info.type)}"
-      RoundTrip.checkText info.type text `meanTheoremStatement
-      if compare then
-        let before := s!"theorem {← nameText n} :\n{indented (← leanText info.type)}"
-        logInfo (comparisonText (context ++ before) (context ++ text))
-      else logInfo s!"{context}{text}"
     | _ =>
       let text ← renderChecked info.type
       let statementHeader := s!"{context}-- Statement of {n}\n"

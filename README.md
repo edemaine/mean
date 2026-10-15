@@ -220,7 +220,7 @@ the proof. Add `Proof: …` to turn that statement view into a declaration.
 
 `Lemma name:` is an alias for `Theorem name:`. Both render canonically as
 `Theorem`, since Lean does not retain the distinction. Similarly, Mathlib provides
-[`lemma`](https://github.com/leanprover-community/mathlib4/blob/v4.31.0/Mathlib/Tactic/Lemma.lean)
+[`lemma`](https://github.com/leanprover-community/mathlib4/blob/v4.35.0/Mathlib/Tactic/Lemma.lean)
 as a macro expanding to core Lean's `theorem`. Mean expands to `theorem` through
 its own `Theorem` syntax; going through Mathlib's `lemma` would add an equivalent
 step without preserving the label.
@@ -315,7 +315,7 @@ lake exe cache get Mathlib.Computability.RE Mathlib.Computability.Primrec.List
 lake build
 ```
 
-Lean and mathlib are pinned to v4.31.0. `lake build` checks both directions and the
+Lean and mathlib are pinned to v4.35.0. `lake build` checks both directions and the
 round-trip tests.
 
 To also check the examples' exact before/after output, using Python 3.9 or newer:
@@ -403,7 +403,7 @@ The [upstream license](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3e
 is linked in `Wang.lean` and its generated `.mean` header. A local license copy accompanies
 the adapted source, as required by [Apache 2.0 §4(a)](https://www.apache.org/licenses/LICENSE-2.0#redistribution).
 
-The example uses Mean's pinned Lean/mathlib 4.31.0; upstream uses Lean 4.35.0.
+Mean and lean-wang both use Lean/mathlib 4.35.0.
 The original lambda parameter `a` is spelled `«a»` because Mean reserves `a`;
 this escapes the identifier without renaming it.
 The two theorem declarations are retained with `sorry` proofs and rendered by

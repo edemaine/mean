@@ -297,6 +297,15 @@ info: Theorem TheoremExamples.zeroExists:
 #guard_msgs in
 #mean TheoremExamples.zeroExists
 
+-- An actual axiom must remain distinct from an imported theorem without its proof.
+axiom ordinaryAxiom : True
+/--
+info: -- Statement of ordinaryAxiom
+True
+-/
+#guard_msgs in
+#mean ordinaryAxiom
+
 open Lean Elab Term in
 run_elab do
   let original := (← getConstInfo ``TheoremExamples.zeroExists).type
@@ -347,6 +356,7 @@ def smallGraph {V : Type} (G : SimpleGraph V) : Prop :=
   ∀ u v : V, ∃ _p : G.Path u v, True
 #mean_compare smallGraph
 
+set_option linter.checkUnivs false in
 def compoundGraph.{u, v} {V : Type (max u v)} (G : SimpleGraph V) : Prop :=
   ∀ x y : V, ∃ _p : G.Path x y, True
 #mean_compare compoundGraph

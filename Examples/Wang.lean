@@ -10,8 +10,7 @@ Changes from upstream: import Mean; escape the binder
 `a` as `«a»` because Mean reserves `a`; add checked before/after comparisons;
 replace the two upstream theorem proofs with `sorry` rather than importing
 AbstractBridge. Comparisons check the original definitions and theorem statements.
-The upstream project uses Lean 4.35.0; this example is checked with Mean's
-pinned Lean/mathlib 4.31.0.
+Mean and the upstream project both use Lean/mathlib 4.35.0.
 -/
 import Mathlib.Computability.RE
 import Mathlib.Computability.Primrec.List
