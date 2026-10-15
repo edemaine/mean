@@ -171,6 +171,68 @@ example {V : Type*} (G : SimpleGraph V) : adjacent G = (fun u v : V => s(u, v) �
 
 end ValueExamples
 
+namespace TypeNounExamples
+universe u
+-- These ordinary Lean definitions need no English vocabulary registration.
+def Token := Fin 3
+def Endomap := Nat → Nat
+
+Definition: an element i of Fin 3 is indexReflexive if i = i.
+example : indexReflexive = (fun i : Fin 3 => i = i) := rfl
+Definition: a list xs of Token elements is emptyList if xs = [].
+example : emptyList = (fun xs : List Token => xs = []) := rfl
+Definition: copyList is the function mapping a list xs of Token elements to xs.
+example : copyList = (fun xs : List Token => xs) := rfl
+Definition: polymorphicCopy is the function mapping an implicit element A of Type u and
+  a list xs of A elements to xs.
+example : @polymorphicCopy = (fun {A : Type u} (xs : List A) => xs) := rfl
+Definition: implicitLength is the function mapping an implicit list xs of Token elements and
+  a natural number n to xs.length + n.
+example : @implicitLength = (fun {xs : List Token} (n : Nat) => xs.length + n) := rfl
+Definition: strictLength is the function mapping a strictly implicit list xs of Token elements and
+  a natural number n to xs.length + n.
+example : strictLength = (fun ⦃xs : List Token⦄ (n : Nat) => xs.length + n) := rfl
+example : (the function mapping a list xs of Nat elements and
+    an element i of Fin xs.length to xs[i]) =
+    (fun (xs : List Nat) (i : Fin xs.length) => xs[i]) := rfl
+example (n : Nat) : (the function mapping a list xs of (Fin n) elements to xs) =
+    (fun xs : List (Fin n) => xs) := rfl
+example : (the function mapping a list fs of (Nat → Nat) elements to fs.length) =
+    (fun fs : List (Nat → Nat) => fs.length) := rfl
+
+Definition: diagonal is the function mapping a function f from Nat and Nat to Nat and
+  a natural number n to f n n.
+example : diagonal = (fun (f : Nat → Nat → Nat) (n : Nat) => f n n) := rfl
+Definition: a function f from Nat and Nat to Nat is diagonalZero if (f 0 0 = 0).
+example : diagonalZero = (fun f : Nat → Nat → Nat => f 0 0 = 0) := rfl
+Definition: implicitApply is the function mapping an implicit function f from Nat to Nat and
+  a natural number n to f n.
+example : @implicitApply = (fun {f : Nat → Nat} (n : Nat) => f n) := rfl
+Definition: strictApply is the function mapping a strictly implicit function f from Nat to Nat and
+  a natural number n to f n.
+example : strictApply = (fun ⦃f : Nat → Nat⦄ (n : Nat) => f n) := rfl
+example : (the function mapping a function f from (Nat × Nat) to Nat to f (0, 0)) =
+    (fun f : Nat × Nat → Nat => f (0, 0)) := rfl
+example : (the function mapping a function f from (Nat → Nat) to Nat to f Nat.succ) =
+    (fun f : (Nat → Nat) → Nat => f Nat.succ) := rfl
+
+example : (there is a list xs of Token elements such that xs = []) =
+    (∃ xs : List Token, xs = []) := rfl
+example : (there is a list of Token elements) = (∃ _xs : List Token, True) := rfl
+example : (there is no list of Token elements) = (¬ ∃ _xs : List Token, True) := rfl
+example : (there is no list xs of Token elements such that xs = []) =
+    (¬ ∃ xs : List Token, xs = []) := rfl
+example : (there is a function f from Int and Int to Token such that f = f) =
+    (∃ f : Int → Int → Token, f = f) := rfl
+example : (there is a function from Nat to Nat) = (∃ _f : Nat → Nat, True) := rfl
+example : (there is no function from Nat to Nat) = (¬ ∃ _f : Nat → Nat, True) := rfl
+example : (there is no function f from Nat to Nat such that f 0 = 0) =
+    (¬ ∃ f : Nat → Nat, f 0 = 0) := rfl
+-- Anonymous descriptions leave surrounding variables in scope.
+example (xs : List Token) : (there is a list of Token elements such that xs = xs) =
+    (∃ _ys : List Token, xs = xs) := rfl
+end TypeNounExamples
+
 namespace ProofExamples
 section
 variable (P Q : Prop)

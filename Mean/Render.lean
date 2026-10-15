@@ -73,9 +73,9 @@ private def atomText (e : Expr) (propertySubject := false) : MetaM String := do
 private def indented (s : String) : String :=
   "  " ++ s.replace "\n" "\n  "
 
-/-- Function subject types accept applications and sorts without grouping.
+/-- Subject types accept applications and sorts without grouping.
 Probe the surrounding grammar to protect types containing binder separators. -/
-private def functionSubjectTypeText (e : Expr) : MetaM String := do
+private def subjectTypeText (e : Expr) : MetaM String := do
   let text ← propertyText e
   let probe := s!"the function mapping an element typeProbe of {text} and a boolean binderProbe to binderProbe"
   match Parser.runParserCategory (← getEnv) `term probe with
@@ -126,18 +126,36 @@ private def scalarDescription? (ty : Expr) : Option String := do
   let (singular, _) ← scalarNouns? ty
   return (if ty.isConstOf ``Int then "an " else "a ") ++ singular
 
-/-- Propositions describe proofs; other types describe scalar or generic elements.
+/-- Only explicit, nondependent arrows admit the simple from/to description.
+Inspect the type expression without unfolding user-defined aliases. -/
+private partial def functionTypeParts? (ty : Expr) : Option (List Expr × Expr) := do
+  let .forallE _ domain result .default := ty.consumeMData | none
+  if result.hasLooseBVars then none
+  else if result.consumeMData.isForall then
+    let (domains, codomain) ← functionTypeParts? result
+    some (domain :: domains, codomain)
+  else some ([domain], result)
+
+private def functionSignatureText? (ty : Expr) : MetaM (Option String) := do
+  let some (domains, codomain) := functionTypeParts? ty | return none
+  let domains ← domains.mapM fun domain => atomText domain
+  return some s!"from {String.intercalate " and " domains} to {← subjectTypeText codomain}"
+
+/-- Propositions describe proofs; supported types supply their own noun phrases.
 Use the same vocabulary for function parameters and predicate subjects. -/
-private def subjectText (ty : Expr) (n : Name) (bi : BinderInfo)
-    (predicate := false) : MetaM String := do
+private def subjectText (ty : Expr) (n : Name) (bi : BinderInfo) : MetaM String := do
   let name ← nameText n
   let modifier := match bi with
     | .implicit => some "an implicit"
     | .strictImplicit => some "a strictly implicit"
     | _ => none
-  let typeText := if predicate then atomText ty else functionSubjectTypeText ty
+  let typeText := subjectTypeText ty
   if ← isProp ty then
     return s!"{modifier.getD "a"} proof {name} that {← typeText}"
+  if ty.isAppOfArity ``List 1 then
+    return s!"{modifier.getD "a"} list {name} of {← atomText ty.getAppArgs[0]!} elements"
+  if let some signature ← functionSignatureText? ty then
+    return s!"{modifier.getD "a"} function {name} {signature}"
   if let some (noun, _) := scalarNouns? ty then
     if let some modifier := modifier then return s!"{modifier} {noun} {name}"
     if let some description := scalarDescription? ty then return s!"{description} {name}"
@@ -187,6 +205,10 @@ private def witnessText (ty : Expr) (name : Option String) (negative := false) :
   if ty.isAppOfArity ``SimpleGraph.Path 4 then
     let args := ty.getAppArgs
     return s!"{article} path{suffix} in {← atomText args[1]!} from {← atomText args[2]!} to {← atomText args[3]!}"
+  if ty.isAppOfArity ``List 1 then
+    return s!"{article} list{suffix} of {← atomText ty.getAppArgs[0]!} elements"
+  if let some signature ← functionSignatureText? ty then
+    return s!"{article} function{suffix} {signature}"
   if negative then
     if let some (singular, _) := scalarNouns? ty then
       return s!"no {singular}{suffix}"
@@ -364,7 +386,7 @@ def renderDefinition (name : Name) (value : Expr) (abbreviation := false) : Term
     let result ← withLocalDeclD n ty fun x => do
       let body := body.instantiate1 x
       if !(← isProp body) then return none
-      let subject ← subjectText ty n .default true
+      let subject ← subjectText ty n .default
       return some s!"{clause}:\n  {subject} is {nameStr} if\n{indented (indented ((← renderExpr body true) ++ "."))}"
     if let some text := result then return text
   | _ => pure ()

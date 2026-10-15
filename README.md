@@ -124,6 +124,35 @@ binders this way. Nested function phrases remain accepted. Parameter types such 
 Parentheses delimit a conjunction used as a subject type, such as
 `a proof h that (P and Q)`, because `and` also separates parameters.
 
+Lists and functions have noun phrases that keep their original Lean type names:
+
+```lean
+a list T of Tile elements
+a function t from ℤ and ℤ to Tile
+```
+
+These bind `T : List Tile` and `t : ℤ → ℤ → Tile`. `Tile` can be any type in
+scope, including an ordinary user-defined type; no English vocabulary declaration
+or pluralization of its name is needed. Group compound list element types, as in
+`a list T of (Fin n) elements`.
+
+Function domains separated by `and` are curried arguments. A product domain stays
+explicit: `a function f from (ℤ × ℤ) to Tile` means `(ℤ × ℤ) → Tile`.
+Group function-valued domains too, as in `from (ℕ → ℕ) to ℕ`.
+The renderer uses from/to wording for explicit, nondependent function types;
+dependent or implicit signatures retain their exact Lean notation in element phrases.
+
+Both nouns work in predicate subjects and function parameters, including
+`an implicit list T of Tile elements`, `a strictly implicit list T of Tile elements`,
+and the corresponding implicit function forms. Existential witnesses use the
+same descriptions with optional names:
+
+```lean
+there is a list T of Tile elements such that T = []
+there is a function t from ℤ and ℤ to Tile such that t = t
+there is no list of Tile elements
+```
+
 Use `an implicit <scalar> <name>` or `an implicit element <name> of <type>`
 for an argument Lean may infer from context:
 
@@ -437,6 +466,8 @@ The grammar separates logical structure from mathematical vocabulary:
 | Implicit subject | `an implicit natural number n`, `an implicit element x of T` |
 | Strict implicit subject | `a strictly implicit natural number n`, `a strictly implicit element x of T` |
 | Proof subject | `a proof h that P`, `an implicit proof h that P`, `a strictly implicit proof h that P` |
+| List subject | `a list T of Tile elements`, `a list T of (Fin n) elements` |
+| Function subject | `a function f from A to B`, `a function f from A and B to C` |
 | Universal quantifier | `for all <bindings>: <proposition>`, `for every …` |
 | Quantified bindings | `u and v in V`, `vertices u and v of G` |
 | Existential quantifier | `there is <witness description> [such that <proposition>]` |
@@ -568,7 +599,7 @@ such as `Set.Finite` are not yet overloaded onto this vocabulary.
 
 ## Current coverage and limitations
 
-The renderer recognizes the current graph, standard scalar, proof, and typed-element
+The renderer recognizes graph, scalar, list, function, proof, and generic element
 subjects; paired universal quantifiers and single scalar quantifiers; positive and negative existential witnesses; optional
 conditions; conjunctions, disjunctions, and nondependent propositional implications;
 and functions with explicit, implicit, and strict implicit binders, including nested and dependent functions.

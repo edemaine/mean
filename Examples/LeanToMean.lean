@@ -97,6 +97,77 @@ info: Abbreviation:
 #guard_msgs in
 #mean AbbreviationExamples.answer
 #mean_compare ValueExamples.graphEdges
+#mean_compare TypeNounExamples.indexReflexive
+#mean_compare TypeNounExamples.emptyList
+#mean_compare TypeNounExamples.copyList
+#mean_compare TypeNounExamples.polymorphicCopy
+#mean_compare TypeNounExamples.implicitLength
+#mean_compare TypeNounExamples.strictLength
+#mean_compare TypeNounExamples.diagonal
+#mean_compare TypeNounExamples.diagonalZero
+#mean_compare TypeNounExamples.implicitApply
+#mean_compare TypeNounExamples.strictApply
+/--
+info: Definition:
+  an element i of Fin 3 is TypeNounExamples.indexReflexive if
+    i = i.
+-/
+#guard_msgs in
+#mean TypeNounExamples.indexReflexive
+/--
+info: Definition:
+  a list xs of TypeNounExamples.Token elements is TypeNounExamples.emptyList if
+    xs = [].
+-/
+#guard_msgs in
+#mean TypeNounExamples.emptyList
+/--
+info: the function mapping a function f from ℕ and ℕ to ℕ and a natural number n to
+  f n n
+-/
+#guard_msgs in
+#mean_term fun (f : Nat → Nat → Nat) (n : Nat) => f n n
+#mean_term_compare fun (xs : List Nat) (i : Fin xs.length) => xs[i]
+#mean_term_compare fun (fs : List (Nat → Nat)) => fs.length
+#mean_term_compare fun (f : Nat × Nat → Nat) => f (0, 0)
+#mean_term_compare fun (f : (Nat → Nat) → Nat) => f Nat.succ
+#mean_term_compare fun (_f : (n : Nat) → Fin n) => true
+#mean_term_compare fun (_f : {n : Nat} → Fin n) => true
+#mean_term_compare fun (f : TypeNounExamples.Endomap) => f
+section
+universe u
+#mean_term_compare fun {A : Type u} (f : A → A) => f
+end
+#mean_term_compare ∃ xs : List TypeNounExamples.Token, xs = []
+#mean_term_compare ∃ _xs : List TypeNounExamples.Token, True
+#mean_term_compare ¬ ∃ xs : List TypeNounExamples.Token, xs = []
+#mean_term_compare ¬ ∃ _xs : List TypeNounExamples.Token, True
+#mean_term_compare ∃ f : Int → Int → TypeNounExamples.Token, f = f
+#mean_term_compare ∃ _f : Nat → Nat, True
+#mean_term_compare ¬ ∃ f : Nat → Nat, f 0 = 0
+#mean_term_compare ¬ ∃ _f : Nat → Nat, True
+
+-- Noun phrases preserve element types, currying, and parameter implicitness.
+open Lean Elab Term in
+run_elab do
+  for (name, text, reason) in [
+      (``TypeNounExamples.emptyList,
+        "Definition: a list xs of Int elements is changed if xs = [].",
+        "Mean round-trip check failed: rendered text changed the expression"),
+      (``TypeNounExamples.diagonal,
+        "Definition: changed is the function mapping a function f from (Nat × Nat) to Nat and a natural number n to f (n, n).",
+        "Mean round-trip check failed: rendered text changed the expression"),
+      (``TypeNounExamples.diagonal,
+        "Definition: changed is the function mapping an implicit function f from Nat and Nat to Nat and a natural number n to f n n.",
+        "Mean round-trip changed function argument implicitness")] do
+    let message ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkDefinition name text
+        pure "accepted"
+      catch ex => ex.toMessageData.toString
+    unless message == reason do
+      throwError "expected noun-phrase rejection '{reason}', got: {message}"
+
 #mean_term_compare fun n : Nat => 2 * n
 #mean_term_compare fun n : Nat => fun i : Fin n => i.val
 #mean_term_compare fun «a» : Nat => fun «graph» : Nat => «a» + «graph»

@@ -426,6 +426,185 @@ Definition:
       the edge set of G.
 
 -- LEAN INPUT:
+def TypeNounExamples.indexReflexive : Fin 3 → Prop :=
+  fun (i : Fin 3) => i = i
+-- MEAN OUTPUT:
+Definition:
+  an element i of Fin 3 is TypeNounExamples.indexReflexive if
+    i = i.
+
+-- LEAN INPUT:
+def TypeNounExamples.emptyList : List TypeNounExamples.Token → Prop :=
+  fun (xs : List TypeNounExamples.Token) => xs = []
+-- MEAN OUTPUT:
+Definition:
+  a list xs of TypeNounExamples.Token elements is TypeNounExamples.emptyList if
+    xs = [].
+
+-- LEAN INPUT:
+def TypeNounExamples.copyList : List TypeNounExamples.Token → List TypeNounExamples.Token :=
+  fun (xs : List TypeNounExamples.Token) => xs
+-- MEAN OUTPUT:
+Definition:
+  TypeNounExamples.copyList is
+    the function mapping a list xs of TypeNounExamples.Token elements to
+      xs.
+
+-- LEAN INPUT:
+def TypeNounExamples.polymorphicCopy : {A : Type u} → List A → List A :=
+  fun {A : Type u} (xs : List A) => xs
+-- MEAN OUTPUT:
+Definition:
+  TypeNounExamples.polymorphicCopy is
+    the function mapping an implicit element A of Type u and a list xs of A elements to
+      xs.
+
+-- LEAN INPUT:
+def TypeNounExamples.implicitLength : {xs : List TypeNounExamples.Token} → ℕ → ℕ :=
+  fun {xs : List TypeNounExamples.Token} (n : ℕ) => xs.length + n
+-- MEAN OUTPUT:
+Definition:
+  TypeNounExamples.implicitLength is
+    the function mapping an implicit list xs of TypeNounExamples.Token elements and a natural number n to
+      xs.length + n.
+
+-- LEAN INPUT:
+def TypeNounExamples.strictLength : ⦃xs : List TypeNounExamples.Token⦄ → ℕ → ℕ :=
+  fun ⦃xs : List TypeNounExamples.Token⦄ (n : ℕ) => xs.length + n
+-- MEAN OUTPUT:
+Definition:
+  TypeNounExamples.strictLength is
+    the function mapping a strictly implicit list xs of TypeNounExamples.Token elements and a natural number n to
+      xs.length + n.
+
+-- LEAN INPUT:
+def TypeNounExamples.diagonal : (ℕ → ℕ → ℕ) → ℕ → ℕ :=
+  fun (f : ℕ → ℕ → ℕ) (n : ℕ) => f n n
+-- MEAN OUTPUT:
+Definition:
+  TypeNounExamples.diagonal is
+    the function mapping a function f from ℕ and ℕ to ℕ and a natural number n to
+      f n n.
+
+-- LEAN INPUT:
+def TypeNounExamples.diagonalZero : (ℕ → ℕ → ℕ) → Prop :=
+  fun (f : ℕ → ℕ → ℕ) => f 0 0 = 0
+-- MEAN OUTPUT:
+Definition:
+  a function f from ℕ and ℕ to ℕ is TypeNounExamples.diagonalZero if
+    (f 0 0 = 0).
+
+-- LEAN INPUT:
+def TypeNounExamples.implicitApply : {f : ℕ → ℕ} → ℕ → ℕ :=
+  fun {f : ℕ → ℕ} (n : ℕ) => f n
+-- MEAN OUTPUT:
+Definition:
+  TypeNounExamples.implicitApply is
+    the function mapping an implicit function f from ℕ to ℕ and a natural number n to
+      f n.
+
+-- LEAN INPUT:
+def TypeNounExamples.strictApply : ⦃f : ℕ → ℕ⦄ → ℕ → ℕ :=
+  fun ⦃f : ℕ → ℕ⦄ (n : ℕ) => f n
+-- MEAN OUTPUT:
+Definition:
+  TypeNounExamples.strictApply is
+    the function mapping a strictly implicit function f from ℕ to ℕ and a natural number n to
+      f n.
+
+-- LEAN INPUT:
+fun (xs : List ℕ) (i : Fin xs.length) => xs[i]
+-- MEAN OUTPUT:
+the function mapping a list xs of ℕ elements and an element i of Fin xs.length to
+  xs[i]
+
+-- LEAN INPUT:
+fun (fs : List (ℕ → ℕ)) => fs.length
+-- MEAN OUTPUT:
+the function mapping a list fs of (ℕ → ℕ) elements to
+  fs.length
+
+-- LEAN INPUT:
+fun (f : ℕ × ℕ → ℕ) => f (0, 0)
+-- MEAN OUTPUT:
+the function mapping a function f from (ℕ × ℕ) to ℕ to
+  f (0, 0)
+
+-- LEAN INPUT:
+fun (f : (ℕ → ℕ) → ℕ) => f Nat.succ
+-- MEAN OUTPUT:
+the function mapping a function f from (ℕ → ℕ) to ℕ to
+  f Nat.succ
+
+-- LEAN INPUT:
+fun (_f : (n : ℕ) → Fin n) => true
+-- MEAN OUTPUT:
+the function mapping an element _f of (n : ℕ) → Fin n to
+  true
+
+-- LEAN INPUT:
+fun (_f : {n : ℕ} → Fin n) => true
+-- MEAN OUTPUT:
+the function mapping an element _f of {n : ℕ} → Fin n to
+  true
+
+-- LEAN INPUT:
+fun (f : TypeNounExamples.Endomap) => f
+-- MEAN OUTPUT:
+the function mapping an element f of TypeNounExamples.Endomap to
+  f
+
+-- LEAN INPUT:
+fun {A : Type u} (f : A → A) => f
+-- MEAN OUTPUT:
+the function mapping an implicit element A of Type u and a function f from A to A to
+  f
+
+-- LEAN INPUT:
+∃ (xs : List TypeNounExamples.Token), xs = []
+-- MEAN OUTPUT:
+there is a list xs of TypeNounExamples.Token elements such that
+  xs = []
+
+-- LEAN INPUT:
+∃ (_xs : List TypeNounExamples.Token), True
+-- MEAN OUTPUT:
+there is a list of TypeNounExamples.Token elements
+
+-- LEAN INPUT:
+¬∃ (xs : List TypeNounExamples.Token), xs = []
+-- MEAN OUTPUT:
+there is no list xs of TypeNounExamples.Token elements such that
+  xs = []
+
+-- LEAN INPUT:
+¬∃ (_xs : List TypeNounExamples.Token), True
+-- MEAN OUTPUT:
+there is no list of TypeNounExamples.Token elements
+
+-- LEAN INPUT:
+∃ (f : ℤ → ℤ → TypeNounExamples.Token), f = f
+-- MEAN OUTPUT:
+there is a function f from ℤ and ℤ to TypeNounExamples.Token such that
+  f = f
+
+-- LEAN INPUT:
+∃ (_f : ℕ → ℕ), True
+-- MEAN OUTPUT:
+there is a function from ℕ to ℕ
+
+-- LEAN INPUT:
+¬∃ (f : ℕ → ℕ), f 0 = 0
+-- MEAN OUTPUT:
+there is no function f from ℕ to ℕ such that
+  f 0 = 0
+
+-- LEAN INPUT:
+¬∃ (_f : ℕ → ℕ), True
+-- MEAN OUTPUT:
+there is no function from ℕ to ℕ
+
+-- LEAN INPUT:
 fun (n : ℕ) => 2 * n
 -- MEAN OUTPUT:
 the function mapping a natural number n to
@@ -1163,7 +1342,7 @@ def oneToOne : (ℕ → ℕ) → Prop :=
   fun (f : ℕ → ℕ) => Function.Injective f
 -- MEAN OUTPUT:
 Definition:
-  an element f of (ℕ → ℕ) is oneToOne if
+  a function f from ℕ to ℕ is oneToOne if
     f is injective.
 
 -- LEAN INPUT:

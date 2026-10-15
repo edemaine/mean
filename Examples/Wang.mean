@@ -56,8 +56,8 @@ def LeanWang.Abstract.TilesPlane : List Tile → Prop :=
   fun (T : List Tile) => ∃ (t : ℤ → ℤ → Tile), ∀ (x y : ℤ), t x y ∈ T ∧ t x y e = t (x + 1) y w ∧ t x y n = t x (y + 1) s
 -- MEAN OUTPUT:
 Definition:
-  an element T of (List Tile) is LeanWang.Abstract.TilesPlane if
-    there is an element t of (ℤ → ℤ → Tile) such that
+  a list T of Tile elements is LeanWang.Abstract.TilesPlane if
+    there is a function t from ℤ and ℤ to Tile such that
       for all integers x and y:
         t x y ∈ T and t x y e = t (x + 1) y w and t x y n = t x (y + 1) s.
 

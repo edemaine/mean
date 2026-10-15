@@ -138,6 +138,36 @@ def subjectType : Lean.Parser.Parser :=
     (fun ctx => if ctx.forbiddenTks.contains "and" then ctx
       else { ctx with forbiddenTks := #["is"] }) Lean.Parser.termParser
 
+/-- List descriptions end their element type at the explicit plural noun. -/
+def listElementType : Lean.Parser.Parser :=
+  Lean.Parser.withForbidden "elements" Lean.Parser.termParser
+
+/-- Function domains and results stop before the surrounding phrase's separators.
+Parentheses retain ordinary Lean types containing these tokens. -/
+def functionDomain : Lean.Parser.Parser :=
+  Lean.Parser.withForbiddens #["and", "to"] Lean.Parser.termParser
+
+def functionResult : Lean.Parser.Parser :=
+  Lean.Parser.withForbiddens #["and", "to", "is"] Lean.Parser.termParser
+
+declare_syntax_cat meanFunctionSignature
+syntax "from" functionDomain ("and" functionDomain)* "to" functionResult : meanFunctionSignature
+
+/-- The signature owns its internal `and`s, even within a function parameter list.
+Its result parser restores the delimiter for the next parameter. -/
+def functionSignature : Lean.Parser.Parser :=
+  Lean.Parser.adaptCacheableContext
+    (fun ctx => { ctx with forbiddenTks := ctx.forbiddenTks.filter (· != "and") })
+    (Lean.Parser.categoryParser `meanFunctionSignature 0)
+
+syntax "functionType%" functionSignature : term
+macro_rules
+  | `(functionType% from $domain:term $[and $domains:term]* to $result:term) => do
+      let mut result := result
+      for domain in domains.reverse do
+        result ← `($domain → $result)
+      `($domain → $result)
+
 /-! One scalar noun-to-type mapping serves subjects and all quantifiers.
 Plural domains delegate to their singular noun through `scalarDomainType%`. -/
 declare_syntax_cat meanScalar
@@ -216,6 +246,12 @@ syntax "a" "strictly" "implicit" "element" ident "of" subjectType : meanSubject
 syntax "a" "proof" ident "that" subjectType : meanSubject
 syntax "an" "implicit" "proof" ident "that" subjectType : meanSubject
 syntax "a" "strictly" "implicit" "proof" ident "that" subjectType : meanSubject
+syntax "a" "list" ident "of" listElementType "elements" : meanSubject
+syntax "an" "implicit" "list" ident "of" listElementType "elements" : meanSubject
+syntax "a" "strictly" "implicit" "list" ident "of" listElementType "elements" : meanSubject
+syntax "a" "function" ident functionSignature : meanSubject
+syntax "an" "implicit" "function" ident functionSignature : meanSubject
+syntax "a" "strictly" "implicit" "function" ident functionSignature : meanSubject
 
 /-- Keep binder separators out of an unparenthesized element type. -/
 def functionSubject : Lean.Parser.Parser :=
@@ -260,6 +296,18 @@ macro_rules
       `(fun ⦃$x : $ty⦄ => $body)
   | `(functionOn% a strictly implicit $noun:meanScalar $x:ident => $body:term) =>
       `(functionOn% a strictly implicit element $x of (scalarType% $noun) => $body)
+  | `(functionOn% a list $x:ident of $ty:term elements => $body:term) =>
+      `(functionOn% an element $x of (List $ty) => $body)
+  | `(functionOn% an implicit list $x:ident of $ty:term elements => $body:term) =>
+      `(functionOn% an implicit element $x of (List $ty) => $body)
+  | `(functionOn% a strictly implicit list $x:ident of $ty:term elements => $body:term) =>
+      `(functionOn% a strictly implicit element $x of (List $ty) => $body)
+  | `(functionOn% a function $x:ident $signature:meanFunctionSignature => $body:term) =>
+      `(functionOn% an element $x of (functionType% $signature) => $body)
+  | `(functionOn% an implicit function $x:ident $signature:meanFunctionSignature => $body:term) =>
+      `(functionOn% an implicit element $x of (functionType% $signature) => $body)
+  | `(functionOn% a strictly implicit function $x:ident $signature:meanFunctionSignature => $body:term) =>
+      `(functionOn% a strictly implicit element $x of (functionType% $signature) => $body)
   | `(functionOn% a proof $h:ident that $p:term => $body:term) =>
       `(functionOn% an element $h of ($p : Prop) => $body)
   | `(functionOn% an implicit proof $h:ident that $p:term => $body:term) =>
@@ -340,6 +388,8 @@ syntax "element" (ppSpace ident)? "of" term : meanWitnessNoun
 syntax "proof" (ppSpace ident)? "that" term : meanWitnessNoun
 syntax meanScalar (ppSpace ident)? : meanWitnessNoun
 syntax "path" (ppSpace ident)? "in" term "from" term "to" term : meanWitnessNoun
+syntax "list" (ppSpace ident)? "of" listElementType "elements" : meanWitnessNoun
+syntax "function" (ppSpace ident)? functionSignature : meanWitnessNoun
 
 declare_syntax_cat meanWitness
 syntax "a" meanWitnessNoun : meanWitness
@@ -376,6 +426,10 @@ macro_rules
       `(existsOver% an element $[$x:ident]? of (scalarType% $noun) => $body)
   | `(existsWitness% proof $[$h:ident]? that $p:term => $body:term) =>
       `(existsWitness% element $[$h:ident]? of ($p : Prop) => $body)
+  | `(existsWitness% list $[$x:ident]? of $ty:term elements => $body:term) =>
+      `(existsWitness% element $[$x:ident]? of (List $ty) => $body)
+  | `(existsWitness% function $[$x:ident]? $signature:meanFunctionSignature => $body:term) =>
+      `(existsWitness% element $[$x:ident]? of (functionType% $signature) => $body)
   | `(existsWitness% path $[$p:ident]? in $g:term from $u:term to $v:term
         => $body:term) =>
       `(existsOver% an element $[$p:ident]? of SimpleGraph.Path $g $u $v => $body)
