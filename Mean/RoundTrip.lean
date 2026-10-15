@@ -18,33 +18,60 @@ private partial def checkFunctionBinders (original reparsed : Expr) : TermElabM 
   match original, reparsed with
   | .letE _ _ value body _, _ => checkFunctionBinders (body.instantiate1 value) reparsed
   | _, .letE _ _ value body _ => checkFunctionBinders original (body.instantiate1 value)
-  | .lam _ _ body bi, .lam _ _ body' bi' =>
+  | .lam _ ty body bi, .lam _ ty' body' bi'
+  | .forallE _ ty body bi, .forallE _ ty' body' bi' =>
     unless bi == bi' do
       throwError "Mean round-trip changed function argument implicitness"
+    checkFunctionBinders ty ty'
     checkFunctionBinders body body'
   | _, _ => pure ()
 
-/-- Check actual printed text, not just an intermediate syntax tree.
-The kernel checks an equality certificate after elaboration and metavariable checks. -/
-def checkText (original : Expr) (text : String) (category : Name := `term) : TermElabM Unit := do
+/-- Expression equality is one part of the contract, separate from declaration metadata. -/
+private def checkExpressions (original reparsed : Expr) (text : String) : TermElabM Unit := do
+  if original.hasSorry || reparsed.hasSorry then
+    throwError "Mean round-trip check refuses expressions containing sorry"
+  if reparsed.hasMVar || original.hasMVar then
+    throwError "Mean round-trip check has unresolved metavariables:\n{text}\n{reparsed}"
+  checkFunctionBinders original reparsed
+  unless ← isDefEq original reparsed do
+    throwError "Mean round-trip check failed: rendered text changed the expression"
+  let equality ← mkEq original reparsed
+  let certificate := mkApp (mkLambda `certificate .default equality (mkBVar 0))
+    (← mkEqRefl original)
+  let lctx ← instantiateLCtxMVars (← getLCtx)
+  withLCtx' lctx do checkWithKernel certificate
+
+private def checkValueText (original : Expr) (text : String) (category : Name)
+    (abbreviation := false) : TermElabM Unit := do
   let stx ← parseText category text
   let graphSubject := match stx with
     | `(command| Definition: a simple graph $_:ident is $_:ident if $_:term .) => true
+    | `(command| Abbreviation: a simple graph $_:ident is $_:ident if $_:term .) => true
     | `(command| Definition: a simple graph $_:ident = ($_:ident, $_:ident)
         is $_:ident if $_:term .) => true
+    | `(command| Abbreviation: a simple graph $_:ident = ($_:ident, $_:ident)
+        is $_:ident if $_:term .) => true
     | _ => false
-  let term ← if category == `command then
+  let (term, actualAbbreviation) ← if category == `command then
     match stx with
-    | `(command| Definition: $subject:meanSubject is $_:ident if $body:term .) =>
-      `(predicateOn% $subject => $body)
-    | `(command| Definition: $_:ident is $value:term .) => pure value
-    | `(command| def $_:ident : $ty:term := $body:term) => `(($body : $ty))
+    | `(command| Definition: $subject:meanSubject is $_:ident if $body:term .) => do
+      pure (← `(predicateOn% $subject => $body), false)
+    | `(command| Abbreviation: $subject:meanSubject is $_:ident if $body:term .) => do
+      pure (← `(predicateOn% $subject => $body), true)
+    | `(command| Definition: $_:ident is $value:term .) => pure (value, false)
+    | `(command| Abbreviation: $_:ident is $value:term .) => pure (value, true)
+    | `(command| def $_:ident : $ty:term := $body:term) => do
+      pure (← `(($body : $ty)), false)
+    | `(command| abbrev $_:ident : $ty:term := $body:term) => do
+      pure (← `(($body : $ty)), true)
     | _ => throwError "unsupported rendered declaration"
   else if category == `meanTheoremStatement then
     match stx with
-    | `(meanTheoremStatement| Theorem $_:ident : $statement:term) => pure statement
+    | `(meanTheoremStatement| Theorem $_:ident : $statement:term) => pure (statement, false)
     | _ => throwError "unsupported rendered theorem statement"
-  else pure ⟨stx⟩
+  else pure (⟨stx⟩, false)
+  unless category != `command || actualAbbreviation == abbreviation do
+    throwError "Mean round-trip changed the declaration's abbreviation status"
   -- A declaration must infer its type from the printed text, just as a new def
   -- would. Supplying the original type could hide a missing type annotation.
   let expected ← if category == `command then pure none else pure (some (← inferType original))
@@ -60,19 +87,68 @@ def checkText (original : Expr) (text : String) (category : Name := `term) : Ter
       .lam _ (.sort (.succ (.param target))) _ _ =>
         reparsed := reparsed.instantiateLevelParams [target] [.param source]
     | _, _ => throwError "Mean graph subject would change the universe signature"
-  if original.hasSorry || reparsed.hasSorry then
-    throwError "Mean round-trip check refuses expressions containing sorry"
-  if reparsed.hasMVar || original.hasMVar then
-    throwError "Mean round-trip check has unresolved metavariables:\n{text}\n{reparsed}"
-  checkFunctionBinders original reparsed
-  unless ← isDefEq original reparsed do
-    throwError "Mean round-trip check failed: rendered text changed the expression"
-  let equality ← mkEq original reparsed
-  let certificate := mkApp (mkLambda `certificate .default equality (mkBVar 0))
-    (← mkEqRefl original)
-  -- Section variables may still carry assigned universe metavariables in their
-  -- local declarations; the kernel needs the instantiated context as well.
-  let lctx ← instantiateLCtxMVars (← getLCtx)
-  withLCtx' lctx do checkWithKernel certificate
+  checkExpressions original reparsed text
+
+/-- Check an expression or theorem statement against its parsed text.
+Commands require `checkDefinition`, which also checks the actual declaration. -/
+def checkText (original : Expr) (text : String) (category : Name := `term) : TermElabM Unit := do
+  if category == `command then
+    throwError "use checkDefinition for declarations or checkDefinitionValue for value-only probes"
+  checkValueText original text category
+
+/-- A value-only check used to choose annotations; this does not validate a declaration.
+Final definition output must also pass `checkDefinition`. -/
+def checkDefinitionValue (original : Expr) (text : String) (abbreviation := false) : TermElabM Unit :=
+  checkValueText original text `command abbreviation
+
+/-- Rename only the declaration being introduced, leaving its printed body intact. -/
+private def renameDefinition (stx : Syntax) (name : Ident) : TermElabM (TSyntax `command) := do
+  match stx with
+  | `(command| Definition: $subject:meanSubject is $_:ident if $body:term .) =>
+    `(command| Definition: $subject is $name if $body .)
+  | `(command| Abbreviation: $subject:meanSubject is $_:ident if $body:term .) =>
+    `(command| Abbreviation: $subject is $name if $body .)
+  | `(command| Definition: $_:ident is $value:term .) =>
+    `(command| Definition: $name is $value .)
+  | `(command| Abbreviation: $_:ident is $value:term .) =>
+    `(command| Abbreviation: $name is $value .)
+  | `(command| def $_:ident : $ty:term := $body:term) =>
+    `(command| def $name : $ty := $body)
+  | `(command| abbrev $_:ident : $ty:term := $body:term) =>
+    `(command| abbrev $name : $ty := $body)
+  | _ => throwError "unsupported rendered declaration"
+
+/-- Elaborate the actual output as a temporary declaration and inspect the result.
+Expected metadata comes from the original environment, not from the renderer.
+The temporary declaration, messages, and elaboration state are always discarded. -/
+def checkDefinition (originalName : Name) (text : String) : TermElabM Unit :=
+  withoutModifyingState do
+    let .defnInfo original ← getConstInfo originalName
+      | throwError "Mean declaration checker expects a definition or abbreviation"
+    let stx ← parseText `command text
+    let fresh ← mkFreshUserName `meanRoundTrip
+    let renamed ← renameDefinition stx (mkIdent fresh)
+    let currNamespace ← getCurrNamespace
+    let openDecls ← getOpenDecls
+    let levelNames := original.levelParams
+    let actualName := currNamespace ++ fresh
+    liftCommandElabM do
+      Command.withScope (fun scope => { scope with currNamespace, openDecls, levelNames }) do
+        Command.elabCommand renamed
+    let .defnInfo actual ← getConstInfo actualName
+      | throwError "Mean round-trip changed the declaration kind"
+    unless original.hints.isAbbrev == actual.hints.isAbbrev do
+      throwError "Mean round-trip changed the declaration's abbreviation status"
+    unless (← getReducibilityStatus originalName) == (← getReducibilityStatus actualName) do
+      throwError "Mean round-trip changed the declaration's reducibility"
+    unless original.safety == actual.safety do
+      throwError "Mean round-trip changed the declaration's safety"
+    unless original.levelParams.length == actual.levelParams.length do
+      throwError "Mean round-trip changed the declaration's universe signature"
+    let levels := original.levelParams.map Level.param
+    let actualType := actual.type.instantiateLevelParams actual.levelParams levels
+    let actualValue := actual.value.instantiateLevelParams actual.levelParams levels
+    checkExpressions original.type actualType text
+    checkExpressions original.value actualValue text
 
 end Mean.RoundTrip

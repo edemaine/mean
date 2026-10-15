@@ -275,6 +275,9 @@ macro_rules
 syntax "Definition" ":" meanSubject
   "is" ident "if" sentenceBody "." : command
 syntax "Definition" ":" ident "is" sentenceBody "." : command
+syntax "Abbreviation" ":" meanSubject
+  "is" ident "if" sentenceBody "." : command
+syntax "Abbreviation" ":" ident "is" sentenceBody "." : command
 
 macro_rules
   | `(command| Definition: $subject:meanSubject
@@ -282,6 +285,11 @@ macro_rules
       `(command| def $name:ident := predicateOn% $subject => $body)
   | `(command| Definition: $name:ident is $value:term .) =>
       `(command| def $name:ident := $value)
+  | `(command| Abbreviation: $subject:meanSubject
+        is $name:ident if $body:term .) =>
+      `(command| abbrev $name:ident := predicateOn% $subject => $body)
+  | `(command| Abbreviation: $name:ident is $value:term .) =>
+      `(command| abbrev $name:ident := $value)
 
 /-! Theorem statements reuse ordinary terms, including all Mean propositions.
 The separate statement category also supports rendering without a proof. -/

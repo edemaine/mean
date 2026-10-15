@@ -192,6 +192,28 @@ Definition: zero is the function : True → Int mapping a proof _h that True to 
 example : zero True.intro = (0 : Int) := rfl
 end ProofExamples
 
+namespace AbbreviationExamples
+Abbreviation: Natural is Nat.
+Abbreviation: answer is the integer 42.
+Abbreviation: a natural number n is zero if (n = 0).
+Abbreviation: double is the function mapping a natural number n to 2 * n.
+Abbreviation: zeroInteger is the function : Nat → Int mapping a natural number _n to (0).
+Abbreviation: a simple graph G is pathLinked if
+  for all vertices u and v of G: there is a path in G from u to v.
+
+-- Overload and instance synthesis must see through the generated abbreviations.
+example : (7 : Natural) = (7 : Nat) := rfl
+example (n : Nat) : Decidable (zero n) := inferInstance
+example : answer = (42 : Int) := rfl
+example : double = (fun n : Nat => 2 * n) := rfl
+example : zeroInteger = (fun _n : Nat => (0 : Int)) := rfl
+example {V : Type*} (G : SimpleGraph V) :
+    pathLinked G = (∀ u v : V, ∃ _p : G.Path u v, True) := rfl
+
+-- Unsupported binder forms must retain `abbrev` in the Lean fallback too.
+abbrev inhabitedValue [inst : Inhabited Nat] : Nat := @default Nat inst
+end AbbreviationExamples
+
 -- Proof witnesses share named, unnamed, positive, and negative existential forms.
 example (P : Prop) : (there is a proof that P) = (∃ _h : P, True) := rfl
 example (P : Prop) : (there is a proof h that P such that h = h) =

@@ -82,6 +82,20 @@ info: Definition:
 #mean_compare ProofExamples.strictIdentity
 #mean_compare ProofExamples.reflexive
 #mean_compare ProofExamples.zero
+#mean_compare AbbreviationExamples.Natural
+#mean_compare AbbreviationExamples.answer
+#mean_compare AbbreviationExamples.zero
+#mean_compare AbbreviationExamples.double
+#mean_compare AbbreviationExamples.zeroInteger
+#mean_compare AbbreviationExamples.pathLinked
+#mean_compare AbbreviationExamples.inhabitedValue
+/--
+info: Abbreviation:
+  AbbreviationExamples.answer is
+    the integer 42.
+-/
+#guard_msgs in
+#mean AbbreviationExamples.answer
 #mean_compare ValueExamples.graphEdges
 #mean_term_compare fun n : Nat => 2 * n
 #mean_term_compare fun n : Nat => fun i : Fin n => i.val
@@ -147,8 +161,8 @@ open Lean Elab Term in
 run_elab do
   let original := (← getConstInfo ``ValueExamples.double).value!
   let rejected ← try
-    Mean.RoundTrip.checkText original
-      "Definition: changed is the function mapping a natural number n to 3 * n." `command
+    Mean.RoundTrip.checkDefinitionValue original
+      "Definition: changed is the function mapping a natural number n to 3 * n."
     pure false
   catch _ => pure true
   unless rejected do throwError "round-trip checker accepted a changed function definition"
@@ -167,7 +181,7 @@ run_elab do
     let original := (← getConstInfo name).value!
     let rejected ← withoutModifyingState do
       try
-        Mean.RoundTrip.checkText original text `command
+        Mean.RoundTrip.checkDefinitionValue original text
         pure false
       catch _ => pure true
     unless rejected do throwError "round-trip checker accepted a changed inferred type"
@@ -177,8 +191,8 @@ run_elab do
   let original := (← getConstInfo ``ValueExamples.implicitAdd).value!
   let rejected ← withoutModifyingState do
     try
-      Mean.RoundTrip.checkText original
-        "Definition: changed is the function mapping a natural number n and a natural number m to n + m." `command
+      Mean.RoundTrip.checkDefinitionValue original
+        "Definition: changed is the function mapping a natural number n and a natural number m to n + m."
       pure false
     catch _ => pure true
   unless rejected do throwError "round-trip checker accepted erased argument implicitness"
@@ -188,8 +202,8 @@ run_elab do
   let original := (← getConstInfo ``ValueExamples.double).value!
   let rejected ← withoutModifyingState do
     try
-      Mean.RoundTrip.checkText original
-        "Definition: changed is the function mapping a proof n that Nat to 2 * n." `command
+      Mean.RoundTrip.checkDefinitionValue original
+        "Definition: changed is the function mapping a proof n that Nat to 2 * n."
       pure false
     catch _ => pure true
   unless rejected do throwError "proof parameter accepted a non-proposition"
@@ -209,11 +223,62 @@ run_elab do
   for modifier in ["an implicit", "a"] do
     let rejected ← withoutModifyingState do
       try
-        Mean.RoundTrip.checkText original
-          s!"Definition: changed is the function mapping {modifier} natural number n and an element i of Fin n to i.val." `command
+        Mean.RoundTrip.checkDefinitionValue original
+          s!"Definition: changed is the function mapping {modifier} natural number n and an element i of Fin n to i.val."
         pure false
       catch _ => pure true
     unless rejected do throwError "round-trip checker accepted changed strict implicitness"
+
+section
+@[irreducible] private def auditIrreducible : Int := 42
+private def auditFunction := Nat.succ
+
+-- Deliberately give a command an honest-looking label but the wrong expansion.
+local syntax "auditMisleadingAbbreviation" : term
+local macro_rules
+  | `(auditMisleadingAbbreviation) => `((42 : Int))
+local macro_rules
+  | `(command| Abbreviation: $name:ident is auditMisleadingAbbreviation .) =>
+      `(command| def $name := (42 : Int))
+
+open Lean Elab Term in
+run_elab do
+  let constantsBefore := (← getEnv).constants.toList.length
+  -- This passes the expression-only check, so rejection must inspect the declaration.
+  let original := (← getConstInfo ``AbbreviationExamples.answer).value!
+  Mean.RoundTrip.checkDefinitionValue original
+    "Abbreviation: changed is auditMisleadingAbbreviation." true
+  for (name, text, reason) in [
+      (``AbbreviationExamples.answer, "Definition: changed is the integer 42.", "abbreviation status"),
+      (``ValueExamples.answer, "Abbreviation: changed is the integer 42.", "abbreviation status"),
+      (``AbbreviationExamples.answer, "Abbreviation: changed is auditMisleadingAbbreviation.",
+        "abbreviation status"),
+      (``auditIrreducible, "Definition: changed is the integer 42.", "reducibility")] do
+    let message ← try
+      Mean.RoundTrip.checkDefinition name text
+      pure "accepted"
+    catch ex => ex.toMessageData.toString
+    unless message == s!"Mean round-trip changed the declaration's {reason}" do
+      throwError "expected rejection for {reason}, got: {message}"
+  -- A constant and its eta-expanded lambda are definitionally equal, even if
+  -- implicitness changes. Compare the declaration's type as well as its value.
+  let changedFunction :=
+    "Definition: changed is the function mapping an implicit natural number n to Nat.succ n."
+  Mean.RoundTrip.checkDefinitionValue (← getConstInfo ``auditFunction).value! changedFunction
+  let message ← try
+    Mean.RoundTrip.checkDefinition ``auditFunction changedFunction
+    pure "accepted"
+  catch ex => ex.toMessageData.toString
+  unless message == "Mean round-trip changed function argument implicitness" do
+    throwError "expected rejection for changed function implicitness, got: {message}"
+  Mean.RoundTrip.checkDefinition ``AbbreviationExamples.answer
+    "Abbreviation: changed is the integer 42."
+  -- The checker supplies the original universes without relying on renderer state.
+  Mean.RoundTrip.checkDefinition ``ValueExamples.identityOnT
+    "Definition: changed is the function mapping an implicit element T of Sort u and an element x of T to x."
+  unless (← getEnv).constants.toList.length == constantsBefore do
+    throwError "declaration round trip leaked temporary declarations"
+end
 
 -- Theorem rendering checks the statement and omits the proof.
 theorem ordinaryNatTrans3 (x y z w : Nat) (h : x = y ∧ z = y ∧ z = w) : x = w := by
@@ -348,8 +413,8 @@ open Lean Elab Term in
 run_elab do
   let original := (← getConstInfo ``smallGraph).value!
   let rejected ← try
-    Mean.RoundTrip.checkText original
-      "Definition: a simple graph G is smallGraph if for all vertices x and y of G: there is a path in G from x to y." `command
+    Mean.RoundTrip.checkDefinitionValue original
+      "Definition: a simple graph G is smallGraph if for all vertices x and y of G: there is a path in G from x to y."
     pure false
   catch _ => pure true
   unless rejected do throwError "round-trip checker accepted a changed universe signature"

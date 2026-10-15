@@ -325,10 +325,11 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
 
 /-- Prefer predicate subjects; other values use named definitions.
 Instance function binders retain ordinary Lean syntax. -/
-def renderDefinition (name : Name) (value : Expr) : TermElabM String := do
+def renderDefinition (name : Name) (value : Expr) (abbreviation := false) : TermElabM String := do
   let nameStr ← nameText name
+  let clause := if abbreviation then "Abbreviation" else "Definition"
   if let some text ← scalarLiteralText? value then
-    return s!"Definition:\n  {nameStr} is\n{indented (indented (text ++ "."))}"
+    return s!"{clause}:\n  {nameStr} is\n{indented (indented (text ++ "."))}"
   match value.consumeMData with
   | .lam vertexName vertexSort graphLambda vertexInfo =>
     -- Mean's graph subject quantifies one fresh universe. Fixed or compound
@@ -352,7 +353,7 @@ def renderDefinition (name : Name) (value : Expr) : TermElabM String := do
               let parts ← if ← mentionsName bodyText vertexName then
                 pure s!" = ({← nameText vertexName}, {← nameText edgesName})"
                 else pure ""
-              return some s!"Definition:\n  a simple graph {← nameText graphName}{parts} is {nameStr} if\n{indented (indented (bodyText ++ "."))}"
+              return some s!"{clause}:\n  a simple graph {← nameText graphName}{parts} is {nameStr} if\n{indented (indented (bodyText ++ "."))}"
           else return none
         | _ => return none
       if let some text := result then return text
@@ -364,16 +365,16 @@ def renderDefinition (name : Name) (value : Expr) : TermElabM String := do
       let body := body.instantiate1 x
       if !(← isProp body) then return none
       let subject ← subjectText ty n .default true
-      return some s!"Definition:\n  {subject} is {nameStr} if\n{indented (indented ((← renderExpr body true) ++ "."))}"
+      return some s!"{clause}:\n  {subject} is {nameStr} if\n{indented (indented ((← renderExpr body true) ++ "."))}"
     if let some text := result then return text
   | _ => pure ()
   unless value.consumeMData.isLambda && !(functionBinderFits value.consumeMData.binderInfo) do
     let valueText ← renderExpr value
-    let text := s!"Definition:\n  {nameStr} is\n{indented (indented ((← sentenceTail valueText true) ++ "."))}"
+    let text := s!"{clause}:\n  {nameStr} is\n{indented (indented ((← sentenceTail valueText true) ++ "."))}"
     -- Prefer the plain value when its text independently infers the right type.
     let untypedFits ← withoutModifyingState do
       try
-        RoundTrip.checkText value text `command
+        RoundTrip.checkDefinitionValue value text abbreviation
         pure true
       catch _ => pure false
     if untypedFits then return text
@@ -381,16 +382,21 @@ def renderDefinition (name : Name) (value : Expr) : TermElabM String := do
     if let .lam n ty body bi := value.consumeMData then
       let typedValue ← functionText n ty body bi (fun body => renderExpr body true)
         (some (← leanText (← inferType value)))
-      return s!"Definition:\n  {nameStr} is\n{indented (indented (typedValue ++ "."))}"
+      return s!"{clause}:\n  {nameStr} is\n{indented (indented (typedValue ++ "."))}"
     let typedValue := s!"({valueText} : {← leanText (← inferType value)})."
-    return s!"Definition:\n  {nameStr} is\n{indented (indented typedValue)}"
-  return s!"def {nameStr} : {← leanText (← inferType value)} :=\n{indented (← leanText value)}"
+    return s!"{clause}:\n  {nameStr} is\n{indented (indented typedValue)}"
+  let keyword := if abbreviation then "abbrev" else "def"
+  return s!"{keyword} {nameStr} : {← leanText (← inferType value)} :=\n{indented (← leanText value)}"
 
 /-- Return text only after checking its meaning. -/
 def renderChecked (e : Expr) : TermElabM String := do
   let text ← renderExpr e
   RoundTrip.checkText e text
   return text
+
+/-- Share the comparison layout across terms and every declaration kind. -/
+private def comparisonText (before after : String) : String :=
+  s!"\n-- LEAN INPUT:\n{before}\n-- MEAN OUTPUT:\n{after}"
 
 private def showTerm (t : Syntax) (compare : Bool) : Command.CommandElabM Unit :=
   Command.runTermElabM fun _ => do
@@ -399,7 +405,7 @@ private def showTerm (t : Syntax) (compare : Bool) : Command.CommandElabM Unit :
   let e ← instantiateMVars e
   let after ← renderChecked e
   if compare then
-    logInfo s!"\n{← leanText e}\n-> MEAN\n{after}"
+    logInfo (comparisonText (← leanText e) after)
   else logInfo after
 
 private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.CommandElabM Unit :=
@@ -407,30 +413,31 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
   let n ← realizeGlobalConstNoOverloadWithInfo declaration
   let info ← getConstInfo n
   withLevelNames info.levelParams do
+    let context := if info.levelParams.isEmpty then "" else
+      "-- Universe parameters: " ++ String.intercalate ", " (info.levelParams.map toString) ++ "\n"
     match info with
     | .defnInfo d =>
-      let text ← renderDefinition n d.value
-      RoundTrip.checkText d.value text `command
+      let abbreviation := d.hints.isAbbrev
+      let text ← renderDefinition n d.value abbreviation
+      RoundTrip.checkDefinition n text
       if compare then
-        let before := s!"def {← nameText n} : {← leanText info.type} :=\n{indented (← leanText d.value)}"
-        logInfo s!"\n{before}\n-> MEAN\n{text}"
+        let keyword := if abbreviation then "abbrev" else "def"
+        let before := s!"{keyword} {← nameText n} : {← leanText info.type} :=\n{indented (← leanText d.value)}"
+        logInfo (comparisonText before text)
       else logInfo text
     | .thmInfo _ =>
       let text := s!"Theorem {← nameText n}:\n{indented (← renderExpr info.type)}"
       RoundTrip.checkText info.type text `meanTheoremStatement
-      let context := if info.levelParams.isEmpty then "" else
-        "-- Universe parameters: " ++ String.intercalate ", " (info.levelParams.map toString) ++ "\n"
       if compare then
         let before := s!"theorem {← nameText n} :\n{indented (← leanText info.type)}"
-        logInfo s!"\n{context}{before}\n-> MEAN\n{context}{text}"
+        logInfo (comparisonText (context ++ before) (context ++ text))
       else logInfo s!"{context}{text}"
     | _ =>
       let text ← renderChecked info.type
-      let context := if info.levelParams.isEmpty then "" else
-        "-- Universe parameters: " ++ String.intercalate ", " (info.levelParams.map toString) ++ "\n"
+      let statementHeader := s!"{context}-- Statement of {n}\n"
       if compare then
-        logInfo s!"\n{context}-- Statement of {n}\n{← leanText info.type}\n-> MEAN\n{text}"
-      else logInfo s!"{context}-- Statement of {n}\n{text}"
+        logInfo (comparisonText s!"{statementHeader}{← leanText info.type}" text)
+      else logInfo (statementHeader ++ text)
 
 elab "#mean_term " t:term : command => showTerm t false
 elab "#mean_term_compare " t:term : command => showTerm t true

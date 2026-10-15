@@ -79,6 +79,19 @@ Definition: add is the function mapping a natural number n to
 Definition: answer is the integer 42.
 ```
 
+Use `Abbreviation:` with the same value or predicate clauses to create Lean
+`abbrev` declarations:
+
+```lean
+Abbreviation: Natural is Nat.
+Abbreviation: a natural number n is zero if (n = 0).
+```
+
+These definitions are reducible: Lean unfolds them readily, including during
+overload resolution and typeclass inference. `#mean` renders them with
+`Abbreviation:` and checks that the declaration kind is preserved alongside
+the defined value.
+
 `the <scalar> <value>` is a typed expression, usable independently of `Definition`.
 For example, `the integer 42` means `(42 : Int)`, and `the natural number 42`
 means `(42 : Nat)`. It uses the same scalar nouns as bindings, including rational,
@@ -247,15 +260,30 @@ resolved, rather than translating source text. It is implemented separately from
 the forward syntax macros. This gives two implementations to compare, although
 independence alone is not a correctness guarantee.
 
-Every successful rendering is checked by parsing the actual output text,
-elaborating its expression, definition body, or theorem statement, testing definitional equality,
-and asking Lean's kernel to check an equality certificate. Function argument
-implicitness is checked separately, since kernel definitional equality ignores
-that calling convention. The comparison permits
-renaming fresh universe parameters introduced by `Type*`, but does not specialize
-them to fixed levels. Checks reject unresolved metavariables and expressions
-containing `sorry`. A failed round trip produces an error instead of a displayed
-rendering.
+Every successful rendering is checked by parsing its actual output text.
+For expressions and theorem statements, Mean elaborates the text, tests
+definitional equality, and asks Lean's kernel to check an equality certificate.
+For named definitions, Mean elaborates a renamed copy of the complete printed
+command in a temporary environment. It checks the resulting type and value,
+function binder information, universe parameters, definition/abbreviation kind,
+effective reducibility, and safety against the original declaration. Expected
+metadata is read independently from Lean's environment. The temporary declaration
+and elaboration state are discarded afterward.
+
+These metadata checks are necessary because kernel definitional equality ignores
+properties such as implicit argument flags and declaration reducibility. The
+comparison permits renaming universe parameters, but does not specialize them to
+fixed levels. Checks reject unresolved metavariables and compared expressions
+containing `sorry`. A failed round trip produces an error instead of displayed
+output. Theorems are checked through their statements; their proofs may contain
+`sorry` without weakening that statement check.
+
+The guarantee covers these expressions and metadata, rather than every aspect of
+Lean behavior. Other attributes such as `[simp]` and instance registration,
+compiled code behavior, and performance are outside the current check. Unsupported
+changes to the checked metadata, such as dropping an `irreducible` attribute,
+cause rejection. The internal value-only annotation probe is separate from the
+final declaration check.
 
 **This checks preservation of formal meaning, not agreement with human intent.**
 The vocabulary still needs review. If both directions consistently use a misleading
@@ -283,6 +311,7 @@ With [elan](https://github.com/leanprover/elan) installed, run from this directo
 
 ```sh
 lake exe cache get Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected
+lake exe cache get Mathlib.Computability.RE Mathlib.Computability.Primrec.List
 lake build
 ```
 
@@ -296,9 +325,19 @@ python test.py
 ```
 
 This builds the project, runs the renderer examples, and compares their output
-with [Examples/LeanToMean.out](Examples/LeanToMean.out). Changes produce
+with [Examples/LeanToMean.mean](Examples/LeanToMean.mean) and
+[Examples/Wang.mean](Examples/Wang.mean). Changes produce
 a diff and a nonzero exit status. Source locations are ignored; wording,
 parentheses, indentation, and blank lines are checked. LF and CRLF are equivalent.
+The `.mean` files are generated before/after comparisons containing both the
+original Lean display and the Mean rendering; they are not standalone Mean programs.
+Each begins with a comment identifying its Lean source and regeneration command.
+Upstream source and license links in the input's opening comment
+are copied to the generated header.
+The repository's `.gitattributes` selects Lean 4 syntax highlighting for `.mean`
+files on [GitHub](https://github.com/github-linguist/linguist/blob/main/docs/overrides.md#using-gitattributes).
+In VS Code with the Lean extension, use the language selector
+to open them as Lean 4, or associate `*.mean` with the `lean4` language ID.
 The forward examples and round-trip meaning checks still run as part of the build.
 
 After an intentional output change, regenerate the snapshot and review its diff:
@@ -313,12 +352,14 @@ There are runnable examples in both directions:
 |---|---|---|
 | Mean → Lean | [Examples/MeanToLean.lean](Examples/MeanToLean.lean) | Mean definitions and propositions, checked against explicit Lean expressions and used in ordinary proofs |
 | Lean → Mean | [Examples/LeanToMean.lean](Examples/LeanToMean.lean) | Before/after renderings of elaborated Lean, with checked round trips |
+| Lean → Mean | [Examples/Wang.lean](Examples/Wang.lean) | Definitions and main theorem statements from a Wang tiling formalization |
 
-Run either from this directory:
+Run these from this directory:
 
 ```sh
 lake env lean Examples/MeanToLean.lean
 lake env lean Examples/LeanToMean.lean
+lake env lean Examples/Wang.lean
 ```
 
 `Examples/MeanToLean.lean` checks its definitions and proofs without printing them. In a Lean
@@ -329,8 +370,9 @@ in the editor, place the cursor on a comparison command to see its output.
 Comparisons have this format, with a blank line between examples:
 
 ```text
+-- LEAN INPUT:
 ∃ (n : ℕ), n = 0
--> MEAN
+-- MEAN OUTPUT:
 there is a natural number n such that
   n = 0
 ```
@@ -345,8 +387,37 @@ there is a natural number n such that
 
 The comparison's before view prints the elaborated expression, not the original
 source spelling. Rendering commands display text without adding declarations.
+The Lean input view preserves `abbrev` for abbreviations; the Mean output uses
+`Abbreviation:`. Both the defined value and this declaration kind are checked.
 Output is checked in its original namespace, import, variable, and universe
 context; it is not a standalone export file.
+
+## Wang tiling example
+
+[Examples/Wang.lean](Examples/Wang.lean) adapts the formal abstract
+from [lean-wang at commit 64268a3](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LeanWang/Abstract.lean).
+It keeps the original nine definitions/abbreviations and compares the statements
+of co-RE-completeness and undecidability. The upstream attribution and
+[Apache 2.0 license](Examples/Wang.LICENSE) are retained.
+The [upstream license](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE)
+is linked in `Wang.lean` and its generated `.mean` header. A local license copy accompanies
+the adapted source, as required by [Apache 2.0 §4(a)](https://www.apache.org/licenses/LICENSE-2.0#redistribution).
+
+The example uses Mean's pinned Lean/mathlib 4.31.0; upstream uses Lean 4.35.0.
+The original lambda parameter `a` is spelled `«a»` because Mean reserves `a`;
+this escapes the identifier without renaming it.
+The two theorem declarations are retained with `sorry` proofs and rendered by
+`#mean_compare`. Only their statements are checked here; the complete proofs
+remain upstream. The `sorry` warning is disabled locally for these two copied
+declarations, while other renderer warnings and errors remain checked.
+
+[Examples/Wang.mean](Examples/Wang.mean) contains the generated
+before/after comparisons. Each rendering passes the usual checked round trip,
+and `python test.py` checks the exact output. This is a baseline for improving
+the translation of real mathematics; unsupported portions retain Lean syntax.
+The tiling definition renders existential and integer quantifiers and conjunctions.
+Instance binders leave the bodies of the complexity definitions in Lean, and
+named predicates such as `CoREComplete` and `ComputablePred` retain their names.
 
 ## Compositional syntax
 
@@ -356,6 +427,7 @@ The grammar separates logical structure from mathematical vocabulary:
 |---|---|
 | Definition clause | `Definition: <subject> is <name> if <proposition>.` |
 | Named value clause | `Definition: <name> is <value>.` |
+| Abbreviation clause | `Abbreviation: <name> is <value>.`, `Abbreviation: <subject> is <name> if <proposition>.` |
 | Function expression | `the function [: <type>] mapping <subject> [and <subject> …] to <value>` |
 | Typed scalar value | `the <scalar> <value>`, `the integer 42`, `the real number (2 * x)` |
 | Theorem clause | `Theorem <name>: <proposition> Proof: <Lean proof>` |
@@ -619,4 +691,4 @@ smaller vocabulary and falling back to Lean for unsupported expressions.
 | [Examples/MeanToLean.lean](Examples/MeanToLean.lean) | Forward-language examples, exact-meaning checks, and mathlib equivalence proofs |
 | [Examples/LeanToMean.lean](Examples/LeanToMean.lean) | Before/after examples and round-trip checks, including rejection of changed predicates and universe signatures |
 | `test.py` | Builds the project and checks the rendered examples against their expected output |
-| `Examples/LeanToMean.out` | Reviewed before/after output, including exact formatting |
+| `Examples/LeanToMean.mean` | Reviewed before/after output, including exact formatting |
