@@ -233,6 +233,68 @@ example (xs : List Token) : (there is a list of Token elements such that xs = xs
     (∃ _ys : List Token, xs = xs) := rfl
 end TypeNounExamples
 
+namespace BinderExamples
+universe u
+
+-- Every parameter noun supports a hygienic omitted name and the same binder kinds.
+example : (the function mapping a natural number and an implicit integer and
+    a strictly implicit boolean to true) =
+    (fun (_ : Nat) {_ : Int} ⦃_ : Bool⦄ => true) := rfl
+example : (the function mapping an element of Nat and an implicit element of Bool and
+    a strictly implicit element of Int to true) =
+    (fun (_ : Nat) {_ : Bool} ⦃_ : Int⦄ => true) := rfl
+example : (the function mapping a proof that True and an implicit proof that True and
+    a strictly implicit proof that True to true) =
+    (fun (_ : True) {_ : True} ⦃_ : True⦄ => true) := rfl
+example : (the function mapping a list of Nat elements and an implicit list of Bool elements and
+    a strictly implicit list of Int elements to true) =
+    (fun (_ : List Nat) {_ : List Bool} ⦃_ : List Int⦄ => true) := rfl
+example : (the function mapping a function from Nat to Nat and
+    an implicit function from Int to Int and a strictly implicit function from Bool to Bool to true) =
+    (fun (_ : Nat → Nat) {_ : Int → Int} ⦃_ : Bool → Bool⦄ => true) := rfl
+example (_anonymousParameter : Nat) :
+    (the function mapping a natural number and a natural number to _anonymousParameter) =
+    (fun (_ _ : Nat) => _anonymousParameter) := rfl
+
+Definition: anonymousNatural is the function mapping a natural number to true.
+example : anonymousNatural 7 = true := rfl
+Definition: a natural number is constantPredicate if True.
+example (n : Nat) : constantPredicate n := True.intro
+Definition: a simple graph is constantGraph if True.
+example (G : SimpleGraph Nat) : constantGraph G := True.intro
+Definition: a simple graph = (V, E) is inhabitedCarrier if V is nonempty.
+example {V : Type*} (G : SimpleGraph V) : inhabitedCarrier G = Nonempty V := rfl
+
+Definition: defaultValue is the function mapping an implicit element A of Type u and
+  an instance of typeclass Inhabited A to (default : A).
+example : defaultValue (A := Nat) = 0 := rfl
+Definition: chosenValue is the function mapping an implicit element A of Type u and
+  an instance inst of typeclass Inhabited A to @default A inst.
+example : chosenValue (A := Nat) (inst := ⟨7⟩) = 7 := rfl
+example : (the function mapping an instance of typeclass Fact True to true) =
+    (fun [Fact True] => true) := rfl
+example : (there is an instance of typeclass Inhabited Nat) =
+    (∃ _inst : Inhabited Nat, True) := rfl
+example : (there is an instance inst of typeclass Inhabited Nat such that inst.default = 7) =
+    (∃ inst : Inhabited Nat, inst.default = 7) := rfl
+example : (there is no instance of typeclass Inhabited Nat) =
+    (¬ ∃ _inst : Inhabited Nat, True) := rfl
+
+-- Public parameter names survive even when unused or different from lambda names.
+def namedUnused (n : Nat) : Bool := let _ := n; true
+def namedImplicit {ignored : Nat} (n : Nat) : Nat := let _ := ignored; n
+def namedStrict ⦃ignored : Nat⦄ (n : Nat) : Nat := let _ := ignored; n
+def differentNames : (input : Nat) → Nat := fun n => n
+def aliasWithName : (input : Nat) → Nat := Nat.succ
+def namedCallback (f : (input : Nat) → Nat) : Nat := f (input := 0)
+example : namedUnused (n := 7) = true := rfl
+example : namedImplicit (ignored := 7) (n := 3) = 3 := rfl
+example : namedStrict (ignored := 7) (n := 3) = 3 := rfl
+example : differentNames (input := 7) = 7 := rfl
+example : aliasWithName (input := 7) = 8 := rfl
+example : namedCallback (f := fun n => n) = 0 := rfl
+end BinderExamples
+
 namespace ProofExamples
 section
 variable (P Q : Prop)

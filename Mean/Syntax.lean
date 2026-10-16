@@ -234,24 +234,39 @@ macro_rules
 /-! Subjects specify bindings, independently of the definition clause.
 New subject forms implement `functionOn%`, shared by functions and predicates. -/
 declare_syntax_cat meanSubject
-syntax "a" "simple" "graph" ident : meanSubject
-syntax "a" "simple" "graph" ident "=" "(" ident "," ident ")" : meanSubject
-syntax "an" "element" ident "of" subjectType : meanSubject
-syntax "a" meanScalar ident : meanSubject
-syntax "an" meanScalar ident : meanSubject
-syntax "an" "implicit" meanScalar ident : meanSubject
-syntax "an" "implicit" "element" ident "of" subjectType : meanSubject
-syntax "a" "strictly" "implicit" meanScalar ident : meanSubject
-syntax "a" "strictly" "implicit" "element" ident "of" subjectType : meanSubject
-syntax "a" "proof" ident "that" subjectType : meanSubject
-syntax "an" "implicit" "proof" ident "that" subjectType : meanSubject
-syntax "a" "strictly" "implicit" "proof" ident "that" subjectType : meanSubject
-syntax "a" "list" ident "of" listElementType "elements" : meanSubject
-syntax "an" "implicit" "list" ident "of" listElementType "elements" : meanSubject
-syntax "a" "strictly" "implicit" "list" ident "of" listElementType "elements" : meanSubject
-syntax "a" "function" ident functionSignature : meanSubject
-syntax "an" "implicit" "function" ident functionSignature : meanSubject
-syntax "a" "strictly" "implicit" "function" ident functionSignature : meanSubject
+syntax "a" "simple" "graph" (ppSpace ident)? : meanSubject
+syntax "a" "simple" "graph" (ppSpace ident)? "=" "(" ident "," ident ")" : meanSubject
+syntax "an" "element" (ppSpace ident)? "of" subjectType : meanSubject
+syntax "a" meanScalar (ppSpace ident)? : meanSubject
+syntax "an" meanScalar (ppSpace ident)? : meanSubject
+syntax "an" "implicit" meanScalar (ppSpace ident)? : meanSubject
+syntax "an" "implicit" "element" (ppSpace ident)? "of" subjectType : meanSubject
+syntax "a" "strictly" "implicit" meanScalar (ppSpace ident)? : meanSubject
+syntax "a" "strictly" "implicit" "element" (ppSpace ident)? "of" subjectType : meanSubject
+syntax "a" "proof" (ppSpace ident)? "that" subjectType : meanSubject
+syntax "an" "implicit" "proof" (ppSpace ident)? "that" subjectType : meanSubject
+syntax "a" "strictly" "implicit" "proof" (ppSpace ident)? "that" subjectType : meanSubject
+syntax "a" "list" (ppSpace ident)? "of" listElementType "elements" : meanSubject
+syntax "an" "implicit" "list" (ppSpace ident)? "of" listElementType "elements" : meanSubject
+syntax "a" "strictly" "implicit" "list" (ppSpace ident)? "of" listElementType "elements" : meanSubject
+syntax "a" "function" (ppSpace ident)? functionSignature : meanSubject
+syntax "an" "implicit" "function" (ppSpace ident)? functionSignature : meanSubject
+syntax "a" "strictly" "implicit" "function" (ppSpace ident)? functionSignature : meanSubject
+
+syntax "an" "instance" (ppSpace ident)? "of" "typeclass" subjectType : meanSubject
+
+/-- Omitted names are hygienic: they cannot capture references in the user's body. -/
+private def parameterName (name : Option (Lean.TSyntax `ident)) : Lean.MacroM (Lean.TSyntax `ident) :=
+  match name with
+  | some name => pure name
+  | none => `(ident| _anonymousParameter)
+
+/-- The word `typeclass` requires a class application, including proposition-valued classes. -/
+elab "typeclassType%" t:term : term => do
+  let ty ← Lean.Elab.Term.elabType t
+  unless (← Lean.Meta.isClass? ty).isSome do
+    Lean.throwErrorAt t "expected a typeclass application"
+  return ty
 
 /-- Keep binder separators out of an unparenthesized element type. -/
 def functionSubject : Lean.Parser.Parser :=
@@ -276,9 +291,11 @@ macro_rules
       `(functionOn% $subject => $body)
   | `(predicateOn% $subject:meanSubject => $body:term) =>
       `(functionOn% $subject => ($body : Prop))
-  | `(functionOn% a simple graph $g:ident => $body:term) =>
+  | `(functionOn% a simple graph $[$g:ident]? => $body:term) => do
+      let g ← parameterName g
       `(fun {Vertex : Type*} ($g : SimpleGraph Vertex) => $body)
-  | `(functionOn% a simple graph $g:ident = ($vs:ident, $es:ident) => $body:term) => do
+  | `(functionOn% a simple graph $[$g:ident]? = ($vs:ident, $es:ident) => $body:term) => do
+      let g ← parameterName g
       let names := [g.getId, vs.getId, es.getId]
       unless names.eraseDups.length == names.length do
         Lean.Macro.throwErrorAt g
@@ -286,38 +303,45 @@ macro_rules
       `(fun {$vs : Type*} ($g : SimpleGraph $vs) =>
           let $es := SimpleGraph.edgeSet $g
           $body)
-  | `(functionOn% an element $x:ident of $ty:term => $body:term) =>
+  | `(functionOn% an element $[$x:ident]? of $ty:term => $body:term) => do
+      let x ← parameterName x
       `(fun ($x : $ty) => $body)
-  | `(functionOn% an implicit element $x:ident of $ty:term => $body:term) =>
+  | `(functionOn% an implicit element $[$x:ident]? of $ty:term => $body:term) => do
+      let x ← parameterName x
       `(fun {$x : $ty} => $body)
-  | `(functionOn% an implicit $noun:meanScalar $x:ident => $body:term) =>
-      `(functionOn% an implicit element $x of (scalarType% $noun) => $body)
-  | `(functionOn% a strictly implicit element $x:ident of $ty:term => $body:term) =>
+  | `(functionOn% an implicit $noun:meanScalar $[$x:ident]? => $body:term) =>
+      `(functionOn% an implicit element $[$x:ident]? of (scalarType% $noun) => $body)
+  | `(functionOn% a strictly implicit element $[$x:ident]? of $ty:term => $body:term) => do
+      let x ← parameterName x
       `(fun ⦃$x : $ty⦄ => $body)
-  | `(functionOn% a strictly implicit $noun:meanScalar $x:ident => $body:term) =>
-      `(functionOn% a strictly implicit element $x of (scalarType% $noun) => $body)
-  | `(functionOn% a list $x:ident of $ty:term elements => $body:term) =>
-      `(functionOn% an element $x of (List $ty) => $body)
-  | `(functionOn% an implicit list $x:ident of $ty:term elements => $body:term) =>
-      `(functionOn% an implicit element $x of (List $ty) => $body)
-  | `(functionOn% a strictly implicit list $x:ident of $ty:term elements => $body:term) =>
-      `(functionOn% a strictly implicit element $x of (List $ty) => $body)
-  | `(functionOn% a function $x:ident $signature:meanFunctionSignature => $body:term) =>
-      `(functionOn% an element $x of (functionType% $signature) => $body)
-  | `(functionOn% an implicit function $x:ident $signature:meanFunctionSignature => $body:term) =>
-      `(functionOn% an implicit element $x of (functionType% $signature) => $body)
-  | `(functionOn% a strictly implicit function $x:ident $signature:meanFunctionSignature => $body:term) =>
-      `(functionOn% a strictly implicit element $x of (functionType% $signature) => $body)
-  | `(functionOn% a proof $h:ident that $p:term => $body:term) =>
-      `(functionOn% an element $h of ($p : Prop) => $body)
-  | `(functionOn% an implicit proof $h:ident that $p:term => $body:term) =>
-      `(functionOn% an implicit element $h of ($p : Prop) => $body)
-  | `(functionOn% a strictly implicit proof $h:ident that $p:term => $body:term) =>
-      `(functionOn% a strictly implicit element $h of ($p : Prop) => $body)
-  | `(functionOn% a $noun:meanScalar $x:ident => $body:term) =>
-      `(functionOn% an element $x of (scalarType% $noun) => $body)
-  | `(functionOn% an $noun:meanScalar $x:ident => $body:term) =>
-      `(functionOn% an element $x of (scalarType% $noun) => $body)
+  | `(functionOn% a strictly implicit $noun:meanScalar $[$x:ident]? => $body:term) =>
+      `(functionOn% a strictly implicit element $[$x:ident]? of (scalarType% $noun) => $body)
+  | `(functionOn% a list $[$x:ident]? of $ty:term elements => $body:term) =>
+      `(functionOn% an element $[$x:ident]? of (List $ty) => $body)
+  | `(functionOn% an implicit list $[$x:ident]? of $ty:term elements => $body:term) =>
+      `(functionOn% an implicit element $[$x:ident]? of (List $ty) => $body)
+  | `(functionOn% a strictly implicit list $[$x:ident]? of $ty:term elements => $body:term) =>
+      `(functionOn% a strictly implicit element $[$x:ident]? of (List $ty) => $body)
+  | `(functionOn% a function $[$x:ident]? $signature:meanFunctionSignature => $body:term) =>
+      `(functionOn% an element $[$x:ident]? of (functionType% $signature) => $body)
+  | `(functionOn% an implicit function $[$x:ident]? $signature:meanFunctionSignature => $body:term) =>
+      `(functionOn% an implicit element $[$x:ident]? of (functionType% $signature) => $body)
+  | `(functionOn% a strictly implicit function $[$x:ident]? $signature:meanFunctionSignature => $body:term) =>
+      `(functionOn% a strictly implicit element $[$x:ident]? of (functionType% $signature) => $body)
+  | `(functionOn% a proof $[$h:ident]? that $p:term => $body:term) =>
+      `(functionOn% an element $[$h:ident]? of ($p : Prop) => $body)
+  | `(functionOn% an implicit proof $[$h:ident]? that $p:term => $body:term) =>
+      `(functionOn% an implicit element $[$h:ident]? of ($p : Prop) => $body)
+  | `(functionOn% a strictly implicit proof $[$h:ident]? that $p:term => $body:term) =>
+      `(functionOn% a strictly implicit element $[$h:ident]? of ($p : Prop) => $body)
+  | `(functionOn% a $noun:meanScalar $[$x:ident]? => $body:term) =>
+      `(functionOn% an element $[$x:ident]? of (scalarType% $noun) => $body)
+  | `(functionOn% an $noun:meanScalar $[$x:ident]? => $body:term) =>
+      `(functionOn% an element $[$x:ident]? of (scalarType% $noun) => $body)
+
+  | `(functionOn% an instance $[$x:ident]? of typeclass $ty:term => $body:term) => do
+      let x ← parameterName x
+      `(fun [$x : typeclassType% $ty] => $body)
 
 /-! The definition clause knows nothing about graphs or other subject types. -/
 syntax "Definition" ":" meanSubject
@@ -390,6 +414,7 @@ syntax meanScalar (ppSpace ident)? : meanWitnessNoun
 syntax "path" (ppSpace ident)? "in" term "from" term "to" term : meanWitnessNoun
 syntax "list" (ppSpace ident)? "of" listElementType "elements" : meanWitnessNoun
 syntax "function" (ppSpace ident)? functionSignature : meanWitnessNoun
+syntax "instance" (ppSpace ident)? "of" "typeclass" term : meanWitnessNoun
 
 declare_syntax_cat meanWitness
 syntax "a" meanWitnessNoun : meanWitness
@@ -430,6 +455,8 @@ macro_rules
       `(existsWitness% element $[$x:ident]? of (List $ty) => $body)
   | `(existsWitness% function $[$x:ident]? $signature:meanFunctionSignature => $body:term) =>
       `(existsWitness% element $[$x:ident]? of (functionType% $signature) => $body)
+  | `(existsWitness% instance $[$x:ident]? of typeclass $ty:term => $body:term) =>
+      `(existsWitness% element $[$x:ident]? of (typeclassType% $ty) => $body)
   | `(existsWitness% path $[$p:ident]? in $g:term from $u:term to $v:term
         => $body:term) =>
       `(existsOver% an element $[$p:ident]? of SimpleGraph.Path $g $u $v => $body)
@@ -441,7 +468,7 @@ needs an unused-variable exemption. Keep all other diagnostics. -/
 def ignoreUnusedEdgeSet : Lean.Linter.IgnoreFunction := fun binder stack _ =>
   stack.any fun (parent, _) =>
     match parent with
-    | `(meanSubject| a simple graph $_:ident = ($_:ident, $es:ident)) =>
+    | `(meanSubject| a simple graph $[$_:ident]? = ($_:ident, $es:ident)) =>
         binder.getRange? == es.raw.getRange?
     | _ => false
 

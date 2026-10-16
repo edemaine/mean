@@ -107,6 +107,96 @@ info: Abbreviation:
 #mean_compare TypeNounExamples.diagonalZero
 #mean_compare TypeNounExamples.implicitApply
 #mean_compare TypeNounExamples.strictApply
+#mean_compare BinderExamples.anonymousNatural
+#mean_compare BinderExamples.constantPredicate
+#mean_compare BinderExamples.constantGraph
+#mean_compare BinderExamples.inhabitedCarrier
+#mean_compare BinderExamples.defaultValue
+#mean_compare BinderExamples.chosenValue
+#mean_compare BinderExamples.namedUnused
+#mean_compare BinderExamples.namedImplicit
+#mean_compare BinderExamples.namedStrict
+#mean_compare BinderExamples.differentNames
+#mean_compare BinderExamples.aliasWithName
+#mean_compare BinderExamples.namedCallback
+/--
+info: Definition:
+  BinderExamples.namedUnused is
+    the function mapping a natural number n to
+      true.
+-/
+#guard_msgs in
+#mean BinderExamples.namedUnused
+/--
+info: Definition:
+  BinderExamples.differentNames is
+    the function mapping a natural number input to
+      input.
+-/
+#guard_msgs in
+#mean BinderExamples.differentNames
+/--
+info: the function mapping an instance of typeclass Inhabited ℕ to
+  true
+-/
+#guard_msgs in
+#mean_term fun [Inhabited Nat] => true
+/--
+info: the function mapping an instance of typeclass Fact True to
+  true
+-/
+#guard_msgs in
+#mean_term fun [Fact True] => true
+#mean_term_compare fun (_ : Nat) => true
+#mean_term_compare fun (_n : Nat) => true
+#mean_term_compare fun [Inhabited Nat] => true
+#mean_term_compare fun [inst : Inhabited Nat] => let _ := inst; true
+#mean_term_compare fun [Fact True] => true
+#mean_term_compare ∃ _inst : Inhabited Nat, True
+#mean_term_compare ∃ inst : Inhabited Nat, inst.default = 7
+#mean_term_compare ¬ ∃ _inst : Inhabited Nat, True
+#mean_term_compare fun [Inhabited Nat] =>
+  let first := inferInstanceAs (Inhabited Nat)
+  fun [Inhabited Nat] => @default Nat first
+
+-- Declaration checks preserve named arguments as well as types and values.
+open Lean Elab Term in
+run_elab do
+  for (name, text, reason) in [
+      (``BinderExamples.namedUnused,
+        "Definition: changed is the function mapping a natural number to true.",
+        "Mean round-trip changed a named parameter"),
+      (``BinderExamples.namedUnused,
+        "Definition: changed is the function mapping a natural number m to true.",
+        "Mean round-trip changed a named parameter"),
+      (``BinderExamples.namedImplicit,
+        "Definition: changed is the function mapping an implicit natural number and a natural number n to n.",
+        "Mean round-trip changed a named parameter"),
+      (``BinderExamples.namedStrict,
+        "Definition: changed is the function mapping a strictly implicit natural number and a natural number n to n.",
+        "Mean round-trip changed a named parameter"),
+      (``BinderExamples.differentNames,
+        "Definition: changed is the function mapping a natural number n to n.",
+        "Mean round-trip changed a named parameter"),
+      (``BinderExamples.chosenValue,
+        "Definition: changed is the function mapping an implicit element A of Type u and an instance of typeclass Inhabited A to (default : A).",
+        "Mean round-trip changed a named parameter"),
+      (``BinderExamples.chosenValue,
+        "Definition: changed is the function mapping an implicit element A of Type u and an element inst of Inhabited A to @default A inst.",
+        "Mean round-trip changed function argument implicitness"),
+      (``BinderExamples.namedCallback,
+        "Definition: changed is the function mapping a function f from Nat to Nat to f (0).",
+        "Mean round-trip changed a named parameter"),
+      (``BinderExamples.namedUnused,
+        "Definition: changed is the function mapping an instance of typeclass Nat to true.",
+        "expected a typeclass application")] do
+    let message ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkDefinition name text
+        pure "accepted"
+      catch ex => ex.toMessageData.toString
+    unless message == reason do
+      throwError "expected binder rejection '{reason}', got: {message}"
 /--
 info: Definition:
   an element i of Fin 3 is TypeNounExamples.indexReflexive if
@@ -191,7 +281,7 @@ info: the function mapping a strictly implicit natural number n and an element i
 #guard_msgs in
 #mean_term fun ⦃n : Nat⦄ (i : Fin n) => i.val
 #mean_term_compare fun ⦃n : Nat⦄ (m : Nat) {k : Nat} => n + m + k
--- Instance binders retain ordinary Lean syntax.
+-- Instance parameters use typeclass search and preserve explicitly supplied names.
 #mean_term_compare fun (n : Nat) [inst : Inhabited Nat] => n + @default Nat inst
 #mean_term_compare fun _n : Nat => (0 : Int)
 section
@@ -392,7 +482,7 @@ def ordinaryPreconnected {V : Type*} (G : SimpleGraph V) : Prop :=
 
 /--
 info: Definition:
-  a simple graph G is ordinaryPreconnected if
+  a simple graph G = (V, E) is ordinaryPreconnected if
     for all vertices u and v of G:
       there is a path in G from u to v.
 -/

@@ -118,7 +118,7 @@ Definition: indexValue is
 These mean `fun (offset n : Nat) => n + offset` and
 `fun (n : Nat) (i : Fin n) => i.val`. Earlier names are in scope in later subjects
 and the body. Subjects may have different types, and more than two can be joined.
-The renderer combines consecutive explicit, implicit, and strict implicit function
+The renderer combines consecutive explicit, implicit, strict implicit, and instance function
 binders this way. Nested function phrases remain accepted. Parameter types such as
 `Type`, `Sort u`, `Fin n`, and `SimpleGraph V` need no surrounding parentheses.
 Parentheses delimit a conjunction used as a subject type, such as
@@ -139,8 +139,9 @@ or pluralization of its name is needed. Group compound list element types, as in
 Function domains separated by `and` are curried arguments. A product domain stays
 explicit: `a function f from (ℤ × ℤ) to Tile` means `(ℤ × ℤ) → Tile`.
 Group function-valued domains too, as in `from (ℕ → ℕ) to ℕ`.
-The renderer uses from/to wording for explicit, nondependent function types;
-dependent or implicit signatures retain their exact Lean notation in element phrases.
+The renderer uses from/to wording for anonymous, explicit, nondependent arrow signatures.
+Dependent or implicit signatures, and named parameters inside function types,
+retain their exact Lean notation in element phrases.
 
 Both nouns work in predicate subjects and function parameters, including
 `an implicit list T of Tile elements`, `a strictly implicit list T of Tile elements`,
@@ -181,6 +182,43 @@ argument when a later explicit argument is supplied, so `strictIndex (2 : Fin 3)
 infers `n = 3`. Ordinary implicit arguments are inserted eagerly. Prefer strict
 implicit parameters with a later explicit parameter that determines them.
 These forms also support the optional whole-function type.
+
+Instance parameters use `an instance of typeclass C` or
+`an instance inst of typeclass C`:
+
+```lean
+Definition: defaultValue is
+  the function mapping an implicit element A of Type and
+    an instance of typeclass Inhabited A to (default : A).
+```
+
+This means `fun {A : Type} [Inhabited A] => (default : A)`. A named instance,
+`an instance inst of typeclass Inhabited A`, means `[inst : Inhabited A]`.
+Lean finds instance arguments through typeclass search; ordinary implicit
+arguments use inference from type constraints. Strict implicit arguments use
+the same inference, triggered by a later explicit argument.
+The class application is checked, including proposition-valued classes such as
+`Fact P`. Instance witnesses also work, for example
+`there is an instance of typeclass Inhabited A`.
+
+All parameter descriptions allow an omitted name, including scalar, element,
+proof, list, function, graph, and instance descriptions:
+
+```lean
+the function mapping a natural number to true
+the function mapping an implicit list of Tile elements and a boolean b to b
+```
+
+An omitted name introduces a fresh hygienic binder and cannot capture a name in
+the body. Anonymous instances still participate in typeclass search. Name a
+parameter when later types or the body need to refer to it. Existential witness
+names remain optional too.
+
+The renderer preserves public parameter names, including unused ones, because
+Lean permits calls such as `f (n := 3)`. It follows the names in a declaration's
+type when they differ from its lambda variable names. Generated anonymous names
+can be omitted when the rendered remainder does not reference them. Some aliases
+retain an explicit Lean declaration type to preserve this interface.
 
 For a parameter whose type is a proposition, use `a proof <name> that <proposition>`:
 
@@ -294,7 +332,7 @@ For expressions and theorem statements, Mean elaborates the text, tests
 definitional equality, and asks Lean's kernel to check an equality certificate.
 For named definitions, Mean elaborates a renamed copy of the complete printed
 command in a temporary environment. It checks the resulting type and value,
-function binder information, universe parameters, definition/abbreviation kind,
+function binder information, public parameter names, universe parameters, definition/abbreviation kind,
 effective reducibility, and safety against the original declaration. Expected
 metadata is read independently from Lean's environment. The temporary declaration
 and elaboration state are discarded afterward.
@@ -445,8 +483,9 @@ before/after comparisons. Each rendering passes the usual checked round trip,
 and `python test.py` checks the exact output. This is a baseline for improving
 the translation of real mathematics; unsupported portions retain Lean syntax.
 The tiling definition renders existential and integer quantifiers and conjunctions.
-Instance binders leave the bodies of the complexity definitions in Lean, and
-named predicates such as `CoREComplete` and `ComputablePred` retain their names.
+The complexity definitions use `an instance of typeclass Primcodable α` for their
+instance parameters. Named predicates such as `CoREComplete` and `ComputablePred`
+retain their names; unsupported quantified predicate domains stay in Lean.
 
 ## Compositional syntax
 
@@ -466,6 +505,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Implicit subject | `an implicit natural number n`, `an implicit element x of T` |
 | Strict implicit subject | `a strictly implicit natural number n`, `a strictly implicit element x of T` |
 | Proof subject | `a proof h that P`, `an implicit proof h that P`, `a strictly implicit proof h that P` |
+| Instance subject | `an instance of typeclass C`, `an instance inst of typeclass C` |
 | List subject | `a list T of Tile elements`, `a list T of (Fin n) elements` |
 | Function subject | `a function f from A to B`, `a function f from A and B to C` |
 | Universal quantifier | `for all <bindings>: <proposition>`, `for every …` |
@@ -602,8 +642,9 @@ such as `Set.Finite` are not yet overloaded onto this vocabulary.
 The renderer recognizes graph, scalar, list, function, proof, and generic element
 subjects; paired universal quantifiers and single scalar quantifiers; positive and negative existential witnesses; optional
 conditions; conjunctions, disjunctions, and nondependent propositional implications;
-and functions with explicit, implicit, and strict implicit binders, including nested and dependent functions.
-It canonically omits unused witness names and graph component names.
+and functions with explicit, implicit, strict implicit, and instance binders, including nested and dependent functions.
+It omits unused witness names and unnecessary generated parameter names, while
+preserving public parameter names, including graph carrier parameters.
 It substitutes local `let` aliases, so `E` may render as `G.edgeSet`.
 Graph carrier types with fixed or compound universes can render through generic
 typed-element function bindings; the dedicated graph subject still uses `Type*`.
@@ -616,8 +657,6 @@ coverage, not failed verification.** Current gaps include:
   dependent domains; their unsupported portions remain ordinary Lean.
 - Predicate subject forms with additional parameters or hypotheses; named values
   can express these through nested function bindings.
-- Function expressions with instance (`[…]`) binders;
-  these retain ordinary Lean syntax.
 - Recursive rendering inside some unsupported outer structures. In particular,
   an outer implicit universal binder can cause a whole theorem statement to remain Lean.
 - Additional English connectives such as general negation and equivalence, unrestricted

@@ -67,8 +67,8 @@ def LeanWang.Abstract.CoRE : {α : Type u_1} → [Primcodable α] → (α → Pr
 -- MEAN OUTPUT:
 Definition:
   LeanWang.Abstract.CoRE is
-    the function mapping an implicit element α of Type u_1 to
-      fun [Primcodable α] (p : α → Prop) => REPred fun («a» : α) => ¬p «a».
+    the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
+      REPred fun («a» : α) => ¬p «a».
 
 -- LEAN INPUT:
 def LeanWang.Abstract.CoREComplete : {α : Type u_1} → [Primcodable α] → (α → Prop) → Prop :=
@@ -77,9 +77,8 @@ def LeanWang.Abstract.CoREComplete : {α : Type u_1} → [Primcodable α] → (�
 -- MEAN OUTPUT:
 Definition:
   LeanWang.Abstract.CoREComplete is
-    the function mapping an implicit element α of Type u_1 to
-      fun [Primcodable α] (p : α → Prop) =>
-        CoRE p ∧ ∀ (q : ℕ → Prop), CoRE q → ∃ (r : ℕ → α), Computable r ∧ ∀ (n : ℕ), q n ↔ p (r n).
+    the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
+      CoRE p and (∀ (q : ℕ → Prop), CoRE q → ∃ (r : ℕ → α), Computable r ∧ ∀ (n : ℕ), q n ↔ p (r n)).
 
 -- LEAN INPUT:
 theorem LeanWang.Abstract.coRE_complete :

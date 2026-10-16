@@ -26,6 +26,22 @@ private partial def checkFunctionBinders (original reparsed : Expr) : TermElabM 
     checkFunctionBinders body body'
   | _, _ => pure ()
 
+/-- Named arguments are a declaration interface, even for unused parameters.
+Anonymous and hygienically generated names carry no public spelling to preserve. -/
+private partial def checkParameterNames (original reparsed : Expr) : TermElabM Unit := do
+  let original ← whnf original
+  let reparsed ← whnf reparsed
+  match original, reparsed with
+  | .forallE name ty body bi, .forallE name' ty' body' bi' =>
+    unless bi == bi' do
+      throwError "Mean round-trip changed function argument implicitness"
+    if !name.isAnonymous && !name.hasMacroScopes && !name.isInaccessibleUserName && name != name' then
+      throwError "Mean round-trip changed a named parameter"
+    checkParameterNames ty ty'
+    withLocalDecl name bi ty fun x =>
+      checkParameterNames (body.instantiate1 x) (body'.instantiate1 x)
+  | _, _ => pure ()
+
 /-- Expression equality is one part of the contract, separate from declaration metadata. -/
 private def checkExpressions (original reparsed : Expr) (text : String) : TermElabM Unit := do
   if original.hasSorry || reparsed.hasSorry then
@@ -45,11 +61,11 @@ private def checkValueText (original : Expr) (text : String) (category : Name)
     (abbreviation := false) : TermElabM Unit := do
   let stx ← parseText category text
   let graphSubject := match stx with
-    | `(command| Definition: a simple graph $_:ident is $_:ident if $_:term .) => true
-    | `(command| Abbreviation: a simple graph $_:ident is $_:ident if $_:term .) => true
-    | `(command| Definition: a simple graph $_:ident = ($_:ident, $_:ident)
+    | `(command| Definition: a simple graph $[$_:ident]? is $_:ident if $_:term .) => true
+    | `(command| Abbreviation: a simple graph $[$_:ident]? is $_:ident if $_:term .) => true
+    | `(command| Definition: a simple graph $[$_:ident]? = ($_:ident, $_:ident)
         is $_:ident if $_:term .) => true
-    | `(command| Abbreviation: a simple graph $_:ident = ($_:ident, $_:ident)
+    | `(command| Abbreviation: a simple graph $[$_:ident]? = ($_:ident, $_:ident)
         is $_:ident if $_:term .) => true
     | _ => false
   let (term, actualAbbreviation) ← if category == `command then
@@ -152,5 +168,6 @@ def checkDefinition (originalName : Name) (text : String) : TermElabM Unit :=
     let actualValue := actual.value.instantiateLevelParams actual.levelParams levels
     checkExpressions original.type actualType text
     checkExpressions original.value actualValue text
+    checkParameterNames original.type actualType
 
 end Mean.RoundTrip
