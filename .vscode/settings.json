@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "*.mean": "lean4",
+    "*.compare": "lean4"
+  }
+}

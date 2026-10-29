@@ -1,1 +1,2 @@
 *.mean linguist-language=lean4
+*.compare linguist-language=lean4

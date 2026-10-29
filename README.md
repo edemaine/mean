@@ -385,29 +385,39 @@ lake build
 Lean and mathlib are pinned to v4.35.0. `lake build` checks both directions and the
 round-trip tests.
 
-To also check the examples' exact before/after output, using Python 3.9 or newer:
+To also check the examples' exact generated output, using Python 3.9 or newer:
 
 ```sh
 python test.py
 ```
 
-This builds the project, runs the renderer examples, and compares their output
-with [Examples/LeanToMean.mean](Examples/LeanToMean.mean) and
-[Examples/Wang.mean](Examples/Wang.mean). Changes produce
-a diff and a nonzero exit status. Source locations are ignored; wording,
+This builds the project, runs the renderer examples, and checks two views:
+
+- Mean output only: [Examples/LeanToMean.mean](Examples/LeanToMean.mean) and
+  [Examples/Wang.mean](Examples/Wang.mean).
+- Paired Lean/Mean comparisons: [Examples/LeanToMean.compare](Examples/LeanToMean.compare)
+  and [Examples/Wang.compare](Examples/Wang.compare).
+
+Changes produce a diff and a nonzero exit status. Source locations are ignored; wording,
 parentheses, indentation, and blank lines are checked. LF and CRLF are equivalent.
-The `.mean` files are generated before/after comparisons containing both the
-original Lean display and the Mean rendering; they are not standalone Mean programs.
-Each begins with a comment identifying its Lean source and regeneration command.
+The `.mean` files contain only the checked Mean renderings; `.compare` files
+also show the original elaborated Lean, separated by `-- LEAN INPUT:` and
+`-- MEAN OUTPUT:` comments. These are generated views, not standalone programs:
+for example, rendered theorem statements omit proofs and term examples can refer
+to their original section variables. Each file begins with a comment identifying
+its Lean source and regeneration command.
 Upstream source and license links in the input's opening comment
 are copied to the generated header.
-The repository's `.gitattributes` selects Lean 4 syntax highlighting for `.mean`
-files on [GitHub](https://github.com/github-linguist/linguist/blob/main/docs/overrides.md#using-gitattributes).
-In VS Code with the Lean extension, use the language selector
-to open them as Lean 4, or associate `*.mean` with the `lean4` language ID.
+The repository's `.gitattributes` selects Lean 4 syntax highlighting for both
+extensions on [GitHub](https://github.com/github-linguist/linguist/blob/main/docs/overrides.md#using-gitattributes).
+VS Code uses a separate mechanism: the repository's
+[workspace settings](.vscode/settings.json) use
+[`files.associations`](https://code.visualstudio.com/docs/languages/overview#_add-a-file-extension-to-a-language)
+to associate both extensions with `lean4`.
+Install the Lean 4 extension and open the repository folder to use these associations.
 The forward examples and round-trip meaning checks still run as part of the build.
 
-After an intentional output change, regenerate the snapshot and review its diff:
+After an intentional output change, regenerate both views and review the diff:
 
 ```sh
 python test.py --update
@@ -467,7 +477,7 @@ It keeps the original nine definitions/abbreviations and compares the statements
 of co-RE-completeness and undecidability. The upstream attribution and
 [Apache 2.0 license](Examples/Wang.LICENSE) are retained.
 The [upstream license](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE)
-is linked in `Wang.lean` and its generated `.mean` header. A local license copy accompanies
+is linked in `Wang.lean` and both generated headers. A local license copy accompanies
 the adapted source, as required by [Apache 2.0 §4(a)](https://www.apache.org/licenses/LICENSE-2.0#redistribution).
 
 Mean and lean-wang both use Lean/mathlib 4.35.0.
@@ -478,8 +488,9 @@ The two theorem declarations are retained with `sorry` proofs and rendered by
 remain upstream. The `sorry` warning is disabled locally for these two copied
 declarations, while other renderer warnings and errors remain checked.
 
-[Examples/Wang.mean](Examples/Wang.mean) contains the generated
-before/after comparisons. Each rendering passes the usual checked round trip,
+[Examples/Wang.mean](Examples/Wang.mean) contains the generated Mean output;
+[Examples/Wang.compare](Examples/Wang.compare) pairs it with the Lean input.
+Each rendering passes the usual checked round trip,
 and `python test.py` checks the exact output. This is a baseline for improving
 the translation of real mathematics; unsupported portions retain Lean syntax.
 The tiling definition renders existential and integer quantifiers and conjunctions.
@@ -800,4 +811,5 @@ smaller vocabulary and falling back to Lean for unsupported expressions.
 | [Examples/MeanToLean.lean](Examples/MeanToLean.lean) | Forward-language examples, exact-meaning checks, and mathlib equivalence proofs |
 | [Examples/LeanToMean.lean](Examples/LeanToMean.lean) | Before/after examples and round-trip checks, including rejection of changed predicates and universe signatures |
 | `test.py` | Builds the project and checks the rendered examples against their expected output |
-| `Examples/LeanToMean.mean` | Reviewed before/after output, including exact formatting |
+| `Examples/*.mean` | Generated Mean output only, including exact formatting |
+| `Examples/*.compare` | Generated paired Lean/Mean comparisons |

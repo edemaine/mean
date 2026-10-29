@@ -19,8 +19,8 @@ import Mean
 /-!
 # Wang tiling: a formal abstract
 
-See Wang.mean for generated Lean/Mean comparisons and Wang.LICENSE for the
-upstream Apache 2.0 license.
+See Wang.mean for generated Mean output, Wang.compare for Lean/Mean comparisons,
+and Wang.LICENSE for the upstream Apache 2.0 license.
 Unsupported constructions remain Lean, with the same checked round trip.
 -/
 

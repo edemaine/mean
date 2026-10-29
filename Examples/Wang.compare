@@ -1,0 +1,100 @@
+-- Automatically generated from Examples/Wang.lean by python test.py --update.
+-- Each comparison shows elaborated Lean input followed by its checked Mean output.
+-- Upstream source: [LeanWang/Abstract.lean](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LeanWang/Abstract.lean)
+-- Upstream license: [Apache 2.0](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE)
+
+-- LEAN INPUT:
+abbrev LeanWang.Abstract.Direction : Type :=
+  Fin 4
+-- MEAN OUTPUT:
+Abbreviation:
+  LeanWang.Abstract.Direction is
+    (Fin 4).
+
+-- LEAN INPUT:
+abbrev LeanWang.Abstract.n : Direction :=
+  0
+-- MEAN OUTPUT:
+Abbreviation:
+  LeanWang.Abstract.n is
+    (0 : Direction).
+
+-- LEAN INPUT:
+abbrev LeanWang.Abstract.s : Direction :=
+  1
+-- MEAN OUTPUT:
+Abbreviation:
+  LeanWang.Abstract.s is
+    (1 : Direction).
+
+-- LEAN INPUT:
+abbrev LeanWang.Abstract.e : Direction :=
+  2
+-- MEAN OUTPUT:
+Abbreviation:
+  LeanWang.Abstract.e is
+    (2 : Direction).
+
+-- LEAN INPUT:
+abbrev LeanWang.Abstract.w : Direction :=
+  3
+-- MEAN OUTPUT:
+Abbreviation:
+  LeanWang.Abstract.w is
+    (3 : Direction).
+
+-- LEAN INPUT:
+abbrev LeanWang.Abstract.Tile : Type :=
+  Direction → ℕ
+-- MEAN OUTPUT:
+Abbreviation:
+  LeanWang.Abstract.Tile is
+    Direction → ℕ.
+
+-- LEAN INPUT:
+def LeanWang.Abstract.TilesPlane : List Tile → Prop :=
+  fun (T : List Tile) => ∃ (t : ℤ → ℤ → Tile), ∀ (x y : ℤ), t x y ∈ T ∧ t x y e = t (x + 1) y w ∧ t x y n = t x (y + 1) s
+-- MEAN OUTPUT:
+Definition:
+  a list T of Tile elements is LeanWang.Abstract.TilesPlane if
+    there is a function t from ℤ and ℤ to Tile such that
+      for all integers x and y:
+        t x y ∈ T and t x y e = t (x + 1) y w and t x y n = t x (y + 1) s.
+
+-- LEAN INPUT:
+def LeanWang.Abstract.CoRE : {α : Type u_1} → [Primcodable α] → (α → Prop) → Prop :=
+  fun {α : Type u_1} [Primcodable α] (p : α → Prop) => REPred fun («a» : α) => ¬p «a»
+-- MEAN OUTPUT:
+Definition:
+  LeanWang.Abstract.CoRE is
+    the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
+      (the function mapping an element «a» of α to
+        «a» is not p) is recursively enumerable.
+
+-- LEAN INPUT:
+def LeanWang.Abstract.CoREComplete : {α : Type u_1} → [Primcodable α] → (α → Prop) → Prop :=
+  fun {α : Type u_1} [Primcodable α] (p : α → Prop) =>
+    CoRE p ∧ ∀ (q : ℕ → Prop), CoRE q → ∃ (r : ℕ → α), Computable r ∧ ∀ (n : ℕ), q n ↔ p (r n)
+-- MEAN OUTPUT:
+Definition:
+  LeanWang.Abstract.CoREComplete is
+    the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
+      p is CoRE and (for every function q from ℕ to Prop:
+        if q is CoRE then
+          there is a function r from ℕ to α such that
+            r is computable and (for every natural number n:
+              n is q if and only if (r n) is p)).
+
+-- LEAN INPUT:
+theorem LeanWang.Abstract.coRE_complete :
+  CoREComplete TilesPlane
+-- MEAN OUTPUT:
+Theorem LeanWang.Abstract.coRE_complete:
+  TilesPlane is CoREComplete
+
+-- LEAN INPUT:
+theorem LeanWang.Abstract.undecidable :
+  ¬ComputablePred TilesPlane
+-- MEAN OUTPUT:
+Theorem LeanWang.Abstract.undecidable:
+  TilesPlane is not computable

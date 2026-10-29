@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Mean and compare example output with the checked-in snapshot."""
+"""Build Mean and check Mean-only and paired Lean/Mean example snapshots."""
 
 import argparse
 import difflib
@@ -22,7 +22,7 @@ def run(*command: str) -> subprocess.CompletedProcess:
     )
 
 
-def example_output(source: str) -> tuple[str, int]:
+def example_outputs(source: str) -> tuple[dict[str, str], int]:
     result = run("lake", "env", "lean", "--json", source)
     if result.returncode or result.stderr:
         raise RuntimeError(result.stdout + result.stderr)
@@ -38,16 +38,37 @@ def example_output(source: str) -> tuple[str, int]:
     # Keep source order and every character of the actual messages, including
     # the leading blank lines emitted by the comparison commands.
     messages.sort(key=lambda m: (m["pos"]["line"], m["pos"]["column"]))
-    header = (
-        f"-- Automatically generated from {source} by python test.py --update.\n"
-        "-- Each comparison shows elaborated Lean input followed by its checked Mean output.\n"
-    )
+    header = f"-- Automatically generated from {source} by python test.py --update.\n"
     source_text = (ROOT / source).read_text(encoding="utf-8").lstrip()
     opening_comment = source_text[2:].partition("-/")[0] if source_text.startswith("/-") else ""
+    attribution = ""
     for line in opening_comment.splitlines():
         if line.startswith(("Upstream source: ", "Upstream license: ")):
-            header += f"-- {line}\n"
-    return header + "".join(m["data"] + "\n" for m in messages), len(messages)
+            attribution += f"-- {line}\n"
+
+    comparisons = []
+    renderings = []
+    for message in messages:
+        comparison = message["data"]
+        if not comparison.startswith("\n-- LEAN INPUT:\n"):
+            raise ValueError(f"Expected a Lean/Mean comparison, got:\n{comparison}")
+        _, separator, mean = comparison.partition("\n-- MEAN OUTPUT:\n")
+        if not separator or not mean:
+            raise ValueError(f"Missing Mean output in comparison:\n{comparison}")
+        comparisons.append(comparison + "\n")
+        renderings.append("\n" + mean + "\n")
+
+    paired_path = Path(source).with_suffix(".compare").as_posix()
+    return {
+        ".mean": header
+        + f"-- Checked Mean output; see {paired_path} for paired Lean/Mean comparisons.\n"
+        + attribution
+        + "".join(renderings),
+        ".compare": header
+        + "-- Each comparison shows elaborated Lean input followed by its checked Mean output.\n"
+        + attribution
+        + "".join(comparisons),
+    }, len(messages)
 
 
 def main() -> int:
@@ -66,11 +87,14 @@ def main() -> int:
     snapshots = []
     for source in EXAMPLES:
         try:
-            actual, count = example_output(source)
+            outputs, count = example_outputs(source)
         except (OSError, ValueError, KeyError, RuntimeError) as error:
             print(f"Could not collect output from {source}:\n{error}", file=sys.stderr)
             return 1
-        snapshots.append((ROOT / Path(source).with_suffix(".mean"), actual, count))
+        snapshots.extend(
+            (ROOT / Path(source).with_suffix(suffix), actual, count)
+            for suffix, actual in outputs.items()
+        )
 
     failed = False
     for path, actual, count in snapshots:
