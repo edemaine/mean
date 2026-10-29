@@ -775,6 +775,178 @@ there is no function f from ℕ to ℕ such that
 there is no function from ℕ to ℕ
 
 -- LEAN INPUT:
+∀ (q : ℕ → Prop), q 0 → ∃ (r : ℕ → ℕ), ∀ (n : ℕ), q n ↔ q (r n)
+-- MEAN OUTPUT:
+for every function q from ℕ to Prop:
+  if 0 is q then
+    there is a function r from ℕ to ℕ such that
+      for every natural number n:
+        n is q if and only if (r n) is q
+
+-- LEAN INPUT:
+∀ (f : ℕ → ℕ → ℕ), f 0 0 = 0
+-- MEAN OUTPUT:
+for every function f from ℕ and ℕ to ℕ:
+  f 0 0 = 0
+
+-- LEAN INPUT:
+∀ (xs : List ℕ) (i : Fin xs.length), xs[i] = xs[i]
+-- MEAN OUTPUT:
+for every list xs of ℕ elements:
+  for every element i of (Fin xs.length):
+    xs[i] = xs[i]
+
+-- LEAN INPUT:
+∀ (f : (n : ℕ) → Fin n), f 1 = f 1
+-- MEAN OUTPUT:
+for every element f of ((n : ℕ) → Fin n):
+  f 1 = f 1
+
+-- LEAN INPUT:
+∀ (f : {n : ℕ} → Fin n), f = f
+-- MEAN OUTPUT:
+for every element f of ({n : Nat} → Fin n):
+  @Eq (Fin (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+    (@f (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+    (@f (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+
+-- LEAN INPUT:
+∀ (x : TypeNounExamples.Token), x = x
+-- MEAN OUTPUT:
+for every element x of TypeNounExamples.Token:
+  x = x
+
+-- LEAN INPUT:
+∀ (f : TypeNounExamples.Endomap), f = f
+-- MEAN OUTPUT:
+for every element f of TypeNounExamples.Endomap:
+  f = f
+
+-- LEAN INPUT:
+∀ (inst : Inhabited ℕ), default = 0
+-- MEAN OUTPUT:
+for every instance inst of typeclass Inhabited ℕ:
+  default = 0
+
+-- LEAN INPUT:
+∀ (P : Prop), P ↔ P
+-- MEAN OUTPUT:
+for every element P of (Prop):
+  P if and only if P
+
+-- LEAN INPUT:
+∀ (p : G.Path u v), p = p
+-- MEAN OUTPUT:
+for every path p in G from u to v:
+  p = p
+
+-- LEAN INPUT:
+∀ (x : A), x = x
+-- MEAN OUTPUT:
+for every element x of A:
+  x = x
+
+-- LEAN INPUT:
+∀ (h : P), h = h
+-- MEAN OUTPUT:
+for every proof h that P:
+  h = h
+
+-- LEAN INPUT:
+P ↔ Q
+-- MEAN OUTPUT:
+P if and only if Q
+
+-- LEAN INPUT:
+(P ↔ Q) ↔ R
+-- MEAN OUTPUT:
+(P if and only if Q) if and only if R
+
+-- LEAN INPUT:
+P ↔ (Q ↔ R)
+-- MEAN OUTPUT:
+P if and only if (Q if and only if R)
+
+-- LEAN INPUT:
+(P ↔ Q) ∧ R
+-- MEAN OUTPUT:
+(P if and only if Q) and R
+
+-- LEAN INPUT:
+P ∧ (Q ↔ R)
+-- MEAN OUTPUT:
+P and (Q if and only if R)
+
+-- LEAN INPUT:
+(P ↔ Q) ∨ R
+-- MEAN OUTPUT:
+(P if and only if Q) or R
+
+-- LEAN INPUT:
+P ∨ (Q ↔ R)
+-- MEAN OUTPUT:
+P or (Q if and only if R)
+
+-- LEAN INPUT:
+P ∧ Q ↔ R
+-- MEAN OUTPUT:
+P and Q if and only if R
+
+-- LEAN INPUT:
+P ↔ Q ∨ R
+-- MEAN OUTPUT:
+P if and only if Q or R
+
+-- LEAN INPUT:
+P → Q ↔ R
+-- MEAN OUTPUT:
+(if P then Q) if and only if R
+
+-- LEAN INPUT:
+P ↔ Q → R
+-- MEAN OUTPUT:
+P if and only if (if Q then R)
+
+-- LEAN INPUT:
+P → (Q ↔ R)
+-- MEAN OUTPUT:
+if P then
+  (Q if and only if R)
+
+-- LEAN INPUT:
+(P ↔ Q) → R
+-- MEAN OUTPUT:
+if P if and only if Q then
+  R
+
+-- LEAN INPUT:
+P →
+  let S := Q;
+  S ↔ R
+-- MEAN OUTPUT:
+if P then
+  (Q if and only if R)
+
+-- LEAN INPUT:
+(let S := P;
+  S ↔ Q) ∧
+  R
+-- MEAN OUTPUT:
+(P if and only if Q) and R
+
+-- LEAN INPUT:
+(∀ (x : A), x = x) ↔ P
+-- MEAN OUTPUT:
+(for every element x of A:
+  x = x) if and only if P
+
+-- LEAN INPUT:
+P ↔ ∃ (x : A), x = x
+-- MEAN OUTPUT:
+P if and only if (there is an element x of A such that
+  x = x)
+
+-- LEAN INPUT:
 fun (n : ℕ) => 2 * n
 -- MEAN OUTPUT:
 the function mapping a natural number n to
@@ -1165,7 +1337,8 @@ there is a natural number such that
 ∀ (n : ℕ) (i : Fin n), (↑i : ℕ) < n
 -- MEAN OUTPUT:
 for every natural number n:
-  ∀ (i : Fin n), (↑i : ℕ) < n
+  for every element i of (Fin n):
+    (↑i : ℕ) < n
 
 -- LEAN INPUT:
 ∀ (n m : ℕ), n = m → m = n
@@ -1435,19 +1608,19 @@ there is no integer x such that
 (¬∃ (x : T), P x) ∧ Q
 -- MEAN OUTPUT:
 (there is no element x of T such that
-  P x) and Q
+  x is P) and Q
 
 -- LEAN INPUT:
 Q ∨ ¬∃ (x : T), P x
 -- MEAN OUTPUT:
 Q or (there is no element x of T such that
-  P x)
+  x is P)
 
 -- LEAN INPUT:
 (¬∃ (x : T), P x) → Q
 -- MEAN OUTPUT:
 if there is no element x of T such that
-  P x then
+  x is P then
   Q
 
 -- LEAN INPUT:
@@ -1460,6 +1633,170 @@ there is no path in G from u to v
 -- MEAN OUTPUT:
 there is no path p in G from u to v such that
   (↑p : G.Walk u v).length = 0
+
+-- LEAN INPUT:
+PredicateExamples.FooPred n
+-- MEAN OUTPUT:
+n is PredicateExamples.FooPred
+
+-- LEAN INPUT:
+¬PredicateExamples.FooPred n
+-- MEAN OUTPUT:
+n is not PredicateExamples.FooPred
+
+-- LEAN INPUT:
+PredicateExamples.accepts n
+-- MEAN OUTPUT:
+n is PredicateExamples.accepts
+
+-- LEAN INPUT:
+PredicateExamples.BoolPred n
+-- MEAN OUTPUT:
+PredicateExamples.BoolPred n
+
+-- LEAN INPUT:
+PredicateExamples.relates n 0
+-- MEAN OUTPUT:
+PredicateExamples.relates n 0
+
+-- LEAN INPUT:
+p n
+-- MEAN OUTPUT:
+n is p
+
+-- LEAN INPUT:
+¬p n
+-- MEAN OUTPUT:
+n is not p
+
+-- LEAN INPUT:
+¬¬p n
+-- MEAN OUTPUT:
+¬¬p n
+
+-- LEAN INPUT:
+p n ∧ ¬p (n + 1)
+-- MEAN OUTPUT:
+n is p and (n + 1) is not p
+
+-- LEAN INPUT:
+(p n ↔ ¬p n) → p n
+-- MEAN OUTPUT:
+if n is p if and only if n is not p then
+  n is p
+
+-- LEAN INPUT:
+r (P ∧ Q)
+-- MEAN OUTPUT:
+(P and Q) is r
+
+-- LEAN INPUT:
+¬r (P ↔ Q)
+-- MEAN OUTPUT:
+(P if and only if Q) is not r
+
+-- LEAN INPUT:
+¬(P ∧ Q)
+-- MEAN OUTPUT:
+¬(P ∧ Q)
+
+-- LEAN INPUT:
+REPred p
+-- MEAN OUTPUT:
+p is recursively enumerable
+
+-- LEAN INPUT:
+¬REPred p
+-- MEAN OUTPUT:
+p is not recursively enumerable
+
+-- LEAN INPUT:
+Computable f
+-- MEAN OUTPUT:
+f is computable
+
+-- LEAN INPUT:
+¬Computable f
+-- MEAN OUTPUT:
+f is not computable
+
+-- LEAN INPUT:
+ComputablePred p
+-- MEAN OUTPUT:
+p is computable
+
+-- LEAN INPUT:
+¬ComputablePred p
+-- MEAN OUTPUT:
+p is not computable
+
+-- LEAN INPUT:
+REPred fun (n : ℕ) => ¬p n
+-- MEAN OUTPUT:
+(the function mapping a natural number n_1 to
+  n_1 is not p) is recursively enumerable
+
+-- LEAN INPUT:
+ComputablePred fun (n : ℕ) => ¬p n
+-- MEAN OUTPUT:
+(the function mapping a natural number n_1 to
+  n_1 is not p) is computable
+
+-- LEAN INPUT:
+Computable fun (n : ℕ) => n + 1
+-- MEAN OUTPUT:
+(the function mapping a natural number n_1 to
+  n_1 + 1) is computable
+
+-- LEAN INPUT:
+Function.Injective fun (n : ℕ) => n + 1
+-- MEAN OUTPUT:
+(the function mapping a natural number n_1 to
+  n_1 + 1) is injective
+
+-- LEAN INPUT:
+¬Function.Injective fun (n : ℕ) => n + 1
+-- MEAN OUTPUT:
+(the function mapping a natural number n_1 to
+  n_1 + 1) is not injective
+
+-- LEAN INPUT:
+¬Finite ℕ
+-- MEAN OUTPUT:
+ℕ is not finite
+
+-- LEAN INPUT:
+p x
+-- MEAN OUTPUT:
+x is p
+
+-- LEAN INPUT:
+¬p x
+-- MEAN OUTPUT:
+x is not p
+
+-- LEAN INPUT:
+PredicateExamples.accepts x
+-- MEAN OUTPUT:
+x is PredicateExamples.accepts
+
+-- LEAN INPUT:
+fun [inst : Inhabited ℕ] =>
+  let first := inst;
+  fun [Inhabited ℕ] => PredicateExamples.classified 7
+-- MEAN OUTPUT:
+the function mapping an instance inst of typeclass Inhabited Nat to
+  the function mapping an instance of typeclass Inhabited Nat to
+    (@OfNat.ofNat Nat (nat_lit 7) (instOfNatNat (nat_lit 7))) is (@PredicateExamples.classified inst)
+
+-- LEAN INPUT:
+fun [inst : Primcodable ℕ] =>
+  let first := inst;
+  fun [Primcodable ℕ] (p : ℕ → Prop) => ¬REPred p
+-- MEAN OUTPUT:
+the function mapping an instance inst of typeclass Primcodable Nat to
+  the function mapping an instance of typeclass Primcodable Nat and a function p from Nat to Prop to
+    p is not (@REPred Nat inst)
 
 -- LEAN INPUT:
 Finite T
@@ -1505,7 +1842,8 @@ if T is finite then
 -- LEAN INPUT:
 Function.Injective fun (x : ℕ) => x + 1
 -- MEAN OUTPUT:
-(fun (x : ℕ) => x + 1) is injective
+(the function mapping a natural number x to
+  x + 1) is injective
 
 -- LEAN INPUT:
 def oneToOne : (ℕ → ℕ) → Prop :=
@@ -1563,7 +1901,7 @@ G.neighborSet u ∩ H.neighborSet v
 -- LEAN INPUT:
 G.edgeSet.Nonempty
 -- MEAN OUTPUT:
-(the edge set of G).Nonempty
+the edge set of G is Set.Nonempty
 
 -- LEAN INPUT:
 (G ⊔ H).edgeSet = G.edgeSet ∪ H.edgeSet

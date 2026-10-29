@@ -68,7 +68,8 @@ def LeanWang.Abstract.CoRE : {α : Type u_1} → [Primcodable α] → (α → Pr
 Definition:
   LeanWang.Abstract.CoRE is
     the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
-      REPred fun («a» : α) => ¬p «a».
+      (the function mapping an element «a» of α to
+        «a» is not p) is recursively enumerable.
 
 -- LEAN INPUT:
 def LeanWang.Abstract.CoREComplete : {α : Type u_1} → [Primcodable α] → (α → Prop) → Prop :=
@@ -78,18 +79,22 @@ def LeanWang.Abstract.CoREComplete : {α : Type u_1} → [Primcodable α] → (�
 Definition:
   LeanWang.Abstract.CoREComplete is
     the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
-      CoRE p and (∀ (q : ℕ → Prop), CoRE q → ∃ (r : ℕ → α), Computable r ∧ ∀ (n : ℕ), q n ↔ p (r n)).
+      p is CoRE and (for every function q from ℕ to Prop:
+        if q is CoRE then
+          there is a function r from ℕ to α such that
+            r is computable and (for every natural number n:
+              n is q if and only if (r n) is p)).
 
 -- LEAN INPUT:
 theorem LeanWang.Abstract.coRE_complete :
   CoREComplete TilesPlane
 -- MEAN OUTPUT:
 Theorem LeanWang.Abstract.coRE_complete:
-  CoREComplete TilesPlane
+  TilesPlane is CoREComplete
 
 -- LEAN INPUT:
 theorem LeanWang.Abstract.undecidable :
   ¬ComputablePred TilesPlane
 -- MEAN OUTPUT:
 Theorem LeanWang.Abstract.undecidable:
-  ¬ComputablePred TilesPlane
+  TilesPlane is not computable

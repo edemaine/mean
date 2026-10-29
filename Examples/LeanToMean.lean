@@ -237,6 +237,52 @@ end
 #mean_term_compare ¬ ∃ f : Nat → Nat, f 0 = 0
 #mean_term_compare ¬ ∃ _f : Nat → Nat, True
 
+-- Universal noun phrases recurse into dependent domains and logical structure.
+/--
+info: for every function q from ℕ to Prop:
+  if 0 is q then
+    there is a function r from ℕ to ℕ such that
+      for every natural number n:
+        n is q if and only if (r n) is q
+-/
+#guard_msgs in
+#mean_term ∀ q : Nat → Prop, q 0 → ∃ r : Nat → Nat, ∀ n : Nat, q n ↔ q (r n)
+#mean_term_compare ∀ q : Nat → Prop, q 0 → ∃ r : Nat → Nat, ∀ n : Nat, q n ↔ q (r n)
+#mean_term_compare ∀ f : Nat → Nat → Nat, f 0 0 = 0
+#mean_term_compare ∀ xs : List Nat, ∀ i : Fin xs.length, xs[i] = xs[i]
+#mean_term_compare ∀ f : (n : Nat) → Fin n, f 1 = f 1
+#mean_term_compare ∀ f : {n : Nat} → Fin n, f (n := 1) = f (n := 1)
+#mean_term_compare ∀ x : TypeNounExamples.Token, x = x
+#mean_term_compare ∀ f : TypeNounExamples.Endomap, f = f
+#mean_term_compare ∀ inst : Inhabited Nat, inst.default = 0
+#mean_term_compare ∀ P : Prop, P ↔ P
+section
+variable {V : Type*} (G : SimpleGraph V) (u v : V)
+#mean_term_compare ∀ p : G.Path u v, p = p
+end
+section
+variable {A : Sort u} (P Q R : Prop)
+#mean_term_compare ∀ x : A, x = x
+#mean_term_compare ∀ h : P, h = h
+#mean_term_compare P ↔ Q
+#mean_term_compare (P ↔ Q) ↔ R
+#mean_term_compare P ↔ (Q ↔ R)
+#mean_term_compare (P ↔ Q) ∧ R
+#mean_term_compare P ∧ (Q ↔ R)
+#mean_term_compare (P ↔ Q) ∨ R
+#mean_term_compare P ∨ (Q ↔ R)
+#mean_term_compare P ∧ Q ↔ R
+#mean_term_compare P ↔ Q ∨ R
+#mean_term_compare (P → Q) ↔ R
+#mean_term_compare P ↔ (Q → R)
+#mean_term_compare P → (Q ↔ R)
+#mean_term_compare (P ↔ Q) → R
+#mean_term_compare P → (let S := Q; S ↔ R)
+#mean_term_compare (let S := P; S ↔ Q) ∧ R
+#mean_term_compare (∀ x : A, x = x) ↔ P
+#mean_term_compare P ↔ (∃ x : A, x = x)
+end
+
 -- Noun phrases preserve element types, currying, and parameter implicitness.
 open Lean Elab Term in
 run_elab do
@@ -579,6 +625,15 @@ run_elab do
   catch _ => pure true
   unless rejected do throwError "round-trip checker accepted a changed predicate"
 
+open Lean Elab Term in
+run_elab do
+  let original ← elabTerm (← `(True ↔ False)) none
+  let rejected ← try
+    Mean.RoundTrip.checkText original "if True then False"
+    pure false
+  catch _ => pure true
+  unless rejected do throwError "round-trip checker accepted implication for equivalence"
+
 -- Reject turning a fixed Type 0 graph parameter into a universe-polymorphic one.
 open Lean Elab Term in
 run_elab do
@@ -653,6 +708,78 @@ variable {V : Type*} (G : SimpleGraph V) (u v : V)
 end
 
 -- Type and function adjectives use the same rendering rule.
+section
+variable (n : Nat) (p : Nat → Prop) (f : Nat → Nat) (P Q : Prop) (r : Prop → Prop)
+/-- info: n is p -/
+#guard_msgs in
+#mean_term p n
+/-- info: n is not p -/
+#guard_msgs in
+#mean_term ¬ p n
+/--
+info: (the function mapping a natural number k to
+  k is not p) is recursively enumerable
+-/
+#guard_msgs in
+#mean_term REPred (fun k : Nat => ¬ p k)
+#mean_term_compare PredicateExamples.FooPred n
+#mean_term_compare ¬ PredicateExamples.FooPred n
+#mean_term_compare PredicateExamples.accepts n
+#mean_term_compare PredicateExamples.BoolPred n
+#mean_term_compare PredicateExamples.relates n 0
+#mean_term_compare p n
+#mean_term_compare ¬ p n
+#mean_term_compare ¬ ¬ p n
+#mean_term_compare p n ∧ ¬ p (n + 1)
+#mean_term_compare (p n ↔ ¬ p n) → p n
+#mean_term_compare r (P ∧ Q)
+#mean_term_compare ¬ r (P ↔ Q)
+#mean_term_compare ¬ (P ∧ Q)
+#mean_term_compare REPred p
+#mean_term_compare ¬ REPred p
+#mean_term_compare Computable f
+#mean_term_compare ¬ Computable f
+#mean_term_compare ComputablePred p
+#mean_term_compare ¬ ComputablePred p
+#mean_term_compare REPred (fun n : Nat => ¬ p n)
+#mean_term_compare ComputablePred (fun n : Nat => ¬ p n)
+#mean_term_compare Computable (fun n : Nat => n + 1)
+#mean_term_compare Function.Injective (fun n : Nat => n + 1)
+#mean_term_compare ¬ Function.Injective (fun n : Nat => n + 1)
+#mean_term_compare ¬ Finite Nat
+end
+section
+variable {A : Sort u} (p : A → Prop) (x : A)
+#mean_term_compare p x
+#mean_term_compare ¬ p x
+#mean_term_compare PredicateExamples.accepts x
+end
+#mean_term_compare fun [Inhabited Nat] =>
+  let first := inferInstanceAs (Inhabited Nat)
+  fun [Inhabited Nat] => @PredicateExamples.classified first 7
+#mean_term_compare fun [Primcodable Nat] =>
+  let first := inferInstanceAs (Primcodable Nat)
+  fun [Primcodable Nat] (p : Nat → Prop) => ¬ @REPred Nat first p
+
+-- Generic adjective syntax refuses Boolean-valued functions, and the checker
+-- rejects changed predicate polarity.
+open Lean Elab Term in
+run_elab do
+  let invalid ← withoutModifyingState do
+    try
+      let _ ← withoutErrToSorry <| elabTerm (← `(7 is PredicateExamples.BoolPred)) none
+      synthesizeSyntheticMVarsNoPostponing
+      pure false
+    catch _ => pure true
+  unless invalid do throwError "accepted a Boolean function as a predicate"
+  let original ← elabTerm (← `(PredicateExamples.FooPred 7)) none
+  let changed ← withoutModifyingState do
+    try
+      Mean.RoundTrip.checkText original "7 is not PredicateExamples.FooPred"
+      pure false
+    catch _ => pure true
+  unless changed do throwError "round-trip checker accepted changed predicate polarity"
+
 section
 variable {T : Sort u} {A : Sort v} {B : Sort w} (f : A → B)
 #mean_term_compare Finite T

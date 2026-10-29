@@ -213,28 +213,27 @@ private def scalarLiteralText? (e : Expr) : MetaM (Option String) := do
   | .error _ => pure ()
   return none
 
-/-- Domain vocabulary is independent of existential quantification. -/
-private def witnessText (ty : Expr) (name : Option String) (negative := false) : MetaM String := do
+/-- Shared noun vocabulary, with the appropriate indefinite article kept separate. -/
+private def witnessDescription (ty : Expr) (name : Option String) : MetaM (String × String) := do
   let suffix := name.map (" " ++ ·) |>.getD ""
-  let article := if negative then "no" else "a"
   if (← isClass? ty).isSome then
-    return s!"{if negative then "no" else "an"} instance{suffix} of typeclass {← subjectTypeText ty}"
+    return ("an", s!"instance{suffix} of typeclass {← subjectTypeText ty}")
   if ← isProp ty then
-    return s!"{article} proof{suffix} that {← atomText ty}"
+    return ("a", s!"proof{suffix} that {← atomText ty}")
   if ty.isAppOfArity ``SimpleGraph.Path 4 then
     let args := ty.getAppArgs
-    return s!"{article} path{suffix} in {← atomText args[1]!} from {← atomText args[2]!} to {← atomText args[3]!}"
+    return ("a", s!"path{suffix} in {← atomText args[1]!} from {← atomText args[2]!} to {← atomText args[3]!}")
   if ty.isAppOfArity ``List 1 then
-    return s!"{article} list{suffix} of {← typeAtomText ty.getAppArgs[0]!} elements"
+    return ("a", s!"list{suffix} of {← typeAtomText ty.getAppArgs[0]!} elements")
   if let some signature ← functionSignatureText? ty then
-    return s!"{article} function{suffix} {signature}"
-  if negative then
-    if let some (singular, _) := scalarNouns? ty then
-      return s!"no {singular}{suffix}"
-  if let some description := scalarDescription? ty then
-    return description ++ suffix
-  let article := if negative then "no" else "an"
-  return s!"{article} element{suffix} of {← typeAtomText ty}"
+    return ("a", s!"function{suffix} {signature}")
+  if let some (singular, _) := scalarNouns? ty then
+    return (if ty.isConstOf ``Int then "an" else "a", singular ++ suffix)
+  return ("an", s!"element{suffix} of {← typeAtomText ty}")
+
+private def witnessText (ty : Expr) (name : Option String) (negative := false) : MetaM String := do
+  let (article, noun) ← witnessDescription ty name
+  return s!"{if negative then "no" else article} {noun}"
 
 private def negatedExists? (e : Expr) : Option Expr :=
   if e.isAppOfArity ``Not 1 then
@@ -242,17 +241,27 @@ private def negatedExists? (e : Expr) : Option Expr :=
     if body.isAppOfArity ``Exists 2 then some body else none
   else none
 
-/-- Parentheses preserve binder scope and the right associativity of connectives. -/
+/-- Rendering substitutes local lets; grouping must inspect the same outer form. -/
+private partial def inlineLets (e : Expr) : Expr :=
+  match e.consumeMData with
+  | .letE _ _ value body _ => inlineLets (body.instantiate1 value)
+  | e => e
+
+/-- Parentheses preserve binder scope, connective precedence, and associativity. -/
 private def groupOperand (e : Expr) (parent : Name) (left : Bool) (text : String) : String :=
-  let e := e.consumeMData
+  let e := inlineLets e
   let grouped := e.isForall || e.isAppOfArity ``Exists 2 || (negatedExists? e).isSome ||
     (parent == ``And && e.isAppOfArity ``Or 2) ||
+    e.isAppOfArity ``Iff 2 ||
     (left && e.isAppOfArity parent 2)
   if grouped then "(" ++ text ++ ")" else text
 
 /-- Independent inverse vocabulary: predicate, full application arity, adjective.
 The subject is the final argument; earlier arguments are implicit type parameters. -/
-private def adjectiveView? (e : Expr) : Option (Expr × String) := do
+private def adjectiveView? (e : Expr) : MetaM (Option (Expr × String)) := do
+  if e.isAppOfArity ``Not 1 || e.isAppOfArity ``Exists 2 then return none
+  unless ← isProp e do return none
+  let explicit := pp.explicit.get (← getOptions)
   let vocabulary : List (Name × Nat × String) := [
     (``Nonempty, 1, "nonempty"),
     (``IsEmpty, 1, "empty"),
@@ -261,11 +270,34 @@ private def adjectiveView? (e : Expr) : Option (Expr × String) := do
     (``Countable, 1, "countable"),
     (``Function.Injective, 3, "injective"),
     (``Function.Surjective, 3, "surjective"),
-    (``Function.Bijective, 3, "bijective")]
+    (``Function.Bijective, 3, "bijective"),
+    (``REPred, 3, "recursively enumerable"),
+    (``ComputablePred, 3, "computable"),
+    (``Computable, 5, "computable")]
   for (predicate, arity, word) in vocabulary do
-    if e.isAppOfArity predicate arity then
-      return (e.getAppArgs[arity - 1]!, word)
-  none
+    if e.isAppOfArity predicate arity && !explicit then
+      return some (e.getAppArgs[arity - 1]!, word)
+  -- A named predicate has exactly one explicit argument, supplied last.
+  -- Inspect binder information rather than guessing from its spelling.
+  let head := e.getAppFn
+  unless head.isConst || head.isFVar do return none
+  let args := e.getAppArgs
+  if args.isEmpty then return none
+  let mut ty ← inferType head
+  for i in [:args.size] do
+    let .forallE _ _ body bi ← whnf ty | return none
+    if i + 1 == args.size then
+      unless bi == .default do return none
+    else if bi == .default then return none
+    ty := body.instantiate1 args[i]!
+  let text ← propertyText (if explicit then e.appFn! else head)
+  -- A bare polymorphic function prints with `@`; ordinary predicate wording
+  -- should infer its implicit arguments from the subject instead.
+  let text := if !explicit && text.startsWith "@" then (text.drop 1).toString else text
+  let predicate ← match Parser.runParserCategory (← getEnv) `term text with
+    | .ok stx => pure (if stx.isIdent then text else "(" ++ text ++ ")")
+    | .error _ => pure ("(" ++ text ++ ")")
+  return some (args.back!, predicate)
 
 /-- Share function wording and binding scope between plain and typed forms. -/
 private partial def functionText (n : Name) (ty body : Expr) (bi : BinderInfo)
@@ -294,30 +326,29 @@ Embedded implications stay inline; standalone implications introduce a block.
 Quantifiers retain their block layout in either context. -/
 partial def renderExpr (e : Expr) (sentenceEnd := false)
     (inlineContext := false) : MetaM String := do
-  let e := e.consumeMData
+  let e := inlineLets e
   match e with
-  | .letE _ _ value body _ => renderExpr (body.instantiate1 value) sentenceEnd inlineContext
   | .lam n ty body bi =>
     functionText n ty body bi (fun body => renderExpr body sentenceEnd)
   | .forallE n ty body bi =>
     if bi == .default && (← isProp ty) && !body.hasLooseBVars && (← isProp e) then
       let premise ← renderExpr ty false true
-      let premise := if ty.isForall then "(" ++ premise ++ ")" else premise
+      let premise := if (inlineLets ty).isForall then "(" ++ premise ++ ")" else premise
       let conclusion ← renderExpr body sentenceEnd inlineContext
+      let conclusion := if (inlineLets body).isAppOfArity ``Iff 2 then
+        "(" ++ conclusion ++ ")" else conclusion
       let text := if inlineContext then
         s!"if {premise} then {conclusion}"
       else
         s!"if {premise} then\n{indented conclusion}"
       return ← sentenceTail text sentenceEnd
-    -- Scalar domains also support single binders; other domains currently bind pairs.
-    if bi == .default && !(← isProp ty) then
+    if bi == .default && (← isProp e) then
       let n ← freshName n
       withLocalDecl n bi ty fun x => do
         let renderSingle : MetaM String := do
-          if let some (singular, _) := scalarNouns? ty then
-            let rest ← renderExpr (body.instantiate1 x) sentenceEnd
-            return s!"for every {singular} {← nameText n}:\n{indented rest}"
-          leafText e sentenceEnd
+          let (_, noun) ← witnessDescription ty (some (← nameText n))
+          let rest ← renderExpr (body.instantiate1 x) sentenceEnd
+          return s!"for every {noun}:\n{indented rest}"
         match body.instantiate1 x with
         | .forallE m ty₂ body₂ bi₂ =>
           if bi₂ == .default && ty == ty₂ then
@@ -333,14 +364,22 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
         | _ => renderSingle
     else leafText e sentenceEnd
   | _ =>
-    if let some (subject, adjective) := adjectiveView? e then
-      return ← sentenceTail s!"{← atomText subject true} is {adjective}" sentenceEnd
-    if e.isAppOfArity ``And 2 || e.isAppOfArity ``Or 2 then
+    let negativeAdjective := e.isAppOfArity ``Not 1
+    let positive := if negativeAdjective then e.getAppArgs[0]! else e
+    if let some (subject, adjective) ← adjectiveView? positive then
+      let rendered ← renderExpr subject false true
+      let subjectText ← if (unsignedNumeral? subject).isSome && !(pp.explicit.get (← getOptions)) then
+          pure rendered
+        else if rendered == (← propertyText subject) then atomText subject true
+        else pure ("(" ++ rendered ++ ")")
+      let copula := if negativeAdjective then "is not" else "is"
+      return ← sentenceTail s!"{subjectText} {copula} {adjective}" sentenceEnd
+    if e.isAppOfArity ``And 2 || e.isAppOfArity ``Or 2 || e.isAppOfArity ``Iff 2 then
       let op := e.getAppFn.constName!
       let args := e.getAppArgs
       let left := groupOperand args[0]! op true (← renderExpr args[0]! false true)
       let right := groupOperand args[1]! op false (← renderExpr args[1]! sentenceEnd true)
-      let word := if op == ``And then "and" else "or"
+      let word := if op == ``And then "and" else if op == ``Or then "or" else "if and only if"
       return ← sentenceTail s!"{left} {word} {right}" sentenceEnd
     let negative := negatedExists? e
     let existential := negative.getD e

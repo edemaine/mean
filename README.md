@@ -484,8 +484,10 @@ and `python test.py` checks the exact output. This is a baseline for improving
 the translation of real mathematics; unsupported portions retain Lean syntax.
 The tiling definition renders existential and integer quantifiers and conjunctions.
 The complexity definitions use `an instance of typeclass Primcodable α` for their
-instance parameters. Named predicates such as `CoREComplete` and `ComputablePred`
-retain their names; unsupported quantified predicate domains stay in Lean.
+instance parameters. `CoRE` describes the function mapping `«a»` to `«a» is not p`
+as recursively enumerable. Named predicates without registered English wording
+use their Lean names after `is`. `CoREComplete` renders its function-valued universal and
+existential quantifiers, implication, conjunction, and equivalence in Mean.
 
 ## Compositional syntax
 
@@ -509,13 +511,13 @@ The grammar separates logical structure from mathematical vocabulary:
 | List subject | `a list T of Tile elements`, `a list T of (Fin n) elements` |
 | Function subject | `a function f from A to B`, `a function f from A and B to C` |
 | Universal quantifier | `for all <bindings>: <proposition>`, `for every …` |
-| Quantified bindings | `u and v in V`, `vertices u and v of G` |
+| Quantified bindings | `function q from ℕ to Prop`, `list xs of T elements`, `element x of T`, `u and v in V`, `vertices u and v of G` |
 | Existential quantifier | `there is <witness description> [such that <proposition>]` |
 | Negated existential | `there is no <witness noun> [such that <proposition>]` |
 | Witness description | `a path p in G from u to v`, `a natural number n`, `a boolean x`, `an element x of T`, `a proof h that P` |
 | Properties | `the edge set of G`, `G's edge set` |
-| Adjectives | `<term> is <adjective>` |
-| Logical connectives | `P and Q`, `P or Q`, `if P then Q` |
+| Adjectives | `<term> is <adjective>`, `<term> is not <adjective>`, `x is FooPred` |
+| Logical connectives | `P and Q`, `P or Q`, `if P then Q`, `P if and only if Q` |
 
 Here `T` is any type in scope. Standard scalar vocabulary works in subjects, function bindings, universal quantifiers,
 and existential witnesses (where the name is optional):
@@ -544,10 +546,22 @@ and `for all integers x and y:`. Both `for all` and `for every` accept these dom
 including natural numbers and booleans. The renderer uses singular nouns for one
 name and plural nouns for two.
 
+Single-variable universal quantifiers also accept the existential witness nouns,
+without an article: `for every function q from ℕ to Prop: …`,
+`for every list xs of T elements: …`, or `for every element i of Fin n: …`.
+Proof, path, and instance nouns work too. Names are optional; earlier names are
+in scope in later domains and the body. These bind explicit parameters; an
+instance noun checks that its domain is a typeclass. Dependent function types retain Lean notation
+inside an element phrase.
+
 `and` and `or` mean Lean's `∧` and `∨`, with the same precedence and right
 associativity: `P or Q and R` means `P ∨ (Q ∧ R)`. Parentheses change the grouping.
 `if P then Q` means propositional implication `P → Q`; its conclusion can contain
-connectives or another implication. Lean's `if P then X else Y` remains an ordinary
+connectives or another implication. `P if and only if Q` means `P ↔ Q`, with the
+same precedence as `↔`, below implication, `or`, and `and`. Nested equivalences
+require parentheses. Group implications when combining them with equivalence:
+`(if P then Q) if and only if R` and `if P then (Q if and only if R)`.
+Lean's `if P then X else Y` remains an ordinary
 conditional. The renderer prefers the English forms and adds parentheses where
 needed to preserve grouping and quantifier scope. Embedded implications stay
 inline (for example, `if (if P then Q) then …`); standalone implications put their
@@ -618,8 +632,10 @@ Ordinary Lean output in before/after comparisons retains its original notation.
 
 ## Adjectives
 
-`<term> is <adjective>` uses one grammar rule. Each adjective supplies a Lean
-predicate through `adjectivePredicate%`; Lean checks the subject's type.
+`<term> is <adjective>` applies the corresponding Lean predicate.
+`<term> is not <adjective>` negates that application.
+Registered adjectives supply a Lean predicate through `adjectivePredicate%`;
+`computable` selects its predicate from the subject's codomain.
 The renderer maintains an independent inverse mapping and checks each round trip.
 
 | Adjective | Lean predicate | Subject |
@@ -632,16 +648,41 @@ The renderer maintains an independent inverse mapping and checks each round trip
 | `injective` | `Function.Injective` | Function |
 | `surjective` | `Function.Surjective` | Function |
 | `bijective` | `Function.Bijective` | Function |
+| `recursively enumerable` | `REPred` | Predicate |
+| `computable` | `Computable` | Function with values in a type |
+| `computable` | `ComputablePred` | Predicate with values in `Prop` |
 
 For example, `f is injective and f is surjective` preserves both predicates.
 `finite` asserts finiteness without supplying a `Fintype` enumeration. Set predicates
 such as `Set.Finite` are not yet overloaded onto this vocabulary.
 
+An unregistered predicate can use its Lean identifier: if `p : α → Prop`,
+`x is p` means `p x`, and `x is not p` means `¬ p x`. No `Pred` suffix or
+vocabulary registration is required. The application must produce a proposition;
+Boolean-valued functions are rejected instead of coerced to propositions.
+The renderer uses this wording for named predicates with one explicit subject
+argument, preceded by any implicit type or instance arguments. Predicates with
+additional explicit arguments retain ordinary Lean application notation.
+Parenthesized predicates are also accepted, such as `n is (relates m)`, and let
+the renderer retain explicit hidden arguments when inference would change them.
+
+Adjective subjects render recursively, including function bodies:
+
+```lean
+(the function mapping an element «a» of α to
+  «a» is not p) is recursively enumerable
+```
+
+This means `REPred (fun «a» : α => ¬ p «a»)`. Parentheses keep the outer adjective
+outside the function body. Only negated predicate applications receive `is not`
+wording; general negations remain ordinary Lean.
+
 ## Current coverage and limitations
 
 The renderer recognizes graph, scalar, list, function, proof, and generic element
-subjects; paired universal quantifiers and single scalar quantifiers; positive and negative existential witnesses; optional
-conditions; conjunctions, disjunctions, and nondependent propositional implications;
+subjects; paired universal quantifiers and single explicit quantifiers over arbitrary
+domains; positive and negative existential witnesses; optional
+conditions; conjunctions, disjunctions, equivalences, and nondependent propositional implications;
 and functions with explicit, implicit, strict implicit, and instance binders, including nested and dependent functions.
 It omits unused witness names and unnecessary generated parameter names, while
 preserving public parameter names, including graph carrier parameters.
@@ -653,14 +694,12 @@ Unsupported forms remain ordinary Lean, provided that text passes the same
 round-trip check. **Identical before/after examples show gaps in rendering
 coverage, not failed verification.** Current gaps include:
 
-- Single-variable quantifiers outside the standard scalar domains, and general
-  dependent domains; their unsupported portions remain ordinary Lean.
 - Predicate subject forms with additional parameters or hypotheses; named values
   can express these through nested function bindings.
 - Recursive rendering inside some unsupported outer structures. In particular,
   an outer implicit universal binder can cause a whole theorem statement to remain Lean.
-- Additional English connectives such as general negation and equivalence, unrestricted
-  predicate applications after `is`, and broader mathematical vocabulary.
+- General negation outside predicate applications, automatic English wording for
+  predicates with multiple explicit arguments, and broader mathematical vocabulary.
 
 Some gaps require more Mean syntax; others only require the renderer to translate
 supported subexpressions while retaining an ordinary Lean outer structure.

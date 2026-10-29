@@ -1,6 +1,7 @@
 import Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected
 import Mathlib.Basic.Complex.Basic
 import Mathlib.Basic.Countable.Defs
+import Mathlib.Computability.RE
 import Lean
 
 /-! # Mean: compositional controlled mathematical syntax inside Lean.
@@ -16,14 +17,18 @@ abbrev SimpleGraph.V {α : Type*} (_ : SimpleGraph α) := α
 namespace Mean
 
 /-! Logical connectives use Lean's usual precedence: `and` binds tighter than
-`or`; both associate to the right. An `if … then …` without `else` is implication.
+`or`; both associate to the right. `if and only if` has the precedence and
+nonassociativity of `↔`. An `if … then …` without `else` is implication.
 Lean's ordinary `if … then … else …` remains available. -/
 syntax:35 term:36 " and " term:35 : term
 syntax:30 term:31 " or " term:30 : term
+-- Backtrack unless the complete phrase matches, preserving ordinary `if` blocks.
+syntax:20 term:21 atomic(" if " "and " "only " "if ") term:21 : term
 syntax:25 "if" term "then" term:25 : term
 macro_rules
   | `($p:term and $q:term) => `(And $p $q)
   | `($p:term or $q:term) => `(Or $p $q)
+  | `($p:term if and only if $q:term) => `(Iff $p $q)
   | `(if $premise:term then $conclusion:term) =>
       `(∀ (_ : ($premise : Prop)), ($conclusion : Prop))
 
@@ -38,11 +43,45 @@ syntax "countable" : meanAdjective
 syntax "injective" : meanAdjective
 syntax "surjective" : meanAdjective
 syntax "bijective" : meanAdjective
+syntax "recursively" "enumerable" : meanAdjective
+syntax "computable" : meanAdjective
+syntax (priority := low) ident : meanAdjective
+syntax "(" term ")" : meanAdjective
 syntax "adjectivePredicate%" meanAdjective : term
+syntax "adjectiveOn%" meanAdjective "of" term : term
 syntax:50 term:51 " is " meanAdjective : term
+syntax:50 term:51 " is " "not " meanAdjective : term
+
+/-- Infer the application without a Prop expectation, so Boolean coercions do
+not silently turn an arbitrary function into a predicate. -/
+elab "adjectiveApply%" p:term "of" x:term : term => do
+  let application ← Lean.Elab.Term.elabTerm (← `($p $x)) none
+  Lean.Elab.Term.synthesizeSyntheticMVarsNoPostponing
+  unless ← Lean.Meta.isProp application do
+    Lean.throwErrorAt p "expected a proposition-valued predicate"
+  return application
+
+/-- Predicate computability concerns an indicator function; other functions use
+`Computable` directly. Inspect the codomain without unfolding the subject. -/
+elab "computableOn%" t:term : term => do
+  let subject ← Lean.Elab.Term.elabTerm t none
+  Lean.Elab.Term.synthesizeSyntheticMVarsNoPostponing
+  let ty ← Lean.Meta.whnf (← Lean.Meta.inferType subject)
+  let .forallE name domain body bi := ty
+    | Lean.throwErrorAt t "expected a function or predicate"
+  let isPredicate ← Lean.Meta.withLocalDecl name bi domain fun x => do
+    let result ← Lean.Meta.whnf (body.instantiate1 x)
+    return result == Lean.mkSort .zero
+  Lean.Meta.mkAppM (if isPredicate then ``ComputablePred else ``Computable) #[subject]
+
 macro_rules
   | `($subject:term is $adjective:meanAdjective) =>
-      `((adjectivePredicate% $adjective) $subject)
+      `(adjectiveOn% $adjective of $subject)
+  | `($subject:term is not $adjective:meanAdjective) =>
+      `(Not (adjectiveOn% $adjective of $subject))
+  | `(adjectiveOn% computable of $subject:term) => `(computableOn% $subject)
+  | `(adjectiveOn% $adjective:meanAdjective of $subject:term) =>
+      `(adjectiveApply% (adjectivePredicate% $adjective) of $subject)
   | `(adjectivePredicate% nonempty) => `(Nonempty)
   | `(adjectivePredicate% empty) => `(IsEmpty)
   | `(adjectivePredicate% finite) => `(Finite)
@@ -51,6 +90,9 @@ macro_rules
   | `(adjectivePredicate% injective) => `(Function.Injective)
   | `(adjectivePredicate% surjective) => `(Function.Surjective)
   | `(adjectivePredicate% bijective) => `(Function.Bijective)
+  | `(adjectivePredicate% recursively enumerable) => `(REPred)
+  | `(adjectivePredicate% $predicate:ident) => `($predicate)
+  | `(adjectivePredicate% ($predicate:term)) => `($predicate)
 
 /-! Properties share both surface forms; each noun supplies its interpretation.
 Lean lexes `G's` as one identifier, so the possessive rule removes that suffix. -/
@@ -404,8 +446,8 @@ macro_rules
   | `(forallOver% vertices $u:ident and $v:ident of $g:term => $body:term) =>
       `(forallOver% $u:ident and $v:ident in SimpleGraph.V $g => $body)
 
-/-! Existential quantification is independent of its witness description.
-New noun phrases implement `existsWitness%`; `existsOver%` handles articles.
+/-! Quantification is independent of its noun description.
+`witnessBinding` supplies shared noun meanings; `existsOver%` handles articles.
 Positive and negative existence share the noun and optional condition. -/
 declare_syntax_cat meanWitnessNoun
 syntax "element" (ppSpace ident)? "of" term : meanWitnessNoun
@@ -415,6 +457,39 @@ syntax "path" (ppSpace ident)? "in" term "from" term "to" term : meanWitnessNoun
 syntax "list" (ppSpace ident)? "of" listElementType "elements" : meanWitnessNoun
 syntax "function" (ppSpace ident)? functionSignature : meanWitnessNoun
 syntax "instance" (ppSpace ident)? "of" "typeclass" term : meanWitnessNoun
+
+-- Universal and existential quantifiers share noun meanings and binding scope.
+-- Prefer the existing scalar-domain grammar where both forms match.
+syntax (priority := low) meanWitnessNoun : meanQuantified
+
+private def witnessBinding (noun : Lean.TSyntax `meanWitnessNoun) :
+    Lean.MacroM (Lean.Ident × Lean.TSyntax `term) := do
+  let (name, ty) ← match noun with
+    | `(meanWitnessNoun| element $[$x:ident]? of $ty:term) => pure (x, ty)
+    | `(meanWitnessNoun| proof $[$x:ident]? that $p:term) => do
+        pure (x, ← `(($p : Prop)))
+    | `(meanWitnessNoun| $scalar:meanScalar $[$x:ident]?) => do
+        pure (x, ← `(scalarType% $scalar))
+    | `(meanWitnessNoun| list $[$x:ident]? of $ty:term elements) => do
+        pure (x, ← `(List $ty))
+    | `(meanWitnessNoun| function $[$x:ident]? $signature:meanFunctionSignature) => do
+        pure (x, ← `(functionType% $signature))
+    | `(meanWitnessNoun| instance $[$x:ident]? of typeclass $ty:term) => do
+        pure (x, ← `(typeclassType% $ty))
+    | `(meanWitnessNoun| path $[$x:ident]? in $g:term from $u:term to $v:term) => do
+        pure (x, ← `(SimpleGraph.Path $g $u $v))
+    | _ => Lean.Macro.throwErrorAt noun "unsupported quantified noun"
+  let name ← match name with
+    | some name => pure name
+    | none => `(ident| existentialWitness)
+  return (name, ty)
+
+macro_rules
+  | `(forallOver% $binding:meanQuantified => $body:term) => do
+      let `(meanQuantified| $noun:meanWitnessNoun) := binding
+        | Lean.Macro.throwUnsupported
+      let (name, ty) ← witnessBinding noun
+      `(∀ ($name:ident : $ty), $body)
 
 declare_syntax_cat meanWitness
 syntax "a" meanWitnessNoun : meanWitness
@@ -442,24 +517,9 @@ macro_rules
         | some body => pure body
         | none => `(True)
       `(existsOver% $description => $condition)
-  | `(existsWitness% element $[$x:ident]? of $ty:term => $body:term) => do
-      let witness ← match x with
-        | some name => pure name
-        | none => `(ident| existentialWitness)
-      `(∃ ($witness:ident : $ty), $body)
-  | `(existsWitness% $noun:meanScalar $[$x:ident]? => $body:term) =>
-      `(existsOver% an element $[$x:ident]? of (scalarType% $noun) => $body)
-  | `(existsWitness% proof $[$h:ident]? that $p:term => $body:term) =>
-      `(existsWitness% element $[$h:ident]? of ($p : Prop) => $body)
-  | `(existsWitness% list $[$x:ident]? of $ty:term elements => $body:term) =>
-      `(existsWitness% element $[$x:ident]? of (List $ty) => $body)
-  | `(existsWitness% function $[$x:ident]? $signature:meanFunctionSignature => $body:term) =>
-      `(existsWitness% element $[$x:ident]? of (functionType% $signature) => $body)
-  | `(existsWitness% instance $[$x:ident]? of typeclass $ty:term => $body:term) =>
-      `(existsWitness% element $[$x:ident]? of (typeclassType% $ty) => $body)
-  | `(existsWitness% path $[$p:ident]? in $g:term from $u:term to $v:term
-        => $body:term) =>
-      `(existsOver% an element $[$p:ident]? of SimpleGraph.Path $g $u $v => $body)
+  | `(existsWitness% $noun:meanWitnessNoun => $body:term) => do
+      let (name, ty) ← witnessBinding noun
+      `(∃ ($name:ident : $ty), $body)
 
 /-- Neither `V` nor `E` needs to occur in the definition body.
 `V` already occurs in the generated type `G : SimpleGraph V`, so only `E`

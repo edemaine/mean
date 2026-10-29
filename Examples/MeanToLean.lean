@@ -1,5 +1,35 @@
 import Mean.Syntax
 
+namespace PredicateExamples
+
+-- Predicate types, not spelling conventions, determine generic `is` wording.
+def FooPred (n : Nat) : Prop := n = 0
+def accepts {A : Sort u} (x : A) : Prop := x = x
+def BoolPred (n : Nat) : Bool := n == 0
+def relates (n m : Nat) : Prop := n = m
+def classified [inst : Inhabited Nat] (n : Nat) : Prop := n = inst.default
+
+example (n : Nat) : (n is FooPred) = FooPred n := rfl
+example (n : Nat) : (n is not FooPred) = (¬ FooPred n) := rfl
+example {A : Sort u} (x : A) : (x is accepts) = accepts x := rfl
+example {A : Sort u} (p : A → Prop) (x : A) : (x is p) = p x := rfl
+example {A : Sort u} (p : A → Prop) (x : A) : (x is not p) = (¬ p x) := rfl
+example (P Q : Prop) (p : Prop → Prop) : ((P and Q) is not p) = (¬ p (P ∧ Q)) := rfl
+example (n m : Nat) : (n is (relates m)) = relates m n := rfl
+example (T : Type*) : (T is not finite) = (¬ Finite T) := rfl
+example (f : Nat → Nat) : (f is computable) = Computable f := rfl
+example (p : Nat → Prop) : (p is computable) = ComputablePred p := rfl
+example (p : Nat → Prop) : (p is not computable) = (¬ ComputablePred p) := rfl
+example (p : Nat → Prop) : (p is recursively enumerable) = REPred p := rfl
+example (p : Nat → Prop) : (p is not recursively enumerable) = (¬ REPred p) := rfl
+example (p : Nat → Prop) :
+    ((the function mapping a natural number n to n is not p) is recursively enumerable) =
+      REPred (fun n : Nat => ¬ p n) := rfl
+example : ((the function mapping a natural number n to n + 1) is computable) =
+    Computable (fun n : Nat => n + 1) := rfl
+
+end PredicateExamples
+
 -- Named values and function construction are independent syntax forms.
 namespace ValueExamples
 
@@ -411,6 +441,26 @@ end
 
 end TheoremExamples
 
+-- Universal nouns share witness types; later domains can depend on earlier names.
+example : (for every function q from Nat to Prop:
+    if q 0 then there is a function r from Nat to Nat such that
+      for every natural number n: q n if and only if q (r n)) =
+    (∀ q : Nat → Prop, q 0 → ∃ r : Nat → Nat, ∀ n : Nat, q n ↔ q (r n)) := rfl
+example : (for all list xs of Nat elements:
+    for every element i of Fin xs.length: xs[i] = xs[i]) =
+    (∀ xs : List Nat, ∀ i : Fin xs.length, xs[i] = xs[i]) := rfl
+example (A : Sort u) : (for every element x of A: x = x) = (∀ x : A, x = x) := rfl
+example (P : Prop) : (for every proof h that P: h = h) = (∀ h : P, h = h) := rfl
+example : (for every instance inst of typeclass Inhabited Nat: inst.default = 0) =
+    (∀ inst : Inhabited Nat, inst.default = 0) := rfl
+example {V : Type*} (G : SimpleGraph V) (u v : V) :
+    (for all path p in G from u to v: p = p) = (∀ p : G.Path u v, p = p) := rfl
+example : (for every function from Nat and Nat to Nat: True) =
+    (∀ _f : Nat → Nat → Nat, True) := rfl
+example (existentialWitness : Nat) :
+    (for every element of Bool: existentialWitness = 0) =
+    (∀ _b : Bool, existentialWitness = 0) := rfl
+
 -- English connectives match Lean's precedence and associativity exactly.
 example (P Q R : Prop) : (P and Q or R) = ((P ∧ Q) ∨ R) := rfl
 example (P Q R : Prop) : (P or Q and R) = (P ∨ (Q ∧ R)) := rfl
@@ -419,6 +469,12 @@ example (P Q R : Prop) : ((P or Q) and R) = ((P ∨ Q) ∧ R) := rfl
 example (P Q R : Prop) : (if P then Q and R) = (P → Q ∧ R) := rfl
 example (P Q R : Prop) : (if P then if Q then R) = (P → Q → R) := rfl
 example (P Q R : Prop) : (if (if P then Q) then R) = ((P → Q) → R) := rfl
+example (P Q R : Prop) : (P and Q if and only if R) = ((P ∧ Q) ↔ R) := rfl
+example (P Q R : Prop) : (P if and only if Q or R) = (P ↔ (Q ∨ R)) := rfl
+example (P Q R : Prop) : ((P if and only if Q) if and only if R) = ((P ↔ Q) ↔ R) := rfl
+example (P Q R : Prop) : (P if and only if (Q if and only if R)) = (P ↔ (Q ↔ R)) := rfl
+example (P Q R : Prop) : ((if P then Q) if and only if R) = ((P → Q) ↔ R) := rfl
+example (P Q R : Prop) : (if P then (Q if and only if R)) = (P → (Q ↔ R)) := rfl
 
 -- Ordinary Lean conditionals with else still select a value or proposition.
 example : (if true then 1 else 2) = 1 := rfl
