@@ -112,7 +112,7 @@ Join full subject phrases with `and` to bind successive arguments:
 Definition: shifted is
   the function mapping a natural number offset and a natural number n to n + offset.
 Definition: indexValue is
-  the function mapping a natural number n and an element i of Fin n to i.val.
+  the function mapping a natural number n and an index i in [0, n) to i.val.
 ```
 
 These mean `fun (offset n : Nat) => n + offset` and
@@ -124,17 +124,54 @@ binders this way. Nested function phrases remain accepted. Parameter types such 
 Parentheses delimit a conjunction used as a subject type, such as
 `a proof h that (P and Q)`, because `and` also separates parameters.
 
-Lists and functions have noun phrases that keep their original Lean type names:
+Lists and functions have noun phrases, with familiar scalar plurals and original
+names for custom types:
 
 ```lean
 a list T of Tile elements
+a list xs of natural numbers
 a function t from ℤ and ℤ to Tile
 ```
 
 These bind `T : List Tile` and `t : ℤ → ℤ → Tile`. `Tile` can be any type in
 scope, including an ordinary user-defined type; no English vocabulary declaration
 or pluralization of its name is needed. Group compound list element types, as in
-`a list T of (Fin n) elements`.
+`a list T of (indices [0, n)) elements`. Known scalar types use their usual plurals:
+natural numbers, integers, rational numbers, real numbers, complex numbers, and
+booleans. The original `a list xs of Nat elements` form remains accepted.
+
+`indices [0, n)` is the type `Fin n`: natural-number indices starting at zero
+and strictly less than `n`. It is a type expression, not a real interval or a
+set. `indices [0, 0)` is empty, and `indices [0, 1)` has just the index zero.
+The lower endpoint must be the numeral `0`; symbolic or compound upper bounds
+are allowed. Index bindings use either an explicit range or a collection:
+
+```lean
+an index i in [0, n)
+an index i into xs
+```
+
+For a list `xs`, the second form means `i : Fin xs.length`; for an array,
+it means `i : Fin xs.size`. For example:
+
+```lean
+the function mapping a list xs of natural numbers and
+  an index i into xs to xs[i]
+```
+
+Both forms support optional names, implicit and strictly implicit parameters,
+predicate subjects, and universal and existential quantifiers:
+
+```lean
+an implicit index i in [0, n)
+a strictly implicit index i into xs
+for every index i into xs: xs[i] = xs[i]
+there is no index in [0, 0)
+```
+
+The renderer prefers `into xs` for direct list-length and array-size bounds and
+range wording for other `Fin` bounds. It keeps user-defined aliases such as
+`Direction` intact. In Wang, `Direction` itself renders as `indices [0, 4)`.
 
 Function domains separated by `and` are curried arguments. A product domain stays
 explicit: `a function f from (ℤ × ℤ) to Tile` means `(ℤ × ℤ) → Tile`.
@@ -165,7 +202,7 @@ Definition: implicitAdd is
 This means `fun (n : Nat) {m : Nat} => n + m`. For example,
 `implicitAdd 3 (m := 4)` returns `7`. Implicit and explicit subjects may appear
 in any order, with earlier names still in scope in later types. For example,
-`an implicit natural number n and an element i of Fin n` lets Lean infer `n`
+`an implicit natural number n and an index i in [0, n)` lets Lean infer `n`
 from the type of `i`. The optional function type applies to these forms too.
 
 Use `a strictly implicit <scalar> <name>` or
@@ -174,7 +211,7 @@ Use `a strictly implicit <scalar> <name>` or
 ```lean
 Definition: strictIndex is
   the function mapping a strictly implicit natural number n and
-    an element i of Fin n to i.val.
+    an index i in [0, n) to i.val.
 ```
 
 This means `fun ⦃n : Nat⦄ (i : Fin n) => i.val`. Lean inserts a strict implicit
@@ -519,7 +556,9 @@ The grammar separates logical structure from mathematical vocabulary:
 | Strict implicit subject | `a strictly implicit natural number n`, `a strictly implicit element x of T` |
 | Proof subject | `a proof h that P`, `an implicit proof h that P`, `a strictly implicit proof h that P` |
 | Instance subject | `an instance of typeclass C`, `an instance inst of typeclass C` |
-| List subject | `a list T of Tile elements`, `a list T of (Fin n) elements` |
+| Index type | `indices [0, n)` |
+| Index subject | `an index i in [0, n)`, `an index i into xs` |
+| List subject | `a list T of Tile elements`, `a list xs of natural numbers` |
 | Function subject | `a function f from A to B`, `a function f from A and B to C` |
 | Universal quantifier | `for all <bindings>: <proposition>`, `for every …` |
 | Quantified bindings | `function q from ℕ to Prop`, `list xs of T elements`, `element x of T`, `u and v in V`, `vertices u and v of G` |
@@ -559,7 +598,7 @@ name and plural nouns for two.
 
 Single-variable universal quantifiers also accept the existential witness nouns,
 without an article: `for every function q from ℕ to Prop: …`,
-`for every list xs of T elements: …`, or `for every element i of Fin n: …`.
+`for every list xs of T elements: …`, or `for every index i in [0, n): …`.
 Proof, path, and instance nouns work too. Names are optional; earlier names are
 in scope in later domains and the body. These bind explicit parameters; an
 instance noun checks that its domain is a typeclass. Dependent function types retain Lean notation
@@ -690,7 +729,7 @@ wording; general negations remain ordinary Lean.
 
 ## Current coverage and limitations
 
-The renderer recognizes graph, scalar, list, function, proof, and generic element
+The renderer recognizes graph, scalar, index, list, function, proof, and generic element
 subjects; paired universal quantifiers and single explicit quantifiers over arbitrary
 domains; positive and negative existential witnesses; optional
 conditions; conjunctions, disjunctions, equivalences, and nondependent propositional implications;

@@ -5,7 +5,7 @@
 
 Abbreviation:
   LeanWang.Abstract.Direction is
-    (Fin 4).
+    indices [0, 4).
 
 Abbreviation:
   LeanWang.Abstract.n is

@@ -9,7 +9,7 @@ abbrev LeanWang.Abstract.Direction : Type :=
 -- MEAN OUTPUT:
 Abbreviation:
   LeanWang.Abstract.Direction is
-    (Fin 4).
+    indices [0, 4).
 
 -- LEAN INPUT:
 abbrev LeanWang.Abstract.n : Direction :=

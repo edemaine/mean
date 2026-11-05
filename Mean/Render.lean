@@ -6,13 +6,21 @@ No declarations are added by the checker. -/
 
 register_option mean.renderProperties : Bool := {
   defValue := false
-  descr := "Render registered Mean property phrases inside expressions"
+  descr := "Render registered Mean property and index type phrases inside expressions"
 }
 
 namespace Mean.Render
 open Lean Meta Elab Term
 
 -- These delaborators run only for the Mean view, leaving ordinary Lean output intact.
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.Fin]
+def delabIndices : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  guard <| (← getExpr).isAppOfArity ``Fin 1
+  let bound ← withAppArg delab
+  `(indices [0, $bound))
+
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app.SimpleGraph.edgeSet, delab app.SimpleGraph.V,
   delab app.SimpleGraph.neighborSet, delab app.SimpleGraph.incidenceSet]
@@ -138,6 +146,18 @@ private def scalarDescription? (ty : Expr) : Option String := do
   let (singular, _) ← scalarNouns? ty
   return (if ty.isConstOf ``Int then "an " else "a ") ++ singular
 
+/-- Preserve type aliases; specialize only an explicit `Fin` application. -/
+private def indexDomainText? (ty : Expr) : MetaM (Option String) := do
+  unless ty.isAppOfArity ``Fin 1 do return none
+  let bound := ty.getAppArgs[0]!
+  if bound.isAppOfArity ``List.length 2 || bound.isAppOfArity ``Array.size 2 then
+    return some s!"into {← atomText bound.getAppArgs[1]!}"
+  return some s!"in [0, {← propertyText bound})"
+
+private def listElementsText (ty : Expr) : MetaM String := do
+  if let some (_, plural) := scalarNouns? ty then return plural
+  return s!"{← typeAtomText ty} elements"
+
 /-- Only explicit, nondependent arrows admit the simple from/to description.
 Inspect the type expression without unfolding user-defined aliases. -/
 private partial def functionTypeParts? (ty : Expr) : Option (List Expr × Expr) := do
@@ -168,9 +188,10 @@ private def subjectText (ty : Expr) (n : Option Name) (bi : BinderInfo) : MetaM 
     return s!"an instance{suffix} of typeclass {← typeText}"
   if ← isProp ty then
     return s!"{modifier.getD "a"} proof{suffix} that {← typeText}"
+  if let some domain ← indexDomainText? ty then
+    return s!"{modifier.getD "an"} index{suffix} {domain}"
   if ty.isAppOfArity ``List 1 then
-    let elementText ← typeAtomText ty.getAppArgs[0]!
-    return s!"{modifier.getD "a"} list{suffix} of {elementText} elements"
+    return s!"{modifier.getD "a"} list{suffix} of {← listElementsText ty.getAppArgs[0]!}"
   if let some signature ← functionSignatureText? ty then
     return s!"{modifier.getD "a"} function{suffix} {signature}"
   if let some (noun, _) := scalarNouns? ty then
@@ -220,11 +241,13 @@ private def witnessDescription (ty : Expr) (name : Option String) : MetaM (Strin
     return ("an", s!"instance{suffix} of typeclass {← subjectTypeText ty}")
   if ← isProp ty then
     return ("a", s!"proof{suffix} that {← atomText ty}")
+  if let some domain ← indexDomainText? ty then
+    return ("an", s!"index{suffix} {domain}")
   if ty.isAppOfArity ``SimpleGraph.Path 4 then
     let args := ty.getAppArgs
     return ("a", s!"path{suffix} in {← atomText args[1]!} from {← atomText args[2]!} to {← atomText args[3]!}")
   if ty.isAppOfArity ``List 1 then
-    return ("a", s!"list{suffix} of {← typeAtomText ty.getAppArgs[0]!} elements")
+    return ("a", s!"list{suffix} of {← listElementsText ty.getAppArgs[0]!}")
   if let some signature ← functionSignatureText? ty then
     return ("a", s!"function{suffix} {signature}")
   if let some (singular, _) := scalarNouns? ty then

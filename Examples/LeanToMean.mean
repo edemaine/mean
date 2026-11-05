@@ -1,6 +1,106 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+Abbreviation:
+  IndexExamples.Four is
+    indices [0, 4).
+
+Definition:
+  IndexExamples.value is
+    the function mapping a natural number n and an index i in [0, n) to
+      (↑i : ℕ).
+
+Definition:
+  IndexExamples.lookup is
+    the function mapping a list xs of natural numbers and an index i into xs to
+      xs[i].
+
+Definition:
+  IndexExamples.arrayLookup is
+    the function mapping an element xs of Array ℕ and an index i into xs to
+      xs[i].
+
+Definition:
+  IndexExamples.implicitValue is
+    the function mapping a natural number n and an implicit index i in [0, n) to
+      (↑i : ℕ).
+
+Definition:
+  IndexExamples.strictValue is
+    the function mapping a natural number n and a strictly implicit index i in [0, n) to
+      (↑i : ℕ).
+
+Definition:
+  an index i in [0, 4) is IndexExamples.first if
+    ((↑i : ℕ) = 0).
+
+indices [0, n)
+
+indices [0, n + m)
+
+indices [0, 0)
+
+indices [0, 1)
+
+indices [0, 4)
+
+the function mapping an index i in [0, n) to
+  (↑i : ℕ)
+
+the function mapping an implicit index i in [0, n) to
+  (↑i : ℕ)
+
+the function mapping a strictly implicit index i in [0, n) to
+  (↑i : ℕ)
+
+the function mapping an index i in [0, n + m) to
+  (↑i : ℕ)
+
+the function mapping an index i into xs to
+  xs[i]
+
+the function mapping an implicit index i into xs to
+  xs[i]
+
+the function mapping a strictly implicit index i into ys to
+  ys[i]
+
+the function mapping an index i into (xs ++ xs) to
+  (↑i : ℕ)
+
+the function mapping an element _i of IndexExamples.Four to
+  true
+
+for every index i in [0, n):
+  (↑i : ℕ) < n
+
+for every index i into xs:
+  xs[i] = xs[i]
+
+there is an index i into ys such that
+  ys[i] = 3
+
+there is an index in [0, n)
+
+there is no index in [0, 0)
+
+for all i and j in (indices [0, n)):
+  i = j or i ≠ j
+
+the function mapping a list xs_1 of (indices [0, n)) elements to
+  xs_1
+
+the function mapping a list xs of rational numbers to
+  xs
+
+the function mapping an implicit list xs of real numbers to
+  xs
+
+the function mapping a strictly implicit list xs of complex numbers to
+  xs
+
+there is a list of booleans
+
 Definition:
   ValueExamples.double is
     the function mapping a natural number n to
@@ -90,7 +190,7 @@ Definition:
 
 Definition:
   ValueExamples.indexValue is
-    the function mapping a natural number n and an element i of Fin n to
+    the function mapping a natural number n and an index i in [0, n) to
       (↑i : ℕ).
 
 Definition:
@@ -130,7 +230,7 @@ Definition:
 
 Definition:
   ValueExamples.implicitIndex is
-    the function mapping an implicit natural number n and an element i of Fin n to
+    the function mapping an implicit natural number n and an index i in [0, n) to
       (↑i : ℕ).
 
 Definition:
@@ -150,12 +250,12 @@ Definition:
 
 Definition:
   ValueExamples.strictIndex is
-    the function mapping a strictly implicit natural number n and an element i of Fin n to
+    the function mapping a strictly implicit natural number n and an index i in [0, n) to
       (↑i : ℕ).
 
 Definition:
   ValueExamples.strictConstant is
-    the function : ⦃n : ℕ⦄ → Fin n → ℤ mapping a strictly implicit natural number n and an element _i of Fin n to
+    the function : ⦃n : ℕ⦄ → Fin n → ℤ mapping a strictly implicit natural number n and an index _i in [0, n) to
       (0).
 
 Definition:
@@ -230,7 +330,7 @@ Definition:
       the edge set of G.
 
 Definition:
-  an element i of Fin 3 is TypeNounExamples.indexReflexive if
+  an index i in [0, 3) is TypeNounExamples.indexReflexive if
     i = i.
 
 Definition:
@@ -357,7 +457,7 @@ the function mapping an instance inst of typeclass Inhabited Nat to
   the function mapping an instance of typeclass Inhabited Nat to
     @default Nat inst
 
-the function mapping a list xs of ℕ elements and an element i of Fin xs.length to
+the function mapping a list xs of natural numbers and an index i into xs to
   xs[i]
 
 the function mapping a list fs of (ℕ → ℕ) elements to
@@ -369,10 +469,10 @@ the function mapping a function f from (ℕ × ℕ) to ℕ to
 the function mapping a function f from (ℕ → ℕ) to ℕ to
   f Nat.succ
 
-the function mapping an element _f of (n : ℕ) → Fin n to
+the function mapping an element _f of (n : ℕ) → indices [0, n) to
   true
 
-the function mapping an element _f of {n : ℕ} → Fin n to
+the function mapping an element _f of {n : ℕ} → indices [0, n) to
   true
 
 the function mapping an element f of TypeNounExamples.Endomap to
@@ -410,15 +510,15 @@ for every function q from ℕ to Prop:
 for every function f from ℕ and ℕ to ℕ:
   f 0 0 = 0
 
-for every list xs of ℕ elements:
-  for every element i of (Fin xs.length):
+for every list xs of natural numbers:
+  for every index i into xs:
     xs[i] = xs[i]
 
-for every element f of ((n : ℕ) → Fin n):
+for every element f of ((n : ℕ) → indices [0, n)):
   f 1 = f 1
 
-for every element f of ({n : Nat} → Fin n):
-  @Eq (Fin (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+for every element f of ({n : Nat} → indices [0, n)):
+  @Eq (indices [0, @OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
     (@f (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
     (@f (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
 
@@ -485,7 +585,7 @@ P if and only if (there is an element x of A such that
 the function mapping a natural number n to
   2 * n
 
-the function mapping a natural number n and an element i of Fin n to
+the function mapping a natural number n and an index i in [0, n) to
   (↑i : ℕ)
 
 the function mapping a natural number «a» and a natural number «graph» to
@@ -497,7 +597,7 @@ the function mapping a natural number _n and a natural number _n_1 to
 the function mapping a natural number n and an implicit natural number m to
   n + m
 
-the function mapping an implicit natural number n and an element i of Fin n to
+the function mapping an implicit natural number n and an index i in [0, n) to
   (↑i : ℕ)
 
 the function mapping an implicit natural number n and a natural number m and an implicit natural number k to
@@ -621,9 +721,9 @@ T is nonempty and P
 if T is empty then
   P
 
-(Fin n) is nonempty
+(indices [0, n)) is nonempty
 
-(Fin n) is empty
+(indices [0, n)) is empty
 
 Definition:
   smallGraph is
@@ -676,7 +776,7 @@ there is a natural number such that
     _n_1 = 0
 
 for every natural number n:
-  for every element i of (Fin n):
+  for every index i in [0, n):
     (↑i : ℕ) < n
 
 for all natural numbers n and m:

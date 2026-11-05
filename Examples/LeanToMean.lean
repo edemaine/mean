@@ -1,6 +1,74 @@
 import Examples.MeanToLean
 import Mean
 
+#mean_compare IndexExamples.Four
+#mean_compare IndexExamples.value
+#mean_compare IndexExamples.lookup
+#mean_compare IndexExamples.arrayLookup
+#mean_compare IndexExamples.implicitValue
+#mean_compare IndexExamples.strictValue
+#mean_compare IndexExamples.first
+/--
+info: the function mapping a list xs of natural numbers and an index i into xs to
+  xs[i]
+-/
+#guard_msgs in
+#mean_term fun (xs : List Nat) (i : Fin xs.length) => xs[i]
+section
+variable (n m : Nat) (xs : List Nat) (ys : Array Nat)
+#mean_term_compare Fin n
+#mean_term_compare Fin (n + m)
+#mean_term_compare Fin 0
+#mean_term_compare Fin 1
+#mean_term_compare Fin 4
+#mean_term_compare fun (i : Fin n) => i.val
+#mean_term_compare fun {i : Fin n} => i.val
+#mean_term_compare fun ⦃i : Fin n⦄ => i.val
+#mean_term_compare fun (i : Fin (n + m)) => i.val
+#mean_term_compare fun (i : Fin xs.length) => xs[i]
+#mean_term_compare fun {i : Fin xs.length} => xs[i]
+#mean_term_compare fun ⦃i : Fin ys.size⦄ => ys[i]
+#mean_term_compare fun (i : Fin (xs ++ xs).length) => i.val
+#mean_term_compare fun (_i : IndexExamples.Four) => true
+#mean_term_compare ∀ i : Fin n, i.val < n
+#mean_term_compare ∀ i : Fin xs.length, xs[i] = xs[i]
+#mean_term_compare ∃ i : Fin ys.size, ys[i] = 3
+#mean_term_compare ∃ _i : Fin n, True
+#mean_term_compare ¬ ∃ _i : Fin 0, True
+#mean_term_compare ∀ i j : Fin n, i = j ∨ i ≠ j
+#mean_term_compare fun (xs : List (Fin n)) => xs
+end
+#mean_term_compare fun (xs : List Rat) => xs
+#mean_term_compare fun {xs : List Real} => xs
+#mean_term_compare fun ⦃xs : List Complex⦄ => xs
+#mean_term_compare ∃ _xs : List Bool, True
+
+-- Reject changed index bounds, collection types, and scalar element types.
+open Lean Elab Term in
+run_elab do
+  for text in ["indices [1, 4)", "indexIntoType% (3 : Nat)"] do
+    let rejected ← withoutModifyingState do
+      try
+        let .ok stx := Parser.runParserCategory (← getEnv) `term text
+          | throwError "unparseable test input"
+        let _ ← withoutErrToSorry <| elabTerm stx none
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "accepted invalid index description: {text}"
+  for (name, text) in [
+      (``IndexExamples.value,
+        "Definition: changed is the function mapping a natural number n and an index i in [0, n + 1) to i.val."),
+      (``IndexExamples.lookup,
+        "Definition: changed is the function mapping a list xs of natural numbers and an index i into xs.reverse to xs.reverse[i]."),
+      (``IndexExamples.lookup,
+        "Definition: changed is the function mapping a list xs of integers and an index i into xs to xs[i].")] do
+    let rejected ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkDefinition name text
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "accepted a changed index/list definition"
+
 -- Function values render independently of named definitions.
 #mean_compare ValueExamples.double
 
@@ -199,7 +267,7 @@ run_elab do
       throwError "expected binder rejection '{reason}', got: {message}"
 /--
 info: Definition:
-  an element i of Fin 3 is TypeNounExamples.indexReflexive if
+  an index i in [0, 3) is TypeNounExamples.indexReflexive if
     i = i.
 -/
 #guard_msgs in
@@ -321,7 +389,7 @@ info: the function mapping a natural number n and an implicit natural number m t
 -- Strict implicit subjects preserve delayed inference, including trailing binders.
 #mean_term_compare fun n : Nat => fun ⦃m : Nat⦄ => n + m
 /--
-info: the function mapping a strictly implicit natural number n and an element i of Fin n to
+info: the function mapping a strictly implicit natural number n and an index i in [0, n) to
   (↑i : ℕ)
 -/
 #guard_msgs in

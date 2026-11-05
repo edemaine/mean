@@ -2,6 +2,209 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+abbrev IndexExamples.Four : Type :=
+  Fin 4
+-- MEAN OUTPUT:
+Abbreviation:
+  IndexExamples.Four is
+    indices [0, 4).
+
+-- LEAN INPUT:
+def IndexExamples.value : (n : ℕ) → Fin n → ℕ :=
+  fun (n : ℕ) (i : Fin n) => (↑i : ℕ)
+-- MEAN OUTPUT:
+Definition:
+  IndexExamples.value is
+    the function mapping a natural number n and an index i in [0, n) to
+      (↑i : ℕ).
+
+-- LEAN INPUT:
+def IndexExamples.lookup : (xs : List ℕ) → Fin xs.length → ℕ :=
+  fun (xs : List ℕ) (i : Fin xs.length) => xs[i]
+-- MEAN OUTPUT:
+Definition:
+  IndexExamples.lookup is
+    the function mapping a list xs of natural numbers and an index i into xs to
+      xs[i].
+
+-- LEAN INPUT:
+def IndexExamples.arrayLookup : (xs : Array ℕ) → Fin xs.size → ℕ :=
+  fun (xs : Array ℕ) (i : Fin xs.size) => xs[i]
+-- MEAN OUTPUT:
+Definition:
+  IndexExamples.arrayLookup is
+    the function mapping an element xs of Array ℕ and an index i into xs to
+      xs[i].
+
+-- LEAN INPUT:
+def IndexExamples.implicitValue : (n : ℕ) → {i : Fin n} → ℕ :=
+  fun (n : ℕ) {i : Fin n} => (↑i : ℕ)
+-- MEAN OUTPUT:
+Definition:
+  IndexExamples.implicitValue is
+    the function mapping a natural number n and an implicit index i in [0, n) to
+      (↑i : ℕ).
+
+-- LEAN INPUT:
+def IndexExamples.strictValue : (n : ℕ) → ⦃i : Fin n⦄ → ℕ :=
+  fun (n : ℕ) ⦃i : Fin n⦄ => (↑i : ℕ)
+-- MEAN OUTPUT:
+Definition:
+  IndexExamples.strictValue is
+    the function mapping a natural number n and a strictly implicit index i in [0, n) to
+      (↑i : ℕ).
+
+-- LEAN INPUT:
+def IndexExamples.first : Fin 4 → Prop :=
+  fun (i : Fin 4) => (↑i : ℕ) = 0
+-- MEAN OUTPUT:
+Definition:
+  an index i in [0, 4) is IndexExamples.first if
+    ((↑i : ℕ) = 0).
+
+-- LEAN INPUT:
+Fin n
+-- MEAN OUTPUT:
+indices [0, n)
+
+-- LEAN INPUT:
+Fin (n + m)
+-- MEAN OUTPUT:
+indices [0, n + m)
+
+-- LEAN INPUT:
+Fin 0
+-- MEAN OUTPUT:
+indices [0, 0)
+
+-- LEAN INPUT:
+Fin 1
+-- MEAN OUTPUT:
+indices [0, 1)
+
+-- LEAN INPUT:
+Fin 4
+-- MEAN OUTPUT:
+indices [0, 4)
+
+-- LEAN INPUT:
+fun (i : Fin n) => (↑i : ℕ)
+-- MEAN OUTPUT:
+the function mapping an index i in [0, n) to
+  (↑i : ℕ)
+
+-- LEAN INPUT:
+fun {i : Fin n} => (↑i : ℕ)
+-- MEAN OUTPUT:
+the function mapping an implicit index i in [0, n) to
+  (↑i : ℕ)
+
+-- LEAN INPUT:
+fun ⦃i : Fin n⦄ => (↑i : ℕ)
+-- MEAN OUTPUT:
+the function mapping a strictly implicit index i in [0, n) to
+  (↑i : ℕ)
+
+-- LEAN INPUT:
+fun (i : Fin (n + m)) => (↑i : ℕ)
+-- MEAN OUTPUT:
+the function mapping an index i in [0, n + m) to
+  (↑i : ℕ)
+
+-- LEAN INPUT:
+fun (i : Fin xs.length) => xs[i]
+-- MEAN OUTPUT:
+the function mapping an index i into xs to
+  xs[i]
+
+-- LEAN INPUT:
+fun {i : Fin xs.length} => xs[i]
+-- MEAN OUTPUT:
+the function mapping an implicit index i into xs to
+  xs[i]
+
+-- LEAN INPUT:
+fun ⦃i : Fin ys.size⦄ => ys[i]
+-- MEAN OUTPUT:
+the function mapping a strictly implicit index i into ys to
+  ys[i]
+
+-- LEAN INPUT:
+fun (i : Fin (xs ++ xs).length) => (↑i : ℕ)
+-- MEAN OUTPUT:
+the function mapping an index i into (xs ++ xs) to
+  (↑i : ℕ)
+
+-- LEAN INPUT:
+fun (_i : IndexExamples.Four) => true
+-- MEAN OUTPUT:
+the function mapping an element _i of IndexExamples.Four to
+  true
+
+-- LEAN INPUT:
+∀ (i : Fin n), (↑i : ℕ) < n
+-- MEAN OUTPUT:
+for every index i in [0, n):
+  (↑i : ℕ) < n
+
+-- LEAN INPUT:
+∀ (i : Fin xs.length), xs[i] = xs[i]
+-- MEAN OUTPUT:
+for every index i into xs:
+  xs[i] = xs[i]
+
+-- LEAN INPUT:
+∃ (i : Fin ys.size), ys[i] = 3
+-- MEAN OUTPUT:
+there is an index i into ys such that
+  ys[i] = 3
+
+-- LEAN INPUT:
+∃ (_i : Fin n), True
+-- MEAN OUTPUT:
+there is an index in [0, n)
+
+-- LEAN INPUT:
+¬∃ (_i : Fin 0), True
+-- MEAN OUTPUT:
+there is no index in [0, 0)
+
+-- LEAN INPUT:
+∀ (i j : Fin n), i = j ∨ i ≠ j
+-- MEAN OUTPUT:
+for all i and j in (indices [0, n)):
+  i = j or i ≠ j
+
+-- LEAN INPUT:
+fun (xs : List (Fin n)) => xs
+-- MEAN OUTPUT:
+the function mapping a list xs_1 of (indices [0, n)) elements to
+  xs_1
+
+-- LEAN INPUT:
+fun (xs : List ℚ) => xs
+-- MEAN OUTPUT:
+the function mapping a list xs of rational numbers to
+  xs
+
+-- LEAN INPUT:
+fun {xs : List ℝ} => xs
+-- MEAN OUTPUT:
+the function mapping an implicit list xs of real numbers to
+  xs
+
+-- LEAN INPUT:
+fun ⦃xs : List ℂ⦄ => xs
+-- MEAN OUTPUT:
+the function mapping a strictly implicit list xs of complex numbers to
+  xs
+
+-- LEAN INPUT:
+∃ (_xs : List Bool), True
+-- MEAN OUTPUT:
+there is a list of booleans
+
+-- LEAN INPUT:
 def ValueExamples.double : ℕ → ℕ :=
   fun (n : ℕ) => 2 * n
 -- MEAN OUTPUT:
@@ -174,7 +377,7 @@ def ValueExamples.indexValue : (n : ℕ) → Fin n → ℕ :=
 -- MEAN OUTPUT:
 Definition:
   ValueExamples.indexValue is
-    the function mapping a natural number n and an element i of Fin n to
+    the function mapping a natural number n and an index i in [0, n) to
       (↑i : ℕ).
 
 -- LEAN INPUT:
@@ -246,7 +449,7 @@ def ValueExamples.implicitIndex : {n : ℕ} → Fin n → ℕ :=
 -- MEAN OUTPUT:
 Definition:
   ValueExamples.implicitIndex is
-    the function mapping an implicit natural number n and an element i of Fin n to
+    the function mapping an implicit natural number n and an index i in [0, n) to
       (↑i : ℕ).
 
 -- LEAN INPUT:
@@ -282,7 +485,7 @@ def ValueExamples.strictIndex : ⦃n : ℕ⦄ → Fin n → ℕ :=
 -- MEAN OUTPUT:
 Definition:
   ValueExamples.strictIndex is
-    the function mapping a strictly implicit natural number n and an element i of Fin n to
+    the function mapping a strictly implicit natural number n and an index i in [0, n) to
       (↑i : ℕ).
 
 -- LEAN INPUT:
@@ -291,7 +494,7 @@ def ValueExamples.strictConstant : ⦃n : ℕ⦄ → Fin n → ℤ :=
 -- MEAN OUTPUT:
 Definition:
   ValueExamples.strictConstant is
-    the function : ⦃n : ℕ⦄ → Fin n → ℤ mapping a strictly implicit natural number n and an element _i of Fin n to
+    the function : ⦃n : ℕ⦄ → Fin n → ℤ mapping a strictly implicit natural number n and an index _i in [0, n) to
       (0).
 
 -- LEAN INPUT:
@@ -432,7 +635,7 @@ def TypeNounExamples.indexReflexive : Fin 3 → Prop :=
   fun (i : Fin 3) => i = i
 -- MEAN OUTPUT:
 Definition:
-  an element i of Fin 3 is TypeNounExamples.indexReflexive if
+  an index i in [0, 3) is TypeNounExamples.indexReflexive if
     i = i.
 
 -- LEAN INPUT:
@@ -685,7 +888,7 @@ the function mapping an instance inst of typeclass Inhabited Nat to
 -- LEAN INPUT:
 fun (xs : List ℕ) (i : Fin xs.length) => xs[i]
 -- MEAN OUTPUT:
-the function mapping a list xs of ℕ elements and an element i of Fin xs.length to
+the function mapping a list xs of natural numbers and an index i into xs to
   xs[i]
 
 -- LEAN INPUT:
@@ -709,13 +912,13 @@ the function mapping a function f from (ℕ → ℕ) to ℕ to
 -- LEAN INPUT:
 fun (_f : (n : ℕ) → Fin n) => true
 -- MEAN OUTPUT:
-the function mapping an element _f of (n : ℕ) → Fin n to
+the function mapping an element _f of (n : ℕ) → indices [0, n) to
   true
 
 -- LEAN INPUT:
 fun (_f : {n : ℕ} → Fin n) => true
 -- MEAN OUTPUT:
-the function mapping an element _f of {n : ℕ} → Fin n to
+the function mapping an element _f of {n : ℕ} → indices [0, n) to
   true
 
 -- LEAN INPUT:
@@ -792,21 +995,21 @@ for every function f from ℕ and ℕ to ℕ:
 -- LEAN INPUT:
 ∀ (xs : List ℕ) (i : Fin xs.length), xs[i] = xs[i]
 -- MEAN OUTPUT:
-for every list xs of ℕ elements:
-  for every element i of (Fin xs.length):
+for every list xs of natural numbers:
+  for every index i into xs:
     xs[i] = xs[i]
 
 -- LEAN INPUT:
 ∀ (f : (n : ℕ) → Fin n), f 1 = f 1
 -- MEAN OUTPUT:
-for every element f of ((n : ℕ) → Fin n):
+for every element f of ((n : ℕ) → indices [0, n)):
   f 1 = f 1
 
 -- LEAN INPUT:
 ∀ (f : {n : ℕ} → Fin n), f = f
 -- MEAN OUTPUT:
-for every element f of ({n : Nat} → Fin n):
-  @Eq (Fin (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+for every element f of ({n : Nat} → indices [0, n)):
+  @Eq (indices [0, @OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
     (@f (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
     (@f (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
 
@@ -955,7 +1158,7 @@ the function mapping a natural number n to
 -- LEAN INPUT:
 fun (n : ℕ) (i : Fin n) => (↑i : ℕ)
 -- MEAN OUTPUT:
-the function mapping a natural number n and an element i of Fin n to
+the function mapping a natural number n and an index i in [0, n) to
   (↑i : ℕ)
 
 -- LEAN INPUT:
@@ -979,7 +1182,7 @@ the function mapping a natural number n and an implicit natural number m to
 -- LEAN INPUT:
 fun {n : ℕ} (i : Fin n) => (↑i : ℕ)
 -- MEAN OUTPUT:
-the function mapping an implicit natural number n and an element i of Fin n to
+the function mapping an implicit natural number n and an index i in [0, n) to
   (↑i : ℕ)
 
 -- LEAN INPUT:
@@ -1231,12 +1434,12 @@ if T is empty then
 -- LEAN INPUT:
 Nonempty (Fin n)
 -- MEAN OUTPUT:
-(Fin n) is nonempty
+(indices [0, n)) is nonempty
 
 -- LEAN INPUT:
 IsEmpty (Fin n)
 -- MEAN OUTPUT:
-(Fin n) is empty
+(indices [0, n)) is empty
 
 -- LEAN INPUT:
 def smallGraph : {V : Type} → SimpleGraph V → Prop :=
@@ -1337,7 +1540,7 @@ there is a natural number such that
 ∀ (n : ℕ) (i : Fin n), (↑i : ℕ) < n
 -- MEAN OUTPUT:
 for every natural number n:
-  for every element i of (Fin n):
+  for every index i in [0, n):
     (↑i : ℕ) < n
 
 -- LEAN INPUT:

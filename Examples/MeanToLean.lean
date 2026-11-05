@@ -1,5 +1,65 @@
 import Mean.Syntax
 
+namespace IndexExamples
+
+example (n : Nat) : indices [0, n) = Fin n := rfl
+example : indices [0, 0) = Fin 0 := rfl
+example : indices [0, 1) = Fin 1 := rfl
+example (n m : Nat) : indices [0, n + m) = Fin (n + m) := rfl
+
+Abbreviation: Four is indices [0, 4).
+Definition: value is the function mapping a natural number n and
+  an index i in [0, n) to i.val.
+Definition: lookup is the function mapping a list xs of natural numbers and
+  an index i into xs to xs[i].
+Definition: arrayLookup is the function mapping an element xs of Array Nat and
+  an index i into xs to xs[i].
+Definition: implicitValue is the function mapping a natural number n and
+  an implicit index i in [0, n) to i.val.
+Definition: strictValue is the function mapping a natural number n and
+  a strictly implicit index i in [0, n) to i.val.
+Definition: an index i in [0, 4) is first if (i.val = 0).
+
+example : value = (fun (n : Nat) (i : Fin n) => i.val) := rfl
+example : lookup = (fun (xs : List Nat) (i : Fin xs.length) => xs[i]) := rfl
+example : arrayLookup = (fun (xs : Array Nat) (i : Fin xs.size) => xs[i]) := rfl
+example (xs : List Nat) (i : Fin xs.length) : lookup (xs := xs) (i := i) = xs[i] := rfl
+example : implicitValue = (fun (n : Nat) {i : Fin n} => i.val) := rfl
+example : strictValue = (fun (n : Nat) ⦃i : Fin n⦄ => i.val) := rfl
+example : (the function mapping an index in [0, 3) to true) =
+    (fun (_ : Fin 3) => true) := rfl
+example (xs : List Nat) : (the function mapping an index into xs to true) =
+    (fun (_ : Fin xs.length) => true) := rfl
+example (xs : List Nat) : (the function mapping an implicit index i into xs to i.val) =
+    (fun {i : Fin xs.length} => i.val) := rfl
+example (xs : Array Nat) : (the function mapping a strictly implicit index i into xs to i.val) =
+    (fun ⦃i : Fin xs.size⦄ => i.val) := rfl
+example (n : Nat) : (for every index i in [0, n): i.val < n) =
+    (∀ i : Fin n, i.val < n) := rfl
+example (xs : List Nat) : (for every index i into xs: xs[i] = xs[i]) =
+    (∀ i : Fin xs.length, xs[i] = xs[i]) := rfl
+example (xs : Array Nat) : (there is an index i into xs such that xs[i] = 3) =
+    (∃ i : Fin xs.size, xs[i] = 3) := rfl
+example (n : Nat) : (there is an index in [0, n)) = (∃ _i : Fin n, True) := rfl
+example : (there is no index in [0, 0)) = (¬ ∃ _i : Fin 0, True) := rfl
+example (xs : List Nat) (ys : List (Fin xs.length)) :
+    (for every index i into xs: i ∈ ys) = (∀ i : Fin xs.length, i ∈ ys) := rfl
+
+-- Natural scalar plurals preserve types; custom nouns retain the element form.
+example : (the function mapping a list xs of natural numbers to xs) =
+    (fun xs : List Nat => xs) := rfl
+example : (the function mapping an implicit list xs of integers to xs) =
+    (fun {xs : List Int} => xs) := rfl
+example : (the function mapping a strictly implicit list xs of booleans to xs) =
+    (fun ⦃xs : List Bool⦄ => xs) := rfl
+example : (for every list xs of rational numbers: xs = xs) =
+    (∀ xs : List Rat, xs = xs) := rfl
+example : (there is a list of real numbers) = (∃ _xs : List Real, True) := rfl
+example : (there is no list xs of complex numbers such that xs = []) =
+    (¬ ∃ xs : List Complex, xs = []) := rfl
+
+end IndexExamples
+
 namespace PredicateExamples
 
 -- Predicate types, not spelling conventions, determine generic `is` wording.
