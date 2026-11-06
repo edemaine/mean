@@ -2,8 +2,47 @@
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
 Abbreviation:
+  a FunctionEndpointExamples.Point is
+    a function from indices in [0, 3) to ℤ.
+
+Abbreviation:
+  a FunctionEndpointExamples.Reindexer is
+    a function from indices in [0, 3) to indices in [0, 4).
+
+Definition:
+  a FunctionEndpointExamples.Consumer is
+    a function from lists of natural numbers to ℤ.
+
+Abbreviation:
+  a FunctionEndpointExamples.Curried is
+    a function from ℕ and indices in [0, 3) to ℤ.
+
+the function mapping a function f from indices in [0, 3) to lists of natural numbers and a boolean b to
+  (f 0, b)
+
+the function mapping a function f from ℕ and indices in [0, 3) to ℤ to
+  f
+
+the function mapping a function f from lists of (ℕ → ℕ) elements to lists of natural numbers to
+  f
+
+the function mapping a function f from (ℕ → ℕ) to indices in [0, 3) to
+  f
+
+the function mapping a function f from indices into xs to ℤ to
+  f
+
+the function mapping a function f from ℕ to indices into ys to
+  f
+
+the function mapping a function f from lists of A elements to Prop to
+  f
+
+there is a function from indices into xs to ℕ
+
+Abbreviation:
   a TypeDeclarationExamples.Point is
-    a function from (the type of indices in [0, 3)) to ℤ.
+    a function from indices in [0, 3) to ℤ.
 
 Abbreviation:
   a TypeDeclarationExamples.Prototile is
@@ -91,7 +130,7 @@ the type of lists of natural numbers → ℕ
 
 ℕ × the type of lists of integers
 
-the function mapping a function f from (the type of lists of natural numbers) to ℕ to
+the function mapping a function f from lists of natural numbers to ℕ to
   f []
 
 Abbreviation:

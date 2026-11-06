@@ -11,7 +11,7 @@ abbrev TranslationTiling.Abstract.Point : Type :=
 -- MEAN OUTPUT:
 Abbreviation:
   a TranslationTiling.Abstract.Point is
-    a function from (the type of indices in [0, 3)) to ℤ.
+    a function from indices in [0, 3) to ℤ.
 
 -- LEAN INPUT:
 abbrev TranslationTiling.Abstract.Prototile : Type :=
@@ -76,7 +76,7 @@ abbrev TranslationTiling.Abstract.RealPoint : Type :=
 -- MEAN OUTPUT:
 Abbreviation:
   a TranslationTiling.Abstract.RealPoint is
-    a function from (the type of indices in [0, 3)) to ℝ.
+    a function from indices in [0, 3) to ℝ.
 
 -- LEAN INPUT:
 def TranslationTiling.Abstract.Solid : Prototile → Set RealPoint :=

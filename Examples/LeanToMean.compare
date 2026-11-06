@@ -2,12 +2,91 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+abbrev FunctionEndpointExamples.Point : Type :=
+  Fin 3 → ℤ
+-- MEAN OUTPUT:
+Abbreviation:
+  a FunctionEndpointExamples.Point is
+    a function from indices in [0, 3) to ℤ.
+
+-- LEAN INPUT:
+abbrev FunctionEndpointExamples.Reindexer : Type :=
+  Fin 3 → Fin 4
+-- MEAN OUTPUT:
+Abbreviation:
+  a FunctionEndpointExamples.Reindexer is
+    a function from indices in [0, 3) to indices in [0, 4).
+
+-- LEAN INPUT:
+def FunctionEndpointExamples.Consumer : Type :=
+  List ℕ → ℤ
+-- MEAN OUTPUT:
+Definition:
+  a FunctionEndpointExamples.Consumer is
+    a function from lists of natural numbers to ℤ.
+
+-- LEAN INPUT:
+abbrev FunctionEndpointExamples.Curried : Type :=
+  ℕ → Fin 3 → ℤ
+-- MEAN OUTPUT:
+Abbreviation:
+  a FunctionEndpointExamples.Curried is
+    a function from ℕ and indices in [0, 3) to ℤ.
+
+-- LEAN INPUT:
+fun (f : Fin 3 → List ℕ) (b : Bool) => (f 0, b)
+-- MEAN OUTPUT:
+the function mapping a function f from indices in [0, 3) to lists of natural numbers and a boolean b to
+  (f 0, b)
+
+-- LEAN INPUT:
+fun (f : ℕ → Fin 3 → ℤ) => f
+-- MEAN OUTPUT:
+the function mapping a function f from ℕ and indices in [0, 3) to ℤ to
+  f
+
+-- LEAN INPUT:
+fun (f : List (ℕ → ℕ) → List ℕ) => f
+-- MEAN OUTPUT:
+the function mapping a function f from lists of (ℕ → ℕ) elements to lists of natural numbers to
+  f
+
+-- LEAN INPUT:
+fun (f : (ℕ → ℕ) → Fin 3) => f
+-- MEAN OUTPUT:
+the function mapping a function f from (ℕ → ℕ) to indices in [0, 3) to
+  f
+
+-- LEAN INPUT:
+fun (f : Fin xs.length → ℤ) => f
+-- MEAN OUTPUT:
+the function mapping a function f from indices into xs to ℤ to
+  f
+
+-- LEAN INPUT:
+fun (f : ℕ → Fin ys.size) => f
+-- MEAN OUTPUT:
+the function mapping a function f from ℕ to indices into ys to
+  f
+
+-- LEAN INPUT:
+fun (f : List A → Prop) => f
+-- MEAN OUTPUT:
+the function mapping a function f from lists of A elements to Prop to
+  f
+
+-- LEAN INPUT:
+∃ (_f : Fin xs.length → ℕ), True
+-- MEAN OUTPUT:
+there is a function from indices into xs to ℕ
+
+-- LEAN INPUT:
 abbrev TypeDeclarationExamples.Point : Type :=
   Fin 3 → ℤ
 -- MEAN OUTPUT:
 Abbreviation:
   a TypeDeclarationExamples.Point is
-    a function from (the type of indices in [0, 3)) to ℤ.
+    a function from indices in [0, 3) to ℤ.
 
 -- LEAN INPUT:
 abbrev TypeDeclarationExamples.Prototile : Type :=
@@ -190,7 +269,7 @@ the type of lists of natural numbers → ℕ
 -- LEAN INPUT:
 fun (f : List ℕ → ℕ) => f []
 -- MEAN OUTPUT:
-the function mapping a function f from (the type of lists of natural numbers) to ℕ to
+the function mapping a function f from lists of natural numbers to ℕ to
   f []
 
 -- LEAN INPUT:

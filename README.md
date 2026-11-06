@@ -213,6 +213,21 @@ range wording for other `Fin` bounds. It keeps user-defined aliases such as
 Function domains separated by `and` are curried arguments. A product domain stays
 explicit: `a function f from (ℤ × ℤ) to Tile` means `(ℤ × ℤ) → Tile`.
 Group function-valued domains too, as in `from (ℕ → ℕ) to ℕ`.
+The `from` and `to` context also accepts plural type descriptions directly:
+
+```lean
+a function from indices in [0, 3) to ℤ
+a function from lists of Point elements to indices in [0, n)
+a function from natural numbers and indices in [0, n) to integers
+```
+
+These mean `Fin 3 → Int`, `List Point → Fin n`, and `Nat → Fin n → Int`.
+No `the type of` wrapper or grouping parentheses are needed around these
+descriptions. `indices into xs` also works here. The renderer uses the bare
+plural descriptions for `Fin` and `List`, retaining ordinary notation for
+other types, including familiar symbols such as `ℕ` and `ℤ` and custom aliases.
+Singular phrases still describe individual function parameters, as in
+`the function mapping an index i in [0, n) to …`.
 The renderer uses from/to wording for anonymous, explicit, nondependent arrow signatures.
 Dependent or implicit signatures, and named parameters inside function types,
 retain their exact Lean notation in element phrases.

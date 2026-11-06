@@ -187,11 +187,16 @@ def listElementType : Lean.Parser.Parser :=
 
 /-- Function domains and results stop before the surrounding phrase's separators.
 Parentheses retain ordinary Lean types containing these tokens. -/
+declare_syntax_cat meanFunctionEndpoint
+syntax term : meanFunctionEndpoint
+
 def functionDomain : Lean.Parser.Parser :=
-  Lean.Parser.withForbiddens #["and", "to"] Lean.Parser.termParser
+  Lean.Parser.withForbiddens #["and", "to"]
+    (Lean.Parser.categoryParser `meanFunctionEndpoint 0)
 
 def functionResult : Lean.Parser.Parser :=
-  Lean.Parser.withForbiddens #["and", "to", "is"] Lean.Parser.termParser
+  Lean.Parser.withForbiddens #["and", "to", "is"]
+    (Lean.Parser.categoryParser `meanFunctionEndpoint 0)
 
 declare_syntax_cat meanFunctionSignature
 syntax "from" functionDomain ("and" functionDomain)* "to" functionResult : meanFunctionSignature
@@ -204,12 +209,15 @@ def functionSignature : Lean.Parser.Parser :=
     (Lean.Parser.categoryParser `meanFunctionSignature 0)
 
 syntax "functionType%" functionSignature : term
+syntax "functionEndpointType%" meanFunctionEndpoint : term
 macro_rules
-  | `(functionType% from $domain:term $[and $domains:term]* to $result:term) => do
-      let mut result := result
+  | `(functionEndpointType% $ty:term) => `($ty)
+  | `(functionType% from $domain:meanFunctionEndpoint $[and $domains:meanFunctionEndpoint]*
+        to $result:meanFunctionEndpoint) => do
+      let mut result ← `(functionEndpointType% $result)
       for domain in domains.reverse do
-        result ← `($domain → $result)
-      `($domain → $result)
+        result ← `((functionEndpointType% $domain) → $result)
+      `((functionEndpointType% $domain) → $result)
 
 /-! One scalar noun-to-type mapping serves subjects and all quantifiers.
 Plural domains delegate to their singular noun through `scalarDomainType%`. -/
@@ -324,9 +332,11 @@ declare_syntax_cat meanTypeDescription
 syntax meanScalarPlural : meanTypeDescription
 syntax "lists " "of " meanListElements : meanTypeDescription
 syntax "indices " meanIndexDomain : meanTypeDescription
+syntax meanTypeDescription : meanFunctionEndpoint
 syntax "describedType%" meanTypeDescription : term
 syntax:max "the " "type " "of " meanTypeDescription : term
 macro_rules
+  | `(functionEndpointType% $description:meanTypeDescription) => `(describedType% $description)
   | `(the type of $description:meanTypeDescription) => `(describedType% $description)
   | `(describedType% $plural:meanScalarPlural) => do
       let domain ← `(meanScalarDomain| $plural:meanScalarPlural)

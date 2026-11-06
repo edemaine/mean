@@ -186,10 +186,18 @@ private partial def functionTypeParts? (ty : Expr) : Option (List Expr × Expr) 
     some (domain :: domains, codomain)
   else some ([domain], result)
 
+/-- Function signatures already establish a type context, so descriptions need
+neither a `the type of` introducer nor an extra grouping layer. -/
+private def functionEndpointText (ty : Expr) (result := false) : MetaM String := do
+  if let some domain ← indexDomainText? ty then return s!"indices {domain}"
+  if ty.isAppOfArity ``List 1 then
+    return s!"lists of {← listElementsText ty.getAppArgs[0]!}"
+  if result then subjectTypeText ty else typeAtomText ty
+
 private def functionSignatureText? (ty : Expr) : MetaM (Option String) := do
   let some (domains, codomain) := functionTypeParts? ty | return none
-  let domains ← domains.mapM typeAtomText
-  return some s!"from {String.intercalate " and " domains} to {← subjectTypeText codomain}"
+  let domains ← domains.mapM (fun domain => functionEndpointText domain)
+  return some s!"from {String.intercalate " and " domains} to {← functionEndpointText codomain true}"
 
 /-- Propositions describe proofs; supported types supply their own noun phrases.
 Use the same vocabulary for function parameters and predicate subjects. -/

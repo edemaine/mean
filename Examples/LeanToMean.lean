@@ -1,6 +1,51 @@
 import Examples.MeanToLean
 import Mean
 
+#mean_compare FunctionEndpointExamples.Point
+#mean_compare FunctionEndpointExamples.Reindexer
+#mean_compare FunctionEndpointExamples.Consumer
+#mean_compare FunctionEndpointExamples.Curried
+/--
+info: Abbreviation:
+  a FunctionEndpointExamples.Point is
+    a function from indices in [0, 3) to ℤ.
+-/
+#guard_msgs in
+#mean FunctionEndpointExamples.Point
+/--
+info: the function mapping a function f from indices in [0, 3) to lists of natural numbers and a boolean b to
+  (f 0, b)
+-/
+#guard_msgs in
+#mean_term fun (f : Fin 3 → List Nat) (b : Bool) => (f 0, b)
+#mean_term_compare fun (f : Fin 3 → List Nat) (b : Bool) => (f 0, b)
+#mean_term_compare fun (f : Nat → Fin 3 → Int) => f
+#mean_term_compare fun (f : List (Nat → Nat) → List Nat) => f
+#mean_term_compare fun (f : (Nat → Nat) → Fin 3) => f
+section
+variable (xs : List Nat) (ys : Array Nat) (A : Type u)
+#mean_term_compare fun (f : Fin xs.length → Int) => f
+#mean_term_compare fun (f : Nat → Fin ys.size) => f
+#mean_term_compare fun (f : List A → Prop) => f
+#mean_term_compare ∃ _f : Fin xs.length → Nat, True
+end
+
+open Lean Elab Term in
+run_elab do
+  for (name, text) in [
+      (``FunctionEndpointExamples.Point,
+        "Abbreviation: a changed is a function from indices in [0, 4) to ℤ."),
+      (``FunctionEndpointExamples.Reindexer,
+        "Abbreviation: a changed is a function from indices in [0, 3) to indices in [0, 5)."),
+      (``FunctionEndpointExamples.Curried,
+        "Abbreviation: a changed is a function from (Nat × Fin 3) to integers.")] do
+    let rejected ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkDefinition name text
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "round-trip checker accepted a changed function signature"
+
 #mean_compare TypeDeclarationExamples.Point
 #mean_compare TypeDeclarationExamples.Prototile
 #mean_compare TypeDeclarationExamples.PrototileDef
@@ -94,9 +139,10 @@ end
 
 open Lean Elab Term in
 run_elab do
-  for text in ["a list of natural numbers", "an index in [0, 3)"] do
+  for text in ["a list of natural numbers", "an index in [0, 3)",
+      "lists of natural numbers", "indices in [0, 3)"] do
     match Parser.runParserCategory (← getEnv) `term text with
-    | .ok _ => throwError "anonymous binding phrase parsed as a type expression: {text}"
+    | .ok _ => throwError "context-only noun phrase parsed as a type expression: {text}"
     | .error _ => pure ()
   let rejected ← withoutModifyingState do
     try

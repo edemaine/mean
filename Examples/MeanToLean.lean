@@ -130,6 +130,36 @@ end
 
 end TypeDeclarationExamples
 
+namespace FunctionEndpointExamples
+
+Abbreviation: a Point is a function from indices in [0, 3) to ℤ.
+Abbreviation: a Reindexer is a function from indices in [0, 3) to indices in [0, 4).
+Definition: a Consumer is a function from lists of natural numbers to ℤ.
+Abbreviation: a Curried is a function from natural numbers and indices in [0, 3) to integers.
+
+example : Point = (Fin 3 → Int) := rfl
+example : Reindexer = (Fin 3 → Fin 4) := rfl
+example : Consumer = (List Nat → Int) := rfl
+example : Curried = (Nat → Fin 3 → Int) := rfl
+example : (the function mapping a function f from natural numbers to integers to f) =
+    (fun f : Nat → Int => f) := rfl
+example : (the function mapping a function f from indices in [0, 3) to lists of natural numbers and
+    a boolean b to (f 0, b)) = (fun (f : Fin 3 → List Nat) (b : Bool) => (f 0, b)) := rfl
+example : (the function mapping a function f from lists of (Nat → Nat) elements to ℕ to f) =
+    (fun f : List (Nat → Nat) → Nat => f) := rfl
+example : (the function mapping a function f from (Nat → Nat) to indices in [0, 3) to f) =
+    (fun f : (Nat → Nat) → Fin 3 => f) := rfl
+example (xs : List Nat) : (the function mapping a function f from indices into xs to ℤ to f) =
+    (fun f : Fin xs.length → Int => f) := rfl
+example (xs : Array Nat) : (the function mapping a function f from ℕ to indices into xs to f) =
+    (fun f : Nat → Fin xs.size => f) := rfl
+example (A : Type u) : (the function mapping a function f from lists of A elements to Prop to f) =
+    (fun f : List A → Prop => f) := rfl
+example : (the function mapping a function f from (the type of indices in [0, 3)) to ℤ to f) =
+    (fun f : Fin 3 → Int => f) := rfl
+
+end FunctionEndpointExamples
+
 namespace PredicateExamples
 
 -- Predicate types, not spelling conventions, determine generic `is` wording.

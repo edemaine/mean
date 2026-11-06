@@ -7,7 +7,7 @@
 
 Abbreviation:
   a TranslationTiling.Abstract.Point is
-    a function from (the type of indices in [0, 3)) to ℤ.
+    a function from indices in [0, 3) to ℤ.
 
 Abbreviation:
   a TranslationTiling.Abstract.Prototile is
@@ -43,7 +43,7 @@ Theorem TranslationTiling.Abstract.tiling_undecidable:
 
 Abbreviation:
   a TranslationTiling.Abstract.RealPoint is
-    a function from (the type of indices in [0, 3)) to ℝ.
+    a function from indices in [0, 3) to ℝ.
 
 Definition:
   TranslationTiling.Abstract.Solid is
