@@ -6,8 +6,8 @@ Authors: Erik Demaine, Stefan Langerman, GPT 6.1
 Upstream source: [LeanWang/Abstract.lean](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LeanWang/Abstract.lean)
 Upstream license: [Apache 2.0](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE)
 
-Changes from upstream: import Mean; escape the binder
-`a` as `«a»` because Mean reserves `a`; add checked before/after comparisons;
+Changes from upstream: import Mean; rename the input binder `a` to `x` in CoRE
+because Mean reserves `a`; add checked before/after comparisons;
 replace the two upstream theorem proofs with `sorry` rather than importing
 AbstractBridge. Comparisons check the original definitions and theorem statements.
 Mean and the upstream project both use Lean/mathlib 4.35.0.
@@ -68,7 +68,7 @@ which is equivalent to saying that the complement of the problem is RE
 Mathlib's `REPred` defines RE.
 -/
 def CoRE {α : Type*} [Primcodable α] (p : α → Prop) : Prop :=
-  REPred (fun «a» => ¬ p «a»)
+  REPred (fun x => ¬ p x)
 
 #mean_compare CoRE
 

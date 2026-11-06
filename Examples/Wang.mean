@@ -36,8 +36,8 @@ Definition:
 Definition:
   LeanWang.Abstract.CoRE is
     the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
-      (the function mapping an element «a» of α to
-        «a» is not p) is recursively enumerable.
+      (the function mapping an element x of α to
+        x is not p) is recursively enumerable.
 
 Definition:
   LeanWang.Abstract.CoREComplete is

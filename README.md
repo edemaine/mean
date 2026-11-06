@@ -65,8 +65,8 @@ Predicates with multiple explicit arguments use `are`:
 
 ```lean
 Definition:
-  elements «a» and b of Point are adjacent if
-    (the sum over indices i in [0, 3) of |«a» i - b i| = 1).
+  elements p and q of Point are adjacent if
+    (the sum over indices i in [0, 3) of |p i - q i| = 1).
 ```
 
 Here `Point` is an existing type, such as `Fin 3 → ℤ`. Group two or more names
@@ -635,8 +635,7 @@ is linked in `Wang.lean` and both generated headers. A local license copy accomp
 the adapted source, as required by [Apache 2.0 §4(a)](https://www.apache.org/licenses/LICENSE-2.0#redistribution).
 
 Mean and lean-wang both use Lean/mathlib 4.35.0.
-The original lambda parameter `a` is spelled `«a»` because Mean reserves `a`;
-this escapes the identifier without renaming it.
+The original lambda parameter `a` is renamed to `x` because Mean reserves `a`.
 The two theorem declarations are retained with `sorry` proofs and rendered by
 `#mean_compare`. Only their statements are checked here; the complete proofs
 remain upstream. The `sorry` warning is disabled locally for these two copied
@@ -649,7 +648,7 @@ and `python test.py` checks the exact output. This is a baseline for improving
 the translation of real mathematics; unsupported portions retain Lean syntax.
 The tiling definition renders existential and integer quantifiers and conjunctions.
 The complexity definitions use `an instance of typeclass Primcodable α` for their
-instance parameters. `CoRE` describes the function mapping `«a»` to `«a» is not p`
+instance parameters. `CoRE` describes the function mapping `x` to `x is not p`
 as recursively enumerable. Named predicates without registered English wording
 use their Lean names after `is`. `CoREComplete` renders its function-valued universal and
 existential quantifiers, implication, conjunction, and equivalence in Mean.
@@ -670,6 +669,8 @@ the same universe; the Wang abstract instead uses predicates on natural numbers
 as source problems. These are equivalent formulations here, but are not
 definitionally identical in Lean. This interface adaptation is recorded in the
 input's top comment. No external Wang package is needed.
+Point binders `a`, `b` are renamed to `p`, `q` because Mean reserves `a`;
+`Connected` uses `x`, `y` for its outer endpoints to avoid shadowing.
 Mean and both upstream projects use Lean/mathlib 4.35.0.
 
 The pinned TranslationTiling repository does not declare a project-wide license.
@@ -756,7 +757,7 @@ requires exactly one value of that type. The renderer uses `a unique` for
 Finite sums use `the sum over … of …`, for example:
 
 ```text
-the sum over indices i in [0, 3) of |«a» i - b i| = 1
+the sum over indices i in [0, 3) of |p i - q i| = 1
 the sum over indices i into xs of xs[i]
 the sum over elements x of T of f x
 the sum over i in s of f i
@@ -937,11 +938,11 @@ the renderer retain explicit hidden arguments when inference would change them.
 Adjective subjects render recursively, including function bodies:
 
 ```lean
-(the function mapping an element «a» of α to
-  «a» is not p) is recursively enumerable
+(the function mapping an element x of α to
+  x is not p) is recursively enumerable
 ```
 
-This means `REPred (fun «a» : α => ¬ p «a»)`. Parentheses keep the outer adjective
+This means `REPred (fun x : α => ¬ p x)`. Parentheses keep the outer adjective
 outside the function body. Only negated predicate applications receive `is not`
 wording; general negations remain ordinary Lean.
 

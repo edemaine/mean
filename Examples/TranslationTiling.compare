@@ -23,25 +23,24 @@ Abbreviation:
 
 -- LEAN INPUT:
 def TranslationTiling.Abstract.Adjacent : Point → Point → Prop :=
-  fun («a» b : Point) => ∑ i : Fin 3, |«a» i - b i| = 1
+  fun (p q : Point) => ∑ i : Fin 3, |p i - q i| = 1
 -- MEAN OUTPUT:
 Definition:
-  elements «a» and b of Point are TranslationTiling.Abstract.Adjacent if
-    (the sum over indices i in [0, 3) of |«a» i - b i| = 1).
+  elements p and q of Point are TranslationTiling.Abstract.Adjacent if
+    (the sum over indices i in [0, 3) of |p i - q i| = 1).
 
 -- LEAN INPUT:
 def TranslationTiling.Abstract.Connected : Prototile → Prop :=
-  fun (P : Prototile) =>
-    ∀ p ∈ P, ∀ q ∈ P, Relation.ReflTransGen (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q
+  fun (P : Prototile) => ∀ x ∈ P, ∀ y ∈ P, Relation.ReflTransGen (fun (p q : Point) => p ∈ P ∧ q ∈ P ∧ Adjacent p q) x y
 -- MEAN OUTPUT:
 Definition:
   an element P of Prototile is TranslationTiling.Abstract.Connected if
-    for every element p of Point where p ∈ P:
-      for every element q of Point where q ∈ P:
+    for every element x of Point where x ∈ P:
+      for every element y of Point where y ∈ P:
         Relation.ReflTransGen
-          (the function mapping an element «a» of Point and an element b of Point to
-              «a» ∈ P and b ∈ P and Adjacent «a» b)
-          p q.
+          (the function mapping an element p of Point and an element q of Point to
+              p ∈ P and q ∈ P and Adjacent p q)
+          x y.
 
 -- LEAN INPUT:
 def TranslationTiling.Abstract.Tiles : Prototile → Prop :=

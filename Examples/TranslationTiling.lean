@@ -12,9 +12,11 @@ LeanWang.Abstract.CoREComplete instead of LeanWang.CoREComplete in the two
 completeness statements. This uses
 natural-number source predicates rather than arbitrary encoded source types;
 these are equivalent formulations here, but are not definitionally identical.
-Escape `a` as `«a»` because Mean reserves `a`; replace the four AbstractBridge
-proofs with `sorry`; add checked before/after comparisons. All eight original
-definitions/abbreviations and four theorem declarations are retained.
+Rename point binders `a`, `b` to `p`, `q` because Mean reserves `a`; use `x`, `y`
+for the outer endpoints in Connected to avoid shadowing those relation binders.
+Replace the four AbstractBridge proofs with `sorry`; add checked before/after
+comparisons. All eight original definitions/abbreviations and four theorem
+declarations are retained.
 Mean and both pinned upstream projects use Lean/mathlib 4.35.0.
 -/
 import Mathlib.Computability.Halting
@@ -54,14 +56,14 @@ abbrev Prototile := List Point
 #mean_compare Prototile
 
 /-- Two points are adjacent when their `ℓ¹` distance is one. -/
-def Adjacent («a» b : Point) : Prop :=
-  ∑ i, |«a» i - b i| = 1
+def Adjacent (p q : Point) : Prop :=
+  ∑ i, |p i - q i| = 1
 #mean_compare Adjacent
 
 /-- `P` is (face-)connected: any two of its points are joined by a path of
 adjacent points inside `P`. -/
 def Connected (P : Prototile) : Prop :=
-  ∀ p ∈ P, ∀ q ∈ P, Relation.ReflTransGen (fun «a» b => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q
+  ∀ x ∈ P, ∀ y ∈ P, Relation.ReflTransGen (fun p q => p ∈ P ∧ q ∈ P ∧ Adjacent p q) x y
 #mean_compare Connected
 
 /-! ### Tiling `ℤ³` -/

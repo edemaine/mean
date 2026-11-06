@@ -63,13 +63,13 @@ Definition:
 
 -- LEAN INPUT:
 def LeanWang.Abstract.CoRE : {α : Type u_1} → [Primcodable α] → (α → Prop) → Prop :=
-  fun {α : Type u_1} [Primcodable α] (p : α → Prop) => REPred fun («a» : α) => ¬p «a»
+  fun {α : Type u_1} [Primcodable α] (p : α → Prop) => REPred fun (x : α) => ¬p x
 -- MEAN OUTPUT:
 Definition:
   LeanWang.Abstract.CoRE is
     the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
-      (the function mapping an element «a» of α to
-        «a» is not p) is recursively enumerable.
+      (the function mapping an element x of α to
+        x is not p) is recursively enumerable.
 
 -- LEAN INPUT:
 def LeanWang.Abstract.CoREComplete : {α : Type u_1} → [Primcodable α] → (α → Prop) → Prop :=
