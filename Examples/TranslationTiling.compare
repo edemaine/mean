@@ -97,7 +97,9 @@ def TranslationTiling.Abstract.RealTiles : Prototile → Prop :=
 Definition:
   an element P of Prototile is TranslationTiling.Abstract.RealTiles if
     there is a set T of RealPoint elements such that
-      ∀ᵐ (x : RealPoint), ∃! t : RealPoint, t ∈ T ∧ x - t ∈ Solid P.
+      for almost every element x of RealPoint:
+        there is a unique element t of RealPoint such that
+          t ∈ T and x - t ∈ Solid P.
 
 -- LEAN INPUT:
 theorem TranslationTiling.Abstract.real_tiling_coRE_complete :

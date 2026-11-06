@@ -710,6 +710,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Set comprehension | `the set of elements x of T such that <proposition>` |
 | Function subject | `a function f from A to B`, `a function f from A and B to C` |
 | Universal quantifier | `for all <bindings> [where <condition>]: <proposition>`, `for every …` |
+| Almost-everywhere quantifier | `for almost every <witness noun> [with respect to <measure>] [where <condition>]: <proposition>` |
 | Quantified bindings | `function q from ℕ to Prop`, `list xs of T elements`, `element x of T`, `u and v in V`, `vertices u and v of G` |
 | Existential quantifier | `there is <witness description> [such that <proposition>]` |
 | Unique existential | `there is a unique <witness noun> [such that <proposition>]` |
@@ -782,6 +783,24 @@ scope in both the condition and body. Both `for every` and `for all` support it,
 including paired bindings. Parenthesize a condition containing its own quantifier,
 such as `where (for every natural number m: n ≤ m): …`. The renderer uses this
 form for an immediate implication whose proof is unused in the conclusion.
+
+`for almost every` means Lean's `∀ᵐ`: the condition holds outside a set of
+measure zero. It binds one witness noun, including an element, scalar, set, or
+function, and renders the body recursively:
+
+```lean
+for almost every element x of RealPoint:
+  there is a unique element t of RealPoint such that
+    t ∈ T and x - t ∈ Solid P
+```
+
+The omitted measure is the type's canonical `MeasureTheory.volume`, supplied by
+its `MeasureSpace` instance (Lebesgue volume on the real coordinate space here).
+Use `with respect to μ` for another measure. An optional `where C` means that
+`C → …` holds almost everywhere; it does not change or restrict the measure.
+The renderer omits the measure only when it agrees definitionally with the
+canonical measure in the current context. Ordinary filter quantifiers keep their
+Lean notation.
 
 Single-variable universal quantifiers also accept the existential witness nouns,
 without an article: `for every function q from ℕ to Prop: …`,

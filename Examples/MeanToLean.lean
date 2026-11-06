@@ -1,4 +1,36 @@
 import Mean.Syntax
+import Mathlib.MeasureTheory.Measure.Module
+
+namespace AlmostEveryExamples
+
+open MeasureTheory
+
+section
+variable (A : Type u) [MeasurableSpace A] (μ ν : Measure A) (p q : A → Prop)
+example : (for almost every element x of A with respect to μ: p x) =
+    (∀ᵐ x ∂μ, p x) := rfl
+example : (for almost every element x of A with respect to μ where p x: q x) =
+    (∀ᵐ x ∂μ, p x → q x) := rfl
+example : (for almost every element x of A with respect to μ:
+    for almost every element y of A with respect to ν: p x ∧ q y) =
+    (∀ᵐ x ∂μ, ∀ᵐ y ∂ν, p x ∧ q y) := rfl
+example (existentialWitness : A) :
+    (for almost every element of A with respect to μ: p existentialWitness) =
+    (∀ᵐ _x ∂μ, p existentialWitness) := rfl
+example : (for almost every element x of A with respect to (μ + ν): p x) =
+    (∀ᵐ x ∂(μ + ν), p x) := rfl
+end
+
+section
+variable (A : Type u) [MeasureSpace A] (p : A → Prop)
+example : (for almost every element x of A: p x) = (∀ᵐ x, p x) := rfl
+example : (for almost every element x of A where p x: x = x) =
+    (∀ᵐ x, p x → x = x) := rfl
+example : (for almost every element x of A: there is a unique element y of A such that y = x) =
+    (∀ᵐ x, ∃! y : A, y = x) := rfl
+end
+
+end AlmostEveryExamples
 
 namespace ScalarCoercionExamples
 

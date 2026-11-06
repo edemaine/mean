@@ -2,6 +2,7 @@ import Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected
 import Mathlib.Basic.Complex.Basic
 import Mathlib.Basic.Countable.Defs
 import Mathlib.Computability.RE
+import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 import Lean
 
 /-! # Mean: compositional controlled mathematical syntax inside Lean.
@@ -666,6 +667,29 @@ private def witnessBinding (noun : Lean.TSyntax `meanWitnessNoun) :
     | some name => pure name
     | none => `(ident| existentialWitness)
   return (name, ty)
+
+/-! Almost-everywhere quantification uses one witness domain and a measure.
+An omitted measure uses the domain's canonical `volume`. -/
+def almostEveryBinding : Lean.Parser.Parser :=
+  Lean.Parser.withForbiddens #["with", "where"]
+    (Lean.Parser.categoryParser `meanWitnessNoun 0)
+def almostEveryMeasure : Lean.Parser.Parser :=
+  Lean.Parser.withAntiquot (Lean.Parser.mkAntiquot "term" `term (isPseudoKind := true))
+    (Lean.Parser.withForbiddens #[":", "where"] Lean.Parser.termParser)
+syntax "for " "almost " "every " almostEveryBinding
+  (" with " "respect " "to " almostEveryMeasure)?
+  (" where " quantifiedCondition)? ":" ppIndent(ppLine term) : term
+macro_rules
+  | `(for almost every $noun:meanWitnessNoun $[with respect to $measure:term]?
+        $[where $condition:term]? : $body:term) => do
+      let (name, ty) ← witnessBinding noun
+      let measure ← match measure with
+        | some measure => pure measure
+        | none => `(MeasureTheory.volume)
+      let body ← match condition with
+        | some condition => `(∀ (_ : ($condition : Prop)), ($body : Prop))
+        | none => `(($body : Prop))
+      `(Filter.Eventually (fun ($name : $ty) => $body) (MeasureTheory.ae $measure))
 
 /-- A set comprehension owns its element name and proposition. The type stops
 at `such that`; parentheses protect those words inside a compound type. -/

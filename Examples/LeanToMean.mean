@@ -1,6 +1,54 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+for almost every element x of A with respect to μ:
+  x is p
+
+for almost every element x of A with respect to (μ + ν):
+  x is p
+
+for almost every element x of A with respect to μ where x is p:
+  x is q
+
+for almost every element x of A with respect to μ:
+  for almost every element y of A with respect to ν:
+    x is p and y is q
+
+(for almost every element x of A with respect to μ:
+  x is p) and True
+
+if for almost every element x of A with respect to μ:
+  x is p then
+  False
+
+¬∀ᵐ (x : A) ∂μ, p x
+
+for every element x of A where (for almost every element y of A with respect to μ:
+  y is p):
+  x is p
+
+for almost every element of A with respect to μ:
+  True
+
+for almost every element x of A with respect to μ:
+  there is a unique element y of A such that
+    x = y
+
+∀ᶠ (x : A) in F, p x
+
+for almost every element x of A:
+  x is p
+
+for almost every element x of A with respect to μ:
+  x is p
+
+for almost every element x of A where x is p:
+  x = x
+
+for almost every element x of A:
+  there is a unique element y of A such that
+    x = y
+
 p i as a real number
 
 z as a real number

@@ -2,6 +2,52 @@ import Examples.MeanToLean
 import Mean
 
 section
+open MeasureTheory
+variable (A : Type u) [MeasurableSpace A] (μ ν : Measure A) (p q : A → Prop)
+#mean_term_compare ∀ᵐ x ∂μ, p x
+#mean_term_compare ∀ᵐ x ∂(μ + ν), p x
+#mean_term_compare ∀ᵐ x ∂μ, p x → q x
+#mean_term_compare ∀ᵐ x ∂μ, ∀ᵐ y ∂ν, p x ∧ q y
+#mean_term_compare (∀ᵐ x ∂μ, p x) ∧ True
+#mean_term_compare (∀ᵐ x ∂μ, p x) → False
+#mean_term_compare ¬ ∀ᵐ x ∂μ, p x
+#mean_term_compare ∀ x : A, (∀ᵐ y ∂μ, p y) → p x
+#mean_term_compare ∀ᵐ _x ∂μ, True
+#mean_term_compare ∀ᵐ x ∂μ, ∃! y : A, x = y
+-- Ordinary filter quantifiers must not be mistaken for measure quantifiers.
+variable (F : Filter A)
+#mean_term_compare ∀ᶠ x in F, p x
+end
+section
+open MeasureTheory
+variable (A : Type u) [MeasureSpace A] (p : A → Prop) (μ : Measure A)
+/--
+info: for almost every element x of A:
+  x is p
+-/
+#guard_msgs in
+#mean_term ∀ᵐ x, p x
+#mean_term_compare ∀ᵐ x, p x
+#mean_term_compare ∀ᵐ x ∂μ, p x
+#mean_term_compare ∀ᵐ x, p x → x = x
+#mean_term_compare ∀ᵐ x, ∃! y : A, x = y
+end
+
+open Lean Elab Term in
+run_elab do
+  let original ← elabTerm (← `(fun (A : Type) [MeasurableSpace A]
+    (μ ν : MeasureTheory.Measure A) (p : A → Prop) => ∀ᵐ x ∂μ, p x)) none
+  synthesizeSyntheticMVarsNoPostponing
+  let original ← instantiateMVars original
+  let rejected ← withoutModifyingState do
+    try
+      Mean.RoundTrip.checkText original
+        "the function mapping an element A of Type and an instance of typeclass MeasurableSpace A and an element μ of MeasureTheory.Measure A and an element ν of MeasureTheory.Measure A and a function p from A to Prop to for almost every element x of A with respect to ν: p x"
+      pure false
+    catch _ => pure true
+  unless rejected do throwError "round-trip checker accepted a changed almost-everywhere measure"
+
+section
 variable (z : Int) (n m : Nat) (q : Rat) (x : Real) (i : Fin 3)
 variable (p : Fin 3 → Int)
 /-- info: p i as a real number -/

@@ -382,6 +382,16 @@ function types alone do not distinguish them from generic unary predicates. -/
 private def isExistential (e : Expr) : Bool :=
   e.isAppOfArity ``Exists 2 || e.isAppOfArity ``ExistsUnique 2
 
+private def almostEveryView? (e : Expr) : Option (Expr × Expr × Expr) := do
+  guard <| e.isAppOfArity ``Filter.Eventually 3
+  let args := e.getAppArgs
+  let filter := args[2]!.consumeMData
+  guard <| filter.isAppOfArity ``MeasureTheory.ae 5
+  return (args[0]!, args[1]!, filter.getAppArgs[4]!)
+
+private def isQuantifier (e : Expr) : Bool :=
+  e.isForall || isExistential e || (almostEveryView? e).isSome
+
 private def negatedExists? (e : Expr) : Option Expr :=
   if e.isAppOfArity ``Not 1 then
     let body := e.getAppArgs[0]!.consumeMData
@@ -397,7 +407,7 @@ private partial def inlineLets (e : Expr) : Expr :=
 /-- Parentheses preserve binder scope, connective precedence, and associativity. -/
 private def groupOperand (e : Expr) (parent : Name) (left : Bool) (text : String) : String :=
   let e := inlineLets e
-  let grouped := e.isForall || isExistential e || (negatedExists? e).isSome ||
+  let grouped := isQuantifier e || (negatedExists? e).isSome ||
     (parent == ``And && e.isAppOfArity ``Or 2) ||
     e.isAppOfArity ``Iff 2 ||
     (left && e.isAppOfArity parent 2)
@@ -505,8 +515,7 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
             -- Keep a proof binder when its proof is used by the conclusion.
             if (← isProp premise) && !conclusion.hasLooseBVars then
               let condition ← renderExpr premise false true
-              let condition := if (inlineLets premise).isForall ||
-                  isExistential (inlineLets premise) ||
+              let condition := if isQuantifier (inlineLets premise) ||
                   (negatedExists? (inlineLets premise)).isSome then
                 "(" ++ condition ++ ")" else condition
               let rest ← renderExpr conclusion sentenceEnd
@@ -531,6 +540,32 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
     else leafText e sentenceEnd
   | _ =>
     -- Structural forms take precedence over the open-ended predicate fallback.
+    if let some (ty, predicate, measure) := almostEveryView? e then
+      let suggested := match predicate.consumeMData with
+        | .lam n _ _ _ => n
+        | _ => `x
+      let n ← freshName suggested
+      return ← withLocalDeclD n ty fun x => do
+        let body := inlineLets (predicate.beta #[x])
+        let used := body.containsFVar x.fvarId!
+        let name ← if used then pure (some (← nameText n)) else pure none
+        let (_, noun) ← witnessDescription ty name
+        let canonical ← withoutModifyingState do
+          try
+            let volume ← mkAppOptM ``MeasureTheory.volume #[some ty, none]
+            isDefEq measure volume
+          catch _ => pure false
+        let measureText ← if canonical then pure ""
+          else pure s!" with respect to {← atomText measure}"
+        let heading := s!"for almost every {noun}{measureText}"
+        if let .forallE _ premise conclusion .default := body then
+          if (← isProp premise) && !conclusion.hasLooseBVars then
+            let condition ← renderExpr premise false true
+            let condition := if isQuantifier (inlineLets premise) ||
+                (negatedExists? (inlineLets premise)).isSome then
+              "(" ++ condition ++ ")" else condition
+            return s!"{heading} where {condition}:\n{indented (← renderExpr conclusion sentenceEnd)}"
+        return s!"{heading}:\n{indented (← renderExpr body sentenceEnd)}"
     if e.isAppOfArity ``Set.ofPred 2 then
       let args := e.getAppArgs
       let ty := args[0]!
@@ -578,7 +613,7 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
     let positive := if negativeAdjective then e.getAppArgs[0]! else e
     -- A negated quantifier without dedicated wording stays Lean. Do not turn
     -- its predicate argument into an adjective subject either.
-    if negativeAdjective && isExistential positive then return ← leafText e sentenceEnd
+    if negativeAdjective && isQuantifier positive then return ← leafText e sentenceEnd
     if let some (subject, adjective) ← adjectiveView? positive then
       let rendered ← renderExpr subject false true
       let subjectText ← if (unsignedNumeral? subject).isSome && !(pp.explicit.get (← getOptions)) then

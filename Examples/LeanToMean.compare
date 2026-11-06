@@ -2,6 +2,99 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+∀ᵐ (x : A) ∂μ, p x
+-- MEAN OUTPUT:
+for almost every element x of A with respect to μ:
+  x is p
+
+-- LEAN INPUT:
+∀ᵐ (x : A) ∂μ + ν, p x
+-- MEAN OUTPUT:
+for almost every element x of A with respect to (μ + ν):
+  x is p
+
+-- LEAN INPUT:
+∀ᵐ (x : A) ∂μ, p x → q x
+-- MEAN OUTPUT:
+for almost every element x of A with respect to μ where x is p:
+  x is q
+
+-- LEAN INPUT:
+∀ᵐ (x : A) ∂μ, ∀ᵐ (y : A) ∂ν, p x ∧ q y
+-- MEAN OUTPUT:
+for almost every element x of A with respect to μ:
+  for almost every element y of A with respect to ν:
+    x is p and y is q
+
+-- LEAN INPUT:
+(∀ᵐ (x : A) ∂μ, p x) ∧ True
+-- MEAN OUTPUT:
+(for almost every element x of A with respect to μ:
+  x is p) and True
+
+-- LEAN INPUT:
+(∀ᵐ (x : A) ∂μ, p x) → False
+-- MEAN OUTPUT:
+if for almost every element x of A with respect to μ:
+  x is p then
+  False
+
+-- LEAN INPUT:
+¬∀ᵐ (x : A) ∂μ, p x
+-- MEAN OUTPUT:
+¬∀ᵐ (x : A) ∂μ, p x
+
+-- LEAN INPUT:
+∀ (x : A), (∀ᵐ (y : A) ∂μ, p y) → p x
+-- MEAN OUTPUT:
+for every element x of A where (for almost every element y of A with respect to μ:
+  y is p):
+  x is p
+
+-- LEAN INPUT:
+∀ᵐ (_x : A) ∂μ, True
+-- MEAN OUTPUT:
+for almost every element of A with respect to μ:
+  True
+
+-- LEAN INPUT:
+∀ᵐ (x : A) ∂μ, ∃! y : A, x = y
+-- MEAN OUTPUT:
+for almost every element x of A with respect to μ:
+  there is a unique element y of A such that
+    x = y
+
+-- LEAN INPUT:
+∀ᶠ (x : A) in F, p x
+-- MEAN OUTPUT:
+∀ᶠ (x : A) in F, p x
+
+-- LEAN INPUT:
+∀ᵐ (x : A), p x
+-- MEAN OUTPUT:
+for almost every element x of A:
+  x is p
+
+-- LEAN INPUT:
+∀ᵐ (x : A) ∂μ, p x
+-- MEAN OUTPUT:
+for almost every element x of A with respect to μ:
+  x is p
+
+-- LEAN INPUT:
+∀ᵐ (x : A), p x → x = x
+-- MEAN OUTPUT:
+for almost every element x of A where x is p:
+  x = x
+
+-- LEAN INPUT:
+∀ᵐ (x : A), ∃! y : A, x = y
+-- MEAN OUTPUT:
+for almost every element x of A:
+  there is a unique element y of A such that
+    x = y
+
+-- LEAN INPUT:
 (↑(p i) : ℝ)
 -- MEAN OUTPUT:
 p i as a real number
