@@ -1,6 +1,31 @@
 import Examples.MeanToLean
 import Mean
 
+section
+variable (P Q : Prop) (p : Nat → Prop) (S : Set Prop) (r : {_q : Prop // True})
+variable (s t : Set Nat) (n : Nat) [Decidable P]
+/-- info: id P -/
+#guard_msgs in
+#mean_term id P
+/-- info: ⨅ (i : ℕ), p i -/
+#guard_msgs in
+#mean_term ⨅ i : Nat, p i
+/-- info: (↑r : Prop) -/
+#guard_msgs in
+#mean_term (r : Prop)
+#mean_term_compare id P
+#mean_term_compare ⨅ i : Nat, p i
+#mean_term_compare ⨆ i : Nat, p i
+#mean_term_compare sInf S
+#mean_term_compare sSup S
+#mean_term_compare (r : Prop)
+#mean_term_compare Classical.choice (show Nonempty Prop from ⟨P⟩)
+#mean_term_compare n ≠ 0
+#mean_term_compare n ∉ s
+#mean_term_compare s ⊆ t
+#mean_term_compare if P then Q else True
+end
+
 /--
 info: there is a unique natural number n such that
   n = 0

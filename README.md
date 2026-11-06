@@ -852,6 +852,9 @@ Boolean-valued functions are rejected instead of coerced to propositions.
 The renderer uses this wording for named predicates with one explicit subject
 argument, preceded by any implicit type or instance arguments. Predicates with
 additional explicit arguments retain ordinary Lean application notation.
+The declared codomain must be `Prop` with formal type parameters still in place.
+Specializing a value operation such as `id`, `iInf`, or a coercion to return
+propositions does not turn it into an adjective.
 Known connectives and quantifiers are rendered before this generic rule. A
 quantifier applied to a predicate must keep its quantifier wording; ordinary
 predicates on functions can still use adjective wording.

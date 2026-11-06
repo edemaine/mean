@@ -1,6 +1,30 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+id P
+
+⨅ (i : ℕ), p i
+
+⨆ (i : ℕ), p i
+
+sInf S
+
+sSup S
+
+(↑r : Prop)
+
+Classical.choice
+  (have this := Nonempty.intro P;
+  this)
+
+n ≠ 0
+
+n ∉ s
+
+s ⊆ t
+
+if P then Q else True
+
 there is a unique natural number n such that
   n = 0
 

@@ -93,7 +93,13 @@ private def leanText (e : Expr) : MetaM String := do
           (← Lean.PrettyPrinter.Delaborator.SubExpr.getExpr)
         withReader (fun ctx => { ctx with optionsPerPos := ctx.optionsPerPos.merge options })
           Lean.PrettyPrinter.Delaborator.delab
-      return (← Lean.PrettyPrinter.ppExprWithInfos e (delab := delab)).fmt.pretty
+      let text := (← Lean.PrettyPrinter.ppExprWithInfos e (delab := delab)).fmt.pretty
+      -- Mean output is reparsed. Restore proof terms when native printing
+      -- would replace them with the non-reconstructible omission token.
+      if text.contains '⋯' then
+        return ← withOptions (fun opts => opts.setBool `pp.proofs true) do
+          pure (← Lean.PrettyPrinter.ppExprWithInfos e (delab := delab)).fmt.pretty
+      return text
     return (← Meta.ppExpr e).pretty
 
 /-- Translate Mean phrases recursively even inside otherwise ordinary Lean syntax. -/
@@ -398,7 +404,14 @@ private def adjectiveView? (e : Expr) : MetaM (Option (Expr × String)) := do
   unless head.isConst || head.isFVar do return none
   let args := e.getAppArgs
   if args.isEmpty then return none
-  let mut ty ← inferType head
+  let headType ← inferType head
+  -- A polymorphic value operation can return a proposition when specialized
+  -- to `Prop` (e.g. `id`, `iInf`, or a coercion). It is not thereby a predicate.
+  -- Inspect the codomain with formal parameters, before applying actual args.
+  let declaredPredicate ← forallTelescopeReducing headType fun _ result => do
+    return (← whnf result) == mkSort .zero
+  unless declaredPredicate do return none
+  let mut ty := headType
   for i in [:args.size] do
     let .forallE _ _ body bi ← whnf ty | return none
     if i + 1 == args.size then

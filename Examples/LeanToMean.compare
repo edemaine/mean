@@ -2,6 +2,63 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+id P
+-- MEAN OUTPUT:
+id P
+
+-- LEAN INPUT:
+⨅ (i : ℕ), p i
+-- MEAN OUTPUT:
+⨅ (i : ℕ), p i
+
+-- LEAN INPUT:
+⨆ (i : ℕ), p i
+-- MEAN OUTPUT:
+⨆ (i : ℕ), p i
+
+-- LEAN INPUT:
+sInf S
+-- MEAN OUTPUT:
+sInf S
+
+-- LEAN INPUT:
+sSup S
+-- MEAN OUTPUT:
+sSup S
+
+-- LEAN INPUT:
+(↑r : Prop)
+-- MEAN OUTPUT:
+(↑r : Prop)
+
+-- LEAN INPUT:
+Classical.choice ⋯
+-- MEAN OUTPUT:
+Classical.choice
+  (have this := Nonempty.intro P;
+  this)
+
+-- LEAN INPUT:
+n ≠ 0
+-- MEAN OUTPUT:
+n ≠ 0
+
+-- LEAN INPUT:
+n ∉ s
+-- MEAN OUTPUT:
+n ∉ s
+
+-- LEAN INPUT:
+s ⊆ t
+-- MEAN OUTPUT:
+s ⊆ t
+
+-- LEAN INPUT:
+if P then Q else True
+-- MEAN OUTPUT:
+if P then Q else True
+
+-- LEAN INPUT:
 ∃! n : ℕ, n = 0
 -- MEAN OUTPUT:
 there is a unique natural number n such that
