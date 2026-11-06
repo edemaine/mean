@@ -16,7 +16,7 @@ Abbreviation:
 Definition:
   TranslationTiling.Abstract.Adjacent is
     (the function mapping an element «a» of Point and an element b of Point to
-      ∑ i : the type of indices in [0, 3), |«a» i - b i| = 1).
+      the sum over indices i in [0, 3) of |«a» i - b i| = 1).
 
 Definition:
   an element P of Prototile is TranslationTiling.Abstract.Connected if

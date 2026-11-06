@@ -629,6 +629,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Abbreviation clause | `Abbreviation: <name> is <value>.`, `Abbreviation: <subject> is <name> if <proposition>.` |
 | Named type clause | `Definition: a <name> is <anonymous description>.`, `Abbreviation: an <name> is <anonymous description>.` |
 | Function expression | `the function [: <type>] mapping <subject> [and <subject> …] to <value>` |
+| Finite sum | `the sum over indices i in [0, n) of f i`, `the sum over i in s of f i` |
 | Typed scalar value | `the <scalar> <value>`, `the integer 42`, `the real number (2 * x)` |
 | Theorem clause | `Theorem <name>: <proposition> Proof: <Lean proof>` |
 | Lemma clause | `Lemma <name>: <proposition> Proof: <Lean proof>` |
@@ -672,6 +673,22 @@ An existential with body `False` stays `there is … such that False`; it is not
 negated existence.
 
 `Real` and `Complex` are mathlib types, not floating-point approximations.
+
+Finite sums use `the sum over … of …`, for example:
+
+```text
+the sum over indices i in [0, 3) of |«a» i - b i| = 1
+the sum over indices i into xs of xs[i]
+the sum over elements x of T of f x
+the sum over i in s of f i
+```
+
+Index and element domains sum over all values of a type with a `Fintype` instance (`Finset.univ`);
+`s` is an explicit `Finset`. The index is bound only in the summand. Arithmetic
+following `of` belongs to the summand; comparisons and logical connectives stay
+outside it. Write `(the sum over indices i in [0, n) of f i) + 1` to add one to
+the completed sum. Parentheses also group summands with lower precedence.
+
 All forward scalar forms share `scalarType%`: typed values, subjects, existential witnesses,
 and singular or plural universal domains. Plurals delegate to the singular noun.
 The renderer keeps its independent inverse vocabulary for round-trip checking.
@@ -816,7 +833,7 @@ wording; general negations remain ordinary Lean.
 The renderer recognizes graph, scalar, index, list, function, proof, and generic element
 subjects; paired universal quantifiers and single explicit quantifiers over arbitrary
 domains; positive and negative existential witnesses; optional
-conditions; conjunctions, disjunctions, equivalences, and nondependent propositional implications;
+conditions; finite sums; conjunctions, disjunctions, equivalences, and nondependent propositional implications;
 and functions with explicit, implicit, strict implicit, and instance binders, including nested and dependent functions.
 It omits unused witness names and unnecessary generated parameter names, while
 preserving public parameter names, including graph carrier parameters.

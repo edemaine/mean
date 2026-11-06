@@ -1,6 +1,41 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+the function mapping a function «a» from indices in [0, 3) to ℤ and a function b from indices in [0, 3) to ℤ to
+  the sum over indices i in [0, 3) of |«a» i - b i| = 1
+
+the sum over indices i in [0, 3) of f i + 1
+
+(the sum over indices i in [0, 3) of f i) + 1
+
+2 * (the sum over indices i in [0, 3) of f i)
+
+the sum over indices i in [0, 3) of f i = 1 and True
+
+the sum over indices i in [0, 0) of (↑i : ℕ)
+
+the sum over indices i into xs of xs[i]
+
+the sum over indices i into ys of ys[i]
+
+the sum over elements x of α of g x
+
+the sum over i in s of i + 1
+
+the sum over i in ({i ∈ s | i > 0}) of i
+
+the sum over indices i in [0, 3) of the sum over indices j in [0, 3) of f i + f j
+
+the sum over i in s of the sum over j in (Finset.range i) of i + j
+
+the sum over elements h of (the type of indices in [0, 2) → Bool) of if h 0 = true then 1 else 0
+
+the function mapping a natural number i to
+  (the sum over indices i in [0, 3) of f i) + i
+
+the function mapping a function f_1 from indices in [0, 3) to ℤ to
+  the sum over indices i in [0, 3) of f_1 i < 0
+
 Abbreviation:
   a FunctionEndpointExamples.Point is
     a function from indices in [0, 3) to ℤ.

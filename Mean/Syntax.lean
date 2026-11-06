@@ -344,6 +344,24 @@ macro_rules
   | `(describedType% lists of $items:meanListElements) => `(listType% $items)
   | `(describedType% indices $domain:meanIndexDomain) => `(indexType% $domain)
 
+/-! Finite sums bind their index only in the summand. Arithmetic belongs to the
+summand; comparisons and logical connectives remain outside it. -/
+def sumDomain : Lean.Parser.Parser :=
+  Lean.Parser.withForbidden "of" Lean.Parser.termParser
+
+declare_syntax_cat meanSumIndex
+syntax "indices" ident meanIndexDomain : meanSumIndex
+syntax "elements " ident " of " sumDomain : meanSumIndex
+syntax ident " in " sumDomain : meanSumIndex
+syntax:60 "the " "sum " "over " meanSumIndex " of " term:60 : term
+macro_rules
+  | `(the sum over indices $i:ident $domain:meanIndexDomain of $body:term) =>
+      `(Finset.sum Finset.univ (fun ($i : indexType% $domain) => $body))
+  | `(the sum over elements $i:ident of $ty:term of $body:term) =>
+      `(Finset.sum Finset.univ (fun ($i : $ty) => $body))
+  | `(the sum over $i:ident in $s:term of $body:term) =>
+      `(Finset.sum $s (fun $i => $body))
+
 /-! Subjects specify bindings, independently of the definition clause.
 New subject forms implement `functionOn%`, shared by functions and predicates. -/
 declare_syntax_cat meanSubject

@@ -1,6 +1,33 @@
 import Examples.MeanToLean
 import Mean
 
+/--
+info: the function mapping a function «a» from indices in [0, 3) to ℤ and a function b from indices in [0, 3) to ℤ to
+  the sum over indices i in [0, 3) of |«a» i - b i| = 1
+-/
+#guard_msgs in
+#mean_term fun («a» b : Fin 3 → Int) => (∑ i : Fin 3, |«a» i - b i|) = 1
+#mean_term_compare fun («a» b : Fin 3 → Int) => (∑ i : Fin 3, |«a» i - b i|) = 1
+section
+variable (f : Fin 3 → Nat) (xs : List Nat) (ys : Array Nat)
+variable (α : Type u) [Fintype α] (g : α → Int) (s : Finset Nat)
+#mean_term_compare ∑ i : Fin 3, (f i + 1)
+#mean_term_compare (∑ i : Fin 3, f i) + 1
+#mean_term_compare 2 * (∑ i : Fin 3, f i)
+#mean_term_compare (∑ i : Fin 3, f i) = 1 ∧ True
+#mean_term_compare ∑ i : Fin 0, i.val
+#mean_term_compare ∑ i : Fin xs.length, xs[i]
+#mean_term_compare ∑ i : Fin ys.size, ys[i]
+#mean_term_compare ∑ x : α, g x
+#mean_term_compare ∑ i ∈ s, (i + 1)
+#mean_term_compare ∑ i ∈ s with i > 0, i
+#mean_term_compare ∑ i : Fin 3, ∑ j : Fin 3, (f i + f j)
+#mean_term_compare ∑ i ∈ s, ∑ j ∈ Finset.range i, (i + j)
+#mean_term_compare ∑ h : Fin 2 → Bool, if h 0 then 1 else 0
+#mean_term_compare fun (i : Nat) => (∑ i : Fin 3, f i) + i
+#mean_term_compare fun (f : Fin 3 → Int) => (∑ i : Fin 3, f i) < 0
+end
+
 #mean_compare FunctionEndpointExamples.Point
 #mean_compare FunctionEndpointExamples.Reindexer
 #mean_compare FunctionEndpointExamples.Consumer

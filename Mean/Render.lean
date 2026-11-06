@@ -6,7 +6,7 @@ No declarations are added by the checker. -/
 
 register_option mean.renderProperties : Bool := {
   defValue := false
-  descr := "Render registered Mean property, index, and list type phrases inside expressions"
+  descr := "Render Mean property, type, and finite sum phrases inside expressions"
 }
 
 namespace Mean.Render
@@ -60,7 +60,7 @@ private def leanText (e : Expr) : MetaM String := do
   withOptions (fun opts => opts.setBool `pp.coercions.types true |>.setBool `pp.funBinderTypes true) do
     return (← Meta.ppExpr e).pretty
 
-/-- Translate properties recursively even inside otherwise ordinary Lean syntax. -/
+/-- Translate Mean phrases recursively even inside otherwise ordinary Lean syntax. -/
 private def propertyText (e : Expr) : MetaM String :=
   withOptions (fun opts => opts.setBool `mean.renderProperties true) (leanText e)
 
@@ -153,6 +153,31 @@ private def indexDomainText? (ty : Expr) : MetaM (Option String) := do
   if bound.isAppOfArity ``List.length 2 || bound.isAppOfArity ``Array.size 2 then
     return some s!"into {← atomText bound.getAppArgs[1]!}"
   return some s!"in [0, {← propertyText bound})"
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.Finset.sum]
+def delabSum : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  guard <| !(pp.explicit.get (← getOptions))
+  let e ← getExpr
+  guard <| e.isAppOfArity ``Finset.sum 5
+  let args := e.getAppArgs
+  guard args[4]!.isLambda
+  let (i, body) ← withAppArg <| withBindingBodyUnusedName fun i =>
+    return ((⟨i⟩ : Ident), ← delab)
+  if args[3]!.isAppOfArity ``Finset.univ 2 then
+    if let some domain ← indexDomainText? args[0]! then
+      let .ok stx := Parser.runParserCategory (← getEnv) `meanIndexDomain domain | failure
+      let domain : TSyntax `meanIndexDomain := ⟨stx⟩
+      `(the sum over indices $i:ident $domain:meanIndexDomain of $body)
+    else
+      let ty ← withNaryArg 0 delab
+      let ty ← if args[0]!.isConst || args[0]!.isFVar then pure ty else `(($ty))
+      `(the sum over elements $i:ident of $ty of $body)
+  else
+    let s ← withNaryArg 3 delab
+    let s ← if args[3]!.isConst || args[3]!.isFVar then pure s else `(($s))
+    `(the sum over $i:ident in $s of $body)
 
 private def listElementsText (ty : Expr) : MetaM String := do
   if let some (_, plural) := scalarNouns? ty then return plural

@@ -1,5 +1,29 @@
 import Mean.Syntax
 
+namespace SumExamples
+
+example («a» b : Fin 3 → Int) :
+    (the sum over indices i in [0, 3) of |«a» i - b i| = 1) =
+    ((∑ i : Fin 3, |«a» i - b i|) = 1) := rfl
+example (f : Fin 3 → Nat) :
+    (the sum over indices i in [0, 3) of f i + 1) =
+    (∑ i : Fin 3, (f i + 1)) := rfl
+example (f : Fin 3 → Nat) :
+    (the sum over indices i in [0, 3) of f i) + 1 =
+    (∑ i : Fin 3, f i) + 1 := rfl
+example (xs : List Nat) :
+    (the sum over indices i into xs of xs[i]) = (∑ i : Fin xs.length, xs[i]) := rfl
+example (xs : Array Nat) :
+    (the sum over indices i into xs of xs[i]) = (∑ i : Fin xs.size, xs[i]) := rfl
+example (α : Type*) [Fintype α] (f : α → Int) :
+    (the sum over elements x of α of f x) = (∑ x : α, f x) := rfl
+example (s : Finset Nat) :
+    (the sum over i in s of i + 1) = (∑ i ∈ s, (i + 1)) := rfl
+example (i : Nat) (f : Fin 3 → Nat) :
+    (the sum over indices i in [0, 3) of f i) + i = (∑ i : Fin 3, f i) + i := rfl
+
+end SumExamples
+
 namespace IndexExamples
 
 example (n : Nat) : indices [0, n) = Fin n := rfl

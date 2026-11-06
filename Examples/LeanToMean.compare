@@ -2,6 +2,89 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+fun («a» b : Fin 3 → ℤ) => ∑ i : Fin 3, |«a» i - b i| = 1
+-- MEAN OUTPUT:
+the function mapping a function «a» from indices in [0, 3) to ℤ and a function b from indices in [0, 3) to ℤ to
+  the sum over indices i in [0, 3) of |«a» i - b i| = 1
+
+-- LEAN INPUT:
+∑ i : Fin 3, (f i + 1)
+-- MEAN OUTPUT:
+the sum over indices i in [0, 3) of f i + 1
+
+-- LEAN INPUT:
+∑ i : Fin 3, f i + 1
+-- MEAN OUTPUT:
+(the sum over indices i in [0, 3) of f i) + 1
+
+-- LEAN INPUT:
+2 * ∑ i : Fin 3, f i
+-- MEAN OUTPUT:
+2 * (the sum over indices i in [0, 3) of f i)
+
+-- LEAN INPUT:
+∑ i : Fin 3, f i = 1 ∧ True
+-- MEAN OUTPUT:
+the sum over indices i in [0, 3) of f i = 1 and True
+
+-- LEAN INPUT:
+∑ i : Fin 0, (↑i : ℕ)
+-- MEAN OUTPUT:
+the sum over indices i in [0, 0) of (↑i : ℕ)
+
+-- LEAN INPUT:
+∑ i : Fin xs.length, xs[i]
+-- MEAN OUTPUT:
+the sum over indices i into xs of xs[i]
+
+-- LEAN INPUT:
+∑ i : Fin ys.size, ys[i]
+-- MEAN OUTPUT:
+the sum over indices i into ys of ys[i]
+
+-- LEAN INPUT:
+∑ x : α, g x
+-- MEAN OUTPUT:
+the sum over elements x of α of g x
+
+-- LEAN INPUT:
+∑ i ∈ s, (i + 1)
+-- MEAN OUTPUT:
+the sum over i in s of i + 1
+
+-- LEAN INPUT:
+∑ i ∈ s with i > 0, i
+-- MEAN OUTPUT:
+the sum over i in ({i ∈ s | i > 0}) of i
+
+-- LEAN INPUT:
+∑ i : Fin 3, ∑ j : Fin 3, (f i + f j)
+-- MEAN OUTPUT:
+the sum over indices i in [0, 3) of the sum over indices j in [0, 3) of f i + f j
+
+-- LEAN INPUT:
+∑ i ∈ s, ∑ j ∈ Finset.range i, (i + j)
+-- MEAN OUTPUT:
+the sum over i in s of the sum over j in (Finset.range i) of i + j
+
+-- LEAN INPUT:
+∑ h : Fin 2 → Bool, if h 0 = true then 1 else 0
+-- MEAN OUTPUT:
+the sum over elements h of (the type of indices in [0, 2) → Bool) of if h 0 = true then 1 else 0
+
+-- LEAN INPUT:
+fun (i : ℕ) => ∑ i : Fin 3, f i + i
+-- MEAN OUTPUT:
+the function mapping a natural number i to
+  (the sum over indices i in [0, 3) of f i) + i
+
+-- LEAN INPUT:
+fun (f : Fin 3 → ℤ) => ∑ i : Fin 3, f i < 0
+-- MEAN OUTPUT:
+the function mapping a function f_1 from indices in [0, 3) to ℤ to
+  the sum over indices i in [0, 3) of f_1 i < 0
+
+-- LEAN INPUT:
 abbrev FunctionEndpointExamples.Point : Type :=
   Fin 3 → ℤ
 -- MEAN OUTPUT:
