@@ -158,18 +158,19 @@ binders this way. Nested function phrases remain accepted. Parameter types such 
 Parentheses delimit a conjunction used as a subject type, such as
 `a proof h that (P and Q)`, because `and` also separates parameters.
 
-Lists and functions have noun phrases, with familiar scalar plurals and original
+Lists, sets, and functions have noun phrases, with familiar scalar plurals and original
 names for custom types:
 
 ```lean
 a list T of Tile elements
 a list xs of natural numbers
+a set S of Point elements
 a function t from ℤ and ℤ to Tile
 ```
 
-These bind `T : List Tile` and `t : ℤ → ℤ → Tile`. `Tile` can be any type in
+These bind `T : List Tile`, `S : Set Point`, and `t : ℤ → ℤ → Tile`. `Tile` can be any type in
 scope, including an ordinary user-defined type; no English vocabulary declaration
-or pluralization of its name is needed. Group compound list element types, as in
+or pluralization of its name is needed. Group compound collection element types, as in
 `a list T of (the type of indices in [0, n)) elements`. Known scalar types use their usual plurals:
 natural numbers, integers, rational numbers, real numbers, complex numbers, and
 booleans. The original `a list xs of Nat elements` form remains accepted.
@@ -178,16 +179,30 @@ Type descriptions use plural nouns with an explicit `the type of` introducer:
 
 ```lean
 the type of lists of Point elements
+the type of sets of Point elements
 the type of indices in [0, 4)
 ```
 
 Here `the type of lists of Point elements` denotes `List Point`.
+`the type of sets of Point elements` denotes `Set Point`; sets may be infinite.
 `the type of lists of natural numbers` similarly means `List Nat`, and
 `the type of natural numbers` means `Nat`. Standard symbols such as `ℕ` remain
 available. Bindings stay singular, even when their name is omitted:
 `a list of Point elements` is an anonymous binding phrase, not a type expression.
 These type phrases also work inside function signatures and compound types.
 The renderer preserves custom type names such as `Point` without pluralizing them.
+
+Set phrases work in function and predicate subjects, universal quantifiers, and
+positive, negative, and unique existential witnesses:
+
+```lean
+there is a set T of Point elements such that T = ∅
+for every set S of integers where 0 ∈ S: 0 ∈ S
+a function f from sets of Point elements to sets of integers
+```
+
+Implicit and strictly implicit set parameters use `an implicit set S of …` and
+`a strictly implicit set S of …`, following the other subject nouns.
 
 `the type of indices in [0, n)` means `Fin n`: natural-number indices starting at zero
 and strictly less than `n`. It is a type expression, not a real interval or a
@@ -658,8 +673,10 @@ The grammar separates logical structure from mathematical vocabulary:
 | Scalar type | `the type of natural numbers`, `the type of integers` |
 | Index type | `the type of indices in [0, n)`, `the type of indices into xs` |
 | List type | `the type of lists of Point elements`, `the type of lists of natural numbers` |
+| Set type | `the type of sets of Point elements`, `the type of sets of integers` |
 | Index subject | `an index i in [0, n)`, `an index i into xs` |
 | List subject | `a list T of Tile elements`, `a list xs of natural numbers` |
+| Set subject | `a set S of Point elements`, `a set S of integers` |
 | Function subject | `a function f from A to B`, `a function f from A and B to C` |
 | Universal quantifier | `for all <bindings> [where <condition>]: <proposition>`, `for every …` |
 | Quantified bindings | `function q from ℕ to Prop`, `list xs of T elements`, `element x of T`, `u and v in V`, `vertices u and v of G` |
@@ -874,7 +891,7 @@ wording; general negations remain ordinary Lean.
 
 ## Current coverage and limitations
 
-The renderer recognizes graph, scalar, index, list, function, proof, and generic element
+The renderer recognizes graph, scalar, index, list, set, function, proof, and generic element
 subjects; paired universal quantifiers and single explicit quantifiers over arbitrary
 domains; positive and negative existential witnesses; optional
 conditions; finite sums; conjunctions, disjunctions, equivalences, and nondependent propositional implications;

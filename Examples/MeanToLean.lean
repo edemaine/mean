@@ -1,5 +1,40 @@
 import Mean.Syntax
 
+namespace SetPhraseExamples
+
+abbrev Point := Fin 3 → Int
+Abbreviation: a Family is a set of Point elements.
+Definition: a set S of Point elements is reflexive if S = S.
+
+example : Family = Set Point := rfl
+example : reflexive = (fun S : Set Point => S = S) := rfl
+example : (the type of sets of natural numbers) = Set Nat := rfl
+example (A : Type u) : (the type of sets of A elements) = Set A := rfl
+example : (the type of sets of (Nat → Bool) elements) = Set (Nat → Bool) := rfl
+example : (the function mapping a set S of natural numbers to S) =
+    (fun S : Set Nat => S) := rfl
+example : (the function mapping an implicit set S of integers to S) =
+    (fun {S : Set Int} => S) := rfl
+example : (the function mapping a strictly implicit set S of booleans to S) =
+    (fun ⦃S : Set Bool⦄ => S) := rfl
+example : (for every set S of integers where 0 ∈ S: 0 ∈ S) =
+    (∀ S : Set Int, 0 ∈ S → 0 ∈ S) := rfl
+example : (there is a set T of Point elements such that T = ∅) =
+    (∃ T : Set Point, T = ∅) := rfl
+example : (there is no set of natural numbers) = (¬ ∃ _S : Set Nat, True) := rfl
+example : (there is a unique set S of natural numbers such that S = ∅) =
+    (∃! S : Set Nat, S = ∅) := rfl
+example (existentialWitness : Set Nat) :
+    (there is a set of natural numbers such that existentialWitness = ∅) =
+    (∃ _S : Set Nat, existentialWitness = ∅) := rfl
+example : (the function mapping a function f from sets of Point elements
+    to sets of natural numbers to f) = (fun f : Set Point → Set Nat => f) := rfl
+example : (the function mapping a function f from lists of Point elements and
+    sets of Point elements to booleans to f) =
+    (fun f : List Point → Set Point → Bool => f) := rfl
+
+end SetPhraseExamples
+
 namespace UniqueExistenceExamples
 
 example (A : Type*) (p : A → Prop) :

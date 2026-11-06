@@ -1,6 +1,48 @@
 import Examples.MeanToLean
 import Mean
 
+/-- info: the type of sets of natural numbers -/
+#guard_msgs in
+#mean_term Set Nat
+/-- info: there is a set of natural numbers -/
+#guard_msgs in
+#mean_term ∃ _S : Set Nat, True
+#mean_compare SetPhraseExamples.Family
+#mean_compare SetPhraseExamples.reflexive
+#mean_term_compare Set Nat
+#mean_term_compare Set SetPhraseExamples.Point
+#mean_term_compare Set (Nat → Bool)
+#mean_term_compare Set (Set Nat)
+#mean_term_compare fun (S : Set Nat) => S
+#mean_term_compare fun {S : Set Int} => S
+#mean_term_compare fun ⦃S : Set Bool⦄ => S
+#mean_term_compare ∀ S : Set Int, 0 ∈ S → 0 ∈ S
+#mean_term_compare ∃ T : Set SetPhraseExamples.Point, T = ∅
+#mean_term_compare ¬ ∃ _S : Set Nat, True
+#mean_term_compare ∃! S : Set Nat, S = ∅
+#mean_term_compare fun (f : Set Nat → Set Int) => f
+#mean_term_compare fun (f : List Nat → Set Nat → Bool) => f
+#mean_term_compare fun (S : Finset Nat) => S
+-- An alias for a set keeps its declared type name.
+#mean_term_compare fun (S : SetPhraseExamples.Family) => S
+
+section
+variable (A : Type u)
+#mean_term_compare Set A
+#mean_term_compare fun (S : Set A) => S
+end
+
+-- The renderer must not substitute `Finset` for an arbitrary set.
+open Lean Elab Term in
+run_elab do
+  let original ← elabTerm (← `(Set Nat)) none
+  let rejected ← withoutModifyingState do
+    try
+      Mean.RoundTrip.checkText original "Finset Nat"
+      pure false
+    catch _ => pure true
+  unless rejected do throwError "round-trip checker accepted a finite collection for Set"
+
 section
 variable (P Q : Prop) (p : Nat → Prop) (S : Set Prop) (r : {_q : Prop // True})
 variable (s t : Set Nat) (n : Nat) [Decidable P]

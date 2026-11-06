@@ -28,7 +28,7 @@ Definition:
 
 Definition:
   an element P of Prototile is TranslationTiling.Abstract.Tiles if
-    there is an element T of (Set Point) such that
+    there is a set T of Point elements such that
       for every element x of Point:
         there is a unique element t of Point such that
           t ∈ T and x - t ∈ P.
@@ -52,7 +52,7 @@ Definition:
 
 Definition:
   an element P of Prototile is TranslationTiling.Abstract.RealTiles if
-    there is an element T of (Set RealPoint) such that
+    there is a set T of RealPoint elements such that
       ∀ᵐ (x : RealPoint), ∃! t : RealPoint, t ∈ T ∧ x - t ∈ Solid P.
 
 Theorem TranslationTiling.Abstract.real_tiling_coRE_complete:

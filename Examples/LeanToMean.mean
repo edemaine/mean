@@ -1,6 +1,59 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+Abbreviation:
+  a SetPhraseExamples.Family is
+    a set of SetPhraseExamples.Point elements.
+
+Definition:
+  a set S of SetPhraseExamples.Point elements is SetPhraseExamples.reflexive if
+    S = S.
+
+the type of sets of natural numbers
+
+the type of sets of SetPhraseExamples.Point elements
+
+the type of sets of (ℕ → Bool) elements
+
+the type of sets of (the type of sets of natural numbers) elements
+
+the function mapping a set S of natural numbers to
+  S
+
+the function mapping an implicit set S of integers to
+  S
+
+the function mapping a strictly implicit set S of booleans to
+  S
+
+for every set S of integers where 0 ∈ S:
+  0 ∈ S
+
+there is a set T of SetPhraseExamples.Point elements such that
+  T = ∅
+
+there is no set of natural numbers
+
+there is a unique set S of natural numbers such that
+  S = ∅
+
+the function mapping a function f from sets of natural numbers to sets of integers to
+  f
+
+the function mapping a function f from lists of natural numbers and sets of natural numbers to Bool to
+  f
+
+the function mapping an element S of Finset ℕ to
+  S
+
+the function mapping an element S of SetPhraseExamples.Family to
+  S
+
+the type of sets of A elements
+
+the function mapping a set S of A elements to
+  S
+
 id P
 
 ⨅ (i : ℕ), p i

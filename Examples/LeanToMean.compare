@@ -2,6 +2,118 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+abbrev SetPhraseExamples.Family : Type :=
+  Set SetPhraseExamples.Point
+-- MEAN OUTPUT:
+Abbreviation:
+  a SetPhraseExamples.Family is
+    a set of SetPhraseExamples.Point elements.
+
+-- LEAN INPUT:
+def SetPhraseExamples.reflexive : Set SetPhraseExamples.Point → Prop :=
+  fun (S : Set SetPhraseExamples.Point) => S = S
+-- MEAN OUTPUT:
+Definition:
+  a set S of SetPhraseExamples.Point elements is SetPhraseExamples.reflexive if
+    S = S.
+
+-- LEAN INPUT:
+Set ℕ
+-- MEAN OUTPUT:
+the type of sets of natural numbers
+
+-- LEAN INPUT:
+Set SetPhraseExamples.Point
+-- MEAN OUTPUT:
+the type of sets of SetPhraseExamples.Point elements
+
+-- LEAN INPUT:
+Set (ℕ → Bool)
+-- MEAN OUTPUT:
+the type of sets of (ℕ → Bool) elements
+
+-- LEAN INPUT:
+Set (Set ℕ)
+-- MEAN OUTPUT:
+the type of sets of (the type of sets of natural numbers) elements
+
+-- LEAN INPUT:
+fun (S : Set ℕ) => S
+-- MEAN OUTPUT:
+the function mapping a set S of natural numbers to
+  S
+
+-- LEAN INPUT:
+fun {S : Set ℤ} => S
+-- MEAN OUTPUT:
+the function mapping an implicit set S of integers to
+  S
+
+-- LEAN INPUT:
+fun ⦃S : Set Bool⦄ => S
+-- MEAN OUTPUT:
+the function mapping a strictly implicit set S of booleans to
+  S
+
+-- LEAN INPUT:
+∀ (S : Set ℤ), 0 ∈ S → 0 ∈ S
+-- MEAN OUTPUT:
+for every set S of integers where 0 ∈ S:
+  0 ∈ S
+
+-- LEAN INPUT:
+∃ (T : Set SetPhraseExamples.Point), T = ∅
+-- MEAN OUTPUT:
+there is a set T of SetPhraseExamples.Point elements such that
+  T = ∅
+
+-- LEAN INPUT:
+¬∃ (_S : Set ℕ), True
+-- MEAN OUTPUT:
+there is no set of natural numbers
+
+-- LEAN INPUT:
+∃! S : Set ℕ, S = ∅
+-- MEAN OUTPUT:
+there is a unique set S of natural numbers such that
+  S = ∅
+
+-- LEAN INPUT:
+fun (f : Set ℕ → Set ℤ) => f
+-- MEAN OUTPUT:
+the function mapping a function f from sets of natural numbers to sets of integers to
+  f
+
+-- LEAN INPUT:
+fun (f : List ℕ → Set ℕ → Bool) => f
+-- MEAN OUTPUT:
+the function mapping a function f from lists of natural numbers and sets of natural numbers to Bool to
+  f
+
+-- LEAN INPUT:
+fun (S : Finset ℕ) => S
+-- MEAN OUTPUT:
+the function mapping an element S of Finset ℕ to
+  S
+
+-- LEAN INPUT:
+fun (S : SetPhraseExamples.Family) => S
+-- MEAN OUTPUT:
+the function mapping an element S of SetPhraseExamples.Family to
+  S
+
+-- LEAN INPUT:
+Set A
+-- MEAN OUTPUT:
+the type of sets of A elements
+
+-- LEAN INPUT:
+fun (S : Set A) => S
+-- MEAN OUTPUT:
+the function mapping a set S of A elements to
+  S
+
+-- LEAN INPUT:
 id P
 -- MEAN OUTPUT:
 id P

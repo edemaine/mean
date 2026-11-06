@@ -181,7 +181,7 @@ def subjectType : Lean.Parser.Parser :=
       else { ctx with forbiddenTks := ctx.forbiddenTks.filter (· == ".") |>.push "is" |>.push "are" })
     Lean.Parser.termParser
 
-/-- List descriptions end their element type at the explicit plural noun. -/
+/-- Collection descriptions end their element type at the explicit plural noun. -/
 def listElementType : Lean.Parser.Parser :=
   Lean.Parser.withForbidden "elements" Lean.Parser.termParser
 
@@ -284,7 +284,8 @@ macro_rules
   | `(scalarDomainType% complex numbers) => `(scalarType% complex number)
   | `(scalarDomainType% booleans) => `(scalarType% boolean)
 
-/-! List descriptions retain custom type names and use familiar scalar plurals. -/
+/-! Lists and sets share element descriptions, retaining custom type names
+and using familiar scalar plurals. -/
 declare_syntax_cat meanListElements
 syntax meanScalarPlural : meanListElements
 syntax listElementType ppSpace "elements" : meanListElements
@@ -294,6 +295,13 @@ macro_rules
       let domain ← `(meanScalarDomain| $plural:meanScalarPlural)
       `(List (scalarDomainType% $domain))
   | `(listType% $ty:term elements) => `(List $ty)
+
+syntax "setType%" meanListElements : term
+macro_rules
+  | `(setType% $plural:meanScalarPlural) => do
+      let domain ← `(meanScalarDomain| $plural:meanScalarPlural)
+      `(Set (scalarDomainType% $domain))
+  | `(setType% $ty:term elements) => `(Set $ty)
 
 /-! Index ranges are types, not real intervals or sets. The lower endpoint must
 be zero; the upper endpoint is exclusive, including when it is zero. -/
@@ -331,6 +339,7 @@ singular noun phrases declared below, including when their name is omitted. -/
 declare_syntax_cat meanTypeDescription
 syntax meanScalarPlural : meanTypeDescription
 syntax "lists " "of " meanListElements : meanTypeDescription
+syntax "sets " "of " meanListElements : meanTypeDescription
 syntax "indices " meanIndexDomain : meanTypeDescription
 syntax meanTypeDescription : meanFunctionEndpoint
 syntax "describedType%" meanTypeDescription : term
@@ -342,6 +351,7 @@ macro_rules
       let domain ← `(meanScalarDomain| $plural:meanScalarPlural)
       `(scalarDomainType% $domain)
   | `(describedType% lists of $items:meanListElements) => `(listType% $items)
+  | `(describedType% sets of $items:meanListElements) => `(setType% $items)
   | `(describedType% indices $domain:meanIndexDomain) => `(indexType% $domain)
 
 /-! Finite sums bind their index only in the summand. Arithmetic belongs to the
@@ -380,6 +390,9 @@ syntax "a" "strictly" "implicit" "proof" (ppSpace ident)? " that " subjectType :
 syntax "a" "list" (ppSpace ident)? " of " meanListElements : meanSubject
 syntax "an" "implicit" "list" (ppSpace ident)? " of " meanListElements : meanSubject
 syntax "a" "strictly" "implicit" "list" (ppSpace ident)? " of " meanListElements : meanSubject
+syntax "a" "set" (ppSpace ident)? " of " meanListElements : meanSubject
+syntax "an" "implicit" "set" (ppSpace ident)? " of " meanListElements : meanSubject
+syntax "a" "strictly" "implicit" "set" (ppSpace ident)? " of " meanListElements : meanSubject
 syntax "an" "index" (ppSpace ident)? meanIndexDomain : meanSubject
 syntax "an" "implicit" "index" (ppSpace ident)? meanIndexDomain : meanSubject
 syntax "a" "strictly" "implicit" "index" (ppSpace ident)? meanIndexDomain : meanSubject
@@ -458,6 +471,12 @@ macro_rules
       `(functionOn% an implicit element $[$x:ident]? of (listType% $items) => $body)
   | `(functionOn% a strictly implicit list $[$x:ident]? of $items:meanListElements => $body:term) =>
       `(functionOn% a strictly implicit element $[$x:ident]? of (listType% $items) => $body)
+  | `(functionOn% a set $[$x:ident]? of $items:meanListElements => $body:term) =>
+      `(functionOn% an element $[$x:ident]? of (setType% $items) => $body)
+  | `(functionOn% an implicit set $[$x:ident]? of $items:meanListElements => $body:term) =>
+      `(functionOn% an implicit element $[$x:ident]? of (setType% $items) => $body)
+  | `(functionOn% a strictly implicit set $[$x:ident]? of $items:meanListElements => $body:term) =>
+      `(functionOn% a strictly implicit element $[$x:ident]? of (setType% $items) => $body)
   | `(functionOn% an index $[$x:ident]? $domain:meanIndexDomain => $body:term) =>
       `(functionOn% an element $[$x:ident]? of (indexType% $domain) => $body)
   | `(functionOn% an implicit index $[$x:ident]? $domain:meanIndexDomain => $body:term) =>
@@ -602,6 +621,7 @@ syntax "proof" (ppSpace ident)? "that" term : meanWitnessNoun
 syntax meanScalar (ppSpace ident)? : meanWitnessNoun
 syntax "path" (ppSpace ident)? "in" term "from" term "to" term : meanWitnessNoun
 syntax "list" (ppSpace ident)? "of" meanListElements : meanWitnessNoun
+syntax "set" (ppSpace ident)? "of" meanListElements : meanWitnessNoun
 syntax "index" (ppSpace ident)? meanIndexDomain : meanWitnessNoun
 syntax "function" (ppSpace ident)? functionSignature : meanWitnessNoun
 syntax "instance" (ppSpace ident)? "of" "typeclass" term : meanWitnessNoun
@@ -620,6 +640,8 @@ private def nounBinding (noun : Lean.TSyntax `meanWitnessNoun) :
         pure (x, ← `(scalarType% $scalar))
     | `(meanWitnessNoun| list $[$x:ident]? of $items:meanListElements) => do
         pure (x, ← `(listType% $items))
+    | `(meanWitnessNoun| set $[$x:ident]? of $items:meanListElements) => do
+        pure (x, ← `(setType% $items))
     | `(meanWitnessNoun| index $[$x:ident]? $domain:meanIndexDomain) => do
         pure (x, ← `(indexType% $domain))
     | `(meanWitnessNoun| function $[$x:ident]? $signature:meanFunctionSignature) => do

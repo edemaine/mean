@@ -221,27 +221,30 @@ def delabSum : Delab := do
     let s ← if args[3]!.isConst || args[3]!.isFVar then pure s else `(($s))
     `(the sum over $i:ident in $s of $body)
 
-private def listElementsText (ty : Expr) : MetaM String := do
+private def collectionElementsText (ty : Expr) : MetaM String := do
   if let some (_, plural) := scalarNouns? ty then return plural
   return s!"{← typeAtomText ty} elements"
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
-@[delab app.List]
-def delabLists : Delab := do
+@[delab app.List, delab app.Set]
+def delabCollections : Delab := do
   guard <| mean.renderProperties.get (← getOptions)
   let e ← getExpr
-  guard <| e.isAppOfArity ``List 1
+  let isSet := e.isAppOfArity ``Set 1
+  guard <| isSet || e.isAppOfArity ``List 1
   let ty := e.getAppArgs[0]!
   if let some (_, plural) := scalarNouns? ty then
     let .ok noun := Parser.runParserCategory (← getEnv) `meanScalarPlural plural
       | failure
     let noun : TSyntax `meanScalarPlural := ⟨noun⟩
-    `(the type of lists of $noun:meanScalarPlural)
+    if isSet then `(the type of sets of $noun:meanScalarPlural)
+    else `(the type of lists of $noun:meanScalarPlural)
   else
     let item ← withAppArg delab
     let item ← if ty.isConst || ty.isFVar || ty.isLit then pure item
       else `(($item))
-    `(the type of lists of $item:term elements)
+    if isSet then `(the type of sets of $item:term elements)
+    else `(the type of lists of $item:term elements)
 
 /-- Only explicit, nondependent arrows admit the simple from/to description.
 Inspect the type expression without unfolding user-defined aliases. -/
@@ -258,7 +261,9 @@ neither a `the type of` introducer nor an extra grouping layer. -/
 private def functionEndpointText (ty : Expr) (result := false) : MetaM String := do
   if let some domain ← indexDomainText? ty then return s!"indices {domain}"
   if ty.isAppOfArity ``List 1 then
-    return s!"lists of {← listElementsText ty.getAppArgs[0]!}"
+    return s!"lists of {← collectionElementsText ty.getAppArgs[0]!}"
+  if ty.isAppOfArity ``Set 1 then
+    return s!"sets of {← collectionElementsText ty.getAppArgs[0]!}"
   if result then subjectTypeText ty else typeAtomText ty
 
 private def functionSignatureText? (ty : Expr) : MetaM (Option String) := do
@@ -284,7 +289,9 @@ private def subjectText (ty : Expr) (n : Option Name) (bi : BinderInfo) : MetaM 
   if let some domain ← indexDomainText? ty then
     return s!"{modifier.getD "an"} index{suffix} {domain}"
   if ty.isAppOfArity ``List 1 then
-    return s!"{modifier.getD "a"} list{suffix} of {← listElementsText ty.getAppArgs[0]!}"
+    return s!"{modifier.getD "a"} list{suffix} of {← collectionElementsText ty.getAppArgs[0]!}"
+  if ty.isAppOfArity ``Set 1 then
+    return s!"{modifier.getD "a"} set{suffix} of {← collectionElementsText ty.getAppArgs[0]!}"
   if let some signature ← functionSignatureText? ty then
     return s!"{modifier.getD "a"} function{suffix} {signature}"
   if let some (noun, _) := scalarNouns? ty then
@@ -340,7 +347,9 @@ private def witnessDescription (ty : Expr) (name : Option String) : MetaM (Strin
     let args := ty.getAppArgs
     return ("a", s!"path{suffix} in {← atomText args[1]!} from {← atomText args[2]!} to {← atomText args[3]!}")
   if ty.isAppOfArity ``List 1 then
-    return ("a", s!"list{suffix} of {← listElementsText ty.getAppArgs[0]!}")
+    return ("a", s!"list{suffix} of {← collectionElementsText ty.getAppArgs[0]!}")
+  if ty.isAppOfArity ``Set 1 then
+    return ("a", s!"set{suffix} of {← collectionElementsText ty.getAppArgs[0]!}")
   if let some signature ← functionSignatureText? ty then
     return ("a", s!"function{suffix} {signature}")
   if let some (singular, _) := scalarNouns? ty then
