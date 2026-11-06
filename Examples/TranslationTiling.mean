@@ -1,0 +1,64 @@
+-- Automatically generated from Examples/TranslationTiling.lean by python test.py --update.
+-- Checked Mean output; see Examples/TranslationTiling.compare for paired Lean/Mean comparisons.
+-- Upstream source: [TranslationTiling/Abstract.lean](https://github.com/edemaine/translation-tiling-paper/blob/2c69feb2cf4b6c45a46e5cbe18838ede30f9a08f/lean/TranslationTiling/Abstract.lean)
+-- Upstream license: no project-wide license is declared in the pinned TranslationTiling repository.
+-- Upstream source: [LeanWang/Abstract.lean](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LeanWang/Abstract.lean)
+-- Upstream license: the imported Wang example retains [Apache 2.0](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE) in Wang.LICENSE.
+
+Abbreviation:
+  TranslationTiling.Abstract.Point is
+    indices [0, 3) → ℤ.
+
+Abbreviation:
+  TranslationTiling.Abstract.Prototile is
+    List Point.
+
+Definition:
+  TranslationTiling.Abstract.Adjacent is
+    (the function mapping an element «a» of Point and an element b of Point to
+      ∑ i : indices [0, 3), |«a» i - b i| = 1).
+
+Definition:
+  an element P of Prototile is TranslationTiling.Abstract.Connected if
+    for every element p of Point:
+      if p ∈ P then
+        for every element q of Point:
+          if q ∈ P then
+            Relation.ReflTransGen (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q.
+
+Definition:
+  an element P of Prototile is TranslationTiling.Abstract.Tiles if
+    there is an element T of (Set Point) such that
+      for every element x of Point:
+        (the function mapping an element t of Point to
+          t ∈ T and x - t ∈ P) is ExistsUnique.
+
+Theorem TranslationTiling.Abstract.tiling_coRE_complete:
+  (the function mapping an element P of Prototile to
+    P is Connected and P is Tiles) is LeanWang.Abstract.CoREComplete
+
+Theorem TranslationTiling.Abstract.tiling_undecidable:
+  (the function mapping an element P of Prototile to
+    P is Connected and P is Tiles) is not computable
+
+Abbreviation:
+  TranslationTiling.Abstract.RealPoint is
+    indices [0, 3) → ℝ.
+
+Definition:
+  TranslationTiling.Abstract.Solid is
+    the function mapping an element P of Prototile to
+      {x : RealPoint | ∃ p ∈ P, ∀ (i : indices [0, 3)), (↑(p i) : ℝ) ≤ x i ∧ x i ≤ (↑(p i) : ℝ) + 1}.
+
+Definition:
+  an element P of Prototile is TranslationTiling.Abstract.RealTiles if
+    there is an element T of (Set RealPoint) such that
+      ∀ᵐ (x : RealPoint), ∃! t : RealPoint, t ∈ T ∧ x - t ∈ Solid P.
+
+Theorem TranslationTiling.Abstract.real_tiling_coRE_complete:
+  (the function mapping an element P of Prototile to
+    P is Connected and P is RealTiles) is LeanWang.Abstract.CoREComplete
+
+Theorem TranslationTiling.Abstract.real_tiling_undecidable:
+  (the function mapping an element P of Prototile to
+    P is Connected and P is RealTiles) is not computable

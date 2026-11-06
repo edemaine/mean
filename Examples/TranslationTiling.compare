@@ -1,0 +1,113 @@
+-- Automatically generated from Examples/TranslationTiling.lean by python test.py --update.
+-- Each comparison shows elaborated Lean input followed by its checked Mean output.
+-- Upstream source: [TranslationTiling/Abstract.lean](https://github.com/edemaine/translation-tiling-paper/blob/2c69feb2cf4b6c45a46e5cbe18838ede30f9a08f/lean/TranslationTiling/Abstract.lean)
+-- Upstream license: no project-wide license is declared in the pinned TranslationTiling repository.
+-- Upstream source: [LeanWang/Abstract.lean](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LeanWang/Abstract.lean)
+-- Upstream license: the imported Wang example retains [Apache 2.0](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE) in Wang.LICENSE.
+
+-- LEAN INPUT:
+abbrev TranslationTiling.Abstract.Point : Type :=
+  Fin 3 → ℤ
+-- MEAN OUTPUT:
+Abbreviation:
+  TranslationTiling.Abstract.Point is
+    indices [0, 3) → ℤ.
+
+-- LEAN INPUT:
+abbrev TranslationTiling.Abstract.Prototile : Type :=
+  List Point
+-- MEAN OUTPUT:
+Abbreviation:
+  TranslationTiling.Abstract.Prototile is
+    List Point.
+
+-- LEAN INPUT:
+def TranslationTiling.Abstract.Adjacent : Point → Point → Prop :=
+  fun («a» b : Point) => ∑ i : Fin 3, |«a» i - b i| = 1
+-- MEAN OUTPUT:
+Definition:
+  TranslationTiling.Abstract.Adjacent is
+    (the function mapping an element «a» of Point and an element b of Point to
+      ∑ i : indices [0, 3), |«a» i - b i| = 1).
+
+-- LEAN INPUT:
+def TranslationTiling.Abstract.Connected : Prototile → Prop :=
+  fun (P : Prototile) =>
+    ∀ p ∈ P, ∀ q ∈ P, Relation.ReflTransGen (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q
+-- MEAN OUTPUT:
+Definition:
+  an element P of Prototile is TranslationTiling.Abstract.Connected if
+    for every element p of Point:
+      if p ∈ P then
+        for every element q of Point:
+          if q ∈ P then
+            Relation.ReflTransGen (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q.
+
+-- LEAN INPUT:
+def TranslationTiling.Abstract.Tiles : Prototile → Prop :=
+  fun (P : Prototile) => ∃ (T : Set Point), ∀ (x : Point), ∃! t : Point, t ∈ T ∧ x - t ∈ P
+-- MEAN OUTPUT:
+Definition:
+  an element P of Prototile is TranslationTiling.Abstract.Tiles if
+    there is an element T of (Set Point) such that
+      for every element x of Point:
+        (the function mapping an element t of Point to
+          t ∈ T and x - t ∈ P) is ExistsUnique.
+
+-- LEAN INPUT:
+theorem TranslationTiling.Abstract.tiling_coRE_complete :
+  LeanWang.Abstract.CoREComplete fun (P : Prototile) => Connected P ∧ Tiles P
+-- MEAN OUTPUT:
+Theorem TranslationTiling.Abstract.tiling_coRE_complete:
+  (the function mapping an element P of Prototile to
+    P is Connected and P is Tiles) is LeanWang.Abstract.CoREComplete
+
+-- LEAN INPUT:
+theorem TranslationTiling.Abstract.tiling_undecidable :
+  ¬ComputablePred fun (P : Prototile) => Connected P ∧ Tiles P
+-- MEAN OUTPUT:
+Theorem TranslationTiling.Abstract.tiling_undecidable:
+  (the function mapping an element P of Prototile to
+    P is Connected and P is Tiles) is not computable
+
+-- LEAN INPUT:
+abbrev TranslationTiling.Abstract.RealPoint : Type :=
+  Fin 3 → ℝ
+-- MEAN OUTPUT:
+Abbreviation:
+  TranslationTiling.Abstract.RealPoint is
+    indices [0, 3) → ℝ.
+
+-- LEAN INPUT:
+def TranslationTiling.Abstract.Solid : Prototile → Set RealPoint :=
+  fun (P : Prototile) => {x : RealPoint | ∃ p ∈ P, ∀ (i : Fin 3), (↑(p i) : ℝ) ≤ x i ∧ x i ≤ (↑(p i) : ℝ) + 1}
+-- MEAN OUTPUT:
+Definition:
+  TranslationTiling.Abstract.Solid is
+    the function mapping an element P of Prototile to
+      {x : RealPoint | ∃ p ∈ P, ∀ (i : indices [0, 3)), (↑(p i) : ℝ) ≤ x i ∧ x i ≤ (↑(p i) : ℝ) + 1}.
+
+-- LEAN INPUT:
+def TranslationTiling.Abstract.RealTiles : Prototile → Prop :=
+  fun (P : Prototile) => ∃ (T : Set RealPoint), ∀ᵐ (x : RealPoint), ∃! t : RealPoint, t ∈ T ∧ x - t ∈ Solid P
+-- MEAN OUTPUT:
+Definition:
+  an element P of Prototile is TranslationTiling.Abstract.RealTiles if
+    there is an element T of (Set RealPoint) such that
+      ∀ᵐ (x : RealPoint), ∃! t : RealPoint, t ∈ T ∧ x - t ∈ Solid P.
+
+-- LEAN INPUT:
+theorem TranslationTiling.Abstract.real_tiling_coRE_complete :
+  LeanWang.Abstract.CoREComplete fun (P : Prototile) => Connected P ∧ RealTiles P
+-- MEAN OUTPUT:
+Theorem TranslationTiling.Abstract.real_tiling_coRE_complete:
+  (the function mapping an element P of Prototile to
+    P is Connected and P is RealTiles) is LeanWang.Abstract.CoREComplete
+
+-- LEAN INPUT:
+theorem TranslationTiling.Abstract.real_tiling_undecidable :
+  ¬ComputablePred fun (P : Prototile) => Connected P ∧ RealTiles P
+-- MEAN OUTPUT:
+Theorem TranslationTiling.Abstract.real_tiling_undecidable:
+  (the function mapping an element P of Prototile to
+    P is Connected and P is RealTiles) is not computable

@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parent
 EXAMPLES = (
     "Examples/LeanToMean.lean",
     "Examples/Wang.lean",
+    "Examples/TranslationTiling.lean",
 )
 
 

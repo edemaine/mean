@@ -416,6 +416,7 @@ With [elan](https://github.com/leanprover/elan) installed, run from this directo
 ```sh
 lake exe cache get Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected
 lake exe cache get Mathlib.Computability.RE Mathlib.Computability.Primrec.List
+lake exe cache get Mathlib.Computability.Halting Mathlib.Computability.Reduce Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 lake build
 ```
 
@@ -430,10 +431,10 @@ python test.py
 
 This builds the project, runs the renderer examples, and checks two views:
 
-- Mean output only: [Examples/LeanToMean.mean](Examples/LeanToMean.mean) and
-  [Examples/Wang.mean](Examples/Wang.mean).
-- Paired Lean/Mean comparisons: [Examples/LeanToMean.compare](Examples/LeanToMean.compare)
-  and [Examples/Wang.compare](Examples/Wang.compare).
+- Mean output only: [LeanToMean.mean](Examples/LeanToMean.mean),
+  [Wang.mean](Examples/Wang.mean), and [TranslationTiling.mean](Examples/TranslationTiling.mean).
+- Paired Lean/Mean comparisons: [LeanToMean.compare](Examples/LeanToMean.compare),
+  [Wang.compare](Examples/Wang.compare), and [TranslationTiling.compare](Examples/TranslationTiling.compare).
 
 Changes produce a diff and a nonzero exit status. Source locations are ignored; wording,
 parentheses, indentation, and blank lines are checked. LF and CRLF are equivalent.
@@ -536,6 +537,34 @@ instance parameters. `CoRE` describes the function mapping `«a»` to `«a» is 
 as recursively enumerable. Named predicates without registered English wording
 use their Lean names after `is`. `CoREComplete` renders its function-valued universal and
 existential quantifiers, implication, conjunction, and equivalence in Mean.
+
+## Translation tiling example
+
+[Examples/TranslationTiling.lean](Examples/TranslationTiling.lean) adapts the
+[formal abstract at commit 2c69feb](https://github.com/edemaine/translation-tiling-paper/blob/2c69feb2cf4b6c45a46e5cbe18838ede30f9a08f/lean/TranslationTiling/Abstract.lean)
+from [Tiling 3D by Translates of a Single Polycube is Undecidable](https://edemaine.github.io/translation-tiling-paper/).
+It retains all eight definitions/abbreviations and four theorem declarations for
+lattice and real translation tiling. The four bridge proofs are replaced with
+`sorry`, as in Wang; the complete proofs remain upstream.
+
+The input imports [Examples/Wang.lean](Examples/Wang.lean) and uses
+`LeanWang.Abstract.CoREComplete` in its two completeness statements. Upstream
+uses `LeanWang.CoREComplete`, which quantifies over all encoded source types of
+the same universe; the Wang abstract instead uses predicates on natural numbers
+as source problems. These are equivalent formulations here, but are not
+definitionally identical in Lean. This interface adaptation is recorded in the
+input's top comment. No external Wang package is needed.
+Mean and both upstream projects use Lean/mathlib 4.35.0.
+
+The pinned TranslationTiling repository does not declare a project-wide license.
+Its source link and this license status are recorded in the input's top comment
+and both output headers. The imported Wang example retains its Apache 2.0
+license and notices.
+
+[TranslationTiling.mean](Examples/TranslationTiling.mean) contains the checked
+Mean output; [TranslationTiling.compare](Examples/TranslationTiling.compare)
+pairs it with Lean input. `python test.py` checks all 12 comparisons. Unsupported
+structures retain Lean syntax and pass the same round-trip checks.
 
 ## Compositional syntax
 
