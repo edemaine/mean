@@ -1,6 +1,42 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+Definition:
+  elements «a» and b of PredicateExamples.Point are PredicateExamples.adjacent if
+    (the sum over indices i in [0, 3) of |«a» i - b i| = 1).
+
+Definition:
+  natural numbers x and y and z are PredicateExamples.ordered if
+    x ≤ y and y ≤ z.
+
+Abbreviation:
+  integers x and y are PredicateExamples.equalIntegers if
+    x = y.
+
+Definition:
+  indices i and j in [0, 3) are PredicateExamples.sameIndex if
+    i = j.
+
+Definition:
+  a natural number n and an index i in [0, n) are PredicateExamples.below if
+    (↑i : ℕ) < n.
+
+Definition:
+  an element T of Type and an element x of T are PredicateExamples.reflexivePair if
+    x = x.
+
+Definition:
+  a natural number n and a proof h that n > 0 are PredicateExamples.positivePair if
+    n ≥ 1 and h = h.
+
+Definition:
+  natural numbers x and y are PredicateExamples.ignoresSecond if
+    x = x.
+
+Definition:
+  a function f from ℕ and ℕ to ℕ and a boolean b are PredicateExamples.mixed if
+    f 0 0 = 0 and b = true.
+
 the function mapping a function «a» from indices in [0, 3) to ℤ and a function b from indices in [0, 3) to ℤ to
   the sum over indices i in [0, 3) of |«a» i - b i| = 1
 
@@ -926,9 +962,8 @@ there is a path p in G from u to v such that
   (↑p : G.Walk u v).length = 0
 
 Definition:
-  withAssumption is
-    the function mapping a natural number n and a proof h that n > 0 to
-      n ≥ 1 and h = h.
+  a natural number n and a proof h that n > 0 are withAssumption if
+    n ≥ 1 and h = h.
 
 -- Universe parameters: u_1
 Theorem preconnected_iff_mathlib_preconnected:

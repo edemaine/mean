@@ -186,6 +186,35 @@ end FunctionEndpointExamples
 
 namespace PredicateExamples
 
+abbrev Point := Fin 3 → Int
+Definition: elements «a» and b of Point are adjacent if
+  (the sum over indices i in [0, 3) of |«a» i - b i| = 1).
+Definition: natural numbers x and y and z are ordered if x ≤ y ∧ y ≤ z.
+Abbreviation: integers x and y are equalIntegers if x = y.
+Definition: indices i and j in [0, 3) are sameIndex if i = j.
+Definition: a natural number n and an index i in [0, n) are below if i.val < n.
+Definition: an element T of Type and an element x of T are reflexivePair if x = x.
+Definition: a natural number n and a proof h that n > 0 are positivePair if n ≥ 1 ∧ h = h.
+Definition: a natural number x and a natural number y are ignoresSecond if x = x.
+Definition: a function f from ℕ and ℕ to ℕ and a boolean b are mixed if f 0 0 = 0 ∧ b = true.
+
+example : adjacent = (fun («a» b : Point) => (∑ i : Fin 3, |«a» i - b i|) = 1) := rfl
+example : ordered = (fun x y z : Nat => x ≤ y ∧ y ≤ z) := rfl
+example : equalIntegers = (fun x y : Int => x = y) := rfl
+example : sameIndex = (fun i j : Fin 3 => i = j) := rfl
+example : below = (fun (n : Nat) (i : Fin n) => i.val < n) := rfl
+example : reflexivePair = (fun (T : Type) (x : T) => x = x) := rfl
+example : positivePair = (fun (n : Nat) (h : n > 0) => n ≥ 1 ∧ h = h) := rfl
+example : ignoresSecond (x := 0) (y := 5) := rfl
+example : mixed = (fun (f : Nat → Nat → Nat) (b : Bool) => f 0 0 = 0 ∧ b = true) := rfl
+
+-- A grouped type is elaborated before any of its names shadow the context.
+section
+variable (T : Type)
+Definition: elements T and x of T are shadowType if T = x.
+example : shadowType T = (fun x y : T => x = y) := rfl
+end
+
 -- Predicate types, not spelling conventions, determine generic `is` wording.
 def FooPred (n : Nat) : Prop := n = 0
 def accepts {A : Sort u} (x : A) : Prop := x = x

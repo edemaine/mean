@@ -2,6 +2,40 @@ import Examples.MeanToLean
 import Mean
 
 /--
+info: Definition:
+  elements «a» and b of PredicateExamples.Point are PredicateExamples.adjacent if
+    (the sum over indices i in [0, 3) of |«a» i - b i| = 1).
+-/
+#guard_msgs in
+#mean PredicateExamples.adjacent
+#mean_compare PredicateExamples.adjacent
+#mean_compare PredicateExamples.ordered
+#mean_compare PredicateExamples.equalIntegers
+#mean_compare PredicateExamples.sameIndex
+#mean_compare PredicateExamples.below
+#mean_compare PredicateExamples.reflexivePair
+#mean_compare PredicateExamples.positivePair
+#mean_compare PredicateExamples.ignoresSecond
+#mean_compare PredicateExamples.mixed
+
+-- The declaration checker rejects changes to argument order, names, and kind.
+open Lean Elab Term in
+run_elab do
+  for (name, text) in [
+      (``PredicateExamples.below,
+        "Definition: an index i in [0, n) and a natural number n are changed if i.val < n."),
+      (``PredicateExamples.ignoresSecond,
+        "Definition: natural numbers x and z are changed if x = x."),
+      (``PredicateExamples.equalIntegers,
+        "Definition: integers x and y are changed if x = y.")] do
+    let rejected ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkDefinition name text
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "round-trip checker accepted changed predicate arguments"
+
+/--
 info: the function mapping a function «a» from indices in [0, 3) to ℤ and a function b from indices in [0, 3) to ℤ to
   the sum over indices i in [0, 3) of |«a» i - b i| = 1
 -/
@@ -829,7 +863,7 @@ variable {V : Type*} (G : SimpleGraph V) (u v : V)
 #mean_term_compare ∃ p : G.Path u v, p.val.length = 0
 end
 
--- Additional explicit parameters and hypotheses use nested function expressions.
+-- Additional explicit parameters and hypotheses share a predicate subject list.
 def withAssumption (n : Nat) (h : n > 0) : Prop := n ≥ 1 ∧ h = h
 #mean_compare withAssumption
 #mean_compare preconnected_iff_mathlib_preconnected

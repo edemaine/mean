@@ -80,6 +80,10 @@ private def checkValueText (original : Expr) (text : String) (category : Name)
       pure (← `(predicateOn% $subject => $body), false)
     | `(command| Abbreviation: $subject:meanSubject is $_:ident if $body:term .) => do
       pure (← `(predicateOn% $subject => $body), true)
+    | `(command| Definition: $subjects:meanPredicateSubjects are $_:ident if $body:term .) =>
+      pure (← `(predicateOver% $subjects => $body), false)
+    | `(command| Abbreviation: $subjects:meanPredicateSubjects are $_:ident if $body:term .) =>
+      pure (← `(predicateOver% $subjects => $body), true)
     | `(command| Definition: $_:ident is $value:term .) => pure (value, false)
     | `(command| Abbreviation: $_:ident is $value:term .) => pure (value, true)
     | `(command| def $_:ident : $ty:term := $body:term) => do
@@ -138,6 +142,10 @@ private def renameDefinition (stx : Syntax) (name : Ident) : TermElabM (TSyntax 
     `(command| Definition: $subject is $name if $body .)
   | `(command| Abbreviation: $subject:meanSubject is $_:ident if $body:term .) =>
     `(command| Abbreviation: $subject is $name if $body .)
+  | `(command| Definition: $subjects:meanPredicateSubjects are $_:ident if $body:term .) =>
+    `(command| Definition: $subjects are $name if $body .)
+  | `(command| Abbreviation: $subjects:meanPredicateSubjects are $_:ident if $body:term .) =>
+    `(command| Abbreviation: $subjects are $name if $body .)
   | `(command| Definition: $_:ident is $value:term .) =>
     `(command| Definition: $name is $value .)
   | `(command| Abbreviation: $_:ident is $value:term .) =>

@@ -178,7 +178,7 @@ Parentheses disable these delimiters inside a compound type. -/
 def subjectType : Lean.Parser.Parser :=
   Lean.Parser.adaptCacheableContext
     (fun ctx => if ctx.forbiddenTks.contains "and" then ctx
-      else { ctx with forbiddenTks := ctx.forbiddenTks.filter (· == ".") |>.push "is" })
+      else { ctx with forbiddenTks := ctx.forbiddenTks.filter (· == ".") |>.push "is" |>.push "are" })
     Lean.Parser.termParser
 
 /-- List descriptions end their element type at the explicit plural noun. -/
@@ -483,7 +483,37 @@ macro_rules
       let x ← parameterName x
       `(fun [$x : typeclassType% $ty] => $body)
 
+/-! Multiple predicate subjects share function binding semantics. Plural nouns
+group names of the same type; mixed subjects keep their individual descriptions. -/
+declare_syntax_cat meanPredicateSubjects
+syntax functionSubject "and" functionSubject ("and" functionSubject)* : meanPredicateSubjects
+syntax "elements" ident "and" ident ("and" ident)* "of" subjectType : meanPredicateSubjects
+syntax meanScalarPlural ident "and" ident ("and" ident)* : meanPredicateSubjects
+syntax "indices" ident "and" ident ("and" ident)* meanIndexDomain : meanPredicateSubjects
+syntax "predicateOver%" meanPredicateSubjects "=>" term : term
+macro_rules
+  | `(predicateOver% $first:meanSubject and $second:meanSubject $[and $rest:meanSubject]* => $body:term) =>
+      `(functionOver% $first and $second $[and $rest]* => ($body : Prop))
+  | `(predicateOver% elements $x:ident and $y:ident $[and $zs:ident]* of $ty:term => $body:term) => do
+      -- Elaborate the common domain outside all the new bindings, so a name
+      -- cannot capture a reference to an outer type in a later argument.
+      let names : Array (Lean.TSyntax ``Lean.Parser.Term.funBinder) :=
+        (#[x, y] ++ zs).map (fun name => ⟨name.raw⟩)
+      let mut signature ← `(Prop)
+      for _ in [:names.size] do
+        signature ← `($ty → $signature)
+      let predicate ← `(fun $names* => ($body : Prop))
+      `(($predicate : $signature))
+  | `(predicateOver% $noun:meanScalarPlural $x:ident and $y:ident $[and $zs:ident]* => $body:term) =>
+      `(predicateOver% elements $x and $y $[and $zs]* of (describedType% $noun:meanScalarPlural) => $body)
+  | `(predicateOver% indices $x:ident and $y:ident $[and $zs:ident]* $domain:meanIndexDomain => $body:term) =>
+      `(predicateOver% elements $x and $y $[and $zs]* of (indexType% $domain) => $body)
+
 /-! The definition clause knows nothing about graphs or other subject types. -/
+syntax "Definition" ":" meanPredicateSubjects
+  "are" ident "if" sentenceBody "." : command
+syntax "Abbreviation" ":" meanPredicateSubjects
+  "are" ident "if" sentenceBody "." : command
 syntax "Definition" ":" meanSubject
   "is" ident "if" sentenceBody "." : command
 syntax "Definition" ":" ident "is" sentenceBody "." : command
@@ -492,6 +522,10 @@ syntax "Abbreviation" ":" meanSubject
 syntax "Abbreviation" ":" ident "is" sentenceBody "." : command
 
 macro_rules
+  | `(command| Definition: $subjects:meanPredicateSubjects are $name:ident if $body:term .) =>
+      `(command| def $name:ident := predicateOver% $subjects => $body)
+  | `(command| Abbreviation: $subjects:meanPredicateSubjects are $name:ident if $body:term .) =>
+      `(command| abbrev $name:ident := predicateOver% $subjects => $body)
   | `(command| Definition: $subject:meanSubject
         is $name:ident if $body:term .) =>
       `(command| def $name:ident := predicateOn% $subject => $body)

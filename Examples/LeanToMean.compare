@@ -2,6 +2,78 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+def PredicateExamples.adjacent : PredicateExamples.Point → PredicateExamples.Point → Prop :=
+  fun («a» b : PredicateExamples.Point) => ∑ i : Fin 3, |«a» i - b i| = 1
+-- MEAN OUTPUT:
+Definition:
+  elements «a» and b of PredicateExamples.Point are PredicateExamples.adjacent if
+    (the sum over indices i in [0, 3) of |«a» i - b i| = 1).
+
+-- LEAN INPUT:
+def PredicateExamples.ordered : ℕ → ℕ → ℕ → Prop :=
+  fun (x y z : ℕ) => x ≤ y ∧ y ≤ z
+-- MEAN OUTPUT:
+Definition:
+  natural numbers x and y and z are PredicateExamples.ordered if
+    x ≤ y and y ≤ z.
+
+-- LEAN INPUT:
+abbrev PredicateExamples.equalIntegers : ℤ → ℤ → Prop :=
+  fun (x y : ℤ) => x = y
+-- MEAN OUTPUT:
+Abbreviation:
+  integers x and y are PredicateExamples.equalIntegers if
+    x = y.
+
+-- LEAN INPUT:
+def PredicateExamples.sameIndex : Fin 3 → Fin 3 → Prop :=
+  fun (i j : Fin 3) => i = j
+-- MEAN OUTPUT:
+Definition:
+  indices i and j in [0, 3) are PredicateExamples.sameIndex if
+    i = j.
+
+-- LEAN INPUT:
+def PredicateExamples.below : (n : ℕ) → Fin n → Prop :=
+  fun (n : ℕ) (i : Fin n) => (↑i : ℕ) < n
+-- MEAN OUTPUT:
+Definition:
+  a natural number n and an index i in [0, n) are PredicateExamples.below if
+    (↑i : ℕ) < n.
+
+-- LEAN INPUT:
+def PredicateExamples.reflexivePair : (T : Type) → T → Prop :=
+  fun (T : Type) (x : T) => x = x
+-- MEAN OUTPUT:
+Definition:
+  an element T of Type and an element x of T are PredicateExamples.reflexivePair if
+    x = x.
+
+-- LEAN INPUT:
+def PredicateExamples.positivePair : (n : ℕ) → n > 0 → Prop :=
+  fun (n : ℕ) (h : n > 0) => n ≥ 1 ∧ h = h
+-- MEAN OUTPUT:
+Definition:
+  a natural number n and a proof h that n > 0 are PredicateExamples.positivePair if
+    n ≥ 1 and h = h.
+
+-- LEAN INPUT:
+def PredicateExamples.ignoresSecond : ℕ → ℕ → Prop :=
+  fun (x y : ℕ) => x = x
+-- MEAN OUTPUT:
+Definition:
+  natural numbers x and y are PredicateExamples.ignoresSecond if
+    x = x.
+
+-- LEAN INPUT:
+def PredicateExamples.mixed : (ℕ → ℕ → ℕ) → Bool → Prop :=
+  fun (f : ℕ → ℕ → ℕ) (b : Bool) => f 0 0 = 0 ∧ b = true
+-- MEAN OUTPUT:
+Definition:
+  a function f from ℕ and ℕ to ℕ and a boolean b are PredicateExamples.mixed if
+    f 0 0 = 0 and b = true.
+
+-- LEAN INPUT:
 fun («a» b : Fin 3 → ℤ) => ∑ i : Fin 3, |«a» i - b i| = 1
 -- MEAN OUTPUT:
 the function mapping a function «a» from indices in [0, 3) to ℤ and a function b from indices in [0, 3) to ℤ to
@@ -1863,9 +1935,8 @@ def withAssumption : (n : ℕ) → n > 0 → Prop :=
   fun (n : ℕ) (h : n > 0) => n ≥ 1 ∧ h = h
 -- MEAN OUTPUT:
 Definition:
-  withAssumption is
-    the function mapping a natural number n and a proof h that n > 0 to
-      n ≥ 1 and h = h.
+  a natural number n and a proof h that n > 0 are withAssumption if
+    n ≥ 1 and h = h.
 
 -- LEAN INPUT:
 -- Universe parameters: u_1

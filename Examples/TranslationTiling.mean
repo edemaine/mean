@@ -14,9 +14,8 @@ Abbreviation:
     a list of Point elements.
 
 Definition:
-  TranslationTiling.Abstract.Adjacent is
-    (the function mapping an element «a» of Point and an element b of Point to
-      the sum over indices i in [0, 3) of |«a» i - b i| = 1).
+  elements «a» and b of Point are TranslationTiling.Abstract.Adjacent if
+    (the sum over indices i in [0, 3) of |«a» i - b i| = 1).
 
 Definition:
   an element P of Prototile is TranslationTiling.Abstract.Connected if

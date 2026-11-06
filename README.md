@@ -61,6 +61,21 @@ It creates a normal predicate named `preconnected`, usable in ordinary Lean theo
 statements and proofs. Mean propositions can also be embedded within Lean, and
 Mean definition bodies can contain ordinary Lean expressions.
 
+Predicates with multiple explicit arguments use `are`:
+
+```lean
+Definition:
+  elements «a» and b of Point are adjacent if
+    (the sum over indices i in [0, 3) of |«a» i - b i| = 1).
+```
+
+Here `Point` is an existing type, such as `Fin 3 → ℤ`. Group two or more names
+with `elements x and y of T`, scalar plurals such as `integers x and y`, or
+`indices i and j in [0, n)`. Mixed or dependent subjects retain their individual
+descriptions: `a natural number n and an index i in [0, n) are below if i.val < n.`
+Earlier subjects are in scope in later types and the proposition. `Abbreviation:`
+accepts the same forms. The renderer preserves the predicate's Lean name.
+
 Named values use `Definition: <name> is <value>.`:
 
 ```lean
@@ -625,6 +640,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Component | Examples |
 |---|---|
 | Definition clause | `Definition: <subject> is <name> if <proposition>.` |
+| Multiple predicate subjects | `Definition: <subject> and <subject> [and …] are <name> if <proposition>.` |
 | Named value clause | `Definition: <name> is <value>.` |
 | Abbreviation clause | `Abbreviation: <name> is <value>.`, `Abbreviation: <subject> is <name> if <proposition>.` |
 | Named type clause | `Definition: a <name> is <anonymous description>.`, `Abbreviation: an <name> is <anonymous description>.` |
@@ -745,7 +761,7 @@ exposes mathlib's existing vertex-type parameter without changing its representa
 
 To extend the forward language, add a subject, domain, or witness description and
 its interpretation. A subject implements `functionOn%`, shared by function expressions
-and predicate definitions; `predicateOn%` additionally requires a proposition body.
+and predicate definitions; `predicateOn%` and `predicateOver%` additionally require a proposition body.
 A new witness noun implements `existsWitness%`; it does
 not require another rule for `there is … such that …`. The corresponding renderer
 vocabulary can be extended independently.
@@ -845,8 +861,8 @@ Unsupported forms remain ordinary Lean, provided that text passes the same
 round-trip check. **Identical before/after examples show gaps in rendering
 coverage, not failed verification.** Current gaps include:
 
-- Predicate subject forms with additional parameters or hypotheses; named values
-  can express these through nested function bindings.
+- Rendering predicates with implicit parameters as subject lists; named values
+  retain these through nested function bindings.
 - Recursive rendering inside some unsupported outer structures. In particular,
   an outer implicit universal binder can cause a whole theorem statement to remain Lean.
 - General negation outside predicate applications, automatic English wording for

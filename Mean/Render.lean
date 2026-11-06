@@ -484,6 +484,33 @@ private partial def declarationBinders (signatureType value : Expr) : Expr :=
       (declarationBinders result body) bi
   | _, _ => value
 
+/-- Keep all explicit predicate arguments in scope together, including dependent
+domains. Group a common type without inventing a plural of a user-defined name. -/
+private partial def predicateSubjectsText? (value : Expr) : MetaM (Option (String × String)) :=
+  go value []
+where
+  go (value : Expr) (subjects : List (Name × Expr)) : MetaM (Option (String × String)) := do
+    match value.consumeMData with
+    | .lam suggested ty body .default =>
+      let n ← freshName suggested
+      withLocalDeclD n ty fun x => go (body.instantiate1 x) (subjects ++ [(n, ty)])
+    | _ =>
+      if subjects.length < 2 || !(← isProp value) then return none
+      let bodyText ← renderExpr value true
+      let (_, ty) := subjects.head!
+      let text ← if subjects.all (fun (_, domain) => domain == ty) then do
+        let names ← subjects.mapM (fun (n, _) => nameText n)
+        let names := String.intercalate " and " names
+        if let some (_, plural) := scalarNouns? ty then
+          pure s!"{plural} {names}"
+        else if let some domain ← indexDomainText? ty then
+          pure s!"indices {names} {domain}"
+        else pure s!"elements {names} of {← subjectTypeText ty}"
+      else do
+        let descriptions ← subjects.mapM (fun (n, ty) => subjectText ty (some n) .default)
+        pure (String.intercalate " and " descriptions)
+      return some (text, bodyText)
+
 /-- Prefer predicate subjects; other values use named definitions. -/
 def renderDefinition (name : Name) (signatureType value : Expr) (abbreviation := false) : TermElabM String := do
   let value := declarationBinders signatureType value
@@ -528,6 +555,8 @@ def renderDefinition (name : Name) (signatureType value : Expr) (abbreviation :=
         | _ => return none
       if let some text := result then return text
   | _ => pure ()
+  if let some (subjects, bodyText) ← predicateSubjectsText? value then
+    return s!"{clause}:\n  {subjects} are {nameStr} if\n{indented (indented (bodyText ++ "."))}"
   match value.consumeMData with
   | .lam n ty body .default =>
     let keepPublicName := publicParameterName n
