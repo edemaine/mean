@@ -4,8 +4,8 @@
 -- Upstream license: [Apache 2.0](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE)
 
 Abbreviation:
-  LeanWang.Abstract.Direction is
-    indices [0, 4).
+  a LeanWang.Abstract.Direction is
+    an index in [0, 4).
 
 Abbreviation:
   LeanWang.Abstract.n is
@@ -24,8 +24,8 @@ Abbreviation:
     (3 : Direction).
 
 Abbreviation:
-  LeanWang.Abstract.Tile is
-    Direction → ℕ.
+  a LeanWang.Abstract.Tile is
+    a function from Direction to ℕ.
 
 Definition:
   a list T of Tile elements is LeanWang.Abstract.TilesPlane if

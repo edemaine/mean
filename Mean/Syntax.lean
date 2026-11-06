@@ -178,7 +178,8 @@ Parentheses disable these delimiters inside a compound type. -/
 def subjectType : Lean.Parser.Parser :=
   Lean.Parser.adaptCacheableContext
     (fun ctx => if ctx.forbiddenTks.contains "and" then ctx
-      else { ctx with forbiddenTks := #["is"] }) Lean.Parser.termParser
+      else { ctx with forbiddenTks := ctx.forbiddenTks.filter (· == ".") |>.push "is" })
+    Lean.Parser.termParser
 
 /-- List descriptions end their element type at the explicit plural noun. -/
 def listElementType : Lean.Parser.Parser :=
@@ -278,7 +279,7 @@ macro_rules
 /-! List descriptions retain custom type names and use familiar scalar plurals. -/
 declare_syntax_cat meanListElements
 syntax meanScalarPlural : meanListElements
-syntax listElementType "elements" : meanListElements
+syntax listElementType ppSpace "elements" : meanListElements
 syntax "listType%" meanListElements : term
 macro_rules
   | `(listType% $plural:meanScalarPlural) => do
@@ -298,8 +299,8 @@ macro_rules
       `(Fin $upper)
 
 declare_syntax_cat meanIndexDomain
-syntax "in" meanIndexRange : meanIndexDomain
-syntax "into" subjectType : meanIndexDomain
+syntax "in " meanIndexRange : meanIndexDomain
+syntax "into " subjectType : meanIndexDomain
 syntax "indexType%" meanIndexDomain : term
 
 /-- Valid element indices for lists and arrays, preserving the exact collection. -/
@@ -316,6 +317,22 @@ elab "indexIntoType%" t:term : term => do
 macro_rules
   | `(indexType% in $range:meanIndexRange) => `(indices $range)
   | `(indexType% into $collection:term) => `(indexIntoType% $collection)
+
+/-! Type descriptions name collections of possible values. Bindings use the
+singular noun phrases declared below, including when their name is omitted. -/
+declare_syntax_cat meanTypeDescription
+syntax meanScalarPlural : meanTypeDescription
+syntax "lists " "of " meanListElements : meanTypeDescription
+syntax "indices " meanIndexDomain : meanTypeDescription
+syntax "describedType%" meanTypeDescription : term
+syntax:max "the " "type " "of " meanTypeDescription : term
+macro_rules
+  | `(the type of $description:meanTypeDescription) => `(describedType% $description)
+  | `(describedType% $plural:meanScalarPlural) => do
+      let domain ← `(meanScalarDomain| $plural:meanScalarPlural)
+      `(scalarDomainType% $domain)
+  | `(describedType% lists of $items:meanListElements) => `(listType% $items)
+  | `(describedType% indices $domain:meanIndexDomain) => `(indexType% $domain)
 
 /-! Subjects specify bindings, independently of the definition clause.
 New subject forms implement `functionOn%`, shared by functions and predicates. -/
@@ -516,9 +533,9 @@ syntax "instance" (ppSpace ident)? "of" "typeclass" term : meanWitnessNoun
 -- Prefer the existing scalar-domain grammar where both forms match.
 syntax (priority := low) meanWitnessNoun : meanQuantified
 
-private def witnessBinding (noun : Lean.TSyntax `meanWitnessNoun) :
-    Lean.MacroM (Lean.Ident × Lean.TSyntax `term) := do
-  let (name, ty) ← match noun with
+private def nounBinding (noun : Lean.TSyntax `meanWitnessNoun) :
+    Lean.MacroM (Option Lean.Ident × Lean.TSyntax `term) :=
+  match noun with
     | `(meanWitnessNoun| element $[$x:ident]? of $ty:term) => pure (x, ty)
     | `(meanWitnessNoun| proof $[$x:ident]? that $p:term) => do
         pure (x, ← `(($p : Prop)))
@@ -535,6 +552,9 @@ private def witnessBinding (noun : Lean.TSyntax `meanWitnessNoun) :
     | `(meanWitnessNoun| path $[$x:ident]? in $g:term from $u:term to $v:term) => do
         pure (x, ← `(SimpleGraph.Path $g $u $v))
     | _ => Lean.Macro.throwErrorAt noun "unsupported quantified noun"
+private def witnessBinding (noun : Lean.TSyntax `meanWitnessNoun) :
+    Lean.MacroM (Lean.Ident × Lean.TSyntax `term) := do
+  let (name, ty) ← nounBinding noun
   let name ← match name with
     | some name => pure name
     | none => `(ident| existentialWitness)
@@ -550,6 +570,37 @@ macro_rules
 declare_syntax_cat meanWitness
 syntax "a" meanWitnessNoun : meanWitness
 syntax "an" meanWitnessNoun : meanWitness
+
+/-- A type declaration describes an unnamed value without introducing one. -/
+syntax "anonymousType%" meanWitness : term
+syntax "anonymousNounType%" meanWitnessNoun : term
+elab "typeExpression%" t:term : term => Lean.Elab.Term.elabType t
+macro_rules
+  | `(anonymousType% a $noun:meanWitnessNoun) => `(anonymousNounType% $noun)
+  | `(anonymousType% an $noun:meanWitnessNoun) => `(anonymousNounType% $noun)
+  | `(anonymousNounType% $noun:meanWitnessNoun) => do
+      let (name, ty) ← nounBinding noun
+      if let some name := name then
+        Lean.Macro.throwErrorAt name "expected an anonymous type description; omit the name"
+      `(typeExpression% $ty)
+
+/-- Retain the sentence period outside element, function, and index descriptions. -/
+def typeWitness : Lean.Parser.Parser :=
+  Lean.Parser.withForbidden "." (Lean.Parser.categoryParser `meanWitness 0)
+
+syntax "Definition" ":" "a" ident "is" typeWitness "." : command
+syntax "Definition" ":" "an" ident "is" typeWitness "." : command
+syntax "Abbreviation" ":" "a" ident "is" typeWitness "." : command
+syntax "Abbreviation" ":" "an" ident "is" typeWitness "." : command
+macro_rules
+  | `(command| Definition: a $name:ident is $description:meanWitness .) =>
+      `(command| def $name := anonymousType% $description)
+  | `(command| Definition: an $name:ident is $description:meanWitness .) =>
+      `(command| def $name := anonymousType% $description)
+  | `(command| Abbreviation: a $name:ident is $description:meanWitness .) =>
+      `(command| abbrev $name := anonymousType% $description)
+  | `(command| Abbreviation: an $name:ident is $description:meanWitness .) =>
+      `(command| abbrev $name := anonymousType% $description)
 
 syntax "existsWitness%" meanWitnessNoun "=>" term : term
 syntax "existsOver%" meanWitness "=>" term : term

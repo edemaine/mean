@@ -10,16 +10,16 @@ abbrev TranslationTiling.Abstract.Point : Type :=
   Fin 3 → ℤ
 -- MEAN OUTPUT:
 Abbreviation:
-  TranslationTiling.Abstract.Point is
-    indices [0, 3) → ℤ.
+  a TranslationTiling.Abstract.Point is
+    a function from (the type of indices in [0, 3)) to ℤ.
 
 -- LEAN INPUT:
 abbrev TranslationTiling.Abstract.Prototile : Type :=
   List Point
 -- MEAN OUTPUT:
 Abbreviation:
-  TranslationTiling.Abstract.Prototile is
-    List Point.
+  a TranslationTiling.Abstract.Prototile is
+    a list of Point elements.
 
 -- LEAN INPUT:
 def TranslationTiling.Abstract.Adjacent : Point → Point → Prop :=
@@ -28,7 +28,7 @@ def TranslationTiling.Abstract.Adjacent : Point → Point → Prop :=
 Definition:
   TranslationTiling.Abstract.Adjacent is
     (the function mapping an element «a» of Point and an element b of Point to
-      ∑ i : indices [0, 3), |«a» i - b i| = 1).
+      ∑ i : the type of indices in [0, 3), |«a» i - b i| = 1).
 
 -- LEAN INPUT:
 def TranslationTiling.Abstract.Connected : Prototile → Prop :=
@@ -75,8 +75,8 @@ abbrev TranslationTiling.Abstract.RealPoint : Type :=
   Fin 3 → ℝ
 -- MEAN OUTPUT:
 Abbreviation:
-  TranslationTiling.Abstract.RealPoint is
-    indices [0, 3) → ℝ.
+  a TranslationTiling.Abstract.RealPoint is
+    a function from (the type of indices in [0, 3)) to ℝ.
 
 -- LEAN INPUT:
 def TranslationTiling.Abstract.Solid : Prototile → Set RealPoint :=
@@ -85,7 +85,7 @@ def TranslationTiling.Abstract.Solid : Prototile → Set RealPoint :=
 Definition:
   TranslationTiling.Abstract.Solid is
     the function mapping an element P of Prototile to
-      {x : RealPoint | ∃ p ∈ P, ∀ (i : indices [0, 3)), (↑(p i) : ℝ) ≤ x i ∧ x i ≤ (↑(p i) : ℝ) + 1}.
+      {x : RealPoint | ∃ p ∈ P, ∀ (i : the type of indices in [0, 3)), (↑(p i) : ℝ) ≤ x i ∧ x i ≤ (↑(p i) : ℝ) + 1}.
 
 -- LEAN INPUT:
 def TranslationTiling.Abstract.RealTiles : Prototile → Prop :=

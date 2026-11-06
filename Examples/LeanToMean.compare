@@ -2,12 +2,204 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+abbrev TypeDeclarationExamples.Point : Type :=
+  Fin 3 → ℤ
+-- MEAN OUTPUT:
+Abbreviation:
+  a TypeDeclarationExamples.Point is
+    a function from (the type of indices in [0, 3)) to ℤ.
+
+-- LEAN INPUT:
+abbrev TypeDeclarationExamples.Prototile : Type :=
+  List TypeDeclarationExamples.Point
+-- MEAN OUTPUT:
+Abbreviation:
+  a TypeDeclarationExamples.Prototile is
+    a list of TypeDeclarationExamples.Point elements.
+
+-- LEAN INPUT:
+def TypeDeclarationExamples.PrototileDef : Type :=
+  List TypeDeclarationExamples.Point
+-- MEAN OUTPUT:
+Definition:
+  a TypeDeclarationExamples.PrototileDef is
+    a list of TypeDeclarationExamples.Point elements.
+
+-- LEAN INPUT:
+abbrev TypeDeclarationExamples.Direction : Type :=
+  Fin 4
+-- MEAN OUTPUT:
+Abbreviation:
+  a TypeDeclarationExamples.Direction is
+    an index in [0, 4).
+
+-- LEAN INPUT:
+def TypeDeclarationExamples.Index : Type :=
+  Fin 4
+-- MEAN OUTPUT:
+Definition:
+  a TypeDeclarationExamples.Index is
+    an index in [0, 4).
+
+-- LEAN INPUT:
+abbrev TypeDeclarationExamples.Integer : Type :=
+  ℤ
+-- MEAN OUTPUT:
+Abbreviation:
+  a TypeDeclarationExamples.Integer is
+    an integer.
+
+-- LEAN INPUT:
+def TypeDeclarationExamples.Boolean : Type :=
+  Bool
+-- MEAN OUTPUT:
+Definition:
+  a TypeDeclarationExamples.Boolean is
+    a boolean.
+
+-- LEAN INPUT:
+abbrev TypeDeclarationExamples.Map : Type :=
+  ℕ → ℕ
+-- MEAN OUTPUT:
+Abbreviation:
+  a TypeDeclarationExamples.Map is
+    a function from ℕ to ℕ.
+
+-- LEAN INPUT:
+abbrev TypeDeclarationExamples.Coordinate : Type :=
+  Fin 3
+-- MEAN OUTPUT:
+Abbreviation:
+  a TypeDeclarationExamples.Coordinate is
+    an index in [0, 3).
+
+-- LEAN INPUT:
+def TypeDeclarationExamples.Trivial : Prop :=
+  True
+-- MEAN OUTPUT:
+Definition:
+  a TypeDeclarationExamples.Trivial is
+    a proof that True.
+
+-- LEAN INPUT:
+abbrev TypeDeclarationExamples.Instance : Type :=
+  Inhabited ℕ
+-- MEAN OUTPUT:
+Abbreviation:
+  a TypeDeclarationExamples.Instance is
+    an instance of typeclass Inhabited ℕ.
+
+-- LEAN INPUT:
+abbrev TypeDeclarationExamples.Universe : Type 1 :=
+  Type
+-- MEAN OUTPUT:
+Abbreviation:
+  a TypeDeclarationExamples.Universe is
+    an element of (Type).
+
+-- LEAN INPUT:
+def TypeDeclarationExamples.ViaUniverse : TypeDeclarationExamples.Universe :=
+  ℕ
+-- MEAN OUTPUT:
+Definition:
+  a TypeDeclarationExamples.ViaUniverse is
+    a natural number.
+
+-- LEAN INPUT:
+abbrev TypeDeclarationExamples.NamedArrow : Type :=
+  ℕ → ℕ
+-- MEAN OUTPUT:
+Abbreviation:
+  a TypeDeclarationExamples.NamedArrow is
+    an element of ((input : ℕ) → ℕ).
+
+-- LEAN INPUT:
+abbrev TypeDeclarationExamples.ImplicitArrow : Type :=
+  {n : ℕ} → Fin n
+-- MEAN OUTPUT:
+Abbreviation:
+  a TypeDeclarationExamples.ImplicitArrow is
+    an element of ({n : ℕ} → the type of indices in [0, n)).
+
+-- LEAN INPUT:
+abbrev TypeDeclarationExamples.Position : List ℕ → Type :=
+  fun (xs : List ℕ) => Fin xs.length
+-- MEAN OUTPUT:
+Abbreviation:
+  TypeDeclarationExamples.Position is
+    the function mapping a list xs of natural numbers to
+      the type of indices in [0, xs.length).
+
+-- LEAN INPUT:
+abbrev TypeDeclarationExamples.Route : {V : Type u} → SimpleGraph V → V → V → Type u :=
+  fun {V : Type u} (G : SimpleGraph V) (u v : V) => G.Path u v
+-- MEAN OUTPUT:
+Abbreviation:
+  TypeDeclarationExamples.Route is
+    the function mapping an implicit element V of Type u and an element G of SimpleGraph V and an element u of V and an element v of V to
+      G.Path u v.
+
+-- LEAN INPUT:
+abbrev ListTypeExamples.Naturals : Type :=
+  List ℕ
+-- MEAN OUTPUT:
+Abbreviation:
+  a ListTypeExamples.Naturals is
+    a list of natural numbers.
+
+-- LEAN INPUT:
+List TypeNounExamples.Token
+-- MEAN OUTPUT:
+the type of lists of TypeNounExamples.Token elements
+
+-- LEAN INPUT:
+List A
+-- MEAN OUTPUT:
+the type of lists of A elements
+
+-- LEAN INPUT:
+List (List A)
+-- MEAN OUTPUT:
+the type of lists of (the type of lists of A elements) elements
+
+-- LEAN INPUT:
+List (Fin n)
+-- MEAN OUTPUT:
+the type of lists of (the type of indices in [0, n)) elements
+
+-- LEAN INPUT:
+List (List ℕ)
+-- MEAN OUTPUT:
+the type of lists of (the type of lists of natural numbers) elements
+
+-- LEAN INPUT:
+List (ℕ → ℕ)
+-- MEAN OUTPUT:
+the type of lists of (ℕ → ℕ) elements
+
+-- LEAN INPUT:
+List ℕ → ℕ
+-- MEAN OUTPUT:
+the type of lists of natural numbers → ℕ
+
+-- LEAN INPUT:
+ℕ × List ℤ
+-- MEAN OUTPUT:
+ℕ × the type of lists of integers
+
+-- LEAN INPUT:
+fun (f : List ℕ → ℕ) => f []
+-- MEAN OUTPUT:
+the function mapping a function f from (the type of lists of natural numbers) to ℕ to
+  f []
+
+-- LEAN INPUT:
 abbrev IndexExamples.Four : Type :=
   Fin 4
 -- MEAN OUTPUT:
 Abbreviation:
-  IndexExamples.Four is
-    indices [0, 4).
+  an IndexExamples.Four is
+    an index in [0, 4).
 
 -- LEAN INPUT:
 def IndexExamples.value : (n : ℕ) → Fin n → ℕ :=
@@ -65,27 +257,27 @@ Definition:
 -- LEAN INPUT:
 Fin n
 -- MEAN OUTPUT:
-indices [0, n)
+the type of indices in [0, n)
 
 -- LEAN INPUT:
 Fin (n + m)
 -- MEAN OUTPUT:
-indices [0, n + m)
+the type of indices in [0, n + m)
 
 -- LEAN INPUT:
 Fin 0
 -- MEAN OUTPUT:
-indices [0, 0)
+the type of indices in [0, 0)
 
 -- LEAN INPUT:
 Fin 1
 -- MEAN OUTPUT:
-indices [0, 1)
+the type of indices in [0, 1)
 
 -- LEAN INPUT:
 Fin 4
 -- MEAN OUTPUT:
-indices [0, 4)
+the type of indices in [0, 4)
 
 -- LEAN INPUT:
 fun (i : Fin n) => (↑i : ℕ)
@@ -172,13 +364,13 @@ there is no index in [0, 0)
 -- LEAN INPUT:
 ∀ (i j : Fin n), i = j ∨ i ≠ j
 -- MEAN OUTPUT:
-for all i and j in (indices [0, n)):
+for all i and j in (the type of indices in [0, n)):
   i = j or i ≠ j
 
 -- LEAN INPUT:
 fun (xs : List (Fin n)) => xs
 -- MEAN OUTPUT:
-the function mapping a list xs_1 of (indices [0, n)) elements to
+the function mapping a list xs_1 of (the type of indices in [0, n)) elements to
   xs_1
 
 -- LEAN INPUT:
@@ -564,8 +756,8 @@ abbrev AbbreviationExamples.Natural : Type :=
   ℕ
 -- MEAN OUTPUT:
 Abbreviation:
-  AbbreviationExamples.Natural is
-    ℕ.
+  an AbbreviationExamples.Natural is
+    a natural number.
 
 -- LEAN INPUT:
 abbrev AbbreviationExamples.answer : ℤ :=
@@ -912,13 +1104,13 @@ the function mapping a function f from (ℕ → ℕ) to ℕ to
 -- LEAN INPUT:
 fun (_f : (n : ℕ) → Fin n) => true
 -- MEAN OUTPUT:
-the function mapping an element _f of (n : ℕ) → indices [0, n) to
+the function mapping an element _f of (n : ℕ) → the type of indices in [0, n) to
   true
 
 -- LEAN INPUT:
 fun (_f : {n : ℕ} → Fin n) => true
 -- MEAN OUTPUT:
-the function mapping an element _f of {n : ℕ} → indices [0, n) to
+the function mapping an element _f of {n : ℕ} → the type of indices in [0, n) to
   true
 
 -- LEAN INPUT:
@@ -1002,14 +1194,14 @@ for every list xs of natural numbers:
 -- LEAN INPUT:
 ∀ (f : (n : ℕ) → Fin n), f 1 = f 1
 -- MEAN OUTPUT:
-for every element f of ((n : ℕ) → indices [0, n)):
+for every element f of ((n : ℕ) → the type of indices in [0, n)):
   f 1 = f 1
 
 -- LEAN INPUT:
 ∀ (f : {n : ℕ} → Fin n), f = f
 -- MEAN OUTPUT:
-for every element f of ({n : Nat} → indices [0, n)):
-  @Eq (indices [0, @OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+for every element f of ({n : Nat} → the type of indices in [0, n)):
+  @Eq (the type of indices in [0, @OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
     (@f (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
     (@f (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
 
@@ -1434,12 +1626,12 @@ if T is empty then
 -- LEAN INPUT:
 Nonempty (Fin n)
 -- MEAN OUTPUT:
-(indices [0, n)) is nonempty
+(the type of indices in [0, n)) is nonempty
 
 -- LEAN INPUT:
 IsEmpty (Fin n)
 -- MEAN OUTPUT:
-(indices [0, n)) is empty
+(the type of indices in [0, n)) is empty
 
 -- LEAN INPUT:
 def smallGraph : {V : Type} → SimpleGraph V → Prop :=

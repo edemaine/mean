@@ -83,7 +83,7 @@ Use `Abbreviation:` with the same value or predicate clauses to create Lean
 `abbrev` declarations:
 
 ```lean
-Abbreviation: Natural is Nat.
+Abbreviation: a Natural is a natural number.
 Abbreviation: a natural number n is zero if (n = 0).
 ```
 
@@ -91,6 +91,25 @@ These definitions are reducible: Lean unfolds them readily, including during
 overload resolution and typeclass inference. `#mean` renders them with
 `Abbreviation:` and checks that the declaration kind is preserved alongside
 the defined value.
+
+Named types can put an article before their name and use an anonymous binding
+phrase on the right:
+
+```lean
+Abbreviation: a Prototile is a list of Point elements.
+Abbreviation: a Direction is an index in [0, 4).
+Definition: a DefinedPrototile is a list of Point elements.
+```
+
+The first two forms create `abbrev Prototile := List Point` and
+`abbrev Direction := Fin 4`; the last creates `def DefinedPrototile := List Point`.
+Use `a` or `an` before the name. The right-hand description must be anonymous
+and must denote a type: it introduces no list, index, or other value. The same
+nouns serve ordinary bindings and type declarations, including functions,
+scalars, generic elements, proofs, paths, and typeclass instances.
+The renderer uses this form when a declaration names a type directly and
+preserves the original `def`/`abbrev` distinction. Type families with parameters
+keep the ordinary function form. Existing named-value forms remain accepted.
 
 `the <scalar> <value>` is a typed expression, usable independently of `Definition`.
 For example, `the integer 42` means `(42 : Int)`, and `the natural number 42`
@@ -136,13 +155,28 @@ a function t from ℤ and ℤ to Tile
 These bind `T : List Tile` and `t : ℤ → ℤ → Tile`. `Tile` can be any type in
 scope, including an ordinary user-defined type; no English vocabulary declaration
 or pluralization of its name is needed. Group compound list element types, as in
-`a list T of (indices [0, n)) elements`. Known scalar types use their usual plurals:
+`a list T of (the type of indices in [0, n)) elements`. Known scalar types use their usual plurals:
 natural numbers, integers, rational numbers, real numbers, complex numbers, and
 booleans. The original `a list xs of Nat elements` form remains accepted.
 
-`indices [0, n)` is the type `Fin n`: natural-number indices starting at zero
+Type descriptions use plural nouns with an explicit `the type of` introducer:
+
+```lean
+the type of lists of Point elements
+the type of indices in [0, 4)
+```
+
+Here `the type of lists of Point elements` denotes `List Point`.
+`the type of lists of natural numbers` similarly means `List Nat`, and
+`the type of natural numbers` means `Nat`. Standard symbols such as `ℕ` remain
+available. Bindings stay singular, even when their name is omitted:
+`a list of Point elements` is an anonymous binding phrase, not a type expression.
+These type phrases also work inside function signatures and compound types.
+The renderer preserves custom type names such as `Point` without pluralizing them.
+
+`the type of indices in [0, n)` means `Fin n`: natural-number indices starting at zero
 and strictly less than `n`. It is a type expression, not a real interval or a
-set. `indices [0, 0)` is empty, and `indices [0, 1)` has just the index zero.
+set. `the type of indices in [0, 0)` is empty; a bound of one admits just the index zero.
 The lower endpoint must be the numeral `0`; symbolic or compound upper bounds
 are allowed. Index bindings use either an explicit range or a collection:
 
@@ -152,7 +186,9 @@ an index i into xs
 ```
 
 For a list `xs`, the second form means `i : Fin xs.length`; for an array,
-it means `i : Fin xs.size`. For example:
+it means `i : Fin xs.size`. Omitting `i` gives an anonymous binding phrase;
+`the type of indices into xs` denotes its domain type. The older type spelling
+`indices [0, n)` remains accepted. For example:
 
 ```lean
 the function mapping a list xs of natural numbers and
@@ -171,7 +207,8 @@ there is no index in [0, 0)
 
 The renderer prefers `into xs` for direct list-length and array-size bounds and
 range wording for other `Fin` bounds. It keeps user-defined aliases such as
-`Direction` intact. In Wang, `Direction` itself renders as `indices [0, 4)`.
+`Direction` intact. In Wang, its declaration renders as
+`Abbreviation: a LeanWang.Abstract.Direction is an index in [0, 4).`
 
 Function domains separated by `and` are curried arguments. A product domain stays
 explicit: `a function f from (ℤ × ℤ) to Tile` means `(ℤ × ℤ) → Tile`.
@@ -575,6 +612,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Definition clause | `Definition: <subject> is <name> if <proposition>.` |
 | Named value clause | `Definition: <name> is <value>.` |
 | Abbreviation clause | `Abbreviation: <name> is <value>.`, `Abbreviation: <subject> is <name> if <proposition>.` |
+| Named type clause | `Definition: a <name> is <anonymous description>.`, `Abbreviation: an <name> is <anonymous description>.` |
 | Function expression | `the function [: <type>] mapping <subject> [and <subject> …] to <value>` |
 | Typed scalar value | `the <scalar> <value>`, `the integer 42`, `the real number (2 * x)` |
 | Theorem clause | `Theorem <name>: <proposition> Proof: <Lean proof>` |
@@ -585,7 +623,9 @@ The grammar separates logical structure from mathematical vocabulary:
 | Strict implicit subject | `a strictly implicit natural number n`, `a strictly implicit element x of T` |
 | Proof subject | `a proof h that P`, `an implicit proof h that P`, `a strictly implicit proof h that P` |
 | Instance subject | `an instance of typeclass C`, `an instance inst of typeclass C` |
-| Index type | `indices [0, n)` |
+| Scalar type | `the type of natural numbers`, `the type of integers` |
+| Index type | `the type of indices in [0, n)`, `the type of indices into xs` |
+| List type | `the type of lists of Point elements`, `the type of lists of natural numbers` |
 | Index subject | `an index i in [0, n)`, `an index i into xs` |
 | List subject | `a list T of Tile elements`, `a list xs of natural numbers` |
 | Function subject | `a function f from A to B`, `a function f from A and B to C` |

@@ -8,8 +8,8 @@ abbrev LeanWang.Abstract.Direction : Type :=
   Fin 4
 -- MEAN OUTPUT:
 Abbreviation:
-  LeanWang.Abstract.Direction is
-    indices [0, 4).
+  a LeanWang.Abstract.Direction is
+    an index in [0, 4).
 
 -- LEAN INPUT:
 abbrev LeanWang.Abstract.n : Direction :=
@@ -48,8 +48,8 @@ abbrev LeanWang.Abstract.Tile : Type :=
   Direction → ℕ
 -- MEAN OUTPUT:
 Abbreviation:
-  LeanWang.Abstract.Tile is
-    Direction → ℕ.
+  a LeanWang.Abstract.Tile is
+    a function from Direction to ℕ.
 
 -- LEAN INPUT:
 def LeanWang.Abstract.TilesPlane : List Tile → Prop :=

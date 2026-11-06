@@ -70,6 +70,12 @@ private def checkValueText (original : Expr) (text : String) (category : Name)
     | _ => false
   let (term, actualAbbreviation) ← if category == `command then
     match stx with
+    | `(command| Definition: a $_:ident is $description:meanWitness .)
+    | `(command| Definition: an $_:ident is $description:meanWitness .) =>
+      pure (← `(anonymousType% $description), false)
+    | `(command| Abbreviation: a $_:ident is $description:meanWitness .)
+    | `(command| Abbreviation: an $_:ident is $description:meanWitness .) =>
+      pure (← `(anonymousType% $description), true)
     | `(command| Definition: $subject:meanSubject is $_:ident if $body:term .) => do
       pure (← `(predicateOn% $subject => $body), false)
     | `(command| Abbreviation: $subject:meanSubject is $_:ident if $body:term .) => do
@@ -120,6 +126,14 @@ def checkDefinitionValue (original : Expr) (text : String) (abbreviation := fals
 /-- Rename only the declaration being introduced, leaving its printed body intact. -/
 private def renameDefinition (stx : Syntax) (name : Ident) : TermElabM (TSyntax `command) := do
   match stx with
+  | `(command| Definition: a $_:ident is $description:meanWitness .) =>
+    `(command| Definition: a $name is $description .)
+  | `(command| Definition: an $_:ident is $description:meanWitness .) =>
+    `(command| Definition: an $name is $description .)
+  | `(command| Abbreviation: a $_:ident is $description:meanWitness .) =>
+    `(command| Abbreviation: a $name is $description .)
+  | `(command| Abbreviation: an $_:ident is $description:meanWitness .) =>
+    `(command| Abbreviation: an $name is $description .)
   | `(command| Definition: $subject:meanSubject is $_:ident if $body:term .) =>
     `(command| Definition: $subject is $name if $body .)
   | `(command| Abbreviation: $subject:meanSubject is $_:ident if $body:term .) =>
@@ -169,5 +183,7 @@ def checkDefinition (originalName : Name) (text : String) : TermElabM Unit :=
     checkExpressions original.type actualType text
     checkExpressions original.value actualValue text
     checkParameterNames original.type actualType
+    if (← whnf original.type).isSort then
+      checkParameterNames original.value actualValue
 
 end Mean.RoundTrip

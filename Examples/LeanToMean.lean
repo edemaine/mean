@@ -1,6 +1,111 @@
 import Examples.MeanToLean
 import Mean
 
+#mean_compare TypeDeclarationExamples.Point
+#mean_compare TypeDeclarationExamples.Prototile
+#mean_compare TypeDeclarationExamples.PrototileDef
+#mean_compare TypeDeclarationExamples.Direction
+#mean_compare TypeDeclarationExamples.Index
+#mean_compare TypeDeclarationExamples.Integer
+#mean_compare TypeDeclarationExamples.Boolean
+#mean_compare TypeDeclarationExamples.Map
+#mean_compare TypeDeclarationExamples.Coordinate
+#mean_compare TypeDeclarationExamples.Trivial
+#mean_compare TypeDeclarationExamples.Instance
+#mean_compare TypeDeclarationExamples.Universe
+#mean_compare TypeDeclarationExamples.ViaUniverse
+#mean_compare TypeDeclarationExamples.NamedArrow
+#mean_compare TypeDeclarationExamples.ImplicitArrow
+#mean_compare TypeDeclarationExamples.Position
+#mean_compare TypeDeclarationExamples.Route
+/--
+info: Abbreviation:
+  a TypeDeclarationExamples.Prototile is
+    a list of TypeDeclarationExamples.Point elements.
+-/
+#guard_msgs in
+#mean TypeDeclarationExamples.Prototile
+/--
+info: Definition:
+  a TypeDeclarationExamples.Index is
+    an index in [0, 4).
+-/
+#guard_msgs in
+#mean TypeDeclarationExamples.Index
+
+-- Check the elaborated declaration, including its kind, type, value, and names.
+open Lean Elab Term in
+run_elab do
+  for (name, text, reason) in [
+      (``TypeDeclarationExamples.Prototile,
+        "Definition: a changed is a list of TypeDeclarationExamples.Point elements.",
+        "Mean round-trip changed the declaration's abbreviation status"),
+      (``TypeDeclarationExamples.PrototileDef,
+        "Abbreviation: a changed is a list of TypeDeclarationExamples.Point elements.",
+        "Mean round-trip changed the declaration's abbreviation status"),
+      (``TypeDeclarationExamples.Direction,
+        "Abbreviation: a changed is an index in [0, 5).",
+        "Mean round-trip check failed: rendered text changed the expression"),
+      (``TypeDeclarationExamples.NamedArrow,
+        "Abbreviation: a changed is a function from Nat to Nat.",
+        "Mean round-trip changed a named parameter"),
+      (``TypeDeclarationExamples.ImplicitArrow,
+        "Abbreviation: a changed is an element of ((n : Nat) → Fin n).",
+        "Mean round-trip changed function argument implicitness")] do
+    let message ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkDefinition name text
+        pure "accepted"
+      catch ex => ex.toMessageData.toString
+    unless message == reason do
+      throwError "expected type-declaration rejection '{reason}', got: {message}"
+  for text in [
+      "Abbreviation: a changed is a list xs of natural numbers.",
+      "Abbreviation: a changed is an element of (7 : Nat)."] do
+    let rejected ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkDefinition ``ListTypeExamples.Naturals text
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "accepted an invalid type description"
+
+#mean_compare ListTypeExamples.Naturals
+/-- info: the type of lists of natural numbers -/
+#guard_msgs in
+#mean_term List Nat
+/-- info: the type of lists of TypeNounExamples.Token elements -/
+#guard_msgs in
+#mean_term List TypeNounExamples.Token
+/-- info: the type of lists of (ℕ → ℕ) elements -/
+#guard_msgs in
+#mean_term List (Nat → Nat)
+#mean_term_compare List TypeNounExamples.Token
+section
+variable (A : Type u) (n : Nat)
+#mean_term_compare List A
+#mean_term_compare List (List A)
+#mean_term_compare List (Fin n)
+#mean_term_compare List (List Nat)
+#mean_term_compare List (Nat → Nat)
+#mean_term_compare List Nat → Nat
+#mean_term_compare Nat × List Int
+#mean_term_compare fun (f : List Nat → Nat) => f []
+end
+
+open Lean Elab Term in
+run_elab do
+  for text in ["a list of natural numbers", "an index in [0, 3)"] do
+    match Parser.runParserCategory (← getEnv) `term text with
+    | .ok _ => throwError "anonymous binding phrase parsed as a type expression: {text}"
+    | .error _ => pure ()
+  let rejected ← withoutModifyingState do
+    try
+      Mean.RoundTrip.checkDefinition ``ListTypeExamples.Naturals
+        "Abbreviation: changed is the type of lists of integers."
+      pure false
+    catch _ => pure true
+  unless rejected do throwError "round-trip checker accepted a changed list element type"
+
 #mean_compare IndexExamples.Four
 #mean_compare IndexExamples.value
 #mean_compare IndexExamples.lookup

@@ -2,8 +2,101 @@
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
 Abbreviation:
-  IndexExamples.Four is
-    indices [0, 4).
+  a TypeDeclarationExamples.Point is
+    a function from (the type of indices in [0, 3)) to ℤ.
+
+Abbreviation:
+  a TypeDeclarationExamples.Prototile is
+    a list of TypeDeclarationExamples.Point elements.
+
+Definition:
+  a TypeDeclarationExamples.PrototileDef is
+    a list of TypeDeclarationExamples.Point elements.
+
+Abbreviation:
+  a TypeDeclarationExamples.Direction is
+    an index in [0, 4).
+
+Definition:
+  a TypeDeclarationExamples.Index is
+    an index in [0, 4).
+
+Abbreviation:
+  a TypeDeclarationExamples.Integer is
+    an integer.
+
+Definition:
+  a TypeDeclarationExamples.Boolean is
+    a boolean.
+
+Abbreviation:
+  a TypeDeclarationExamples.Map is
+    a function from ℕ to ℕ.
+
+Abbreviation:
+  a TypeDeclarationExamples.Coordinate is
+    an index in [0, 3).
+
+Definition:
+  a TypeDeclarationExamples.Trivial is
+    a proof that True.
+
+Abbreviation:
+  a TypeDeclarationExamples.Instance is
+    an instance of typeclass Inhabited ℕ.
+
+Abbreviation:
+  a TypeDeclarationExamples.Universe is
+    an element of (Type).
+
+Definition:
+  a TypeDeclarationExamples.ViaUniverse is
+    a natural number.
+
+Abbreviation:
+  a TypeDeclarationExamples.NamedArrow is
+    an element of ((input : ℕ) → ℕ).
+
+Abbreviation:
+  a TypeDeclarationExamples.ImplicitArrow is
+    an element of ({n : ℕ} → the type of indices in [0, n)).
+
+Abbreviation:
+  TypeDeclarationExamples.Position is
+    the function mapping a list xs of natural numbers to
+      the type of indices in [0, xs.length).
+
+Abbreviation:
+  TypeDeclarationExamples.Route is
+    the function mapping an implicit element V of Type u and an element G of SimpleGraph V and an element u of V and an element v of V to
+      G.Path u v.
+
+Abbreviation:
+  a ListTypeExamples.Naturals is
+    a list of natural numbers.
+
+the type of lists of TypeNounExamples.Token elements
+
+the type of lists of A elements
+
+the type of lists of (the type of lists of A elements) elements
+
+the type of lists of (the type of indices in [0, n)) elements
+
+the type of lists of (the type of lists of natural numbers) elements
+
+the type of lists of (ℕ → ℕ) elements
+
+the type of lists of natural numbers → ℕ
+
+ℕ × the type of lists of integers
+
+the function mapping a function f from (the type of lists of natural numbers) to ℕ to
+  f []
+
+Abbreviation:
+  an IndexExamples.Four is
+    an index in [0, 4).
 
 Definition:
   IndexExamples.value is
@@ -34,15 +127,15 @@ Definition:
   an index i in [0, 4) is IndexExamples.first if
     ((↑i : ℕ) = 0).
 
-indices [0, n)
+the type of indices in [0, n)
 
-indices [0, n + m)
+the type of indices in [0, n + m)
 
-indices [0, 0)
+the type of indices in [0, 0)
 
-indices [0, 1)
+the type of indices in [0, 1)
 
-indices [0, 4)
+the type of indices in [0, 4)
 
 the function mapping an index i in [0, n) to
   (↑i : ℕ)
@@ -84,10 +177,10 @@ there is an index in [0, n)
 
 there is no index in [0, 0)
 
-for all i and j in (indices [0, n)):
+for all i and j in (the type of indices in [0, n)):
   i = j or i ≠ j
 
-the function mapping a list xs_1 of (indices [0, n)) elements to
+the function mapping a list xs_1 of (the type of indices in [0, n)) elements to
   xs_1
 
 the function mapping a list xs of rational numbers to
@@ -293,8 +386,8 @@ Definition:
       (0).
 
 Abbreviation:
-  AbbreviationExamples.Natural is
-    ℕ.
+  an AbbreviationExamples.Natural is
+    a natural number.
 
 Abbreviation:
   AbbreviationExamples.answer is
@@ -469,10 +562,10 @@ the function mapping a function f from (ℕ × ℕ) to ℕ to
 the function mapping a function f from (ℕ → ℕ) to ℕ to
   f Nat.succ
 
-the function mapping an element _f of (n : ℕ) → indices [0, n) to
+the function mapping an element _f of (n : ℕ) → the type of indices in [0, n) to
   true
 
-the function mapping an element _f of {n : ℕ} → indices [0, n) to
+the function mapping an element _f of {n : ℕ} → the type of indices in [0, n) to
   true
 
 the function mapping an element f of TypeNounExamples.Endomap to
@@ -514,11 +607,11 @@ for every list xs of natural numbers:
   for every index i into xs:
     xs[i] = xs[i]
 
-for every element f of ((n : ℕ) → indices [0, n)):
+for every element f of ((n : ℕ) → the type of indices in [0, n)):
   f 1 = f 1
 
-for every element f of ({n : Nat} → indices [0, n)):
-  @Eq (indices [0, @OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+for every element f of ({n : Nat} → the type of indices in [0, n)):
+  @Eq (the type of indices in [0, @OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
     (@f (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
     (@f (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
 
@@ -721,9 +814,9 @@ T is nonempty and P
 if T is empty then
   P
 
-(indices [0, n)) is nonempty
+(the type of indices in [0, n)) is nonempty
 
-(indices [0, n)) is empty
+(the type of indices in [0, n)) is empty
 
 Definition:
   smallGraph is

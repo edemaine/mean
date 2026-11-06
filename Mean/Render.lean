@@ -6,7 +6,7 @@ No declarations are added by the checker. -/
 
 register_option mean.renderProperties : Bool := {
   defValue := false
-  descr := "Render registered Mean property and index type phrases inside expressions"
+  descr := "Render registered Mean property, index, and list type phrases inside expressions"
 }
 
 namespace Mean.Render
@@ -19,7 +19,7 @@ def delabIndices : Delab := do
   guard <| mean.renderProperties.get (← getOptions)
   guard <| (← getExpr).isAppOfArity ``Fin 1
   let bound ← withAppArg delab
-  `(indices [0, $bound))
+  `(the type of indices in [0, $bound))
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app.SimpleGraph.edgeSet, delab app.SimpleGraph.V,
@@ -157,6 +157,24 @@ private def indexDomainText? (ty : Expr) : MetaM (Option String) := do
 private def listElementsText (ty : Expr) : MetaM String := do
   if let some (_, plural) := scalarNouns? ty then return plural
   return s!"{← typeAtomText ty} elements"
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.List]
+def delabLists : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  let e ← getExpr
+  guard <| e.isAppOfArity ``List 1
+  let ty := e.getAppArgs[0]!
+  if let some (_, plural) := scalarNouns? ty then
+    let .ok noun := Parser.runParserCategory (← getEnv) `meanScalarPlural plural
+      | failure
+    let noun : TSyntax `meanScalarPlural := ⟨noun⟩
+    `(the type of lists of $noun:meanScalarPlural)
+  else
+    let item ← withAppArg delab
+    let item ← if ty.isConst || ty.isFVar || ty.isLit then pure item
+      else `(($item))
+    `(the type of lists of $item:term elements)
 
 /-- Only explicit, nondependent arrows admit the simple from/to description.
 Inspect the type expression without unfolding user-defined aliases. -/
@@ -438,6 +456,10 @@ def renderDefinition (name : Name) (signatureType value : Expr) (abbreviation :=
   let value := declarationBinders signatureType value
   let nameStr ← nameText name
   let clause := if abbreviation then "Abbreviation" else "Definition"
+  if (← whnf signatureType).isSort then
+    let article := if ['a', 'e', 'i', 'o', 'u'].contains (nameStr.toLower.toList.headD ' ') then
+      "an" else "a"
+    return s!"{clause}:\n  {article} {nameStr} is\n{indented (indented ((← witnessText value none) ++ "."))}"
   if let some text ← scalarLiteralText? value then
     return s!"{clause}:\n  {nameStr} is\n{indented (indented (text ++ "."))}"
   match value.consumeMData with

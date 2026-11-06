@@ -6,6 +6,10 @@ example (n : Nat) : indices [0, n) = Fin n := rfl
 example : indices [0, 0) = Fin 0 := rfl
 example : indices [0, 1) = Fin 1 := rfl
 example (n m : Nat) : indices [0, n + m) = Fin (n + m) := rfl
+example (n : Nat) : (the type of indices in [0, n)) = Fin n := rfl
+example : (the type of indices in [0, 0)) = Fin 0 := rfl
+example (xs : List Nat) : (the type of indices into xs) = Fin xs.length := rfl
+example (xs : Array Nat) : (the type of indices into xs) = Fin xs.size := rfl
 
 Abbreviation: Four is indices [0, 4).
 Definition: value is the function mapping a natural number n and
@@ -59,6 +63,72 @@ example : (there is no list xs of complex numbers such that xs = []) =
     (¬ ∃ xs : List Complex, xs = []) := rfl
 
 end IndexExamples
+
+namespace ListTypeExamples
+
+Abbreviation: Naturals is the type of lists of natural numbers.
+example : Naturals = List Nat := rfl
+example (A : Type u) : (the type of lists of A elements) = List A := rfl
+example (A : Type u) :
+    (the type of lists of (the type of lists of A elements) elements) = List (List A) := rfl
+example : (the type of lists of (Nat → Nat) elements) = List (Nat → Nat) := rfl
+example : (the type of lists of (the type of lists of natural numbers) elements) = List (List Nat) := rfl
+example (n : Nat) : (the type of lists of (indices [0, n)) elements) = List (Fin n) := rfl
+example : (the type of lists of natural numbers → Nat) = (List Nat → Nat) := rfl
+example : (Nat × the type of lists of integers) = (Nat × List Int) := rfl
+example : (the function mapping a function f from (the type of lists of natural numbers) to Nat to f []) =
+    (fun f : List Nat → Nat => f []) := rfl
+example : (the type of natural numbers) = Nat := rfl
+example : (the type of integers) = Int := rfl
+example : (the type of booleans) = Bool := rfl
+
+end ListTypeExamples
+
+namespace TypeDeclarationExamples
+
+abbrev Point := Fin 3 → Int
+Abbreviation: a Prototile is a list of Point elements.
+Definition: a PrototileDef is a list of Point elements.
+Abbreviation: a Direction is an index in [0, 4).
+Definition: an Index is an index in [0, 4).
+Abbreviation: an Integer is an integer.
+Definition: a Boolean is a boolean.
+Abbreviation: a Map is a function from Nat to Nat.
+Abbreviation: a Coordinate is an element of (Fin 3).
+Definition: a Trivial is a proof that True.
+Abbreviation: an Instance is an instance of typeclass Inhabited Nat.
+Abbreviation: a Universe is an element of Type.
+def ViaUniverse : Universe := Nat
+abbrev NamedArrow := (input : Nat) → Nat
+abbrev ImplicitArrow := {n : Nat} → Fin n
+
+example : Prototile = List Point := rfl
+example : PrototileDef = List Point := rfl
+example : Direction = Fin 4 := rfl
+example : Index = Fin 4 := rfl
+example : Integer = Int := rfl
+example : Boolean = Bool := rfl
+example : Map = (Nat → Nat) := rfl
+example : Coordinate = Fin 3 := rfl
+example : Trivial = True := rfl
+example : Instance = Inhabited Nat := rfl
+example : Universe = Type := rfl
+example : ViaUniverse = Nat := rfl
+example (f : NamedArrow) : f (input := 3) = f 3 := rfl
+
+section
+variable (xs : List Nat)
+Abbreviation: a Position is an index into xs.
+example : Position xs = Fin xs.length := rfl
+end
+
+section
+variable {V : Type u} (G : SimpleGraph V) (u v : V)
+Abbreviation: a Route is a path in G from u to v.
+example : Route G u v = G.Path u v := rfl
+end
+
+end TypeDeclarationExamples
 
 namespace PredicateExamples
 
