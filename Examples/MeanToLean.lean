@@ -1,5 +1,33 @@
 import Mean.Syntax
 
+namespace UniqueExistenceExamples
+
+example (A : Type*) (p : A → Prop) :
+    (there is a unique element x of A such that p x) =
+    (there is exactly one element x of A such that p x) := rfl
+example : (there is a unique integer n such that n = 0) = (∃! n : Int, n = 0) := rfl
+example : (there is a unique index in [0, 1)) = (∃! _i : Fin 1, True) := rfl
+example (existentialWitness : Nat) :
+    (there is a unique natural number such that existentialWitness = 0) =
+    (∃! _n : Nat, existentialWitness = 0) := rfl
+
+example (A : Type*) (p : A → Prop) :
+    (there is exactly one element x of A such that p x) = (∃! x : A, p x) := rfl
+example : (there is exactly one natural number n such that n = 0) = (∃! n : Nat, n = 0) := rfl
+example : (there is exactly one index in [0, 1)) = (∃! _i : Fin 1, True) := rfl
+example : (there is exactly one natural number such that False) = (∃! _n : Nat, False) := rfl
+example : (there is exactly one list xs of natural numbers such that xs = []) =
+    (∃! xs : List Nat, xs = []) := rfl
+example : (there is exactly one function f from Nat to Nat such that f 0 = 0) =
+    (∃! f : Nat → Nat, f 0 = 0) := rfl
+example (P : Prop) : (there is exactly one proof h that P such that h = h) =
+    (∃! h : P, h = h) := rfl
+example (existentialWitness : Nat) :
+    (there is exactly one natural number such that existentialWitness = 0) =
+    (∃! _n : Nat, existentialWitness = 0) := rfl
+
+end UniqueExistenceExamples
+
 namespace RestrictedQuantifierExamples
 
 example (A : Type*) (P : Set A) :

@@ -2,6 +2,90 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+∃! n : ℕ, n = 0
+-- MEAN OUTPUT:
+there is a unique natural number n such that
+  n = 0
+
+-- LEAN INPUT:
+∃! _i : Fin 1, True
+-- MEAN OUTPUT:
+there is a unique index in [0, 1)
+
+-- LEAN INPUT:
+∃! _n : ℕ, False
+-- MEAN OUTPUT:
+there is a unique natural number such that
+  False
+
+-- LEAN INPUT:
+∃! xs : List ℕ, xs = []
+-- MEAN OUTPUT:
+there is a unique list xs of natural numbers such that
+  xs = []
+
+-- LEAN INPUT:
+∃! f : ℕ → ℕ, f 0 = 0
+-- MEAN OUTPUT:
+there is a unique function f from ℕ to ℕ such that
+  f 0 = 0
+
+-- LEAN INPUT:
+(∃! n : ℕ, n = 0) ∧ False
+-- MEAN OUTPUT:
+(there is a unique natural number n such that
+  n = 0) and False
+
+-- LEAN INPUT:
+False ∨ ∃! n : ℕ, n = 0
+-- MEAN OUTPUT:
+False or (there is a unique natural number n such that
+  n = 0)
+
+-- LEAN INPUT:
+(∃! n : ℕ, n = 0) ↔ True
+-- MEAN OUTPUT:
+(there is a unique natural number n such that
+  n = 0) if and only if True
+
+-- LEAN INPUT:
+(∃! _n : ℕ, True) → False
+-- MEAN OUTPUT:
+if there is a unique natural number then
+  False
+
+-- LEAN INPUT:
+(∃! n : ℕ, n = 0) → False
+-- MEAN OUTPUT:
+if there is a unique natural number n such that
+  n = 0 then
+  False
+
+-- LEAN INPUT:
+∀ (n : ℕ), (∃! m : ℕ, m = n) → n = n
+-- MEAN OUTPUT:
+for every natural number n where (there is a unique natural number m such that
+  m = n):
+  n = n
+
+-- LEAN INPUT:
+¬∃! n : ℕ, n = 0
+-- MEAN OUTPUT:
+¬∃! n : ℕ, n = 0
+
+-- LEAN INPUT:
+∃! t : Point, P t
+-- MEAN OUTPUT:
+there is a unique element t of Point such that
+  t is P
+
+-- LEAN INPUT:
+ExistsUnique P
+-- MEAN OUTPUT:
+there is a unique element witness of Point such that
+  witness is P
+
+-- LEAN INPUT:
 Relation.ReflTransGen (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q
 -- MEAN OUTPUT:
 Relation.ReflTransGen

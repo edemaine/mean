@@ -345,6 +345,11 @@ private def witnessText (ty : Expr) (name : Option String) (negative := false) :
   let (article, noun) ← witnessDescription ty name
   return s!"{if negative then "no" else article} {noun}"
 
+/-- Lean represents these quantifiers as applications to predicates. Their
+function types alone do not distinguish them from generic unary predicates. -/
+private def isExistential (e : Expr) : Bool :=
+  e.isAppOfArity ``Exists 2 || e.isAppOfArity ``ExistsUnique 2
+
 private def negatedExists? (e : Expr) : Option Expr :=
   if e.isAppOfArity ``Not 1 then
     let body := e.getAppArgs[0]!.consumeMData
@@ -360,7 +365,7 @@ private partial def inlineLets (e : Expr) : Expr :=
 /-- Parentheses preserve binder scope, connective precedence, and associativity. -/
 private def groupOperand (e : Expr) (parent : Name) (left : Bool) (text : String) : String :=
   let e := inlineLets e
-  let grouped := e.isForall || e.isAppOfArity ``Exists 2 || (negatedExists? e).isSome ||
+  let grouped := e.isForall || isExistential e || (negatedExists? e).isSome ||
     (parent == ``And && e.isAppOfArity ``Or 2) ||
     e.isAppOfArity ``Iff 2 ||
     (left && e.isAppOfArity parent 2)
@@ -369,7 +374,7 @@ private def groupOperand (e : Expr) (parent : Name) (left : Bool) (text : String
 /-- Independent inverse vocabulary: predicate, full application arity, adjective.
 The subject is the final argument; earlier arguments are implicit type parameters. -/
 private def adjectiveView? (e : Expr) : MetaM (Option (Expr × String)) := do
-  if e.isAppOfArity ``Not 1 || e.isAppOfArity ``Exists 2 then return none
+  if e.isAppOfArity ``Not 1 then return none
   unless ← isProp e do return none
   let explicit := pp.explicit.get (← getOptions)
   let vocabulary : List (Name × Nat × String) := [
@@ -462,7 +467,7 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
             if (← isProp premise) && !conclusion.hasLooseBVars then
               let condition ← renderExpr premise false true
               let condition := if (inlineLets premise).isForall ||
-                  (inlineLets premise).isAppOfArity ``Exists 2 ||
+                  isExistential (inlineLets premise) ||
                   (negatedExists? (inlineLets premise)).isSome then
                 "(" ++ condition ++ ")" else condition
               let rest ← renderExpr conclusion sentenceEnd
@@ -486,16 +491,7 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
         | _ => renderSingle
     else leafText e sentenceEnd
   | _ =>
-    let negativeAdjective := e.isAppOfArity ``Not 1
-    let positive := if negativeAdjective then e.getAppArgs[0]! else e
-    if let some (subject, adjective) ← adjectiveView? positive then
-      let rendered ← renderExpr subject false true
-      let subjectText ← if (unsignedNumeral? subject).isSome && !(pp.explicit.get (← getOptions)) then
-          pure rendered
-        else if rendered == (← propertyText subject) then atomText subject true
-        else pure ("(" ++ rendered ++ ")")
-      let copula := if negativeAdjective then "is not" else "is"
-      return ← sentenceTail s!"{subjectText} {copula} {adjective}" sentenceEnd
+    -- Structural forms take precedence over the open-ended predicate fallback.
     if e.isAppOfArity ``And 2 || e.isAppOfArity ``Or 2 || e.isAppOfArity ``Iff 2 then
       let op := e.getAppFn.constName!
       let args := e.getAppArgs
@@ -505,7 +501,8 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
       return ← sentenceTail s!"{left} {word} {right}" sentenceEnd
     let negative := negatedExists? e
     let existential := negative.getD e
-    if existential.isAppOfArity ``Exists 2 then
+    let isUnique := existential.isAppOfArity ``ExistsUnique 2
+    if isExistential existential then
       let args := existential.getAppArgs
       let ty := args[0]!
       let predicate := args[1]!
@@ -513,15 +510,32 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
         | .lam n _ _ _ => n
         | _ => `witness
       let n ← freshName suggested
-      withLocalDeclD n ty fun x => do
+      return ← withLocalDeclD n ty fun x => do
         let body := (predicate.beta #[x]).consumeMData
         let used := body.containsFVar x.fvarId!
         let witnessName ← nameText n
-        let description ← witnessText ty (if used then some witnessName else none) negative.isSome
-        if body.isConstOf ``True then return ← sentenceTail s!"there is {description}" sentenceEnd
-        return s!"there is {description} such that\n{indented (← renderExpr body sentenceEnd)}"
-    else
-      leafText e sentenceEnd
+        let name := if used then some witnessName else none
+        let heading ← if isUnique then do
+          let (_, noun) ← witnessDescription ty name
+          pure s!"there is a unique {noun}"
+        else do
+          pure s!"there is {← witnessText ty name negative.isSome}"
+        if body.isConstOf ``True then return ← sentenceTail heading sentenceEnd
+        return s!"{heading} such that\n{indented (← renderExpr body sentenceEnd)}"
+    let negativeAdjective := e.isAppOfArity ``Not 1
+    let positive := if negativeAdjective then e.getAppArgs[0]! else e
+    -- A negated quantifier without dedicated wording stays Lean. Do not turn
+    -- its predicate argument into an adjective subject either.
+    if negativeAdjective && isExistential positive then return ← leafText e sentenceEnd
+    if let some (subject, adjective) ← adjectiveView? positive then
+      let rendered ← renderExpr subject false true
+      let subjectText ← if (unsignedNumeral? subject).isSome && !(pp.explicit.get (← getOptions)) then
+          pure rendered
+        else if rendered == (← propertyText subject) then atomText subject true
+        else pure ("(" ++ rendered ++ ")")
+      let copula := if negativeAdjective then "is not" else "is"
+      return ← sentenceTail s!"{subjectText} {copula} {adjective}" sentenceEnd
+    leafText e sentenceEnd
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab lam]

@@ -30,8 +30,8 @@ Definition:
   an element P of Prototile is TranslationTiling.Abstract.Tiles if
     there is an element T of (Set Point) such that
       for every element x of Point:
-        (the function mapping an element t of Point to
-          t ∈ T and x - t ∈ P) is ExistsUnique.
+        there is a unique element t of Point such that
+          t ∈ T and x - t ∈ P.
 
 Theorem TranslationTiling.Abstract.tiling_coRE_complete:
   (the function mapping an element P of Prototile to

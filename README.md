@@ -664,6 +664,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Universal quantifier | `for all <bindings> [where <condition>]: <proposition>`, `for every …` |
 | Quantified bindings | `function q from ℕ to Prop`, `list xs of T elements`, `element x of T`, `u and v in V`, `vertices u and v of G` |
 | Existential quantifier | `there is <witness description> [such that <proposition>]` |
+| Unique existential | `there is a unique <witness noun> [such that <proposition>]` |
 | Negated existential | `there is no <witness noun> [such that <proposition>]` |
 | Witness description | `a path p in G from u to v`, `a natural number n`, `a boolean x`, `an element x of T`, `a proof h that P` |
 | Properties | `the edge set of G`, `G's edge set` |
@@ -687,6 +688,13 @@ singular: `there is no integer`, or `there is no path p in G from u to v such th
 It means `¬ ∃ …`, with `True` as the default body when `such that` is omitted.
 An existential with body `False` stays `there is … such that False`; it is not
 negated existence.
+
+`there is a unique` means Lean's `∃!`, using the same witness nouns after `unique`:
+`there is a unique element t of Point such that P t`. The equivalent spelling
+`there is exactly one element t of Point such that P t` is also accepted.
+The name is optional; omitting `such that` uses `True` as the condition and still
+requires exactly one value of that type. The renderer uses `a unique` for
+`ExistsUnique`, including when its predicate is a named function.
 
 `Real` and `Complex` are mathlib types, not floating-point approximations.
 
@@ -844,6 +852,9 @@ Boolean-valued functions are rejected instead of coerced to propositions.
 The renderer uses this wording for named predicates with one explicit subject
 argument, preceded by any implicit type or instance arguments. Predicates with
 additional explicit arguments retain ordinary Lean application notation.
+Known connectives and quantifiers are rendered before this generic rule. A
+quantifier applied to a predicate must keep its quantifier wording; ordinary
+predicates on functions can still use adjective wording.
 Parenthesized predicates are also accepted, such as `n is (relates m)`, and let
 the renderer retain explicit hidden arguments when inference would change them.
 
@@ -869,8 +880,8 @@ Functions also render inside otherwise ordinary Lean applications, constructors,
 and type expressions, for example
 `List.map (the function mapping a natural number n to n + 1) xs`.
 Their bodies use the same logical wording as standalone functions.
-Native binder notation, including set builders and unique existence, retains its
-own syntax.
+Native binder notation inside the Lean fallback, including set builders and
+unique existence, retains its own syntax.
 It omits unused witness names and unnecessary generated parameter names, while
 preserving public parameter names, including graph carrier parameters.
 It substitutes local `let` aliases, so `E` may render as `G.edgeSet`.

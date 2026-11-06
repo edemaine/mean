@@ -1,6 +1,48 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+there is a unique natural number n such that
+  n = 0
+
+there is a unique index in [0, 1)
+
+there is a unique natural number such that
+  False
+
+there is a unique list xs of natural numbers such that
+  xs = []
+
+there is a unique function f from ℕ to ℕ such that
+  f 0 = 0
+
+(there is a unique natural number n such that
+  n = 0) and False
+
+False or (there is a unique natural number n such that
+  n = 0)
+
+(there is a unique natural number n such that
+  n = 0) if and only if True
+
+if there is a unique natural number then
+  False
+
+if there is a unique natural number n such that
+  n = 0 then
+  False
+
+for every natural number n where (there is a unique natural number m such that
+  m = n):
+  n = n
+
+¬∃! n : ℕ, n = 0
+
+there is a unique element t of Point such that
+  t is P
+
+there is a unique element witness of Point such that
+  witness is P
+
 Relation.ReflTransGen
   (the function mapping an element «a» of Point and an element b of Point to
       «a» ∈ P and b ∈ P and Adjacent «a» b)

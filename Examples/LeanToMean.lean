@@ -1,6 +1,73 @@
 import Examples.MeanToLean
 import Mean
 
+/--
+info: there is a unique natural number n such that
+  n = 0
+-/
+#guard_msgs in
+#mean_term ∃! n : Nat, n = 0
+/-- info: there is a unique index in [0, 1) -/
+#guard_msgs in
+#mean_term ∃! _i : Fin 1, True
+#mean_term_compare ∃! n : Nat, n = 0
+#mean_term_compare ∃! _i : Fin 1, True
+#mean_term_compare ∃! _n : Nat, False
+#mean_term_compare ∃! xs : List Nat, xs = []
+#mean_term_compare ∃! f : Nat → Nat, f 0 = 0
+#mean_term_compare (∃! n : Nat, n = 0) ∧ False
+#mean_term_compare False ∨ (∃! n : Nat, n = 0)
+#mean_term_compare (∃! n : Nat, n = 0) ↔ True
+#mean_term_compare (∃! _n : Nat, True) → False
+#mean_term_compare (∃! n : Nat, n = 0) → False
+#mean_term_compare ∀ n : Nat, (∃! m : Nat, m = n) → n = n
+#mean_term_compare ¬ ∃! n : Nat, n = 0
+section
+variable (Point : Type) (P : Point → Prop)
+#mean_term_compare ∃! t : Point, P t
+#mean_term_compare ExistsUnique P
+end
+
+-- Quantifier applications and ordinary predicates on predicates have the same
+-- type shape. Structural dispatch must win without banning function subjects.
+open Lean Meta Elab Term in
+run_elab do
+  let predicateType ← elabType (← `(Nat → Prop))
+  let higherType ← elabType (← `((Nat → Prop) → Prop))
+  withLocalDeclD `p predicateType fun p => do
+    withLocalDeclD `acceptsPredicate higherType fun acceptsPredicate => do
+      for explicit in [false, true] do
+        withOptions (fun opts => opts.setBool `pp.explicit explicit) do
+          for (name, heading) in [
+              (``Exists, "there is a natural number"),
+              (``ExistsUnique, "there is a unique natural number")] do
+            let e ← mkAppM name #[p]
+            let text ← Mean.Render.renderChecked e
+            unless text.startsWith heading do
+              throwError "quantifier reached generic predicate rendering: {text}"
+          let e ← mkAppM ``ExistsUnique #[p]
+          let text ← Mean.Render.renderChecked (mkNot e)
+          unless (text.splitOn " is not ").length == 1 do
+            throwError "negated quantifier reached generic predicate rendering: {text}"
+          let text ← Mean.Render.renderChecked (mkApp acceptsPredicate p)
+          unless text == "p is acceptsPredicate" do
+            throwError "ordinary predicate on predicates lost adjective wording: {text}"
+
+open Lean Elab Term in
+run_elab do
+  let original ← elabTerm (← `(∃! n : Nat, n = 0)) none
+  synthesizeSyntheticMVarsNoPostponing
+  let original ← instantiateMVars original
+  for text in [
+      "there is a natural number n such that n = 0",
+      "there is exactly one natural number n such that n = 1"] do
+    let rejected ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkText original text
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "round-trip checker accepted changed unique existence"
+
 section
 variable (Point : Type) (P : Set Point) (Adjacent : Point → Point → Prop) (p q : Point)
 #mean_term_compare Relation.ReflTransGen

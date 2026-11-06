@@ -680,11 +680,26 @@ macro_rules
       `(command| abbrev $name := anonymousType% $description)
 
 syntax "existsWitness%" meanWitnessNoun "=>" term : term
+syntax "uniqueWitness%" meanWitnessNoun "=>" term : term
 syntax "existsOver%" meanWitness "=>" term : term
+syntax "there" "is" "a" "unique" meanWitnessNoun ("such" "that" term)? : term
+syntax "there" "is" "exactly" "one" meanWitnessNoun ("such" "that" term)? : term
 syntax "there" "is" "no" meanWitnessNoun ("such" "that" term)? : term
 syntax "there" "is" meanWitness ("such" "that" term)? : term
 
 macro_rules
+  | `(there is a unique $description:meanWitnessNoun
+        $[such that $condition:term]?) =>
+      `(there is exactly one $description:meanWitnessNoun $[such that $condition:term]?)
+  | `(there is exactly one $description:meanWitnessNoun
+        $[such that $condition:term]?) => do
+      let condition ← match condition with
+        | some body => pure body
+        | none => `(True)
+      `(uniqueWitness% $description => $condition)
+  | `(uniqueWitness% $noun:meanWitnessNoun => $body:term) => do
+      let (name, ty) ← witnessBinding noun
+      `(∃! ($name:ident : $ty), ($body : Prop))
   | `(there is no $description:meanWitnessNoun
         $[such that $condition:term]?) => do
       let condition ← match condition with
