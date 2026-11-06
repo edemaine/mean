@@ -268,9 +268,11 @@ macro_rules
 The source is inferred independently so its arithmetic keeps its original type. -/
 syntax:70 term:70 " as " "a " meanScalar : term
 syntax:70 term:70 " as " "an " meanScalar : term
+syntax:70 term:70 " as " term:71 : term
 macro_rules
   | `($value:term as a $noun:meanScalar) => `((↑($value) : scalarType% $noun))
   | `($value:term as an $noun:meanScalar) => `((↑($value) : scalarType% $noun))
+  | `($value:term as $ty:term) => `((↑($value) : $ty))
 
 declare_syntax_cat meanScalarDomain
 syntax meanScalar : meanScalarDomain

@@ -1,6 +1,29 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+Definition:
+  CustomCoercionExamples.wrap is
+    the function mapping a natural number n to
+      n as CustomCoercionExamples.Foo.
+
+n as Foo
+
+(n + 1) as Foo
+
+n as Foo as Bar
+
+some (n as Foo)
+
+n as Foo = n as Foo
+
+x as Box A
+
+(the function mapping a natural number n_1 to
+      n_1 + 1) as
+  Box (ℕ → ℕ)
+
+Coe.coe x
+
 for almost every element x of A with respect to μ:
   x is p
 
@@ -187,7 +210,7 @@ sInf S
 
 sSup S
 
-(↑r : Prop)
+r as Prop
 
 Classical.choice
   (have this := Nonempty.intro P;
@@ -1228,7 +1251,7 @@ Definition:
   a simple graph G is zeroLengthLinked if
     for all vertices u and v of G:
       there is a path p in G from u to v such that
-        ((↑p : G.Walk u v).length = 0).
+        ((p as G.Walk u v).length = 0).
 
 Definition:
   a simple graph G = (V, E) is edgeless if
@@ -1295,7 +1318,7 @@ there is a natural number such that
   False
 
 there is a path p in G from u to v such that
-  (↑p : G.Walk u v).length = 0
+  (p as G.Walk u v).length = 0
 
 Definition:
   a natural number n and a proof h that n > 0 are withAssumption if
@@ -1458,7 +1481,7 @@ if there is no element x of T such that
 there is no path in G from u to v
 
 there is no path p in G from u to v such that
-  (↑p : G.Walk u v).length = 0
+  (p as G.Walk u v).length = 0
 
 n is PredicateExamples.FooPred
 

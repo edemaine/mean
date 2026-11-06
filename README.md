@@ -136,19 +136,24 @@ the integer (2 * n)
 the boolean false
 ```
 
-Use `as` to request a Lean coercion to a scalar type:
+Use `as` to request a Lean coercion to a scalar or custom type:
 
 ```lean
 (p i as a real number) ≤ x i
 n as an integer
+x as Foo
+x as Box A
 ```
 
 `p i as a real number` means `(↑(p i) : ℝ)`. Lean infers the source type and
 checks that a conversion exists. Parentheses around source arithmetic preserve
 its type: `(n - m) as an integer` subtracts natural numbers before converting
-the result when `n` and `m` are natural numbers. The renderer uses these phrases
-for registered value coercions to the known scalar types; other coercions retain
-Lean notation.
+the result when `n` and `m` are natural numbers. A custom target uses its Lean
+type expression directly; parenthesize a function type, as in `f as (Nat → Nat)`.
+Lean must have an appropriate coercion, such as a `Coe` instance. The renderer
+uses scalar nouns for known scalar targets and the type expression for other
+registered value coercions. Lean's function and sort coercion forms (`⇑`, `↥`)
+retain Lean notation.
 
 A scalar numeral can directly precede the definition's final period, as in
 `the integer 42.` or `the integer -42.`. Decimal fractions and scientific
@@ -692,6 +697,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Finite sum | `the sum over indices i in [0, n) of f i`, `the sum over i in s of f i` |
 | Typed scalar value | `the <scalar> <value>`, `the integer 42`, `the real number (2 * x)` |
 | Scalar coercion | `<term> as a real number`, `<term> as an integer` |
+| Custom target coercion | `<term> as Foo`, `<term> as Box A` |
 | Theorem clause | `Theorem <name>: <proposition> Proof: <Lean proof>` |
 | Lemma clause | `Lemma <name>: <proposition> Proof: <Lean proof>` |
 | Example clause | `Example: <proposition> Proof: <Lean proof>` |

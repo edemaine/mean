@@ -2,6 +2,57 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+def CustomCoercionExamples.wrap : ℕ → CustomCoercionExamples.Foo :=
+  fun (n : ℕ) => (↑n : CustomCoercionExamples.Foo)
+-- MEAN OUTPUT:
+Definition:
+  CustomCoercionExamples.wrap is
+    the function mapping a natural number n to
+      n as CustomCoercionExamples.Foo.
+
+-- LEAN INPUT:
+(↑n : Foo)
+-- MEAN OUTPUT:
+n as Foo
+
+-- LEAN INPUT:
+(↑(n + 1) : Foo)
+-- MEAN OUTPUT:
+(n + 1) as Foo
+
+-- LEAN INPUT:
+(↑(↑n : Foo) : Bar)
+-- MEAN OUTPUT:
+n as Foo as Bar
+
+-- LEAN INPUT:
+some (↑n : Foo)
+-- MEAN OUTPUT:
+some (n as Foo)
+
+-- LEAN INPUT:
+(↑n : Foo) = (↑n : Foo)
+-- MEAN OUTPUT:
+n as Foo = n as Foo
+
+-- LEAN INPUT:
+(↑x : Box A)
+-- MEAN OUTPUT:
+x as Box A
+
+-- LEAN INPUT:
+(↑fun (n : ℕ) => n + 1 : Box (ℕ → ℕ))
+-- MEAN OUTPUT:
+(the function mapping a natural number n_1 to
+      n_1 + 1) as
+  Box (ℕ → ℕ)
+
+-- LEAN INPUT:
+Coe.coe x
+-- MEAN OUTPUT:
+Coe.coe x
+
+-- LEAN INPUT:
 ∀ᵐ (x : A) ∂μ, p x
 -- MEAN OUTPUT:
 for almost every element x of A with respect to μ:
@@ -391,7 +442,7 @@ sSup S
 -- LEAN INPUT:
 (↑r : Prop)
 -- MEAN OUTPUT:
-(↑r : Prop)
+r as Prop
 
 -- LEAN INPUT:
 Classical.choice ⋯
@@ -2462,7 +2513,7 @@ Definition:
   a simple graph G is zeroLengthLinked if
     for all vertices u and v of G:
       there is a path p in G from u to v such that
-        ((↑p : G.Walk u v).length = 0).
+        ((p as G.Walk u v).length = 0).
 
 -- LEAN INPUT:
 def edgeless : {V : Type u_1} → SimpleGraph V → Prop :=
@@ -2599,7 +2650,7 @@ there is a natural number such that
 ∃ (p : G.Path u v), (↑p : G.Walk u v).length = 0
 -- MEAN OUTPUT:
 there is a path p in G from u to v such that
-  (↑p : G.Walk u v).length = 0
+  (p as G.Walk u v).length = 0
 
 -- LEAN INPUT:
 def withAssumption : (n : ℕ) → n > 0 → Prop :=
@@ -2930,7 +2981,7 @@ there is no path in G from u to v
 ¬∃ (p : G.Path u v), (↑p : G.Walk u v).length = 0
 -- MEAN OUTPUT:
 there is no path p in G from u to v such that
-  (↑p : G.Walk u v).length = 0
+  (p as G.Walk u v).length = 0
 
 -- LEAN INPUT:
 PredicateExamples.FooPred n

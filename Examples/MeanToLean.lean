@@ -1,6 +1,36 @@
 import Mean.Syntax
 import Mathlib.MeasureTheory.Measure.Module
 
+namespace CustomCoercionExamples
+
+structure Foo where
+  value : Nat
+structure Bar where
+  value : Nat
+structure Box (A : Type u) where
+  value : A
+
+@[coe] def toFoo (n : Nat) : Foo := ⟨n⟩
+instance : Coe Nat Foo := ⟨toFoo⟩
+@[coe] def toBar (x : Foo) : Bar := ⟨x.value⟩
+instance : Coe Foo Bar := ⟨toBar⟩
+@[coe] def toBox {A : Type u} (x : A) : Box A := ⟨x⟩
+instance {A : Type u} : Coe A (Box A) := ⟨toBox⟩
+
+Definition: wrap is the function mapping a natural number n to n as Foo.
+example (n : Nat) : (n as Foo) = (n : Foo) := rfl
+example (n : Nat) : wrap n = (n : Foo) := rfl
+example (n : Nat) : ((n + 1) as Foo).value = n + 1 := rfl
+example (n : Nat) : ((n as Foo) as Bar).value = n := rfl
+example (n : Nat) : ((n as Foo), n) = ((n : Foo), n) := rfl
+example (n : Nat) : some (n as Foo) = some (n : Foo) := rfl
+example (n : Nat) : (n as Foo) = (n : Foo) ∧ True := ⟨rfl, trivial⟩
+example (A : Type u) (x : A) : (x as Box A) = (x : Box A) := rfl
+example (f : Nat → Nat) : (f as Box (Nat → Nat)) = (f : Box (Nat → Nat)) := rfl
+example (A B : Type u) [Coe A B] (x : A) : (x as B) = (x : B) := rfl
+
+end CustomCoercionExamples
+
 namespace AlmostEveryExamples
 
 open MeasureTheory

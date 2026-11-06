@@ -1,6 +1,43 @@
 import Examples.MeanToLean
 import Mean
 
+#mean_compare CustomCoercionExamples.wrap
+/--
+info: the function mapping a natural number n to
+  n as CustomCoercionExamples.Foo
+-/
+#guard_msgs in
+#mean_term fun (n : Nat) => (n : CustomCoercionExamples.Foo)
+section
+open CustomCoercionExamples
+variable (n : Nat) (A : Type u) (x : A)
+/-- info: x as Box A -/
+#guard_msgs in
+#mean_term (x : Box A)
+#mean_term_compare (n : Foo)
+#mean_term_compare ((n + 1 : Nat) : Foo)
+#mean_term_compare ((n : Foo) : Bar)
+#mean_term_compare some (n : Foo)
+#mean_term_compare (n : Foo) = (n : Foo)
+#mean_term_compare (x : Box A)
+#mean_term_compare ((fun n : Nat => n + 1) : Box (Nat → Nat))
+end
+section
+variable (A B : Type u) [Coe A B] (x : A)
+#mean_term_compare (x : B)
+end
+
+open Lean Elab Term in
+run_elab do
+  let invalid ← withoutModifyingState do
+    try
+      discard <| withoutErrToSorry <| elabTerm
+        (← `((fun n : Nat => n) as CustomCoercionExamples.Foo)) none
+      synthesizeSyntheticMVarsNoPostponing
+      pure false
+    catch _ => pure true
+  unless invalid do throwError "accepted an unavailable custom coercion"
+
 section
 open MeasureTheory
 variable (A : Type u) [MeasurableSpace A] (μ ν : Measure A) (p q : A → Prop)
@@ -182,7 +219,7 @@ variable (s t : Set Nat) (n : Nat) [Decidable P]
 /-- info: ⨅ (i : ℕ), p i -/
 #guard_msgs in
 #mean_term ⨅ i : Nat, p i
-/-- info: (↑r : Prop) -/
+/-- info: r as Prop -/
 #guard_msgs in
 #mean_term (r : Prop)
 #mean_term_compare id P

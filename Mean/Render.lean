@@ -186,7 +186,7 @@ private def scalarNouns? (ty : Expr) : Option (String × String) :=
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app]
-def delabScalarCoercion : Delab := do
+def delabValueCoercion : Delab := do
   guard <| mean.renderProperties.get (← getOptions)
   guard <| !(pp.explicit.get (← getOptions))
   let e ← getExpr
@@ -194,12 +194,15 @@ def delabScalarCoercion : Delab := do
   let some info ← Meta.getCoeFnInfo? name | failure
   guard <| info.type == .coe && e.getAppNumArgs == info.numArgs
   let ty ← inferType e
-  let some (singular, _) := scalarNouns? ty | failure
-  let .ok noun := Parser.runParserCategory (← getEnv) `meanScalar singular | failure
-  let noun : TSyntax `meanScalar := ⟨noun⟩
   let value ← withNaryArg info.coercee delab
-  if ty.isConstOf ``Int then `($value as an $noun:meanScalar)
-  else `($value as a $noun:meanScalar)
+  if let some (singular, _) := scalarNouns? ty then
+    let .ok noun := Parser.runParserCategory (← getEnv) `meanScalar singular | failure
+    let noun : TSyntax `meanScalar := ⟨noun⟩
+    if ty.isConstOf ``Int then `($value as an $noun:meanScalar)
+    else `($value as a $noun:meanScalar)
+  else
+    let target ← withType delab
+    `($value as $target)
 
 private def scalarDescription? (ty : Expr) : Option String := do
   let (singular, _) ← scalarNouns? ty
