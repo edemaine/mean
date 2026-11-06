@@ -1,6 +1,45 @@
 import Examples.MeanToLean
 import Mean
 
+/--
+info: the set of elements n of ℕ such that
+  n > 0 and n < 3
+-/
+#guard_msgs in
+#mean_term {n : Nat | n > 0 ∧ n < 3}
+#mean_compare SetComprehensionExamples.zeros
+#mean_term_compare {n : Nat | n > 0 ∧ n < 3}
+#mean_term_compare {_n : Nat | True}
+#mean_term_compare {_n : Nat | False}
+#mean_term_compare {«a» : Nat | «a» = 0}
+#mean_term_compare {S : Set Nat | 0 ∈ S}
+#mean_term_compare some {n : Nat | n > 0}
+#mean_term_compare {f : Nat → Nat | f 0 = 0}
+section
+variable (A : Type u) (p : A → Prop) (n : Nat) (S : Set Nat)
+#mean_term_compare {x : A | p x}
+#mean_term_compare Set.ofPred p
+#mean_term_compare n ∈ {m : Nat | m > 0}
+#mean_term_compare {n : Nat | n > 0} ∪ S
+#mean_term_compare {n : Nat | n > 0} = S
+#mean_term_compare ({n : Nat | n > 0}, n)
+end
+
+open Lean Elab Term in
+run_elab do
+  let original ← elabTerm (← `({n : Nat | n > 0})) none
+  synthesizeSyntheticMVarsNoPostponing
+  let original ← instantiateMVars original
+  let rejected ← withoutModifyingState do
+    try
+      Mean.RoundTrip.checkText original "the set of elements n of ℕ such that n = 0"
+      pure false
+    catch _ => pure true
+  unless rejected do throwError "round-trip checker accepted a changed set condition"
+  let ordinary := (← Lean.Meta.ppExpr original).pretty
+  unless (ordinary.splitOn "{").length > 1 do
+    throwError "Mean set comprehension leaked into the ordinary Lean view: {ordinary}"
+
 /-- info: the type of sets of natural numbers -/
 #guard_msgs in
 #mean_term Set Nat
@@ -170,13 +209,13 @@ run_elab do
   unless (ordinary.splitOn "fun ").length > 1 do
     throwError "Mean function wording leaked into ordinary Lean output: {ordinary}"
   for (term, marker) in [
-      (← `({n : Nat | n > 0}), "{"),
+      (← `({n : Nat | n > 0}), "the set of elements"),
       (← `(some (∃! n : Nat, n = 0)), "∃!")] do
     let e ← elabTerm term none
     synthesizeSyntheticMVarsNoPostponing
     let text ← Mean.Render.renderChecked (← instantiateMVars e)
     unless (text.splitOn marker).length > 1 do
-      throwError "nested function rendering displaced native binder notation: {text}"
+      throwError "set-comprehension or native unique-existence wording was lost: {text}"
 
 section
 variable (Point : Type) (P : Set Point)

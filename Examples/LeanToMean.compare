@@ -2,6 +2,98 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+def SetComprehensionExamples.zeros : Set ℕ :=
+  {n : ℕ | n = 0}
+-- MEAN OUTPUT:
+Definition:
+  SetComprehensionExamples.zeros is
+    (the set of elements n of ℕ such that
+      n = 0).
+
+-- LEAN INPUT:
+{n : ℕ | n > 0 ∧ n < 3}
+-- MEAN OUTPUT:
+the set of elements n of ℕ such that
+  n > 0 and n < 3
+
+-- LEAN INPUT:
+{_n : ℕ | True}
+-- MEAN OUTPUT:
+the set of elements of ℕ such that
+  True
+
+-- LEAN INPUT:
+{_n : ℕ | False}
+-- MEAN OUTPUT:
+the set of elements of ℕ such that
+  False
+
+-- LEAN INPUT:
+{«a» : ℕ | «a» = 0}
+-- MEAN OUTPUT:
+the set of elements «a» of ℕ such that
+  «a» = 0
+
+-- LEAN INPUT:
+{S : Set ℕ | 0 ∈ S}
+-- MEAN OUTPUT:
+the set of elements S of the type of sets of natural numbers such that
+  0 ∈ S
+
+-- LEAN INPUT:
+some {n : ℕ | n > 0}
+-- MEAN OUTPUT:
+some
+  (the set of elements n of ℕ such that
+      n > 0)
+
+-- LEAN INPUT:
+{f : ℕ → ℕ | f 0 = 0}
+-- MEAN OUTPUT:
+the set of elements f of ℕ → ℕ such that
+  f 0 = 0
+
+-- LEAN INPUT:
+{x : A | p x}
+-- MEAN OUTPUT:
+the set of elements x of A such that
+  x is p
+
+-- LEAN INPUT:
+Set.ofPred p
+-- MEAN OUTPUT:
+the set of elements x of A such that
+  x is p
+
+-- LEAN INPUT:
+n ∈ {m : ℕ | m > 0}
+-- MEAN OUTPUT:
+n ∈
+  the set of elements m of ℕ such that
+      m > 0
+
+-- LEAN INPUT:
+{n : ℕ | n > 0} ∪ S
+-- MEAN OUTPUT:
+(the set of elements n_1 of ℕ such that
+      n_1 > 0) ∪
+  S
+
+-- LEAN INPUT:
+{n : ℕ | n > 0} = S
+-- MEAN OUTPUT:
+(the set of elements n_1 of ℕ such that
+      n_1 > 0) =
+  S
+
+-- LEAN INPUT:
+({n : ℕ | n > 0}, n)
+-- MEAN OUTPUT:
+(the set of elements n_1 of ℕ such that
+      n_1 > 0,
+  n)
+
+-- LEAN INPUT:
 abbrev SetPhraseExamples.Family : Type :=
   Set SetPhraseExamples.Point
 -- MEAN OUTPUT:
@@ -341,7 +433,8 @@ some
 -- LEAN INPUT:
 {n : ℕ | n > 0 ∧ n < 3}
 -- MEAN OUTPUT:
-{n : ℕ | n > 0 ∧ n < 3}
+the set of elements n of ℕ such that
+  n > 0 and n < 3
 
 -- LEAN INPUT:
 some (∃! n : ℕ, n = 0)

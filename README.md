@@ -204,6 +204,21 @@ a function f from sets of Point elements to sets of integers
 Implicit and strictly implicit set parameters use `an implicit set S of …` and
 `a strictly implicit set S of …`, following the other subject nouns.
 
+Set comprehensions bind an element and describe its membership condition:
+
+```lean
+the set of elements x of RealPoint such that
+  there is an element p of Point such that
+    p ∈ P and (for every index i in [0, 3):
+      (p i : ℝ) ≤ x i and x i ≤ (p i : ℝ) + 1)
+```
+
+This is Lean's `{x : RealPoint | …}` (`Set.ofPred`). The name is optional when
+the condition does not use it, as in `the set of elements of ℕ such that True`.
+The renderer translates the condition recursively, including quantifiers and
+logical connectives, even when the set occurs inside otherwise ordinary Lean
+syntax. Parentheses group a comprehension used as an operand or argument.
+
 `the type of indices in [0, n)` means `Fin n`: natural-number indices starting at zero
 and strictly less than `n`. It is a type expression, not a real interval or a
 set. `the type of indices in [0, 0)` is empty; a bound of one admits just the index zero.
@@ -677,6 +692,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Index subject | `an index i in [0, n)`, `an index i into xs` |
 | List subject | `a list T of Tile elements`, `a list xs of natural numbers` |
 | Set subject | `a set S of Point elements`, `a set S of integers` |
+| Set comprehension | `the set of elements x of T such that <proposition>` |
 | Function subject | `a function f from A to B`, `a function f from A and B to C` |
 | Universal quantifier | `for all <bindings> [where <condition>]: <proposition>`, `for every …` |
 | Quantified bindings | `function q from ℕ to Prop`, `list xs of T elements`, `element x of T`, `u and v in V`, `vertices u and v of G` |
@@ -894,14 +910,14 @@ wording; general negations remain ordinary Lean.
 The renderer recognizes graph, scalar, index, list, set, function, proof, and generic element
 subjects; paired universal quantifiers and single explicit quantifiers over arbitrary
 domains; positive and negative existential witnesses; optional
-conditions; finite sums; conjunctions, disjunctions, equivalences, and nondependent propositional implications;
+conditions; set comprehensions; finite sums; conjunctions, disjunctions, equivalences, and nondependent propositional implications;
 and functions with explicit, implicit, strict implicit, and instance binders, including nested and dependent functions.
 Functions also render inside otherwise ordinary Lean applications, constructors,
 and type expressions, for example
 `List.map (the function mapping a natural number n to n + 1) xs`.
 Their bodies use the same logical wording as standalone functions.
-Native binder notation inside the Lean fallback, including set builders and
-unique existence, retains its own syntax.
+Other native binder notation inside the Lean fallback, such as unique existence,
+retains its own syntax.
 It omits unused witness names and unnecessary generated parameter names, while
 preserving public parameter names, including graph carrier parameters.
 It substitutes local `let` aliases, so `E` may render as `G.edgeSet`.

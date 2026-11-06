@@ -1,6 +1,55 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+Definition:
+  SetComprehensionExamples.zeros is
+    (the set of elements n of ℕ such that
+      n = 0).
+
+the set of elements n of ℕ such that
+  n > 0 and n < 3
+
+the set of elements of ℕ such that
+  True
+
+the set of elements of ℕ such that
+  False
+
+the set of elements «a» of ℕ such that
+  «a» = 0
+
+the set of elements S of the type of sets of natural numbers such that
+  0 ∈ S
+
+some
+  (the set of elements n of ℕ such that
+      n > 0)
+
+the set of elements f of ℕ → ℕ such that
+  f 0 = 0
+
+the set of elements x of A such that
+  x is p
+
+the set of elements x of A such that
+  x is p
+
+n ∈
+  the set of elements m of ℕ such that
+      m > 0
+
+(the set of elements n_1 of ℕ such that
+      n_1 > 0) ∪
+  S
+
+(the set of elements n_1 of ℕ such that
+      n_1 > 0) =
+  S
+
+(the set of elements n_1 of ℕ such that
+      n_1 > 0,
+  n)
+
 Abbreviation:
   a SetPhraseExamples.Family is
     a set of SetPhraseExamples.Point elements.
@@ -169,7 +218,8 @@ some
 
 { n : ℕ // n > 0 ∧ n < 3 }
 
-{n : ℕ | n > 0 ∧ n < 3}
+the set of elements n of ℕ such that
+  n > 0 and n < 3
 
 some (∃! n : ℕ, n = 0)
 

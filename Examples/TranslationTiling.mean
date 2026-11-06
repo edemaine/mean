@@ -48,7 +48,10 @@ Abbreviation:
 Definition:
   TranslationTiling.Abstract.Solid is
     the function mapping an element P of Prototile to
-      {x : RealPoint | ∃ p ∈ P, ∀ (i : the type of indices in [0, 3)), (↑(p i) : ℝ) ≤ x i ∧ x i ≤ (↑(p i) : ℝ) + 1}.
+      the set of elements x of RealPoint such that
+        there is an element p of Point such that
+          p ∈ P and (for every index i in [0, 3):
+            (↑(p i) : ℝ) ≤ x i and x i ≤ (↑(p i) : ℝ) + 1).
 
 Definition:
   an element P of Prototile is TranslationTiling.Abstract.RealTiles if

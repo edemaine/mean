@@ -659,6 +659,17 @@ private def witnessBinding (noun : Lean.TSyntax `meanWitnessNoun) :
     | none => `(ident| existentialWitness)
   return (name, ty)
 
+/-- A set comprehension owns its element name and proposition. The type stops
+at `such that`; parentheses protect those words inside a compound type. -/
+def setComprehensionType : Lean.Parser.Parser :=
+  Lean.Parser.withForbidden "such" Lean.Parser.termParser
+syntax "the " "set " "of " "elements" (ppSpace ident)? " of " setComprehensionType
+  " such " "that" ppIndent(ppLine term) : term
+macro_rules
+  | `(the set of elements $[$x:ident]? of $ty:term such that $body:term) => do
+      let x ← parameterName x
+      `(Set.ofPred (fun ($x : $ty) => ($body : Prop)))
+
 macro_rules
   | `(forallOver% $binding:meanQuantified => $body:term) => do
       let `(meanQuantified| $noun:meanWitnessNoun) := binding

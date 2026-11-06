@@ -514,6 +514,19 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
     else leafText e sentenceEnd
   | _ =>
     -- Structural forms take precedence over the open-ended predicate fallback.
+    if e.isAppOfArity ``Set.ofPred 2 then
+      let args := e.getAppArgs
+      let ty := args[0]!
+      let predicate := args[1]!
+      let suggested := match predicate.consumeMData with
+        | .lam n _ _ _ => n
+        | _ => `x
+      let n ← freshName suggested
+      return ← withLocalDeclD n ty fun x => do
+        let body := predicate.beta #[x]
+        let used := (inlineLets body).containsFVar x.fvarId!
+        let suffix ← if used then pure s!" {← nameText n}" else pure ""
+        return s!"the set of elements{suffix} of {← subjectTypeText ty} such that\n{indented (← renderExpr body sentenceEnd)}"
     if e.isAppOfArity ``And 2 || e.isAppOfArity ``Or 2 || e.isAppOfArity ``Iff 2 then
       let op := e.getAppFn.constName!
       let args := e.getAppArgs
@@ -558,6 +571,15 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
       let copula := if negativeAdjective then "is not" else "is"
       return ← sentenceTail s!"{subjectText} {copula} {adjective}" sentenceEnd
     leafText e sentenceEnd
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.Set.ofPred]
+def delabSetComprehension : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  guard <| (← getExpr).isAppOfArity ``Set.ofPred 2
+  let text ← renderExpr (← getExpr)
+  let .ok stx := Parser.runParserCategory (← getEnv) `term text | failure
+  return ⟨stx⟩
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab lam]

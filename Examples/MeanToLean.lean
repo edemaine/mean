@@ -1,5 +1,31 @@
 import Mean.Syntax
 
+namespace SetComprehensionExamples
+
+Definition: zeros is the set of elements n of Nat such that (n = 0).
+example : zeros = {n : Nat | n = 0} := rfl
+example (A : Type u) (p : A → Prop) :
+    (the set of elements x of A such that p x) = {x : A | p x} := rfl
+example : (the set of elements of Nat such that True) = (Set.univ : Set Nat) := rfl
+example : (the set of elements of Nat such that False) = (∅ : Set Nat) := rfl
+example (x : Nat) : ((the set of elements x of Nat such that x > 0), x) =
+    ({n : Nat | n > 0}, x) := rfl
+example (_anonymousParameter : Nat) :
+    (the set of elements of Nat such that _anonymousParameter = 0) =
+    {_n : Nat | _anonymousParameter = 0} := rfl
+example : (the set of elements «a» of Nat such that «a» = 0) = {n : Nat | n = 0} := rfl
+example : (the set of elements S of (the type of sets of natural numbers) such that 0 ∈ S) =
+    {S : Set Nat | 0 ∈ S} := rfl
+example : some (the set of elements n of Nat such that n > 0) = some {n : Nat | n > 0} := rfl
+example (S : Set Nat) : (the set of elements n of Nat such that n > 0) ∪ S =
+    {n : Nat | n > 0} ∪ S := rfl
+example (n : Nat) : (n ∈ (the set of elements m of Nat such that m > 0)) =
+    (n ∈ {m : Nat | m > 0}) := rfl
+example : (the set of elements f of (Nat → Nat) such that f 0 = 0) =
+    {f : Nat → Nat | f 0 = 0} := rfl
+
+end SetComprehensionExamples
+
 namespace SetPhraseExamples
 
 abbrev Point := Fin 3 → Int
