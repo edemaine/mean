@@ -1,6 +1,32 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+p i as a real number
+
+z as a real number
+
+n as an integer
+
+q as a real number
+
+x as a complex number
+
+i as a natural number
+
+(z + 1) as a real number
+
+(n - m) as an integer
+
+-z as a real number
+
+n as an integer as a real number
+
+z as a real number + 1
+
+z as a real number ≤ 1
+
+some (z as a real number)
+
 Definition:
   SetComprehensionExamples.zeros is
     (the set of elements n of ℕ such that
@@ -283,7 +309,7 @@ Definition:
 
 Definition:
   a natural number n and an index i in [0, n) are PredicateExamples.below if
-    (↑i : ℕ) < n.
+    i as a natural number < n.
 
 Definition:
   an element T of Type and an element x of T are PredicateExamples.reflexivePair if
@@ -312,7 +338,7 @@ the sum over indices i in [0, 3) of f i + 1
 
 the sum over indices i in [0, 3) of f i = 1 and True
 
-the sum over indices i in [0, 0) of (↑i : ℕ)
+the sum over indices i in [0, 0) of i as a natural number
 
 the sum over indices i into xs of xs[i]
 
@@ -475,7 +501,7 @@ Abbreviation:
 Definition:
   IndexExamples.value is
     the function mapping a natural number n and an index i in [0, n) to
-      (↑i : ℕ).
+      i as a natural number.
 
 Definition:
   IndexExamples.lookup is
@@ -490,16 +516,16 @@ Definition:
 Definition:
   IndexExamples.implicitValue is
     the function mapping a natural number n and an implicit index i in [0, n) to
-      (↑i : ℕ).
+      i as a natural number.
 
 Definition:
   IndexExamples.strictValue is
     the function mapping a natural number n and a strictly implicit index i in [0, n) to
-      (↑i : ℕ).
+      i as a natural number.
 
 Definition:
   an index i in [0, 4) is IndexExamples.first if
-    ((↑i : ℕ) = 0).
+    (i as a natural number = 0).
 
 the type of indices in [0, n)
 
@@ -512,16 +538,16 @@ the type of indices in [0, 1)
 the type of indices in [0, 4)
 
 the function mapping an index i in [0, n) to
-  (↑i : ℕ)
+  i as a natural number
 
 the function mapping an implicit index i in [0, n) to
-  (↑i : ℕ)
+  i as a natural number
 
 the function mapping a strictly implicit index i in [0, n) to
-  (↑i : ℕ)
+  i as a natural number
 
 the function mapping an index i in [0, n + m) to
-  (↑i : ℕ)
+  i as a natural number
 
 the function mapping an index i into xs to
   xs[i]
@@ -533,13 +559,13 @@ the function mapping a strictly implicit index i into ys to
   ys[i]
 
 the function mapping an index i into (xs ++ xs) to
-  (↑i : ℕ)
+  i as a natural number
 
 the function mapping an element _i of IndexExamples.Four to
   true
 
 for every index i in [0, n):
-  (↑i : ℕ) < n
+  i as a natural number < n
 
 for every index i into xs:
   xs[i] = xs[i]
@@ -658,7 +684,7 @@ Definition:
 Definition:
   ValueExamples.indexValue is
     the function mapping a natural number n and an index i in [0, n) to
-      (↑i : ℕ).
+      i as a natural number.
 
 Definition:
   ValueExamples.zeroInteger is
@@ -678,7 +704,7 @@ Definition:
 Definition:
   ValueExamples.mixedSum is
     the function mapping a natural number n and an integer z to
-      (↑n : ℤ) + z.
+      n as an integer + z.
 
 Definition:
   ValueExamples.sumThree is
@@ -698,7 +724,7 @@ Definition:
 Definition:
   ValueExamples.implicitIndex is
     the function mapping an implicit natural number n and an index i in [0, n) to
-      (↑i : ℕ).
+      i as a natural number.
 
 Definition:
   ValueExamples.implicitIntegerNext is
@@ -718,7 +744,7 @@ Definition:
 Definition:
   ValueExamples.strictIndex is
     the function mapping a strictly implicit natural number n and an index i in [0, n) to
-      (↑i : ℕ).
+      i as a natural number.
 
 Definition:
   ValueExamples.strictConstant is
@@ -1052,7 +1078,7 @@ the function mapping a natural number n to
   2 * n
 
 the function mapping a natural number n and an index i in [0, n) to
-  (↑i : ℕ)
+  i as a natural number
 
 the function mapping a natural number «a» and a natural number «graph» to
   «a» + «graph»
@@ -1064,7 +1090,7 @@ the function mapping a natural number n and an implicit natural number m to
   n + m
 
 the function mapping an implicit natural number n and an index i in [0, n) to
-  (↑i : ℕ)
+  i as a natural number
 
 the function mapping an implicit natural number n and a natural number m and an implicit natural number k to
   n + m + k
@@ -1241,7 +1267,7 @@ there is a natural number such that
 
 for every natural number n:
   for every index i in [0, n):
-    (↑i : ℕ) < n
+    i as a natural number < n
 
 for all natural numbers n and m where n = m:
   m = n

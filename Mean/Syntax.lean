@@ -263,6 +263,14 @@ macro_rules
   | `(the $noun:meanScalar $value:term) => `(($value : scalarType% $noun))
   | `(the $noun:meanScalar - $value:term) => `((-$value : scalarType% $noun))
 
+/-- Request a checked Lean coercion, rather than a type annotation alone.
+The source is inferred independently so its arithmetic keeps its original type. -/
+syntax:70 term:70 " as " "a " meanScalar : term
+syntax:70 term:70 " as " "an " meanScalar : term
+macro_rules
+  | `($value:term as a $noun:meanScalar) => `((↑($value) : scalarType% $noun))
+  | `($value:term as an $noun:meanScalar) => `((↑($value) : scalarType% $noun))
+
 declare_syntax_cat meanScalarDomain
 syntax meanScalar : meanScalarDomain
 declare_syntax_cat meanScalarPlural

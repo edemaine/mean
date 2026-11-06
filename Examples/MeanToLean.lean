@@ -1,5 +1,23 @@
 import Mean.Syntax
 
+namespace ScalarCoercionExamples
+
+example (z : Int) : (z as a real number) = (z : Real) := rfl
+example (n : Nat) : (n as an integer) = (n : Int) := rfl
+example (q : Rat) : (q as a real number) = (q : Real) := rfl
+example (x : Real) : (x as a complex number) = (x : Complex) := rfl
+example (i : Fin 3) : (i as a natural number) = i.val := rfl
+example (z : Int) : ((z + 1) as a real number) = ((z + 1 : Int) : Real) := rfl
+example (n m : Nat) : ((n - m) as an integer) = ((n - m : Nat) : Int) := rfl
+example (z : Int) : (-z as a real number) = ((-z : Int) : Real) := rfl
+example (n : Nat) : ((n as an integer) as a real number) = ((n : Int) : Real) := rfl
+example (z : Int) : (z as a real number) + 1 = (z : Real) + 1 := rfl
+example (z : Int) : (z as a real number) ≤ 1 ↔ (z : Real) ≤ 1 := Iff.rfl
+example (p : Fin 3 → Int) (i : Fin 3) : (p i as a real number) = (p i : Real) := rfl
+example (z : Int) : some (z as a real number) = some (z : Real) := rfl
+
+end ScalarCoercionExamples
+
 namespace SetComprehensionExamples
 
 Definition: zeros is the set of elements n of Nat such that (n = 0).

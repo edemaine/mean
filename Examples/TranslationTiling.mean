@@ -51,7 +51,7 @@ Definition:
       the set of elements x of RealPoint such that
         there is an element p of Point such that
           p ∈ P and (for every index i in [0, 3):
-            (↑(p i) : ℝ) ≤ x i and x i ≤ (↑(p i) : ℝ) + 1).
+            p i as a real number ≤ x i and x i ≤ p i as a real number + 1).
 
 Definition:
   an element P of Prototile is TranslationTiling.Abstract.RealTiles if

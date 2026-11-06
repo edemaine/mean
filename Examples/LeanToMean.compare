@@ -2,6 +2,71 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+(↑(p i) : ℝ)
+-- MEAN OUTPUT:
+p i as a real number
+
+-- LEAN INPUT:
+(↑z : ℝ)
+-- MEAN OUTPUT:
+z as a real number
+
+-- LEAN INPUT:
+(↑n : ℤ)
+-- MEAN OUTPUT:
+n as an integer
+
+-- LEAN INPUT:
+(↑q : ℝ)
+-- MEAN OUTPUT:
+q as a real number
+
+-- LEAN INPUT:
+(↑x : ℂ)
+-- MEAN OUTPUT:
+x as a complex number
+
+-- LEAN INPUT:
+(↑i : ℕ)
+-- MEAN OUTPUT:
+i as a natural number
+
+-- LEAN INPUT:
+(↑(z + 1) : ℝ)
+-- MEAN OUTPUT:
+(z + 1) as a real number
+
+-- LEAN INPUT:
+(↑(n - m) : ℤ)
+-- MEAN OUTPUT:
+(n - m) as an integer
+
+-- LEAN INPUT:
+(↑(-z) : ℝ)
+-- MEAN OUTPUT:
+-z as a real number
+
+-- LEAN INPUT:
+(↑(↑n : ℤ) : ℝ)
+-- MEAN OUTPUT:
+n as an integer as a real number
+
+-- LEAN INPUT:
+(↑z : ℝ) + 1
+-- MEAN OUTPUT:
+z as a real number + 1
+
+-- LEAN INPUT:
+(↑z : ℝ) ≤ 1
+-- MEAN OUTPUT:
+z as a real number ≤ 1
+
+-- LEAN INPUT:
+some (↑z : ℝ)
+-- MEAN OUTPUT:
+some (z as a real number)
+
+-- LEAN INPUT:
 def SetComprehensionExamples.zeros : Set ℕ :=
   {n : ℕ | n = 0}
 -- MEAN OUTPUT:
@@ -554,7 +619,7 @@ def PredicateExamples.below : (n : ℕ) → Fin n → Prop :=
 -- MEAN OUTPUT:
 Definition:
   a natural number n and an index i in [0, n) are PredicateExamples.below if
-    (↑i : ℕ) < n.
+    i as a natural number < n.
 
 -- LEAN INPUT:
 def PredicateExamples.reflexivePair : (T : Type) → T → Prop :=
@@ -617,7 +682,7 @@ the sum over indices i in [0, 3) of f i = 1 and True
 -- LEAN INPUT:
 ∑ i : Fin 0, (↑i : ℕ)
 -- MEAN OUTPUT:
-the sum over indices i in [0, 0) of (↑i : ℕ)
+the sum over indices i in [0, 0) of i as a natural number
 
 -- LEAN INPUT:
 ∑ i : Fin xs.length, xs[i]
@@ -957,7 +1022,7 @@ def IndexExamples.value : (n : ℕ) → Fin n → ℕ :=
 Definition:
   IndexExamples.value is
     the function mapping a natural number n and an index i in [0, n) to
-      (↑i : ℕ).
+      i as a natural number.
 
 -- LEAN INPUT:
 def IndexExamples.lookup : (xs : List ℕ) → Fin xs.length → ℕ :=
@@ -984,7 +1049,7 @@ def IndexExamples.implicitValue : (n : ℕ) → {i : Fin n} → ℕ :=
 Definition:
   IndexExamples.implicitValue is
     the function mapping a natural number n and an implicit index i in [0, n) to
-      (↑i : ℕ).
+      i as a natural number.
 
 -- LEAN INPUT:
 def IndexExamples.strictValue : (n : ℕ) → ⦃i : Fin n⦄ → ℕ :=
@@ -993,7 +1058,7 @@ def IndexExamples.strictValue : (n : ℕ) → ⦃i : Fin n⦄ → ℕ :=
 Definition:
   IndexExamples.strictValue is
     the function mapping a natural number n and a strictly implicit index i in [0, n) to
-      (↑i : ℕ).
+      i as a natural number.
 
 -- LEAN INPUT:
 def IndexExamples.first : Fin 4 → Prop :=
@@ -1001,7 +1066,7 @@ def IndexExamples.first : Fin 4 → Prop :=
 -- MEAN OUTPUT:
 Definition:
   an index i in [0, 4) is IndexExamples.first if
-    ((↑i : ℕ) = 0).
+    (i as a natural number = 0).
 
 -- LEAN INPUT:
 Fin n
@@ -1032,25 +1097,25 @@ the type of indices in [0, 4)
 fun (i : Fin n) => (↑i : ℕ)
 -- MEAN OUTPUT:
 the function mapping an index i in [0, n) to
-  (↑i : ℕ)
+  i as a natural number
 
 -- LEAN INPUT:
 fun {i : Fin n} => (↑i : ℕ)
 -- MEAN OUTPUT:
 the function mapping an implicit index i in [0, n) to
-  (↑i : ℕ)
+  i as a natural number
 
 -- LEAN INPUT:
 fun ⦃i : Fin n⦄ => (↑i : ℕ)
 -- MEAN OUTPUT:
 the function mapping a strictly implicit index i in [0, n) to
-  (↑i : ℕ)
+  i as a natural number
 
 -- LEAN INPUT:
 fun (i : Fin (n + m)) => (↑i : ℕ)
 -- MEAN OUTPUT:
 the function mapping an index i in [0, n + m) to
-  (↑i : ℕ)
+  i as a natural number
 
 -- LEAN INPUT:
 fun (i : Fin xs.length) => xs[i]
@@ -1074,7 +1139,7 @@ the function mapping a strictly implicit index i into ys to
 fun (i : Fin (xs ++ xs).length) => (↑i : ℕ)
 -- MEAN OUTPUT:
 the function mapping an index i into (xs ++ xs) to
-  (↑i : ℕ)
+  i as a natural number
 
 -- LEAN INPUT:
 fun (_i : IndexExamples.Four) => true
@@ -1086,7 +1151,7 @@ the function mapping an element _i of IndexExamples.Four to
 ∀ (i : Fin n), (↑i : ℕ) < n
 -- MEAN OUTPUT:
 for every index i in [0, n):
-  (↑i : ℕ) < n
+  i as a natural number < n
 
 -- LEAN INPUT:
 ∀ (i : Fin xs.length), xs[i] = xs[i]
@@ -1319,7 +1384,7 @@ def ValueExamples.indexValue : (n : ℕ) → Fin n → ℕ :=
 Definition:
   ValueExamples.indexValue is
     the function mapping a natural number n and an index i in [0, n) to
-      (↑i : ℕ).
+      i as a natural number.
 
 -- LEAN INPUT:
 def ValueExamples.zeroInteger : ℕ → ℤ :=
@@ -1355,7 +1420,7 @@ def ValueExamples.mixedSum : ℕ → ℤ → ℤ :=
 Definition:
   ValueExamples.mixedSum is
     the function mapping a natural number n and an integer z to
-      (↑n : ℤ) + z.
+      n as an integer + z.
 
 -- LEAN INPUT:
 def ValueExamples.sumThree : ℕ → ℕ → ℕ → ℕ :=
@@ -1391,7 +1456,7 @@ def ValueExamples.implicitIndex : {n : ℕ} → Fin n → ℕ :=
 Definition:
   ValueExamples.implicitIndex is
     the function mapping an implicit natural number n and an index i in [0, n) to
-      (↑i : ℕ).
+      i as a natural number.
 
 -- LEAN INPUT:
 def ValueExamples.implicitIntegerNext : {x : ℤ} → ℤ :=
@@ -1427,7 +1492,7 @@ def ValueExamples.strictIndex : ⦃n : ℕ⦄ → Fin n → ℕ :=
 Definition:
   ValueExamples.strictIndex is
     the function mapping a strictly implicit natural number n and an index i in [0, n) to
-      (↑i : ℕ).
+      i as a natural number.
 
 -- LEAN INPUT:
 def ValueExamples.strictConstant : ⦃n : ℕ⦄ → Fin n → ℤ :=
@@ -2099,7 +2164,7 @@ the function mapping a natural number n to
 fun (n : ℕ) (i : Fin n) => (↑i : ℕ)
 -- MEAN OUTPUT:
 the function mapping a natural number n and an index i in [0, n) to
-  (↑i : ℕ)
+  i as a natural number
 
 -- LEAN INPUT:
 fun («a» «graph» : ℕ) => «a» + «graph»
@@ -2123,7 +2188,7 @@ the function mapping a natural number n and an implicit natural number m to
 fun {n : ℕ} (i : Fin n) => (↑i : ℕ)
 -- MEAN OUTPUT:
 the function mapping an implicit natural number n and an index i in [0, n) to
-  (↑i : ℕ)
+  i as a natural number
 
 -- LEAN INPUT:
 fun {n : ℕ} (m : ℕ) {k : ℕ} => n + m + k
@@ -2479,7 +2544,7 @@ there is a natural number such that
 -- MEAN OUTPUT:
 for every natural number n:
   for every index i in [0, n):
-    (↑i : ℕ) < n
+    i as a natural number < n
 
 -- LEAN INPUT:
 ∀ (n m : ℕ), n = m → m = n

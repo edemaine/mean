@@ -1,6 +1,51 @@
 import Examples.MeanToLean
 import Mean
 
+section
+variable (z : Int) (n m : Nat) (q : Rat) (x : Real) (i : Fin 3)
+variable (p : Fin 3 → Int)
+/-- info: p i as a real number -/
+#guard_msgs in
+#mean_term (p i : Real)
+/-- info: n as an integer -/
+#guard_msgs in
+#mean_term (n : Int)
+#mean_term_compare (p i : Real)
+#mean_term_compare (z : Real)
+#mean_term_compare (n : Int)
+#mean_term_compare (q : Real)
+#mean_term_compare (x : Complex)
+#mean_term_compare (i : Nat)
+#mean_term_compare ((z + 1 : Int) : Real)
+#mean_term_compare ((n - m : Nat) : Int)
+#mean_term_compare ((-z : Int) : Real)
+#mean_term_compare ((n : Int) : Real)
+#mean_term_compare (z : Real) + 1
+#mean_term_compare (z : Real) ≤ 1
+#mean_term_compare some (z : Real)
+end
+
+-- The source arithmetic must not be reinterpreted in the target type.
+open Lean Elab Term in
+run_elab do
+  let subtraction ← elabTerm (← `(fun n m : Nat => ((n - m : Nat) : Int))) none
+  synthesizeSyntheticMVarsNoPostponing
+  let subtraction ← instantiateMVars subtraction
+  let rejected ← withoutModifyingState do
+    try
+      Mean.RoundTrip.checkText subtraction
+        "the function mapping a natural number n and a natural number m to (n as an integer) - (m as an integer)"
+      pure false
+    catch _ => pure true
+  unless rejected do throwError "coercion rendering changed natural-number subtraction"
+  let invalid ← withoutModifyingState do
+    try
+      discard <| withoutErrToSorry <| elabTerm (← `((fun n : Nat => n) as a real number)) none
+      synthesizeSyntheticMVarsNoPostponing
+      pure false
+    catch _ => pure true
+  unless invalid do throwError "accepted an unavailable scalar coercion"
+
 /--
 info: the set of elements n of ℕ such that
   n > 0 and n < 3
@@ -854,7 +899,7 @@ info: the function mapping a natural number n and an implicit natural number m t
 #mean_term_compare fun n : Nat => fun ⦃m : Nat⦄ => n + m
 /--
 info: the function mapping a strictly implicit natural number n and an index i in [0, n) to
-  (↑i : ℕ)
+  i as a natural number
 -/
 #guard_msgs in
 #mean_term fun ⦃n : Nat⦄ (i : Fin n) => i.val
