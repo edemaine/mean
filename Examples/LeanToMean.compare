@@ -2,6 +2,108 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+Relation.ReflTransGen (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q
+-- MEAN OUTPUT:
+Relation.ReflTransGen
+  (the function mapping an element «a» of Point and an element b of Point to
+      «a» ∈ P and b ∈ P and Adjacent «a» b)
+  p q
+
+-- LEAN INPUT:
+List.map (fun (n : ℕ) => n + 1) [1, 2]
+-- MEAN OUTPUT:
+List.map
+  (the function mapping a natural number n to
+      n + 1)
+  [1, 2]
+
+-- LEAN INPUT:
+some fun (n : ℕ) => n + 1
+-- MEAN OUTPUT:
+some
+  (the function mapping a natural number n to
+      n + 1)
+
+-- LEAN INPUT:
+some fun (_n : ℕ) => 0
+-- MEAN OUTPUT:
+some
+  (the function mapping a natural number _n to
+      0)
+
+-- LEAN INPUT:
+(some fun (n : ℕ) => n + 1, some fun (b : Bool) => b)
+-- MEAN OUTPUT:
+(some
+    (the function mapping a natural number n to
+        n + 1),
+  some
+    (the function mapping a boolean b to
+        b))
+
+-- LEAN INPUT:
+some fun (n : ℕ) (i : Fin n) => i
+-- MEAN OUTPUT:
+some
+  (the function mapping a natural number n and an index i in [0, n) to
+      i)
+
+-- LEAN INPUT:
+some fun {n : ℕ} => n
+-- MEAN OUTPUT:
+some
+  (the function mapping an implicit natural number n to
+      n)
+
+-- LEAN INPUT:
+some fun ⦃n : ℕ⦄ => n
+-- MEAN OUTPUT:
+some
+  (the function mapping a strictly implicit natural number n to
+      n)
+
+-- LEAN INPUT:
+some fun [Inhabited ℕ] => default
+-- MEAN OUTPUT:
+some
+  (the function mapping an instance inst of typeclass Inhabited ℕ to
+      default)
+
+-- LEAN INPUT:
+some
+  (let f := fun (n : ℕ) => n + 1;
+  f)
+-- MEAN OUTPUT:
+some
+  (let f :=
+    the function mapping a natural number n to
+        n + 1;
+  f)
+
+-- LEAN INPUT:
+{ n : ℕ // n > 0 ∧ n < 3 }
+-- MEAN OUTPUT:
+{ n : ℕ // n > 0 ∧ n < 3 }
+
+-- LEAN INPUT:
+{n : ℕ | n > 0 ∧ n < 3}
+-- MEAN OUTPUT:
+{n : ℕ | n > 0 ∧ n < 3}
+
+-- LEAN INPUT:
+some (∃! n : ℕ, n = 0)
+-- MEAN OUTPUT:
+some (∃! n : ℕ, n = 0)
+
+-- LEAN INPUT:
+(some fun (n : ℕ) => n + 1, n)
+-- MEAN OUTPUT:
+(some
+    (the function mapping a natural number n_1 to
+        n_1 + 1),
+  n)
+
+-- LEAN INPUT:
 ∀ p ∈ P, p ∈ P
 -- MEAN OUTPUT:
 for every element p of Point where p ∈ P:

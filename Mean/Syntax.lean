@@ -367,19 +367,19 @@ New subject forms implement `functionOn%`, shared by functions and predicates. -
 declare_syntax_cat meanSubject
 syntax "a" "simple" "graph" (ppSpace ident)? : meanSubject
 syntax "a" "simple" "graph" (ppSpace ident)? "=" "(" ident "," ident ")" : meanSubject
-syntax "an" "element" (ppSpace ident)? "of" subjectType : meanSubject
+syntax "an" "element" (ppSpace ident)? " of " subjectType : meanSubject
 syntax "a" meanScalar (ppSpace ident)? : meanSubject
 syntax "an" meanScalar (ppSpace ident)? : meanSubject
 syntax "an" "implicit" meanScalar (ppSpace ident)? : meanSubject
-syntax "an" "implicit" "element" (ppSpace ident)? "of" subjectType : meanSubject
+syntax "an" "implicit" "element" (ppSpace ident)? " of " subjectType : meanSubject
 syntax "a" "strictly" "implicit" meanScalar (ppSpace ident)? : meanSubject
-syntax "a" "strictly" "implicit" "element" (ppSpace ident)? "of" subjectType : meanSubject
-syntax "a" "proof" (ppSpace ident)? "that" subjectType : meanSubject
-syntax "an" "implicit" "proof" (ppSpace ident)? "that" subjectType : meanSubject
-syntax "a" "strictly" "implicit" "proof" (ppSpace ident)? "that" subjectType : meanSubject
-syntax "a" "list" (ppSpace ident)? "of" meanListElements : meanSubject
-syntax "an" "implicit" "list" (ppSpace ident)? "of" meanListElements : meanSubject
-syntax "a" "strictly" "implicit" "list" (ppSpace ident)? "of" meanListElements : meanSubject
+syntax "a" "strictly" "implicit" "element" (ppSpace ident)? " of " subjectType : meanSubject
+syntax "a" "proof" (ppSpace ident)? " that " subjectType : meanSubject
+syntax "an" "implicit" "proof" (ppSpace ident)? " that " subjectType : meanSubject
+syntax "a" "strictly" "implicit" "proof" (ppSpace ident)? " that " subjectType : meanSubject
+syntax "a" "list" (ppSpace ident)? " of " meanListElements : meanSubject
+syntax "an" "implicit" "list" (ppSpace ident)? " of " meanListElements : meanSubject
+syntax "a" "strictly" "implicit" "list" (ppSpace ident)? " of " meanListElements : meanSubject
 syntax "an" "index" (ppSpace ident)? meanIndexDomain : meanSubject
 syntax "an" "implicit" "index" (ppSpace ident)? meanIndexDomain : meanSubject
 syntax "a" "strictly" "implicit" "index" (ppSpace ident)? meanIndexDomain : meanSubject
@@ -387,7 +387,7 @@ syntax "a" "function" (ppSpace ident)? functionSignature : meanSubject
 syntax "an" "implicit" "function" (ppSpace ident)? functionSignature : meanSubject
 syntax "a" "strictly" "implicit" "function" (ppSpace ident)? functionSignature : meanSubject
 
-syntax "an" "instance" (ppSpace ident)? "of" "typeclass" subjectType : meanSubject
+syntax "an" "instance" (ppSpace ident)? " of " "typeclass" subjectType : meanSubject
 
 /-- Omitted names are hygienic: they cannot capture references in the user's body. -/
 private def parameterName (name : Option (Lean.TSyntax `ident)) : Lean.MacroM (Lean.TSyntax `ident) :=
@@ -410,8 +410,10 @@ def functionSubject : Lean.Parser.Parser :=
 syntax "functionOn%" meanSubject "=>" term : term
 syntax "functionOver%" functionSubject ("and" functionSubject)* "=>" term : term
 syntax "predicateOn%" meanSubject "=>" term : term
-syntax "the" "function" "mapping" functionSubject ("and" functionSubject)* "to" term : term
-syntax "the" "function" ":" term "mapping" functionSubject ("and" functionSubject)* "to" term : term
+syntax "the" "function" "mapping" functionSubject (" and " functionSubject)*
+  " to" ppIndent(ppLine term) : term
+syntax "the" "function" ":" term "mapping" functionSubject (" and " functionSubject)*
+  " to" ppIndent(ppLine term) : term
 
 macro_rules
   | `(the function mapping $subject:meanSubject $[and $subjects:meanSubject]* to $body:term) =>

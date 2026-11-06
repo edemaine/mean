@@ -865,6 +865,12 @@ subjects; paired universal quantifiers and single explicit quantifiers over arbi
 domains; positive and negative existential witnesses; optional
 conditions; finite sums; conjunctions, disjunctions, equivalences, and nondependent propositional implications;
 and functions with explicit, implicit, strict implicit, and instance binders, including nested and dependent functions.
+Functions also render inside otherwise ordinary Lean applications, constructors,
+and type expressions, for example
+`List.map (the function mapping a natural number n to n + 1) xs`.
+Their bodies use the same logical wording as standalone functions.
+Native binder notation, including set builders and unique existence, retains its
+own syntax.
 It omits unused witness names and unnecessary generated parameter names, while
 preserving public parameter names, including graph carrier parameters.
 It substitutes local `let` aliases, so `E` may render as `G.edgeSet`.

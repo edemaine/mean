@@ -1,6 +1,64 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+Relation.ReflTransGen
+  (the function mapping an element «a» of Point and an element b of Point to
+      «a» ∈ P and b ∈ P and Adjacent «a» b)
+  p q
+
+List.map
+  (the function mapping a natural number n to
+      n + 1)
+  [1, 2]
+
+some
+  (the function mapping a natural number n to
+      n + 1)
+
+some
+  (the function mapping a natural number _n to
+      0)
+
+(some
+    (the function mapping a natural number n to
+        n + 1),
+  some
+    (the function mapping a boolean b to
+        b))
+
+some
+  (the function mapping a natural number n and an index i in [0, n) to
+      i)
+
+some
+  (the function mapping an implicit natural number n to
+      n)
+
+some
+  (the function mapping a strictly implicit natural number n to
+      n)
+
+some
+  (the function mapping an instance inst of typeclass Inhabited ℕ to
+      default)
+
+some
+  (let f :=
+    the function mapping a natural number n to
+        n + 1;
+  f)
+
+{ n : ℕ // n > 0 ∧ n < 3 }
+
+{n : ℕ | n > 0 ∧ n < 3}
+
+some (∃! n : ℕ, n = 0)
+
+(some
+    (the function mapping a natural number n_1 to
+        n_1 + 1),
+  n)
+
 for every element p of Point where p ∈ P:
   p ∈ P
 

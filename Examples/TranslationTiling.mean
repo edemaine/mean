@@ -21,7 +21,10 @@ Definition:
   an element P of Prototile is TranslationTiling.Abstract.Connected if
     for every element p of Point where p ∈ P:
       for every element q of Point where q ∈ P:
-        Relation.ReflTransGen (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q.
+        Relation.ReflTransGen
+          (the function mapping an element «a» of Point and an element b of Point to
+              «a» ∈ P and b ∈ P and Adjacent «a» b)
+          p q.
 
 Definition:
   an element P of Prototile is TranslationTiling.Abstract.Tiles if

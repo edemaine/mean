@@ -6,7 +6,12 @@ No declarations are added by the checker. -/
 
 register_option mean.renderProperties : Bool := {
   defValue := false
-  descr := "Render Mean property, type, and finite sum phrases inside expressions"
+  descr := "Render Mean property, type, finite sum, and function phrases inside expressions"
+}
+
+register_option mean.renderFunctions : Bool := {
+  defValue := true
+  descr := "Render function expressions in the Mean view, except where native notation binds them"
 }
 
 namespace Mean.Render
@@ -55,9 +60,40 @@ private def nameText (n : Name) : MetaM String := do
   | .error _ => pure ()
   return "«" ++ s ++ "»"
 
+/-- Unexpanders for binder notation (such as set builders and `∃!`) need a
+native lambda to recognize their syntax. Protect those argument positions while
+allowing function phrases elsewhere, including deeper inside their bodies. -/
+private partial def nativeBinderOptions (env : Environment) (e : Expr)
+    (pos : Lean.SubExpr.Pos := .root)
+    (options : Lean.PrettyPrinter.Delaborator.OptionsPerPos := {}) :
+    Lean.PrettyPrinter.Delaborator.OptionsPerPos :=
+  match e with
+  | .app f argument =>
+    let head := f.getAppFn
+    let options := if argument.consumeMData.isLambda && head.isConst &&
+        !(Lean.PrettyPrinter.Delaborator.appUnexpanderAttribute.getValues env head.constName!).isEmpty then
+      options.insertAt (pos.push 1) `mean.renderFunctions (.ofBool false)
+    else options
+    nativeBinderOptions env argument (pos.push 1) (nativeBinderOptions env f (pos.push 0) options)
+  | .lam _ ty body _ | .forallE _ ty body _ =>
+    nativeBinderOptions env body (pos.push 1) (nativeBinderOptions env ty (pos.push 0) options)
+  | .letE _ ty value body _ =>
+    nativeBinderOptions env body (pos.push 2)
+      (nativeBinderOptions env value (pos.push 1) (nativeBinderOptions env ty (pos.push 0) options))
+  | .mdata _ e => nativeBinderOptions env e pos options
+  | .proj _ _ e => nativeBinderOptions env e (pos.push 0) options
+  | _ => options
+
 /-- Ordinary Lean is the fallback, always delaborated in the current local context. -/
 private def leanText (e : Expr) : MetaM String := do
   withOptions (fun opts => opts.setBool `pp.coercions.types true |>.setBool `pp.funBinderTypes true) do
+    if mean.renderProperties.get (← getOptions) then
+      let delab : Lean.PrettyPrinter.Delaborator.Delab := do
+        let options := nativeBinderOptions (← getEnv)
+          (← Lean.PrettyPrinter.Delaborator.SubExpr.getExpr)
+        withReader (fun ctx => { ctx with optionsPerPos := ctx.optionsPerPos.merge options })
+          Lean.PrettyPrinter.Delaborator.delab
+      return (← Lean.PrettyPrinter.ppExprWithInfos e (delab := delab)).fmt.pretty
     return (← Meta.ppExpr e).pretty
 
 /-- Translate Mean phrases recursively even inside otherwise ordinary Lean syntax. -/
@@ -486,6 +522,17 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
         return s!"there is {description} such that\n{indented (← renderExpr body sentenceEnd)}"
     else
       leafText e sentenceEnd
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab lam]
+def delabFunction : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  guard <| ← getPPOption mean.renderFunctions.get
+  -- Share the renderer, including binding scope and recursive body wording,
+  -- when Lean's fallback encounters a function inside an application or type.
+  let text ← renderExpr (← getExpr)
+  let .ok stx := Parser.runParserCategory (← getEnv) `term text | failure
+  return ⟨stx⟩
 
 /-- Follow the declaration's public parameter names, which may differ from its
 lambda variable names. Anonymous arrow types leave the original spelling alone. -/

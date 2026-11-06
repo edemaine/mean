@@ -2,6 +2,49 @@ import Examples.MeanToLean
 import Mean
 
 section
+variable (Point : Type) (P : Set Point) (Adjacent : Point → Point → Prop) (p q : Point)
+#mean_term_compare Relation.ReflTransGen
+  (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q
+end
+#mean_term_compare List.map (fun n : Nat => n + 1) [1, 2]
+#mean_term_compare some (fun n : Nat => n + 1)
+#mean_term_compare some (fun _n : Nat => (0 : Int))
+#mean_term_compare (some (fun n : Nat => n + 1), some (fun b : Bool => b))
+#mean_term_compare some (fun (n : Nat) (i : Fin n) => i)
+#mean_term_compare (some (fun {n : Nat} => n) : Option ({_n : Nat} → Nat))
+#mean_term_compare (some (fun ⦃n : Nat⦄ => n) : Option (⦃_n : Nat⦄ → Nat))
+#mean_term_compare some (fun [inst : Inhabited Nat] => @default Nat inst)
+#mean_term_compare some (let f := fun n : Nat => n + 1; f)
+#mean_term_compare Subtype (fun n : Nat => n > 0 ∧ n < 3)
+#mean_term_compare {n : Nat | n > 0 ∧ n < 3}
+#mean_term_compare some (∃! n : Nat, n = 0)
+section
+variable (n : Nat)
+#mean_term_compare (some (fun n : Nat => n + 1), n)
+end
+
+-- Ordinary Lean output stays ordinary; nested Mean functions must be visible.
+open Lean Elab Term in
+run_elab do
+  let e ← elabTerm (← `(Relation.ReflTransGen (fun x y : Nat => x = y) 0 1)) none
+  synthesizeSyntheticMVarsNoPostponing
+  let e ← instantiateMVars e
+  let text ← Mean.Render.renderChecked e
+  unless (text.splitOn "the function mapping").length > 1 do
+    throwError "nested function kept its Lean syntax: {text}"
+  let ordinary := (← Lean.Meta.ppExpr e).pretty
+  unless (ordinary.splitOn "fun ").length > 1 do
+    throwError "Mean function wording leaked into ordinary Lean output: {ordinary}"
+  for (term, marker) in [
+      (← `({n : Nat | n > 0}), "{"),
+      (← `(some (∃! n : Nat, n = 0)), "∃!")] do
+    let e ← elabTerm term none
+    synthesizeSyntheticMVarsNoPostponing
+    let text ← Mean.Render.renderChecked (← instantiateMVars e)
+    unless (text.splitOn marker).length > 1 do
+      throwError "nested function rendering displaced native binder notation: {text}"
+
+section
 variable (Point : Type) (P : Set Point)
 /--
 info: for every element p of Point where p ∈ P:
