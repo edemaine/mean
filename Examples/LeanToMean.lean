@@ -1,6 +1,43 @@
 import Examples.MeanToLean
 import Mean
 
+section
+variable (Point : Type) (P : Set Point)
+/--
+info: for every element p of Point where p ∈ P:
+  p ∈ P
+-/
+#guard_msgs in
+#mean_term ∀ p : Point, p ∈ P → p ∈ P
+#mean_term_compare ∀ p : Point, p ∈ P → p ∈ P
+#mean_term_compare ∀ p : Point, p ∈ P → ∀ q : Point, q ∈ P → p = q → q = p
+end
+section
+variable (xs : List Nat) (P Q : Nat → Prop)
+#mean_term_compare ∀ n m : Nat, n ≤ m → n ≤ m
+#mean_term_compare ∀ i : Fin xs.length, xs[i] > 0 → xs[i] ≥ 1
+#mean_term_compare ∀ f : Nat → Nat, f 0 = 0 → f 0 ≤ 1
+#mean_term_compare ∀ n : Nat, (∀ m : Nat, n ≤ m) → n = 0
+#mean_term_compare ∀ n : Nat, (∃ m : Nat, n = m) → n = n
+#mean_term_compare ∀ n : Nat, (P n ↔ Q n) → P n → Q n
+-- Proofs referenced in the conclusion must remain explicit binders.
+#mean_term_compare ∀ n : Nat, ∀ h : n > 0, h = h
+#mean_term_compare ∀ n : Nat, ∀ h : P n, h = h → h = h
+end
+
+open Lean Elab Term in
+run_elab do
+  let original ← elabTerm (← `(∀ n : Nat, n > 0 → n ≥ 1)) none
+  for text in [
+      "for every natural number n: n ≥ 1",
+      "for every natural number n where n = 0: n ≥ 1"] do
+    let rejected ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkText original text
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "round-trip checker accepted a changed quantifier restriction"
+
 /--
 info: Definition:
   elements «a» and b of PredicateExamples.Point are PredicateExamples.adjacent if
@@ -519,11 +556,10 @@ end
 
 -- Universal noun phrases recurse into dependent domains and logical structure.
 /--
-info: for every function q from ℕ to Prop:
-  if 0 is q then
-    there is a function r from ℕ to ℕ such that
-      for every natural number n:
-        n is q if and only if (r n) is q
+info: for every function q from ℕ to Prop where 0 is q:
+  there is a function r from ℕ to ℕ such that
+    for every natural number n:
+      n is q if and only if (r n) is q
 -/
 #guard_msgs in
 #mean_term ∀ q : Nat → Prop, q 0 → ∃ r : Nat → Nat, ∀ n : Nat, q n ↔ q (r n)

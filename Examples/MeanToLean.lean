@@ -1,5 +1,34 @@
 import Mean.Syntax
 
+namespace RestrictedQuantifierExamples
+
+example (A : Type*) (P : Set A) :
+    (for every element p of A where p ∈ P: p ∈ P) =
+    (∀ p : A, p ∈ P → p ∈ P) := rfl
+example : (for all natural numbers n and m where n ≤ m: n ≤ m) =
+    (∀ n m : Nat, n ≤ m → n ≤ m) := rfl
+example (xs : List Nat) : (for every index i into xs where xs[i] > 0: xs[i] ≥ 1) =
+    (∀ i : Fin xs.length, xs[i] > 0 → xs[i] ≥ 1) := rfl
+example : (for every function f from Nat to Nat where f 0 = 0: f 0 ≤ 1) =
+    (∀ f : Nat → Nat, f 0 = 0 → f 0 ≤ 1) := rfl
+example (P : Prop) : (for every proof h that P where h = h: h = h) =
+    (∀ h : P, h = h → h = h) := rfl
+example : (for every natural number n where (for every natural number m: n ≤ m): n = 0) =
+    (∀ n : Nat, (∀ m : Nat, n ≤ m) → n = 0) := rfl
+example : (for every natural number n where (there is a natural number m such that n = m): n = n) =
+    (∀ n : Nat, (∃ m : Nat, n = m) → n = n) := rfl
+example (P Q : Nat → Prop) :
+    (for every natural number n where P n if and only if Q n: P n → Q n) =
+    (∀ n : Nat, (P n ↔ Q n) → P n → Q n) := rfl
+example (A : Type*) (P : Set A) :
+    (for every element p of A where p ∈ P:
+      for every element q of A where q ∈ P: p = q → q = p) =
+    (∀ p : A, p ∈ P → ∀ q : A, q ∈ P → p = q → q = p) := rfl
+example (n : Nat) : (for every natural number n where n > 0: n ≥ 1) =
+    (∀ n : Nat, n > 0 → n ≥ 1) := rfl
+
+end RestrictedQuantifierExamples
+
 namespace SumExamples
 
 example («a» b : Fin 3 → Int) :

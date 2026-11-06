@@ -2,6 +2,73 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+∀ p ∈ P, p ∈ P
+-- MEAN OUTPUT:
+for every element p of Point where p ∈ P:
+  p ∈ P
+
+-- LEAN INPUT:
+∀ p ∈ P, ∀ q ∈ P, p = q → q = p
+-- MEAN OUTPUT:
+for every element p of Point where p ∈ P:
+  for every element q of Point where q ∈ P:
+    if p = q then
+      q = p
+
+-- LEAN INPUT:
+∀ (n m : ℕ), n ≤ m → n ≤ m
+-- MEAN OUTPUT:
+for all natural numbers n and m where n ≤ m:
+  n ≤ m
+
+-- LEAN INPUT:
+∀ (i : Fin xs.length), xs[i] > 0 → xs[i] ≥ 1
+-- MEAN OUTPUT:
+for every index i into xs where xs[i] > 0:
+  xs[i] ≥ 1
+
+-- LEAN INPUT:
+∀ (f : ℕ → ℕ), f 0 = 0 → f 0 ≤ 1
+-- MEAN OUTPUT:
+for every function f from ℕ to ℕ where f 0 = 0:
+  f 0 ≤ 1
+
+-- LEAN INPUT:
+∀ (n : ℕ), (∀ (m : ℕ), n ≤ m) → n = 0
+-- MEAN OUTPUT:
+for every natural number n where (for every natural number m:
+  n ≤ m):
+  n = 0
+
+-- LEAN INPUT:
+∀ (n : ℕ), (∃ (m : ℕ), n = m) → n = n
+-- MEAN OUTPUT:
+for every natural number n where (there is a natural number m such that
+  n = m):
+  n = n
+
+-- LEAN INPUT:
+∀ (n : ℕ), (P n ↔ Q n) → P n → Q n
+-- MEAN OUTPUT:
+for every natural number n where n is P if and only if n is Q:
+  if n is P then
+    n is Q
+
+-- LEAN INPUT:
+∀ (n : ℕ) (h : n > 0), h = h
+-- MEAN OUTPUT:
+for every natural number n:
+  for every proof h that (n > 0):
+    h = h
+
+-- LEAN INPUT:
+∀ (n : ℕ) (h : P n), h = h → h = h
+-- MEAN OUTPUT:
+for every natural number n:
+  for every proof h that (P n) where h = h:
+    h = h
+
+-- LEAN INPUT:
 def PredicateExamples.adjacent : PredicateExamples.Point → PredicateExamples.Point → Prop :=
   fun («a» b : PredicateExamples.Point) => ∑ i : Fin 3, |«a» i - b i| = 1
 -- MEAN OUTPUT:
@@ -1406,11 +1473,10 @@ there is no function from ℕ to ℕ
 -- LEAN INPUT:
 ∀ (q : ℕ → Prop), q 0 → ∃ (r : ℕ → ℕ), ∀ (n : ℕ), q n ↔ q (r n)
 -- MEAN OUTPUT:
-for every function q from ℕ to Prop:
-  if 0 is q then
-    there is a function r from ℕ to ℕ such that
-      for every natural number n:
-        n is q if and only if (r n) is q
+for every function q from ℕ to Prop where 0 is q:
+  there is a function r from ℕ to ℕ such that
+    for every natural number n:
+      n is q if and only if (r n) is q
 
 -- LEAN INPUT:
 ∀ (f : ℕ → ℕ → ℕ), f 0 0 = 0
@@ -1745,9 +1811,8 @@ theorem ordinaryNatTrans3 :
 -- MEAN OUTPUT:
 Theorem ordinaryNatTrans3:
   for all natural numbers x and y:
-    for all natural numbers z and w:
-      if x = y and z = y and z = w then
-        x = w
+    for all natural numbers z and w where x = y and z = y and z = w:
+      x = w
 
 -- LEAN INPUT:
 theorem TheoremExamples.zeroExists :
@@ -1971,9 +2036,8 @@ for every natural number n:
 -- LEAN INPUT:
 ∀ (n m : ℕ), n = m → m = n
 -- MEAN OUTPUT:
-for all natural numbers n and m:
-  if n = m then
-    m = n
+for all natural numbers n and m where n = m:
+  m = n
 
 -- LEAN INPUT:
 ∀ (n m : ℕ), n = m ∧ m = n ∨ n ≠ m

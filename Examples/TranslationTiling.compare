@@ -36,11 +36,9 @@ def TranslationTiling.Abstract.Connected : Prototile → Prop :=
 -- MEAN OUTPUT:
 Definition:
   an element P of Prototile is TranslationTiling.Abstract.Connected if
-    for every element p of Point:
-      if p ∈ P then
-        for every element q of Point:
-          if q ∈ P then
-            Relation.ReflTransGen (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q.
+    for every element p of Point where p ∈ P:
+      for every element q of Point where q ∈ P:
+        Relation.ReflTransGen (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q.
 
 -- LEAN INPUT:
 def TranslationTiling.Abstract.Tiles : Prototile → Prop :=

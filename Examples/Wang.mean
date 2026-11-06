@@ -42,11 +42,10 @@ Definition:
 Definition:
   LeanWang.Abstract.CoREComplete is
     the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
-      p is CoRE and (for every function q from ℕ to Prop:
-        if q is CoRE then
-          there is a function r from ℕ to α such that
-            r is computable and (for every natural number n:
-              n is q if and only if (r n) is p)).
+      p is CoRE and (for every function q from ℕ to Prop where q is CoRE:
+        there is a function r from ℕ to α such that
+          r is computable and (for every natural number n:
+            n is q if and only if (r n) is p)).
 
 Theorem LeanWang.Abstract.coRE_complete:
   TilesPlane is CoREComplete

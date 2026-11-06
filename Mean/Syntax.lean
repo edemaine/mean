@@ -561,10 +561,23 @@ syntax meanScalarDomain ident ("and" ident)? : meanQuantified
 syntax ident "and" ident "in" term : meanQuantified
 syntax "vertices" ident "and" ident "of" term : meanQuantified
 syntax "forallOver%" meanQuantified "=>" term : term
-syntax "for" "every" meanQuantified ":" term : term
-syntax "for" "all" meanQuantified ":" term : term
+/-- A restriction belongs to the quantifier, outside its domain description.
+Parentheses allow type ascriptions and nested quantifiers in the condition. -/
+def quantifiedBinding : Lean.Parser.Parser :=
+  Lean.Parser.withForbidden "where" (Lean.Parser.categoryParser `meanQuantified 0)
+def quantifiedCondition : Lean.Parser.Parser :=
+  Lean.Parser.withAntiquot (Lean.Parser.mkAntiquot "term" `term (isPseudoKind := true))
+    (Lean.Parser.withForbidden ":" Lean.Parser.termParser)
+syntax "for" "every" quantifiedBinding ":" term : term
+syntax "for" "all" quantifiedBinding ":" term : term
+syntax "for" "every" quantifiedBinding "where" quantifiedCondition ":" term : term
+syntax "for" "all" quantifiedBinding "where" quantifiedCondition ":" term : term
 
 macro_rules
+  | `(for every $binding:meanQuantified where $condition:term : $body:term) =>
+      `(forallOver% $binding => ∀ (_ : ($condition : Prop)), ($body : Prop))
+  | `(for all $binding:meanQuantified where $condition:term : $body:term) =>
+      `(forallOver% $binding => ∀ (_ : ($condition : Prop)), ($body : Prop))
   | `(for every $binding:meanQuantified : $body:term) =>
       `(forallOver% $binding => $body)
   | `(for all $binding:meanQuantified : $body:term) =>

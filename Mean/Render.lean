@@ -419,10 +419,22 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
     if bi == .default && (← isProp e) then
       let n ← freshName n
       withLocalDecl n bi ty fun x => do
+        let renderQuantified (heading : String) (body : Expr) : MetaM String := do
+          let body := inlineLets body
+          if let .forallE _ premise conclusion .default := body then
+            -- Keep a proof binder when its proof is used by the conclusion.
+            if (← isProp premise) && !conclusion.hasLooseBVars then
+              let condition ← renderExpr premise false true
+              let condition := if (inlineLets premise).isForall ||
+                  (inlineLets premise).isAppOfArity ``Exists 2 ||
+                  (negatedExists? (inlineLets premise)).isSome then
+                "(" ++ condition ++ ")" else condition
+              let rest ← renderExpr conclusion sentenceEnd
+              return s!"{heading} where {condition}:\n{indented rest}"
+          return s!"{heading}:\n{indented (← renderExpr body sentenceEnd)}"
         let renderSingle : MetaM String := do
           let (_, noun) ← witnessDescription ty (some (← nameText n))
-          let rest ← renderExpr (body.instantiate1 x) sentenceEnd
-          return s!"for every {noun}:\n{indented rest}"
+          renderQuantified s!"for every {noun}" (body.instantiate1 x)
         match body.instantiate1 x with
         | .forallE m ty₂ body₂ bi₂ =>
           if bi₂ == .default && ty == ty₂ then
@@ -433,7 +445,7 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
                 | none => match scalarNouns? ty with
                   | some (_, plural) => pure s!"{plural} {← nameText n} and {← nameText m}"
                   | none => pure s!"{← nameText n} and {← nameText m} in {← atomText ty}"
-              return s!"for all {binding}:\n{indented (← renderExpr (body₂.instantiate1 y) sentenceEnd)}"
+              renderQuantified s!"for all {binding}" (body₂.instantiate1 y)
           else renderSingle
         | _ => renderSingle
     else leafText e sentenceEnd

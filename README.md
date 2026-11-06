@@ -661,7 +661,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Index subject | `an index i in [0, n)`, `an index i into xs` |
 | List subject | `a list T of Tile elements`, `a list xs of natural numbers` |
 | Function subject | `a function f from A to B`, `a function f from A and B to C` |
-| Universal quantifier | `for all <bindings>: <proposition>`, `for every …` |
+| Universal quantifier | `for all <bindings> [where <condition>]: <proposition>`, `for every …` |
 | Quantified bindings | `function q from ℕ to Prop`, `list xs of T elements`, `element x of T`, `u and v in V`, `vertices u and v of G` |
 | Existential quantifier | `there is <witness description> [such that <proposition>]` |
 | Negated existential | `there is no <witness noun> [such that <proposition>]` |
@@ -712,6 +712,20 @@ Universal quantifiers accept one or two names, for example `for every real numbe
 and `for all integers x and y:`. Both `for all` and `for every` accept these domains,
 including natural numbers and booleans. The renderer uses singular nouns for one
 name and plural nouns for two.
+
+Universal quantifiers accept a restriction before the colon:
+
+```lean
+for every element p of Point where p ∈ P:
+  for every element q of Point where q ∈ P:
+    Adjacent p q
+```
+
+`where C` means `C → …` inside the quantified bindings. The bound names are in
+scope in both the condition and body. Both `for every` and `for all` support it,
+including paired bindings. Parenthesize a condition containing its own quantifier,
+such as `where (for every natural number m: n ≤ m): …`. The renderer uses this
+form for an immediate implication whose proof is unused in the conclusion.
 
 Single-variable universal quantifiers also accept the existential witness nouns,
 without an article: `for every function q from ℕ to Prop: …`,

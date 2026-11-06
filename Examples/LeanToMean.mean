@@ -1,6 +1,43 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+for every element p of Point where p ∈ P:
+  p ∈ P
+
+for every element p of Point where p ∈ P:
+  for every element q of Point where q ∈ P:
+    if p = q then
+      q = p
+
+for all natural numbers n and m where n ≤ m:
+  n ≤ m
+
+for every index i into xs where xs[i] > 0:
+  xs[i] ≥ 1
+
+for every function f from ℕ to ℕ where f 0 = 0:
+  f 0 ≤ 1
+
+for every natural number n where (for every natural number m:
+  n ≤ m):
+  n = 0
+
+for every natural number n where (there is a natural number m such that
+  n = m):
+  n = n
+
+for every natural number n where n is P if and only if n is Q:
+  if n is P then
+    n is Q
+
+for every natural number n:
+  for every proof h that (n > 0):
+    h = h
+
+for every natural number n:
+  for every proof h that (P n) where h = h:
+    h = h
+
 Definition:
   elements «a» and b of PredicateExamples.Point are PredicateExamples.adjacent if
     (the sum over indices i in [0, 3) of |«a» i - b i| = 1).
@@ -704,11 +741,10 @@ there is no function f from ℕ to ℕ such that
 
 there is no function from ℕ to ℕ
 
-for every function q from ℕ to Prop:
-  if 0 is q then
-    there is a function r from ℕ to ℕ such that
-      for every natural number n:
-        n is q if and only if (r n) is q
+for every function q from ℕ to Prop where 0 is q:
+  there is a function r from ℕ to ℕ such that
+    for every natural number n:
+      n is q if and only if (r n) is q
 
 for every function f from ℕ and ℕ to ℕ:
   f 0 0 = 0
@@ -867,9 +903,8 @@ the function mapping an element P of Prop to
 
 Theorem ordinaryNatTrans3:
   for all natural numbers x and y:
-    for all natural numbers z and w:
-      if x = y and z = y and z = w then
-        x = w
+    for all natural numbers z and w where x = y and z = y and z = w:
+      x = w
 
 Theorem TheoremExamples.zeroExists:
   there is a natural number n such that
@@ -981,9 +1016,8 @@ for every natural number n:
   for every index i in [0, n):
     (↑i : ℕ) < n
 
-for all natural numbers n and m:
-  if n = m then
-    m = n
+for all natural numbers n and m where n = m:
+  m = n
 
 for all natural numbers n and m:
   n = m and m = n or n ≠ m
