@@ -1,6 +1,71 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+u and v are Adjacent
+
+u and v are not Adjacent
+
+u and z are ordered
+
+u and v are same
+
+u and 0 are dependent
+
+(u + 1) and (v * 2) are Adjacent
+
+P and (u and v are Adjacent)
+
+(u and v are Adjacent) and P
+
+(u and v are Adjacent) and (v and w are Adjacent)
+
+(u and v are Adjacent) and P or Q
+
+P or (u and v are not Adjacent)
+
+u and v are Adjacent if and only if P
+
+if u and v are Adjacent then
+  v and u are not Adjacent
+
+(P and Q) and R are iffRelated
+
+u and v and w are ternary
+
+u and v and w are not ternary
+
+u and v and w and 0 are four
+
+u and z and b are mixedTernary
+
+u and v and w are sameThree
+
+P and Q and (u and v and w are ternary)
+
+(u and v and w are ternary) and P
+
+P or (u and v and w are not ternary)
+
+(u and v are Adjacent) and (u and v and w are ternary)
+
+((u and v and w are ternary) and P) and Q
+
+u and v and w are ternary if and only if P
+
+u = v
+
+u ≠ v
+
+u ≤ v
+
+u ∈ S
+
+P and Q and R
+
+x and y are BinaryPredicateExamples.same
+
+x and y are r
+
 Definition:
   CustomCoercionExamples.wrap is
     the function mapping a natural number n to
@@ -266,10 +331,8 @@ there is a unique element t of Point such that
 there is a unique element witness of Point such that
   witness is P
 
-Relation.ReflTransGen
-  (the function mapping an element «a» of Point and an element b of Point to
-      «a» ∈ P and b ∈ P and Adjacent «a» b)
-  p q
+(the function mapping an element «a» of Point and an element b of Point to
+  «a» ∈ P and b ∈ P and («a» and b are Adjacent)) and p and q are Relation.ReflTransGen
 
 List.map
   (the function mapping a natural number n to
@@ -1491,7 +1554,7 @@ n is PredicateExamples.accepts
 
 PredicateExamples.BoolPred n
 
-PredicateExamples.relates n 0
+n and 0 are PredicateExamples.relates
 
 n is p
 

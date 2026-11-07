@@ -2,6 +2,167 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+Adjacent u v
+-- MEAN OUTPUT:
+u and v are Adjacent
+
+-- LEAN INPUT:
+¬Adjacent u v
+-- MEAN OUTPUT:
+u and v are not Adjacent
+
+-- LEAN INPUT:
+ordered u z
+-- MEAN OUTPUT:
+u and z are ordered
+
+-- LEAN INPUT:
+same u v
+-- MEAN OUTPUT:
+u and v are same
+
+-- LEAN INPUT:
+dependent u 0
+-- MEAN OUTPUT:
+u and 0 are dependent
+
+-- LEAN INPUT:
+Adjacent (u + 1) (v * 2)
+-- MEAN OUTPUT:
+(u + 1) and (v * 2) are Adjacent
+
+-- LEAN INPUT:
+P ∧ Adjacent u v
+-- MEAN OUTPUT:
+P and (u and v are Adjacent)
+
+-- LEAN INPUT:
+Adjacent u v ∧ P
+-- MEAN OUTPUT:
+(u and v are Adjacent) and P
+
+-- LEAN INPUT:
+Adjacent u v ∧ Adjacent v w
+-- MEAN OUTPUT:
+(u and v are Adjacent) and (v and w are Adjacent)
+
+-- LEAN INPUT:
+Adjacent u v ∧ P ∨ Q
+-- MEAN OUTPUT:
+(u and v are Adjacent) and P or Q
+
+-- LEAN INPUT:
+P ∨ ¬Adjacent u v
+-- MEAN OUTPUT:
+P or (u and v are not Adjacent)
+
+-- LEAN INPUT:
+Adjacent u v ↔ P
+-- MEAN OUTPUT:
+u and v are Adjacent if and only if P
+
+-- LEAN INPUT:
+Adjacent u v → ¬Adjacent v u
+-- MEAN OUTPUT:
+if u and v are Adjacent then
+  v and u are not Adjacent
+
+-- LEAN INPUT:
+iffRelated (P ∧ Q) R
+-- MEAN OUTPUT:
+(P and Q) and R are iffRelated
+
+-- LEAN INPUT:
+ternary u v w
+-- MEAN OUTPUT:
+u and v and w are ternary
+
+-- LEAN INPUT:
+¬ternary u v w
+-- MEAN OUTPUT:
+u and v and w are not ternary
+
+-- LEAN INPUT:
+four u v w 0
+-- MEAN OUTPUT:
+u and v and w and 0 are four
+
+-- LEAN INPUT:
+mixedTernary u z b
+-- MEAN OUTPUT:
+u and z and b are mixedTernary
+
+-- LEAN INPUT:
+sameThree u v w
+-- MEAN OUTPUT:
+u and v and w are sameThree
+
+-- LEAN INPUT:
+P ∧ Q ∧ ternary u v w
+-- MEAN OUTPUT:
+P and Q and (u and v and w are ternary)
+
+-- LEAN INPUT:
+ternary u v w ∧ P
+-- MEAN OUTPUT:
+(u and v and w are ternary) and P
+
+-- LEAN INPUT:
+P ∨ ¬ternary u v w
+-- MEAN OUTPUT:
+P or (u and v and w are not ternary)
+
+-- LEAN INPUT:
+Adjacent u v ∧ ternary u v w
+-- MEAN OUTPUT:
+(u and v are Adjacent) and (u and v and w are ternary)
+
+-- LEAN INPUT:
+(ternary u v w ∧ P) ∧ Q
+-- MEAN OUTPUT:
+((u and v and w are ternary) and P) and Q
+
+-- LEAN INPUT:
+ternary u v w ↔ P
+-- MEAN OUTPUT:
+u and v and w are ternary if and only if P
+
+-- LEAN INPUT:
+u = v
+-- MEAN OUTPUT:
+u = v
+
+-- LEAN INPUT:
+u ≠ v
+-- MEAN OUTPUT:
+u ≠ v
+
+-- LEAN INPUT:
+u ≤ v
+-- MEAN OUTPUT:
+u ≤ v
+
+-- LEAN INPUT:
+u ∈ S
+-- MEAN OUTPUT:
+u ∈ S
+
+-- LEAN INPUT:
+P ∧ Q ∧ R
+-- MEAN OUTPUT:
+P and Q and R
+
+-- LEAN INPUT:
+BinaryPredicateExamples.same x y
+-- MEAN OUTPUT:
+x and y are BinaryPredicateExamples.same
+
+-- LEAN INPUT:
+r x y
+-- MEAN OUTPUT:
+x and y are r
+
+-- LEAN INPUT:
 def CustomCoercionExamples.wrap : ℕ → CustomCoercionExamples.Foo :=
   fun (n : ℕ) => (↑n : CustomCoercionExamples.Foo)
 -- MEAN OUTPUT:
@@ -558,10 +719,8 @@ there is a unique element witness of Point such that
 -- LEAN INPUT:
 Relation.ReflTransGen (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q
 -- MEAN OUTPUT:
-Relation.ReflTransGen
-  (the function mapping an element «a» of Point and an element b of Point to
-      «a» ∈ P and b ∈ P and Adjacent «a» b)
-  p q
+(the function mapping an element «a» of Point and an element b of Point to
+  «a» ∈ P and b ∈ P and («a» and b are Adjacent)) and p and q are Relation.ReflTransGen
 
 -- LEAN INPUT:
 List.map (fun (n : ℕ) => n + 1) [1, 2]
@@ -3006,7 +3165,7 @@ PredicateExamples.BoolPred n
 -- LEAN INPUT:
 PredicateExamples.relates n 0
 -- MEAN OUTPUT:
-PredicateExamples.relates n 0
+n and 0 are PredicateExamples.relates
 
 -- LEAN INPUT:
 p n

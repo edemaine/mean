@@ -52,11 +52,23 @@ syntax "adjectivePredicate%" meanAdjective : term
 syntax "adjectiveOn%" meanAdjective "of" term : term
 syntax:50 term:51 " is " meanAdjective : term
 syntax:50 term:51 " is " "not " meanAdjective : term
+-- Backtrack to logical `and` unless a complete subject list fits. Longer lists
+-- can compete with outer conjunctions; parentheses make the boundary explicit.
+syntax:50 term:51 atomic(" and " term:51 (" and " term:51)* " are ") meanAdjective : term
+syntax:50 term:51 atomic(" and " term:51 (" and " term:51)* " are ") "not " meanAdjective : term
 
 /-- Infer the application without a Prop expectation, so Boolean coercions do
 not silently turn an arbitrary function into a predicate. -/
 elab "adjectiveApply%" p:term "of" x:term : term => do
   let application ← Lean.Elab.Term.elabTerm (← `($p $x)) none
+  Lean.Elab.Term.synthesizeSyntheticMVarsNoPostponing
+  unless ← Lean.Meta.isProp application do
+    Lean.throwErrorAt p "expected a proposition-valued predicate"
+  return application
+
+elab "relationApply%" p:term "of" "[" xs:term,* "]" : term => do
+  let args := xs.getElems
+  let application ← Lean.Elab.Term.elabTerm (← `($p $args*)) none
   Lean.Elab.Term.synthesizeSyntheticMVarsNoPostponing
   unless ← Lean.Meta.isProp application do
     Lean.throwErrorAt p "expected a proposition-valued predicate"
@@ -76,6 +88,12 @@ elab "computableOn%" t:term : term => do
   Lean.Meta.mkAppM (if isPredicate then ``ComputablePred else ``Computable) #[subject]
 
 macro_rules
+  | `($x:term and $y:term $[and $zs:term]* are $predicate:meanAdjective) => do
+      let args := #[x, y] ++ zs
+      `(relationApply% (adjectivePredicate% $predicate) of [$args,*])
+  | `($x:term and $y:term $[and $zs:term]* are not $predicate:meanAdjective) => do
+      let args := #[x, y] ++ zs
+      `(Not (relationApply% (adjectivePredicate% $predicate) of [$args,*]))
   | `($subject:term is $adjective:meanAdjective) =>
       `(adjectiveOn% $adjective of $subject)
   | `($subject:term is not $adjective:meanAdjective) =>

@@ -407,18 +407,30 @@ private partial def inlineLets (e : Expr) : Expr :=
   | .letE _ _ value body _ => inlineLets (body.instantiate1 value)
   | e => e
 
+private partial def subjectListSyntax (stx : Syntax) : Bool :=
+  if stx.isOfKind choiceKind then stx.getArgs.any subjectListSyntax
+  else match stx with
+    | `($_:term and $_:term $[and $_:term]* are $_:meanAdjective)
+    | `($_:term and $_:term $[and $_:term]* are not $_:meanAdjective) => true
+    | _ => false
+
 /-- Parentheses preserve binder scope, connective precedence, and associativity. -/
-private def groupOperand (e : Expr) (parent : Name) (left : Bool) (text : String) : String :=
+private def groupOperand (e : Expr) (parent : Name) (left : Bool) (text : String) : MetaM String := do
   let e := inlineLets e
-  let grouped := isQuantifier e || (negatedExists? e).isSome ||
+  let subjects ← if parent == ``And || parent == ``Or then do
+    match Parser.runParserCategory (← getEnv) `term text with
+    | .ok stx => pure (subjectListSyntax stx)
+    | .error _ => pure false
+  else pure false
+  let grouped := subjects || isQuantifier e || (negatedExists? e).isSome ||
     (parent == ``And && e.isAppOfArity ``Or 2) ||
     e.isAppOfArity ``Iff 2 ||
     (left && e.isAppOfArity parent 2)
-  if grouped then "(" ++ text ++ ")" else text
+  return if grouped then "(" ++ text ++ ")" else text
 
-/-- Independent inverse vocabulary: predicate, full application arity, adjective.
-The subject is the final argument; earlier arguments are implicit type parameters. -/
-private def adjectiveView? (e : Expr) : MetaM (Option (Expr × String)) := do
+/-- Independent inverse vocabulary plus named predicates with subject lists.
+Subjects are the trailing explicit arguments, after implicit parameters. -/
+private def adjectiveView? (e : Expr) : MetaM (Option (List Expr × String)) := do
   if e.isAppOfArity ``Not 1 then return none
   unless ← isProp e do return none
   let explicit := pp.explicit.get (← getOptions)
@@ -436,8 +448,8 @@ private def adjectiveView? (e : Expr) : MetaM (Option (Expr × String)) := do
     (``Computable, 5, "computable")]
   for (predicate, arity, word) in vocabulary do
     if e.isAppOfArity predicate arity && !explicit then
-      return some (e.getAppArgs[arity - 1]!, word)
-  -- A named predicate has exactly one explicit argument, supplied last.
+      return some ([e.getAppArgs[arity - 1]!], word)
+  -- A named predicate has trailing explicit arguments after implicit parameters.
   -- Inspect binder information rather than guessing from its spelling.
   let head := e.getAppFn
   unless head.isConst || head.isFVar do return none
@@ -451,20 +463,28 @@ private def adjectiveView? (e : Expr) : MetaM (Option (Expr × String)) := do
     return (← whnf result) == mkSort .zero
   unless declaredPredicate do return none
   let mut ty := headType
+  let mut subjects : List Expr := []
   for i in [:args.size] do
     let .forallE _ _ body bi ← whnf ty | return none
-    if i + 1 == args.size then
-      unless bi == .default do return none
-    else if bi == .default then return none
+    if bi == .default then
+      subjects := subjects ++ [args[i]!]
+    else unless subjects.isEmpty do return none
     ty := body.instantiate1 args[i]!
-  let text ← propertyText (if explicit then e.appFn! else head)
+  if subjects.isEmpty then return none
+  if subjects.length > 1 then
+    -- Keep native relation notation such as =, ≤, ∈, and ⊆. Only a plain
+    -- prefix application needs the named predicate wording.
+    if explicit then return none
+    let .ok native := Parser.runParserCategory (← getEnv) `term (← leanText e) | return none
+    unless native.isOfKind ``Parser.Term.app do return none
+  let text ← propertyText (if explicit then e.getBoundedAppFn subjects.length else head)
   -- A bare polymorphic function prints with `@`; ordinary predicate wording
   -- should infer its implicit arguments from the subject instead.
   let text := if !explicit && text.startsWith "@" then (text.drop 1).toString else text
   let predicate ← match Parser.runParserCategory (← getEnv) `term text with
     | .ok stx => pure (if stx.isIdent then text else "(" ++ text ++ ")")
     | .error _ => pure ("(" ++ text ++ ")")
-  return some (args.back!, predicate)
+  return some (subjects, predicate)
 
 /-- Share function wording and binding scope between plain and typed forms. -/
 private partial def functionText (n : Name) (ty body : Expr) (bi : BinderInfo)
@@ -585,8 +605,8 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
     if e.isAppOfArity ``And 2 || e.isAppOfArity ``Or 2 || e.isAppOfArity ``Iff 2 then
       let op := e.getAppFn.constName!
       let args := e.getAppArgs
-      let left := groupOperand args[0]! op true (← renderExpr args[0]! false true)
-      let right := groupOperand args[1]! op false (← renderExpr args[1]! sentenceEnd true)
+      let left ← groupOperand args[0]! op true (← renderExpr args[0]! false true)
+      let right ← groupOperand args[1]! op false (← renderExpr args[1]! sentenceEnd true)
       let word := if op == ``And then "and" else if op == ``Or then "or" else "if and only if"
       return ← sentenceTail s!"{left} {word} {right}" sentenceEnd
     let negative := negatedExists? e
@@ -617,14 +637,16 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
     -- A negated quantifier without dedicated wording stays Lean. Do not turn
     -- its predicate argument into an adjective subject either.
     if negativeAdjective && isQuantifier positive then return ← leafText e sentenceEnd
-    if let some (subject, adjective) ← adjectiveView? positive then
-      let rendered ← renderExpr subject false true
-      let subjectText ← if (unsignedNumeral? subject).isSome && !(pp.explicit.get (← getOptions)) then
+    if let some (subjects, adjective) ← adjectiveView? positive then
+      let texts ← subjects.mapM fun subject => do
+        let rendered ← renderExpr subject false true
+        if (unsignedNumeral? subject).isSome && !(pp.explicit.get (← getOptions)) then
           pure rendered
         else if rendered == (← propertyText subject) then atomText subject true
         else pure ("(" ++ rendered ++ ")")
-      let copula := if negativeAdjective then "is not" else "is"
-      return ← sentenceTail s!"{subjectText} {copula} {adjective}" sentenceEnd
+      let copula := if subjects.length == 1 then "is" else "are"
+      let copula := copula ++ if negativeAdjective then " not" else ""
+      return ← sentenceTail s!"{String.intercalate " and " texts} {copula} {adjective}" sentenceEnd
     leafText e sentenceEnd
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in

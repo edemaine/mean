@@ -1,6 +1,87 @@
 import Examples.MeanToLean
 import Mean
 
+section
+open BinaryPredicateExamples
+variable (u v w : Nat) (z : Int) (P Q R : Prop) (S : Set Nat)
+variable (b : Bool)
+/-- info: u and v are Adjacent -/
+#guard_msgs in
+#mean_term Adjacent u v
+#mean_term_compare Adjacent u v
+#mean_term_compare ¬ Adjacent u v
+#mean_term_compare ordered u z
+#mean_term_compare same u v
+#mean_term_compare dependent u (0 : Fin (u + 1))
+#mean_term_compare Adjacent (u + 1) (v * 2)
+#mean_term_compare P ∧ Adjacent u v
+#mean_term_compare Adjacent u v ∧ P
+#mean_term_compare Adjacent u v ∧ Adjacent v w
+#mean_term_compare (Adjacent u v ∧ P) ∨ Q
+#mean_term_compare P ∨ ¬ Adjacent u v
+#mean_term_compare Adjacent u v ↔ P
+#mean_term_compare Adjacent u v → ¬ Adjacent v u
+#mean_term_compare iffRelated (P ∧ Q) R
+#mean_term_compare ternary u v w
+#mean_term_compare ¬ ternary u v w
+#mean_term_compare four u v w 0
+#mean_term_compare mixedTernary u z b
+#mean_term_compare sameThree u v w
+#mean_term_compare P ∧ Q ∧ ternary u v w
+#mean_term_compare ternary u v w ∧ P
+#mean_term_compare P ∨ ¬ ternary u v w
+#mean_term_compare Adjacent u v ∧ ternary u v w
+#mean_term_compare (ternary u v w ∧ P) ∧ Q
+#mean_term_compare ternary u v w ↔ P
+#mean_term_compare u = v
+#mean_term_compare u ≠ v
+#mean_term_compare u ≤ v
+#mean_term_compare u ∈ S
+#mean_term_compare P ∧ Q ∧ R
+end
+section
+variable (A : Sort u) (x y : A) (r : A → A → Prop)
+#mean_term_compare BinaryPredicateExamples.same x y
+#mean_term_compare r x y
+end
+
+open Lean Elab Term in
+run_elab do
+  for term in [
+      ← `(0 and 1 are BinaryPredicateExamples.booleanRelation),
+      ← `(0 and 1 are BinaryPredicateExamples.ternary)] do
+    let rejected ← withoutModifyingState do
+      try
+        discard <| withoutErrToSorry <| elabTerm term none
+        synthesizeSyntheticMVarsNoPostponing
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "accepted a non-proposition-valued binary predicate"
+  let original ← elabTerm (← `(BinaryPredicateExamples.ordered 1 (2 : Int))) none
+  synthesizeSyntheticMVarsNoPostponing
+  let original ← instantiateMVars original
+  for text in [
+      "2 and 1 are BinaryPredicateExamples.ordered",
+      "1 and 2 are not BinaryPredicateExamples.ordered"] do
+    let rejected ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkText original text
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "binary predicate rendering changed argument order or polarity"
+
+-- Parentheses delimit a predicate argument list inside an outer conjunction.
+section
+open BinaryPredicateExamples
+variable (P Q : Prop) (u v w : Nat)
+/-- info: P and (u and v are Adjacent) -/
+#guard_msgs in
+#mean_term P ∧ Adjacent u v
+/-- info: (u and v are Adjacent) and (u and v and w are ternary) -/
+#guard_msgs in
+#mean_term Adjacent u v ∧ ternary u v w
+end
+
 #mean_compare CustomCoercionExamples.wrap
 /--
 info: the function mapping a natural number n to

@@ -725,6 +725,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Witness description | `a path p in G from u to v`, `a natural number n`, `a boolean x`, `an element x of T`, `a proof h that P` |
 | Properties | `the edge set of G`, `G's edge set` |
 | Adjectives | `<term> is <adjective>`, `<term> is not <adjective>`, `x is FooPred` |
+| Predicate subject lists | `u and v are Adjacent`, `x and y and z are R`, `u and v are not Adjacent` |
 | Logical connectives | `P and Q`, `P or Q`, `if P then Q`, `P if and only if Q` |
 
 Here `T` is any type in scope. Standard scalar vocabulary works in subjects, function bindings, universal quantifiers,
@@ -923,9 +924,31 @@ An unregistered predicate can use its Lean identifier: if `p : α → Prop`,
 `x is p` means `p x`, and `x is not p` means `¬ p x`. No `Pred` suffix or
 vocabulary registration is required. The application must produce a proposition;
 Boolean-valued functions are rejected instead of coerced to propositions.
-The renderer uses this wording for named predicates with one explicit subject
-argument, preceded by any implicit type or instance arguments. Predicates with
-additional explicit arguments retain ordinary Lean application notation.
+Two or more subjects use `u and v are Adjacent`, meaning `Adjacent u v`,
+or `x and y and z are R`, meaning `R x y z`. Add `not` after `are` to negate
+the application. Arguments remain in order, including when their types differ
+or later types depend on earlier arguments. A parenthesized predicate expression
+also works, such as `u and v are (relation parameter)`.
+
+The phrase binds at the same precedence as `is`, above logical `and`. Longer
+subject lists can also admit an outer-conjunction parse; delimit them inside
+a conjunction or disjunction with parentheses:
+
+```lean
+P and (u and v are Adjacent)
+(u and v are Adjacent) and (x and y and z are R)
+p ∈ P and q ∈ P and (p and q are Adjacent)
+```
+
+The renderer always adds this grouping inside logical `and` and `or`.
+Parenthesize a logical proposition used as one of the predicate arguments too.
+`P and Q and R are r` applies `r` to three propositions; it does not introduce
+an outer logical conjunction.
+
+The renderer uses these forms for named predicates with trailing explicit
+subject arguments, preceded by implicit type or instance arguments. Native
+relation notation such as `=`, `≤`, `∈`, and `⊆` is retained. Predicates with
+implicit parameters interleaved among the subjects retain Lean application notation.
 The declared codomain must be `Prop` with formal type parameters still in place.
 Specializing a value operation such as `id`, `iInf`, or a coercion to return
 propositions does not turn it into an adjective.
@@ -973,8 +996,7 @@ coverage, not failed verification.** Current gaps include:
   retain these through nested function bindings.
 - Recursive rendering inside some unsupported outer structures. In particular,
   an outer implicit universal binder can cause a whole theorem statement to remain Lean.
-- General negation outside predicate applications, automatic English wording for
-  predicates with multiple explicit arguments, and broader mathematical vocabulary.
+- General negation outside predicate applications and broader mathematical vocabulary.
 
 Some gaps require more Mean syntax; others only require the renderer to translate
 supported subexpressions while retaining an ordinary Lean outer structure.

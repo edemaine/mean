@@ -1,6 +1,57 @@
 import Mean.Syntax
 import Mathlib.MeasureTheory.Measure.Module
 
+namespace BinaryPredicateExamples
+
+def Adjacent (u v : Nat) : Prop := u + 1 = v
+def ordered (n : Nat) (z : Int) : Prop := (n : Int) < z
+def same {A : Sort u} (x y : A) : Prop := x = y
+def dependent (n : Nat) (i : Fin (n + 1)) : Prop := i.val = n
+def iffRelated (P Q : Prop) : Prop := P ↔ Q
+def booleanRelation (u v : Nat) : Bool := u == v
+def ternary (u v w : Nat) : Prop := u + v = w
+def four (u v w z : Nat) : Prop := u + v + w = z
+def mixedTernary (n : Nat) (z : Int) (b : Bool) : Prop := (n : Int) < z ∧ b = true
+def sameThree {A : Sort u} (x y z : A) : Prop := x = y ∧ y = z
+
+example (u v : Nat) : (u and v are Adjacent) = Adjacent u v := rfl
+example (u v : Nat) : (u and v are not Adjacent) = (¬ Adjacent u v) := rfl
+example (n : Nat) (z : Int) : (n and z are ordered) = ordered n z := rfl
+example (A : Sort u) (x y : A) : (x and y are same) = same x y := rfl
+example (n : Nat) (i : Fin (n + 1)) : (n and i are dependent) = dependent n i := rfl
+example (u v : Nat) (r : Nat → Nat → Prop) : (u and v are r) = r u v := rfl
+example (u v : Nat) : (u + 1 and v * 2 are Adjacent) = Adjacent (u + 1) (v * 2) := rfl
+example (u v : Nat) : (u and v are (fun x y : Nat => x < y)) = (u < v) := rfl
+example (u v : Nat) : (u and v are (ternary 3)) = ternary 3 u v := rfl
+example (P Q R : Prop) : ((P and Q) and R are iffRelated) = iffRelated (P ∧ Q) R := rfl
+example (P : Prop) (u v : Nat) : (P and (u and v are Adjacent)) = (P ∧ Adjacent u v) := rfl
+example (P : Prop) (u v : Nat) : (u and v are Adjacent and P) = (Adjacent u v ∧ P) := rfl
+example (u v w : Nat) : (u and v are Adjacent and v and w are Adjacent) =
+    (Adjacent u v ∧ Adjacent v w) := rfl
+example (P : Prop) (u v : Nat) : (P or u and v are not Adjacent) = (P ∨ ¬ Adjacent u v) := rfl
+example (P : Prop) (u v : Nat) : (u and v are Adjacent if and only if P) = (Adjacent u v ↔ P) := rfl
+example (u v : Nat) : (if u and v are Adjacent then v and u are not Adjacent) =
+    (Adjacent u v → ¬ Adjacent v u) := rfl
+example (P Q R : Prop) : (P and Q and R) = (P ∧ Q ∧ R) := rfl
+example (u v w : Nat) : (u and v and w are ternary) = ternary u v w := rfl
+example (u v w : Nat) : (u and v and w are not ternary) = (¬ ternary u v w) := rfl
+example (u v w z : Nat) : (u and v and w and z are four) = four u v w z := rfl
+example (n : Nat) (z : Int) (b : Bool) : (n and z and b are mixedTernary) = mixedTernary n z b := rfl
+example (A : Sort u) (x y z : A) : (x and y and z are sameThree) = sameThree x y z := rfl
+example (P Q : Prop) (u v w : Nat) :
+    (P and Q and (u and v and w are ternary)) = (P ∧ Q ∧ ternary u v w) := rfl
+example (P : Prop) (u v w : Nat) :
+    ((u and v and w are ternary) and P) = (ternary u v w ∧ P) := rfl
+example (P : Prop) (u v w : Nat) :
+    (P or (u and v and w are not ternary)) = (P ∨ ¬ ternary u v w) := rfl
+example (u v w : Nat) :
+    ((u and v are Adjacent) and (u and v and w are ternary)) =
+    (Adjacent u v ∧ ternary u v w) := rfl
+example (P Q R : Prop) (r : Prop → Prop → Prop → Prop) :
+    (P and Q and R are r) = r P Q R := rfl
+
+end BinaryPredicateExamples
+
 namespace CustomCoercionExamples
 
 structure Foo where
