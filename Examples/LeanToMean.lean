@@ -2,6 +2,44 @@ import Examples.MeanToLean
 import Mean
 
 section
+variable (A : Type u) (R : A → A → Prop) (x y z : A) (P Q : Prop)
+/-- info: x is related to y by the reflexive transitive closure of R -/
+#guard_msgs in
+#mean_term Relation.ReflTransGen R x y
+#mean_term_compare Relation.ReflTransGen R x y
+#mean_term_compare ¬ Relation.ReflTransGen R x y
+#mean_term_compare Relation.ReflTransGen R x x
+#mean_term_compare P ∧ Relation.ReflTransGen R x y
+#mean_term_compare Relation.ReflTransGen R x y ∧ P
+#mean_term_compare P ∨ ¬ Relation.ReflTransGen R x y
+#mean_term_compare Relation.ReflTransGen R x y ↔ Q
+#mean_term_compare Relation.ReflTransGen R x y → Relation.ReflTransGen R y z
+#mean_term_compare Relation.ReflTransGen R x y ∧ Relation.ReflTransGen R y z
+#mean_term_compare ∀ t : A, Relation.ReflTransGen R x t
+#mean_term_compare some (fun u v : A => Relation.ReflTransGen R u v)
+end
+#mean_term_compare Relation.ReflTransGen (fun x y : Nat => x + 1 = y) 0 3
+#mean_term_compare Relation.ReflTransGen (fun x y : Nat => x < y) 0 3
+
+-- Do not replace reflexive–transitive closure by one step, or reverse it.
+open Lean Elab Term in
+run_elab do
+  let ty ← elabType (← `(Nat → Nat → Prop))
+  Lean.Meta.withLocalDeclD `R ty fun r => do
+    let x := mkNatLit 0
+    let y := mkNatLit 1
+    let original ← Lean.Meta.mkAppM ``Relation.ReflTransGen #[r, x, y]
+    for text in [
+        "0 and 1 are R",
+        "1 is related to 0 by the reflexive transitive closure of R"] do
+      let rejected ← withoutModifyingState do
+        try
+          Mean.RoundTrip.checkText original text
+          pure false
+        catch _ => pure true
+      unless rejected do throwError "relation closure rendering changed steps or direction"
+
+section
 open BinaryPredicateExamples
 variable (u v w : Nat) (z : Int) (P Q R : Prop) (S : Set Nat)
 variable (b : Bool)

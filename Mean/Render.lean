@@ -563,6 +563,17 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
     else leafText e sentenceEnd
   | _ =>
     -- Structural forms take precedence over the open-ended predicate fallback.
+    let negativeRelation := e.isAppOfArity ``Not 1
+    let relation := if negativeRelation then e.getAppArgs[0]!.consumeMData else e
+    if relation.isAppOfArity ``Relation.ReflTransGen 4 &&
+        !(pp.explicit.get (← getOptions)) then
+      let args := relation.getAppArgs
+      let copula := if negativeRelation then "is not related to" else "is related to"
+      let heading := s!"{← atomText args[2]!} {copula} {← atomText args[3]!} by the reflexive transitive closure of"
+      let predicate ← atomText args[1]!
+      let text := if predicate.contains '\n' then s!"{heading}\n{indented predicate}"
+        else s!"{heading} {predicate}"
+      return ← sentenceTail text sentenceEnd
     if let some (ty, predicate, measure) := almostEveryView? e then
       let suggested := match predicate.consumeMData with
         | .lam n _ _ _ => n

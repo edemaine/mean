@@ -57,6 +57,18 @@ syntax:50 term:51 " is " "not " meanAdjective : term
 syntax:50 term:51 atomic(" and " term:51 (" and " term:51)* " are ") meanAdjective : term
 syntax:50 term:51 atomic(" and " term:51 (" and " term:51)* " are ") "not " meanAdjective : term
 
+/-! Relation operators remain relations; relatedness applies them in order. -/
+def closureWords : Lean.Parser.Parser :=
+  Lean.Parser.nonReservedSymbol "reflexive " >>
+  Lean.Parser.nonReservedSymbol "transitive " >>
+  Lean.Parser.nonReservedSymbol "closure "
+def relatedWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "related "
+syntax:max "the " closureWords "of " term:arg : term
+syntax:50 term:51 atomic(" is " relatedWord "to ") term:51 " by " term:51 : term
+syntax:50 term:51 atomic(" is " "not " relatedWord "to ") term:51 " by " term:51 : term
+macro_rules
+  | `(the reflexive transitive closure of $r:term) => `(Relation.ReflTransGen $r)
+
 /-- Infer the application without a Prop expectation, so Boolean coercions do
 not silently turn an arbitrary function into a predicate. -/
 elab "adjectiveApply%" p:term "of" x:term : term => do
@@ -88,6 +100,10 @@ elab "computableOn%" t:term : term => do
   Lean.Meta.mkAppM (if isPredicate then ``ComputablePred else ``Computable) #[subject]
 
 macro_rules
+  | `($x:term is related to $y:term by $r:term) =>
+      `(relationApply% $r of [$x, $y])
+  | `($x:term is not related to $y:term by $r:term) =>
+      `(Not (relationApply% $r of [$x, $y]))
   | `($x:term and $y:term $[and $zs:term]* are $predicate:meanAdjective) => do
       let args := #[x, y] ++ zs
       `(relationApply% (adjectivePredicate% $predicate) of [$args,*])

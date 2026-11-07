@@ -1,6 +1,40 @@
 import Mean.Syntax
 import Mathlib.MeasureTheory.Measure.Module
 
+namespace RelationClosureExamples
+
+example (A : Type u) (R : A → A → Prop) (x y : A) :
+    (x is related to y by R) = R x y := rfl
+example (A : Type u) (R : A → A → Prop) (x y : A) :
+    (x is related to y by the reflexive transitive closure of R) = Relation.ReflTransGen R x y := rfl
+example (A : Type u) (R : A → A → Prop) (x y : A) :
+    (x is not related to y by the reflexive transitive closure of R) = (¬ Relation.ReflTransGen R x y) := rfl
+example (A : Type u) (R : A → A → Prop) :
+    (the reflexive transitive closure of R) = Relation.ReflTransGen R := rfl
+example (A : Type u) (R : A → A → Prop) (x : A) :
+    x is related to x by the reflexive transitive closure of R := Relation.ReflTransGen.refl
+example (A : Type u) (R : A → A → Prop) (x y : A) (h : R x y) :
+    x is related to y by the reflexive transitive closure of R :=
+  Relation.ReflTransGen.tail Relation.ReflTransGen.refl h
+example (n m : Nat) :
+    (n is related to m by the reflexive transitive closure of
+      (the function mapping a natural number x and a natural number y to x + 1 = y)) =
+    Relation.ReflTransGen (fun x y : Nat => x + 1 = y) n m := rfl
+example (A : Type u) (R : A → A → Prop) (x y : A) (P : Prop) :
+    (P and x is related to y by the reflexive transitive closure of R) =
+    (P ∧ Relation.ReflTransGen R x y) := rfl
+example (A : Type u) (R : A → A → Prop) (x y : A) (P : Prop) :
+    (x is related to y by the reflexive transitive closure of R and P) =
+    (Relation.ReflTransGen R x y ∧ P) := rfl
+example (A : Type u) (R : A → A → Prop) (x y : A) (P : Prop) :
+    (P or x is not related to y by the reflexive transitive closure of R) =
+    (P ∨ ¬ Relation.ReflTransGen R x y) := rfl
+example (n m : Nat) :
+    (n + 1 is related to m * 2 by the reflexive transitive closure of LT.lt) =
+    Relation.ReflTransGen (fun x y : Nat => x < y) (n + 1) (m * 2) := rfl
+
+end RelationClosureExamples
+
 namespace BinaryPredicateExamples
 
 def Adjacent (u v : Nat) : Prop := u + 1 = v

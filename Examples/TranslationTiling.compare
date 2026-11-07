@@ -37,8 +37,9 @@ Definition:
   an element P of Prototile is TranslationTiling.Abstract.Connected if
     for every element x of Point where x ∈ P:
       for every element y of Point where y ∈ P:
-        (the function mapping an element p of Point and an element q of Point to
-          p ∈ P and q ∈ P and (p and q are Adjacent)) and x and y are Relation.ReflTransGen.
+        x is related to y by the reflexive transitive closure of
+          (the function mapping an element p of Point and an element q of Point to
+              p ∈ P and q ∈ P and (p and q are Adjacent)).
 
 -- LEAN INPUT:
 def TranslationTiling.Abstract.Tiles : Prototile → Prop :=

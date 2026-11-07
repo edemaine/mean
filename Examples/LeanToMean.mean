@@ -1,6 +1,40 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+x is related to y by the reflexive transitive closure of R
+
+x is not related to y by the reflexive transitive closure of R
+
+x is related to x by the reflexive transitive closure of R
+
+P and x is related to y by the reflexive transitive closure of R
+
+x is related to y by the reflexive transitive closure of R and P
+
+P or x is not related to y by the reflexive transitive closure of R
+
+x is related to y by the reflexive transitive closure of R if and only if Q
+
+if x is related to y by the reflexive transitive closure of R then
+  y is related to z by the reflexive transitive closure of R
+
+x is related to y by the reflexive transitive closure of R and y is related to z by the reflexive transitive closure of R
+
+for every element t of A:
+  x is related to t by the reflexive transitive closure of R
+
+some
+  (the function mapping an element u of A and an element v of A to
+      u is related to v by the reflexive transitive closure of R)
+
+(0) is related to (3) by the reflexive transitive closure of
+  (the function mapping a natural number x and a natural number y to
+      x + 1 = y)
+
+(0) is related to (3) by the reflexive transitive closure of
+  (the function mapping a natural number x and a natural number y to
+      x < y)
+
 u and v are Adjacent
 
 u and v are not Adjacent
@@ -331,8 +365,9 @@ there is a unique element t of Point such that
 there is a unique element witness of Point such that
   witness is P
 
-(the function mapping an element «a» of Point and an element b of Point to
-  «a» ∈ P and b ∈ P and («a» and b are Adjacent)) and p and q are Relation.ReflTransGen
+p is related to q by the reflexive transitive closure of
+  (the function mapping an element «a» of Point and an element b of Point to
+      «a» ∈ P and b ∈ P and («a» and b are Adjacent))
 
 List.map
   (the function mapping a natural number n to

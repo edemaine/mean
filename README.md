@@ -726,6 +726,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Properties | `the edge set of G`, `G's edge set` |
 | Adjectives | `<term> is <adjective>`, `<term> is not <adjective>`, `x is FooPred` |
 | Predicate subject lists | `u and v are Adjacent`, `x and y and z are R`, `u and v are not Adjacent` |
+| Relation closure | `x is related to y by the reflexive transitive closure of R` |
 | Logical connectives | `P and Q`, `P or Q`, `if P then Q`, `P if and only if Q` |
 
 Here `T` is any type in scope. Standard scalar vocabulary works in subjects, function bindings, universal quantifiers,
@@ -957,6 +958,21 @@ quantifier applied to a predicate must keep its quantifier wording; ordinary
 predicates on functions can still use adjective wording.
 Parenthesized predicates are also accepted, such as `n is (relates m)`, and let
 the renderer retain explicit hidden arguments when inference would change them.
+
+Reflexive–transitive closure has dedicated relation wording:
+
+```lean
+x is related to y by the reflexive transitive closure of R
+```
+
+This means `Relation.ReflTransGen R x y`: a finite sequence of `R` links from
+`x` to `y`, including zero links when `x = y`. It preserves direction and does
+not assert symmetry. `the reflexive transitive closure of R` is itself a relation;
+`x is related to y by R` applies any binary relation in that order. Use
+`x is not related to y by …` for negation. Compound relation expressions,
+including inline function phrases, go in parentheses after `of`.
+The renderer uses the closure wording before considering generic predicate
+subject lists, and renders an inline relation's function body recursively.
 
 Adjective subjects render recursively, including function bodies:
 

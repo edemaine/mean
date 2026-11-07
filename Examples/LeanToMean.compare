@@ -2,6 +2,79 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+Relation.ReflTransGen R x y
+-- MEAN OUTPUT:
+x is related to y by the reflexive transitive closure of R
+
+-- LEAN INPUT:
+¬Relation.ReflTransGen R x y
+-- MEAN OUTPUT:
+x is not related to y by the reflexive transitive closure of R
+
+-- LEAN INPUT:
+Relation.ReflTransGen R x x
+-- MEAN OUTPUT:
+x is related to x by the reflexive transitive closure of R
+
+-- LEAN INPUT:
+P ∧ Relation.ReflTransGen R x y
+-- MEAN OUTPUT:
+P and x is related to y by the reflexive transitive closure of R
+
+-- LEAN INPUT:
+Relation.ReflTransGen R x y ∧ P
+-- MEAN OUTPUT:
+x is related to y by the reflexive transitive closure of R and P
+
+-- LEAN INPUT:
+P ∨ ¬Relation.ReflTransGen R x y
+-- MEAN OUTPUT:
+P or x is not related to y by the reflexive transitive closure of R
+
+-- LEAN INPUT:
+Relation.ReflTransGen R x y ↔ Q
+-- MEAN OUTPUT:
+x is related to y by the reflexive transitive closure of R if and only if Q
+
+-- LEAN INPUT:
+Relation.ReflTransGen R x y → Relation.ReflTransGen R y z
+-- MEAN OUTPUT:
+if x is related to y by the reflexive transitive closure of R then
+  y is related to z by the reflexive transitive closure of R
+
+-- LEAN INPUT:
+Relation.ReflTransGen R x y ∧ Relation.ReflTransGen R y z
+-- MEAN OUTPUT:
+x is related to y by the reflexive transitive closure of R and y is related to z by the reflexive transitive closure of R
+
+-- LEAN INPUT:
+∀ (t : A), Relation.ReflTransGen R x t
+-- MEAN OUTPUT:
+for every element t of A:
+  x is related to t by the reflexive transitive closure of R
+
+-- LEAN INPUT:
+some fun (u v : A) => Relation.ReflTransGen R u v
+-- MEAN OUTPUT:
+some
+  (the function mapping an element u of A and an element v of A to
+      u is related to v by the reflexive transitive closure of R)
+
+-- LEAN INPUT:
+Relation.ReflTransGen (fun (x y : ℕ) => x + 1 = y) 0 3
+-- MEAN OUTPUT:
+(0) is related to (3) by the reflexive transitive closure of
+  (the function mapping a natural number x and a natural number y to
+      x + 1 = y)
+
+-- LEAN INPUT:
+Relation.ReflTransGen (fun (x y : ℕ) => x < y) 0 3
+-- MEAN OUTPUT:
+(0) is related to (3) by the reflexive transitive closure of
+  (the function mapping a natural number x and a natural number y to
+      x < y)
+
+-- LEAN INPUT:
 Adjacent u v
 -- MEAN OUTPUT:
 u and v are Adjacent
@@ -719,8 +792,9 @@ there is a unique element witness of Point such that
 -- LEAN INPUT:
 Relation.ReflTransGen (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q
 -- MEAN OUTPUT:
-(the function mapping an element «a» of Point and an element b of Point to
-  «a» ∈ P and b ∈ P and («a» and b are Adjacent)) and p and q are Relation.ReflTransGen
+p is related to q by the reflexive transitive closure of
+  (the function mapping an element «a» of Point and an element b of Point to
+      «a» ∈ P and b ∈ P and («a» and b are Adjacent))
 
 -- LEAN INPUT:
 List.map (fun (n : ℕ) => n + 1) [1, 2]
