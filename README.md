@@ -727,6 +727,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Adjectives | `<term> is <adjective>`, `<term> is not <adjective>`, `x is FooPred` |
 | Predicate subject lists | `u and v are Adjacent`, `x and y and z are R`, `u and v are not Adjacent` |
 | Relation closure | `x is related to y by the reflexive transitive closure of R` |
+| Relation composition | `x is related to z by the composition of R followed by S` |
 | Logical connectives | `P and Q`, `P or Q`, `if P then Q`, `P if and only if Q` |
 
 Here `T` is any type in scope. Standard scalar vocabulary works in subjects, function bindings, universal quantifiers,
@@ -959,7 +960,7 @@ predicates on functions can still use adjective wording.
 Parenthesized predicates are also accepted, such as `n is (relates m)`, and let
 the renderer retain explicit hidden arguments when inference would change them.
 
-Reflexive–transitive closure has dedicated relation wording:
+Relation closures have dedicated wording:
 
 ```lean
 x is related to y by the reflexive transitive closure of R
@@ -967,12 +968,35 @@ x is related to y by the reflexive transitive closure of R
 
 This means `Relation.ReflTransGen R x y`: a finite sequence of `R` links from
 `x` to `y`, including zero links when `x = y`. It preserves direction and does
-not assert symmetry. `the reflexive transitive closure of R` is itself a relation;
-`x is related to y by R` applies any binary relation in that order. Use
-`x is not related to y by …` for negation. Compound relation expressions,
-including inline function phrases, go in parentheses after `of`.
-The renderer uses the closure wording before considering generic predicate
-subject lists, and renders an inline relation's function body recursively.
+not assert symmetry. The available closures are:
+
+| Wording | Lean | Meaning |
+| --- | --- | --- |
+| `the transitive closure of R` | `Relation.TransGen R` | One or more links |
+| `the reflexive closure of R` | `Relation.ReflGen R` | One link or equality |
+| `the reflexive transitive closure of R` | `Relation.ReflTransGen R` | Zero or more links |
+| `the symmetric closure of R` | `Relation.SymmGen R` | One link in either direction |
+| `the equivalence closure of R` | `Relation.EqvGen R` | Zero or more links in either direction |
+
+Each closure phrase is itself a relation. `x is related to y by R` applies any
+binary relation in that order; use `x is not related to y by …` for negation.
+Composition also produces a relation:
+
+```lean
+x is related to z by the composition of R followed by S
+```
+
+This means `Relation.Comp R S x z`, or `∃ y, R x y ∧ S y z`.
+The source, intermediate, and target types may differ.
+Compound relation expressions, including nested closures and inline function
+phrases, go in parentheses:
+
+```lean
+the composition of (the reflexive closure of R) followed by (the symmetric closure of S)
+```
+
+The renderer handles these operators before generic predicate subject lists,
+and renders nested operators and inline function bodies recursively.
 
 Adjective subjects render recursively, including function bodies:
 

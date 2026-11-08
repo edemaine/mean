@@ -2,6 +2,167 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+Relation.TransGen R
+-- MEAN OUTPUT:
+the transitive closure of R
+
+-- LEAN INPUT:
+Relation.ReflGen R
+-- MEAN OUTPUT:
+the reflexive closure of R
+
+-- LEAN INPUT:
+Relation.SymmGen R
+-- MEAN OUTPUT:
+the symmetric closure of R
+
+-- LEAN INPUT:
+Relation.EqvGen R
+-- MEAN OUTPUT:
+the equivalence closure of R
+
+-- LEAN INPUT:
+Relation.ReflTransGen R
+-- MEAN OUTPUT:
+the reflexive transitive closure of R
+
+-- LEAN INPUT:
+Relation.TransGen R x y
+-- MEAN OUTPUT:
+x is related to y by the transitive closure of R
+
+-- LEAN INPUT:
+Relation.ReflGen R x y
+-- MEAN OUTPUT:
+x is related to y by the reflexive closure of R
+
+-- LEAN INPUT:
+Relation.SymmGen R x y
+-- MEAN OUTPUT:
+x is related to y by the symmetric closure of R
+
+-- LEAN INPUT:
+Relation.EqvGen R x y
+-- MEAN OUTPUT:
+x is related to y by the equivalence closure of R
+
+-- LEAN INPUT:
+¬Relation.TransGen R x y
+-- MEAN OUTPUT:
+x is not related to y by the transitive closure of R
+
+-- LEAN INPUT:
+¬Relation.ReflGen R x y
+-- MEAN OUTPUT:
+x is not related to y by the reflexive closure of R
+
+-- LEAN INPUT:
+¬Relation.SymmGen R x y
+-- MEAN OUTPUT:
+x is not related to y by the symmetric closure of R
+
+-- LEAN INPUT:
+¬Relation.EqvGen R x y
+-- MEAN OUTPUT:
+x is not related to y by the equivalence closure of R
+
+-- LEAN INPUT:
+P ∧ Relation.TransGen R x y
+-- MEAN OUTPUT:
+P and x is related to y by the transitive closure of R
+
+-- LEAN INPUT:
+Relation.ReflGen R x y ∧ P
+-- MEAN OUTPUT:
+x is related to y by the reflexive closure of R and P
+
+-- LEAN INPUT:
+P ∨ ¬Relation.EqvGen R x y
+-- MEAN OUTPUT:
+P or x is not related to y by the equivalence closure of R
+
+-- LEAN INPUT:
+Relation.Comp R S
+-- MEAN OUTPUT:
+the composition of R followed by S
+
+-- LEAN INPUT:
+Relation.Comp R S x y
+-- MEAN OUTPUT:
+x is related to y by the composition of R followed by S
+
+-- LEAN INPUT:
+¬Relation.Comp R S x y
+-- MEAN OUTPUT:
+x is not related to y by the composition of R followed by S
+
+-- LEAN INPUT:
+P ∧ Relation.Comp R S x y
+-- MEAN OUTPUT:
+P and x is related to y by the composition of R followed by S
+
+-- LEAN INPUT:
+Relation.EqvGen (Relation.TransGen R) x y
+-- MEAN OUTPUT:
+x is related to y by the equivalence closure of (the transitive closure of R)
+
+-- LEAN INPUT:
+Relation.Comp (Relation.ReflGen R) (Relation.SymmGen S) x y
+-- MEAN OUTPUT:
+x is related to y by the composition of (the reflexive closure of R) followed by (the symmetric closure of S)
+
+-- LEAN INPUT:
+Relation.TransGen (Relation.Comp R S) x y
+-- MEAN OUTPUT:
+x is related to y by the transitive closure of (the composition of R followed by S)
+
+-- LEAN INPUT:
+some fun (u v : A) => Relation.Comp R S u v
+-- MEAN OUTPUT:
+some
+  (the function mapping an element u of A and an element v of A to
+      u is related to v by the composition of R followed by S)
+
+-- LEAN INPUT:
+Relation.Comp R S x z
+-- MEAN OUTPUT:
+x is related to z by the composition of R followed by S
+
+-- LEAN INPUT:
+∃ (y : B), R x y ∧ S y z
+-- MEAN OUTPUT:
+there is an element y of B such that
+  (x and y are R) and (y and z are S)
+
+-- LEAN INPUT:
+Relation.SymmGen (fun (x y : ℕ) => x < y) 0 1
+-- MEAN OUTPUT:
+(0) is related to (1) by the symmetric closure of
+  (the function mapping a natural number x and a natural number y to
+      x < y)
+
+-- LEAN INPUT:
+Relation.Comp (fun (x y : ℕ) => x + 1 = y) (fun (x y : ℕ) => x < y) 0 2
+-- MEAN OUTPUT:
+(0) is related to (2) by the composition of
+  (the function mapping a natural number x and a natural number y to
+      x + 1 = y)
+followed by
+  (the function mapping a natural number x and a natural number y to
+      x < y)
+
+-- LEAN INPUT:
+Relation.TransGen (Relation.Comp (fun (x y : ℕ) => x + 1 = y) fun (x y : ℕ) => x < y)
+-- MEAN OUTPUT:
+the transitive closure of
+  (the composition of
+    (the function mapping a natural number x and a natural number y to
+        x + 1 = y)
+  followed by
+    (the function mapping a natural number x and a natural number y to
+        x < y))
+
+-- LEAN INPUT:
 Relation.ReflTransGen R x y
 -- MEAN OUTPUT:
 x is related to y by the reflexive transitive closure of R

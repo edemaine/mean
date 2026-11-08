@@ -508,6 +508,36 @@ where
     | _ => pure ()
     return ([], ← renderBody e)
 
+private def closureName? (e : Expr) (arity : Nat) : Option String :=
+  if e.isAppOfArity ``Relation.ReflTransGen arity then some "reflexive transitive" else
+  if e.isAppOfArity ``Relation.TransGen arity then some "transitive" else
+  if e.isAppOfArity ``Relation.ReflGen arity then some "reflexive" else
+  if e.isAppOfArity ``Relation.SymmGen arity then some "symmetric" else
+  if e.isAppOfArity ``Relation.EqvGen arity then some "equivalence" else none
+
+private def isRelationOperator (e : Expr) : Bool :=
+  (closureName? e 2).isSome || e.isAppOfArity ``Relation.Comp 5
+
+/-- Describe operators recursively without unfolding or simplifying their meaning. -/
+private partial def relationOperatorText (e : Expr) : MetaM String := do
+  let e := e.consumeMData
+  let argumentText (r : Expr) : MetaM String := do
+    let text ← relationOperatorText r
+    return if r.isConst || r.isFVar then text else "(" ++ text ++ ")"
+  if let some name := closureName? e 2 then
+    let predicate ← argumentText e.getAppArgs[1]!
+    let heading := s!"the {name} closure of"
+    return if predicate.contains '\n' then s!"{heading}\n{indented predicate}"
+      else s!"{heading} {predicate}"
+  if e.isAppOfArity ``Relation.Comp 5 then
+    let args := e.getAppArgs
+    let first ← argumentText args[3]!
+    let second ← argumentText args[4]!
+    return if first.contains '\n' || second.contains '\n' then
+      s!"the composition of\n{indented first}\nfollowed by\n{indented second}"
+      else s!"the composition of {first} followed by {second}"
+  propertyText e
+
 /-- Recognize supported logical structure without unfolding mathematical constants.
 Embedded implications stay inline; standalone implications introduce a block.
 Quantifiers retain their block layout in either context. -/
@@ -565,15 +595,15 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
     -- Structural forms take precedence over the open-ended predicate fallback.
     let negativeRelation := e.isAppOfArity ``Not 1
     let relation := if negativeRelation then e.getAppArgs[0]!.consumeMData else e
-    if relation.isAppOfArity ``Relation.ReflTransGen 4 &&
+    if ((closureName? relation 4).isSome || relation.isAppOfArity ``Relation.Comp 7) &&
         !(pp.explicit.get (← getOptions)) then
       let args := relation.getAppArgs
       let copula := if negativeRelation then "is not related to" else "is related to"
-      let heading := s!"{← atomText args[2]!} {copula} {← atomText args[3]!} by the reflexive transitive closure of"
-      let predicate ← atomText args[1]!
-      let text := if predicate.contains '\n' then s!"{heading}\n{indented predicate}"
-        else s!"{heading} {predicate}"
+      let operatorText ← relationOperatorText (relation.getBoundedAppFn 2)
+      let text := s!"{← atomText args[args.size - 2]!} {copula} {← atomText args[args.size - 1]!} by {operatorText}"
       return ← sentenceTail text sentenceEnd
+    if isRelationOperator e && !(pp.explicit.get (← getOptions)) then
+      return ← sentenceTail (← relationOperatorText e) sentenceEnd
     if let some (ty, predicate, measure) := almostEveryView? e then
       let suggested := match predicate.consumeMData with
         | .lam n _ _ _ => n

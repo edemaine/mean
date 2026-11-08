@@ -1,6 +1,80 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+the transitive closure of R
+
+the reflexive closure of R
+
+the symmetric closure of R
+
+the equivalence closure of R
+
+the reflexive transitive closure of R
+
+x is related to y by the transitive closure of R
+
+x is related to y by the reflexive closure of R
+
+x is related to y by the symmetric closure of R
+
+x is related to y by the equivalence closure of R
+
+x is not related to y by the transitive closure of R
+
+x is not related to y by the reflexive closure of R
+
+x is not related to y by the symmetric closure of R
+
+x is not related to y by the equivalence closure of R
+
+P and x is related to y by the transitive closure of R
+
+x is related to y by the reflexive closure of R and P
+
+P or x is not related to y by the equivalence closure of R
+
+the composition of R followed by S
+
+x is related to y by the composition of R followed by S
+
+x is not related to y by the composition of R followed by S
+
+P and x is related to y by the composition of R followed by S
+
+x is related to y by the equivalence closure of (the transitive closure of R)
+
+x is related to y by the composition of (the reflexive closure of R) followed by (the symmetric closure of S)
+
+x is related to y by the transitive closure of (the composition of R followed by S)
+
+some
+  (the function mapping an element u of A and an element v of A to
+      u is related to v by the composition of R followed by S)
+
+x is related to z by the composition of R followed by S
+
+there is an element y of B such that
+  (x and y are R) and (y and z are S)
+
+(0) is related to (1) by the symmetric closure of
+  (the function mapping a natural number x and a natural number y to
+      x < y)
+
+(0) is related to (2) by the composition of
+  (the function mapping a natural number x and a natural number y to
+      x + 1 = y)
+followed by
+  (the function mapping a natural number x and a natural number y to
+      x < y)
+
+the transitive closure of
+  (the composition of
+    (the function mapping a natural number x and a natural number y to
+        x + 1 = y)
+  followed by
+    (the function mapping a natural number x and a natural number y to
+        x < y))
+
 x is related to y by the reflexive transitive closure of R
 
 x is not related to y by the reflexive transitive closure of R

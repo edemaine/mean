@@ -2,6 +2,76 @@ import Examples.MeanToLean
 import Mean
 
 section
+variable (A : Type u) (R S : A → A → Prop) (x y : A) (P : Prop)
+/-- info: x is related to y by the transitive closure of R -/
+#guard_msgs in
+#mean_term Relation.TransGen R x y
+/-- info: the composition of R followed by S -/
+#guard_msgs in
+#mean_term Relation.Comp R S
+#mean_term_compare Relation.TransGen R
+#mean_term_compare Relation.ReflGen R
+#mean_term_compare Relation.SymmGen R
+#mean_term_compare Relation.EqvGen R
+#mean_term_compare Relation.ReflTransGen R
+#mean_term_compare Relation.TransGen R x y
+#mean_term_compare Relation.ReflGen R x y
+#mean_term_compare Relation.SymmGen R x y
+#mean_term_compare Relation.EqvGen R x y
+#mean_term_compare ¬ Relation.TransGen R x y
+#mean_term_compare ¬ Relation.ReflGen R x y
+#mean_term_compare ¬ Relation.SymmGen R x y
+#mean_term_compare ¬ Relation.EqvGen R x y
+#mean_term_compare P ∧ Relation.TransGen R x y
+#mean_term_compare Relation.ReflGen R x y ∧ P
+#mean_term_compare P ∨ ¬ Relation.EqvGen R x y
+#mean_term_compare Relation.Comp R S
+#mean_term_compare Relation.Comp R S x y
+#mean_term_compare ¬ Relation.Comp R S x y
+#mean_term_compare P ∧ Relation.Comp R S x y
+#mean_term_compare Relation.EqvGen (Relation.TransGen R) x y
+#mean_term_compare Relation.Comp (Relation.ReflGen R) (Relation.SymmGen S) x y
+#mean_term_compare Relation.TransGen (Relation.Comp R S) x y
+#mean_term_compare some (fun u v : A => Relation.Comp R S u v)
+end
+section
+variable (A : Type u) (B : Type v) (C : Type w)
+variable (R : A → B → Prop) (S : B → C → Prop) (x : A) (z : C)
+#mean_term_compare Relation.Comp R S x z
+#mean_term_compare ∃ y : B, R x y ∧ S y z
+end
+#mean_term_compare Relation.SymmGen (fun x y : Nat => x < y) 0 1
+#mean_term_compare Relation.Comp (fun x y : Nat => x + 1 = y) (fun x y : Nat => x < y) 0 2
+#mean_term_compare Relation.TransGen (Relation.Comp (fun x y : Nat => x + 1 = y) (fun x y : Nat => x < y))
+
+-- Closure kinds and relation-composition order are part of the checked meaning.
+open Lean Meta Elab Term in
+run_elab do
+  let ty ← elabType (← `(Nat → Nat → Prop))
+  withLocalDeclD `R ty fun r => do
+    withLocalDeclD `S ty fun s => do
+      let x := mkNatLit 0
+      let y := mkNatLit 1
+      let probes := [
+        (← mkAppM ``Relation.TransGen #[r, x, y],
+          "0 is related to 1 by the reflexive transitive closure of R"),
+        (← mkAppM ``Relation.ReflGen #[r, x, y],
+          "0 is related to 1 by the transitive closure of R"),
+        (← mkAppM ``Relation.SymmGen #[r, x, y],
+          "0 is related to 1 by the equivalence closure of R"),
+        (← mkAppM ``Relation.EqvGen #[r, x, y],
+          "0 is related to 1 by the symmetric closure of R"),
+        (← mkAppM ``Relation.Comp #[r, s, x, y],
+          "0 is related to 1 by the composition of S followed by R")]
+      for (original, text) in probes do
+        let rejected ← withoutModifyingState do
+          try
+            Mean.RoundTrip.checkText original text
+            pure false
+          catch _ => pure true
+        unless rejected do throwError "relation operator rendering changed closure kind or composition order"
+
+section
 variable (A : Type u) (R : A → A → Prop) (x y z : A) (P Q : Prop)
 /-- info: x is related to y by the reflexive transitive closure of R -/
 #guard_msgs in

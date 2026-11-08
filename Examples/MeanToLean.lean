@@ -1,6 +1,60 @@
 import Mean.Syntax
 import Mathlib.MeasureTheory.Measure.Module
 
+namespace RelationOperatorExamples
+
+section
+variable (A : Type u) (R S : A → A → Prop) (x y : A) (P : Prop)
+example : (the transitive closure of R) = Relation.TransGen R := rfl
+example : (the reflexive closure of R) = Relation.ReflGen R := rfl
+example : (the symmetric closure of R) = Relation.SymmGen R := rfl
+example : (the equivalence closure of R) = Relation.EqvGen R := rfl
+example : (x is related to y by the transitive closure of R) = Relation.TransGen R x y := rfl
+example : (x is related to y by the reflexive closure of R) = Relation.ReflGen R x y := rfl
+example : (x is related to y by the symmetric closure of R) = Relation.SymmGen R x y := rfl
+example : (x is related to y by the equivalence closure of R) = Relation.EqvGen R x y := rfl
+example : (x is not related to y by the transitive closure of R) = (¬ Relation.TransGen R x y) := rfl
+example : (x is not related to y by the reflexive closure of R) = (¬ Relation.ReflGen R x y) := rfl
+example : (x is not related to y by the symmetric closure of R) = (¬ Relation.SymmGen R x y) := rfl
+example : (x is not related to y by the equivalence closure of R) = (¬ Relation.EqvGen R x y) := rfl
+example (h : R x y) : x is related to y by the transitive closure of R := Relation.TransGen.single h
+example : x is related to x by the reflexive closure of R := Relation.ReflGen.refl
+example (h : R y x) : x is related to y by the symmetric closure of R := Or.inr h
+example : x is related to x by the equivalence closure of R := Relation.EqvGen.refl x
+example : (x is related to y by the reflexive closure of R and P) = (Relation.ReflGen R x y ∧ P) := rfl
+example : (P or x is not related to y by the equivalence closure of R) = (P ∨ ¬ Relation.EqvGen R x y) := rfl
+example : (the composition of R followed by S) = Relation.Comp R S := rfl
+example : (the equivalence closure of (the transitive closure of R)) =
+    Relation.EqvGen (Relation.TransGen R) := rfl
+example : (the composition of (the reflexive closure of R) followed by (the symmetric closure of S)) =
+    Relation.Comp (Relation.ReflGen R) (Relation.SymmGen S) := rfl
+-- Relation vocabulary remains available as ordinary Lean identifiers.
+example (transitive symmetric equivalence composition followed : A) :
+    (transitive, symmetric, equivalence, composition, followed) =
+    (transitive, symmetric, equivalence, composition, followed) := rfl
+end
+
+section
+variable (A : Type u) (B : Type v) (C : Type w)
+variable (R : A → B → Prop) (S : B → C → Prop) (x : A) (y : B) (z : C) (P : Prop)
+example : (x is related to z by the composition of R followed by S) =
+    (∃ y : B, R x y ∧ S y z) := rfl
+example : (x is not related to z by the composition of R followed by S) =
+    (¬ Relation.Comp R S x z) := rfl
+example (hr : R x y) (hs : S y z) : x is related to z by the composition of R followed by S :=
+    ⟨y, hr, hs⟩
+example : (P and x is related to z by the composition of R followed by S) =
+    (P ∧ Relation.Comp R S x z) := rfl
+end
+
+example : (0 is related to 2 by the composition of
+    (the function mapping a natural number x and a natural number y to x + 1 = y)
+    followed by
+    (the function mapping a natural number x and a natural number y to x < y)) =
+    Relation.Comp (fun x y : Nat => x + 1 = y) (fun x y : Nat => x < y) 0 2 := rfl
+
+end RelationOperatorExamples
+
 namespace RelationClosureExamples
 
 example (A : Type u) (R : A → A → Prop) (x y : A) :

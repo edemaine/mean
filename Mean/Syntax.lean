@@ -62,12 +62,32 @@ def closureWords : Lean.Parser.Parser :=
   Lean.Parser.nonReservedSymbol "reflexive " >>
   Lean.Parser.nonReservedSymbol "transitive " >>
   Lean.Parser.nonReservedSymbol "closure "
+def transitiveClosureWords : Lean.Parser.Parser :=
+  Lean.Parser.nonReservedSymbol "transitive " >> Lean.Parser.nonReservedSymbol "closure "
+def reflexiveClosureWords : Lean.Parser.Parser :=
+  Lean.Parser.nonReservedSymbol "reflexive " >> Lean.Parser.nonReservedSymbol "closure "
+def symmetricClosureWords : Lean.Parser.Parser :=
+  Lean.Parser.nonReservedSymbol "symmetric " >> Lean.Parser.nonReservedSymbol "closure "
+def equivalenceClosureWords : Lean.Parser.Parser :=
+  Lean.Parser.nonReservedSymbol "equivalence " >> Lean.Parser.nonReservedSymbol "closure "
+def compositionWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "composition "
+def followedWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "followed "
 def relatedWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "related "
 syntax:max "the " closureWords "of " term:arg : term
+syntax:max "the " transitiveClosureWords "of " term:arg : term
+syntax:max "the " reflexiveClosureWords "of " term:arg : term
+syntax:max "the " symmetricClosureWords "of " term:arg : term
+syntax:max "the " equivalenceClosureWords "of " term:arg : term
+syntax:max "the " compositionWord "of " term:arg followedWord "by " term:arg : term
 syntax:50 term:51 atomic(" is " relatedWord "to ") term:51 " by " term:51 : term
 syntax:50 term:51 atomic(" is " "not " relatedWord "to ") term:51 " by " term:51 : term
 macro_rules
   | `(the reflexive transitive closure of $r:term) => `(Relation.ReflTransGen $r)
+  | `(the transitive closure of $r:term) => `(Relation.TransGen $r)
+  | `(the reflexive closure of $r:term) => `(Relation.ReflGen $r)
+  | `(the symmetric closure of $r:term) => `(Relation.SymmGen $r)
+  | `(the equivalence closure of $r:term) => `(Relation.EqvGen $r)
+  | `(the composition of $r:term followed by $s:term) => `(Relation.Comp $r $s)
 
 /-- Infer the application without a Prop expectation, so Boolean coercions do
 not silently turn an arbitrary function into a predicate. -/
