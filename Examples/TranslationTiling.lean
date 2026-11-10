@@ -2,25 +2,33 @@
 Adapted from the formal abstract for "Tiling 3D by Translates of a Single
 Polycube is Undecidable" by Erik Demaine and Stefan Langerman.
 
-Upstream source: [TranslationTiling/Abstract.lean](https://github.com/edemaine/translation-tiling-paper/blob/2c69feb2cf4b6c45a46e5cbe18838ede30f9a08f/lean/TranslationTiling/Abstract.lean)
+Upstream source: [TranslationTiling/Abstract.lean](https://github.com/edemaine/translation-tiling-paper/blob/6dec54ac736f46447c9bb3e64c9d17691a4e6920/lean/TranslationTiling/Abstract.lean)
 Upstream license: no project-wide license is declared in the pinned TranslationTiling repository.
 Upstream source: [LeanWang/Abstract.lean](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LeanWang/Abstract.lean)
 Upstream license: the imported Wang example retains [Apache 2.0](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE) in Wang.LICENSE.
 
-Changes from upstream: import Examples.Wang instead of LeanWang.CoRE, and use
+Changes from upstream: import Examples.Wang instead of LeanWang.CoRE and
+LeanWang.Basic; import Mathlib's logarithm and real-power modules directly, and use
 LeanWang.Abstract.CoREComplete instead of LeanWang.CoREComplete in the two
 completeness statements. This uses
 natural-number source predicates rather than arbitrary encoded source types;
 these are equivalent formulations here, but are not definitionally identical.
+The simulation statements use List LeanWang.Abstract.Tile and
+LeanWang.Abstract.TilesPlane instead of LeanWang.TileSet and LeanWang.TilesPlane.
+The abstract represents each Wang tile as Fin 4 → ℕ rather than a four-field
+structure, with the same edge colors and list lengths; the tiling predicates
+are equivalent under this correspondence, but not definitionally identical.
 Rename point binders `a`, `b` to `p`, `q` because Mean reserves `a`; use `x`, `y`
 for the outer endpoints in Connected to avoid shadowing those relation binders.
-Replace the four AbstractBridge proofs with `sorry`; add checked before/after
-comparisons. All eight original definitions/abbreviations and four theorem
+Replace the six AbstractBridge proofs with `sorry`; add checked before/after
+comparisons. All eight original definitions/abbreviations and six theorem
 declarations are retained.
 Mean and both pinned upstream projects use Lean/mathlib 4.35.0.
 -/
 import Mathlib.Computability.Halting
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+import Mathlib.Analysis.SpecialFunctions.Log.Base
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Examples.Wang
 
 /-!
@@ -41,7 +49,9 @@ that every point of `ℤ³` lies in exactly one translate `t + P` with `t ∈ T`
 
 We show that deciding whether a *connected* prototile tiles is co-r.e.-complete,
 both for `ℤ³` and for the solid body in `ℝ³` (union of unit cubes, arbitrary real
-translations). The proofs invoke `TranslationTiling.AbstractBridge`, which connects
+translations). We also bound the number of cubes needed to simulate Wang tiles,
+using the definitions in Lean-Wang. The proofs invoke
+`TranslationTiling.AbstractBridge`, which connects
 the statements to the rest of the project.
 -/
 
@@ -87,6 +97,17 @@ tiles space. (Mathlib notions only.) -/
 theorem tiling_undecidable : ¬ ComputablePred fun P => Connected P ∧ Tiles P := sorry
 #mean_compare tiling_undecidable
 
+set_option warn.sorry false in
+/-- A collection of `n` Wang tiles has an equivalent nonempty connected polycube
+with at most `(n + 4) ^ (10 ^ 61 * lg (lg (n + 4)))` unit cubes, where `lg` is
+the base-two logarithm. List lengths count the input tiles and output cubes. -/
+theorem tiling_simulates_wang : ∀ T : List LeanWang.Abstract.Tile,
+    ∃ P : Prototile, P ≠ [] ∧ Connected P ∧
+      (LeanWang.Abstract.TilesPlane T ↔ Tiles P) ∧
+      (P.length : ℝ) ≤ ((T.length : ℝ) + 4) ^
+        (10 ^ 61 * Real.logb 2 (Real.logb 2 ((T.length : ℝ) + 4))) := sorry
+#mean_compare tiling_simulates_wang
+
 /-! ### Tiling `ℝ³` -/
 
 /-- A point of `ℝ³`. -/
@@ -116,5 +137,14 @@ set_option warn.sorry false in
 real translations. (Mathlib notions only.) -/
 theorem real_tiling_undecidable : ¬ ComputablePred fun P => Connected P ∧ RealTiles P := sorry
 #mean_compare real_tiling_undecidable
+
+set_option warn.sorry false in
+/-- The same cube bound holds for simulation by arbitrary real translations. -/
+theorem real_tiling_simulates_wang : ∀ T : List LeanWang.Abstract.Tile,
+    ∃ P : Prototile, P ≠ [] ∧ Connected P ∧
+      (LeanWang.Abstract.TilesPlane T ↔ RealTiles P) ∧
+      (P.length : ℝ) ≤ ((T.length : ℝ) + 4) ^
+        (10 ^ 61 * Real.logb 2 (Real.logb 2 ((T.length : ℝ) + 4))) := sorry
+#mean_compare real_tiling_simulates_wang
 
 end TranslationTiling.Abstract

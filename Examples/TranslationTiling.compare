@@ -1,6 +1,6 @@
 -- Automatically generated from Examples/TranslationTiling.lean by python test.py --update.
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
--- Upstream source: [TranslationTiling/Abstract.lean](https://github.com/edemaine/translation-tiling-paper/blob/2c69feb2cf4b6c45a46e5cbe18838ede30f9a08f/lean/TranslationTiling/Abstract.lean)
+-- Upstream source: [TranslationTiling/Abstract.lean](https://github.com/edemaine/translation-tiling-paper/blob/6dec54ac736f46447c9bb3e64c9d17691a4e6920/lean/TranslationTiling/Abstract.lean)
 -- Upstream license: no project-wide license is declared in the pinned TranslationTiling repository.
 -- Upstream source: [LeanWang/Abstract.lean](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LeanWang/Abstract.lean)
 -- Upstream license: the imported Wang example retains [Apache 2.0](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE) in Wang.LICENSE.
@@ -69,6 +69,21 @@ Theorem TranslationTiling.Abstract.tiling_undecidable:
     P is Connected and P is Tiles) is not computable
 
 -- LEAN INPUT:
+theorem TranslationTiling.Abstract.tiling_simulates_wang :
+  ∀ (T : List LeanWang.Abstract.Tile),
+    ∃ (P : Prototile),
+      P ≠ [] ∧
+        Connected P ∧
+          (LeanWang.Abstract.TilesPlane T ↔ Tiles P) ∧
+            (↑(List.length P) : ℝ) ≤ ((↑T.length : ℝ) + 4) ^ (10 ^ 61 * Real.logb 2 (Real.logb 2 ((↑T.length : ℝ) + 4)))
+-- MEAN OUTPUT:
+Theorem TranslationTiling.Abstract.tiling_simulates_wang:
+  for every list T of LeanWang.Abstract.Tile elements:
+    there is an element P of Prototile such that
+      P ≠ [] and P is Connected and (T is LeanWang.Abstract.TilesPlane if and only if P is Tiles) and List.length P as a real number ≤
+        (T.length as a real number + 4) ^ (10 ^ 61 * Real.logb 2 (Real.logb 2 (T.length as a real number + 4)))
+
+-- LEAN INPUT:
 abbrev TranslationTiling.Abstract.RealPoint : Type :=
   Fin 3 → ℝ
 -- MEAN OUTPUT:
@@ -114,3 +129,18 @@ theorem TranslationTiling.Abstract.real_tiling_undecidable :
 Theorem TranslationTiling.Abstract.real_tiling_undecidable:
   (the function mapping an element P of Prototile to
     P is Connected and P is RealTiles) is not computable
+
+-- LEAN INPUT:
+theorem TranslationTiling.Abstract.real_tiling_simulates_wang :
+  ∀ (T : List LeanWang.Abstract.Tile),
+    ∃ (P : Prototile),
+      P ≠ [] ∧
+        Connected P ∧
+          (LeanWang.Abstract.TilesPlane T ↔ RealTiles P) ∧
+            (↑(List.length P) : ℝ) ≤ ((↑T.length : ℝ) + 4) ^ (10 ^ 61 * Real.logb 2 (Real.logb 2 ((↑T.length : ℝ) + 4)))
+-- MEAN OUTPUT:
+Theorem TranslationTiling.Abstract.real_tiling_simulates_wang:
+  for every list T of LeanWang.Abstract.Tile elements:
+    there is an element P of Prototile such that
+      P ≠ [] and P is Connected and (T is LeanWang.Abstract.TilesPlane if and only if P is RealTiles) and List.length P as a real number ≤
+        (T.length as a real number + 4) ^ (10 ^ 61 * Real.logb 2 (Real.logb 2 (T.length as a real number + 4)))

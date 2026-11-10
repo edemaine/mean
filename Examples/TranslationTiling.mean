@@ -1,6 +1,6 @@
 -- Automatically generated from Examples/TranslationTiling.lean by python test.py --update.
 -- Checked Mean output; see Examples/TranslationTiling.compare for paired Lean/Mean comparisons.
--- Upstream source: [TranslationTiling/Abstract.lean](https://github.com/edemaine/translation-tiling-paper/blob/2c69feb2cf4b6c45a46e5cbe18838ede30f9a08f/lean/TranslationTiling/Abstract.lean)
+-- Upstream source: [TranslationTiling/Abstract.lean](https://github.com/edemaine/translation-tiling-paper/blob/6dec54ac736f46447c9bb3e64c9d17691a4e6920/lean/TranslationTiling/Abstract.lean)
 -- Upstream license: no project-wide license is declared in the pinned TranslationTiling repository.
 -- Upstream source: [LeanWang/Abstract.lean](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LeanWang/Abstract.lean)
 -- Upstream license: the imported Wang example retains [Apache 2.0](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE) in Wang.LICENSE.
@@ -40,6 +40,12 @@ Theorem TranslationTiling.Abstract.tiling_undecidable:
   (the function mapping an element P of Prototile to
     P is Connected and P is Tiles) is not computable
 
+Theorem TranslationTiling.Abstract.tiling_simulates_wang:
+  for every list T of LeanWang.Abstract.Tile elements:
+    there is an element P of Prototile such that
+      P ≠ [] and P is Connected and (T is LeanWang.Abstract.TilesPlane if and only if P is Tiles) and List.length P as a real number ≤
+        (T.length as a real number + 4) ^ (10 ^ 61 * Real.logb 2 (Real.logb 2 (T.length as a real number + 4)))
+
 Abbreviation:
   a TranslationTiling.Abstract.RealPoint is
     a function from indices in [0, 3) to ℝ.
@@ -66,3 +72,9 @@ Theorem TranslationTiling.Abstract.real_tiling_coRE_complete:
 Theorem TranslationTiling.Abstract.real_tiling_undecidable:
   (the function mapping an element P of Prototile to
     P is Connected and P is RealTiles) is not computable
+
+Theorem TranslationTiling.Abstract.real_tiling_simulates_wang:
+  for every list T of LeanWang.Abstract.Tile elements:
+    there is an element P of Prototile such that
+      P ≠ [] and P is Connected and (T is LeanWang.Abstract.TilesPlane if and only if P is RealTiles) and List.length P as a real number ≤
+        (T.length as a real number + 4) ^ (10 ^ 61 * Real.logb 2 (Real.logb 2 (T.length as a real number + 4)))

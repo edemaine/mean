@@ -656,10 +656,13 @@ existential quantifiers, implication, conjunction, and equivalence in Mean.
 ## Translation tiling example
 
 [Examples/TranslationTiling.lean](Examples/TranslationTiling.lean) adapts the
-[formal abstract at commit 2c69feb](https://github.com/edemaine/translation-tiling-paper/blob/2c69feb2cf4b6c45a46e5cbe18838ede30f9a08f/lean/TranslationTiling/Abstract.lean)
+[formal abstract at commit 6dec54a](https://github.com/edemaine/translation-tiling-paper/blob/6dec54ac736f46447c9bb3e64c9d17691a4e6920/lean/TranslationTiling/Abstract.lean)
 from [Tiling 3D by Translates of a Single Polycube is Undecidable](https://edemaine.github.io/translation-tiling-paper/).
-It retains all eight definitions/abbreviations and four theorem declarations for
-lattice and real translation tiling. The four bridge proofs are replaced with
+It retains all eight definitions/abbreviations and six theorem declarations for
+lattice and real translation tiling, including the Wang-simulation bounds added
+on November 8, 2026. For `n` Wang tiles, both simulation theorems give a nonempty
+connected polycube with at most `(n + 4) ^ (10 ^ 61 * log₂(log₂(n + 4)))` cubes.
+The six bridge proofs are replaced with
 `sorry`, as in Wang; the complete proofs remain upstream.
 
 The input imports [Examples/Wang.lean](Examples/Wang.lean) and uses
@@ -668,7 +671,11 @@ uses `LeanWang.CoREComplete`, which quantifies over all encoded source types of
 the same universe; the Wang abstract instead uses predicates on natural numbers
 as source problems. These are equivalent formulations here, but are not
 definitionally identical in Lean. This interface adaptation is recorded in the
-input's top comment. No external Wang package is needed.
+input's top comment. The simulation statements likewise use `List LeanWang.Abstract.Tile`
+and `LeanWang.Abstract.TilesPlane` from our Wang example. Upstream uses lists of
+four-field Wang-tile structures; our abstract uses functions from `Fin 4` to `ℕ`.
+The correspondence preserves edge colors, list lengths, and tileability, but the
+types and predicates are not definitionally identical. No external Wang package is needed.
 Point binders `a`, `b` are renamed to `p`, `q` because Mean reserves `a`;
 `Connected` uses `x`, `y` for its outer endpoints to avoid shadowing.
 Mean and both upstream projects use Lean/mathlib 4.35.0.
@@ -680,7 +687,7 @@ license and notices.
 
 [TranslationTiling.mean](Examples/TranslationTiling.mean) contains the checked
 Mean output; [TranslationTiling.compare](Examples/TranslationTiling.compare)
-pairs it with Lean input. `python test.py` checks all 12 comparisons. Unsupported
+pairs it with Lean input. `python test.py` checks all 14 comparisons. Unsupported
 structures retain Lean syntax and pass the same round-trip checks.
 
 ## Compositional syntax
