@@ -736,6 +736,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Predicate subject lists | `u and v are Adjacent`, `x and y and z are R`, `u and v are not Adjacent` |
 | Relation closure | `x is related to y by the reflexive transitive closure of R` |
 | Relation composition | `x is related to z by the composition of R followed by S` |
+| Logarithm | `log base b of x` |
 | Logical connectives | `P and Q`, `P or Q`, `if P then Q`, `P if and only if Q` |
 
 Here `T` is any type in scope. Standard scalar vocabulary works in subjects, function bindings, universal quantifiers,
@@ -779,6 +780,17 @@ Index and element domains sum over all values of a type with a `Fintype` instanc
 following `of` belongs to the summand; comparisons and logical connectives stay
 outside it. Write `(the sum over indices i in [0, n) of f i) + 1` to add one to
 the completed sum. Parentheses also group summands with lower precedence.
+
+Real logarithms use `log base b of x`, meaning `Real.logb b x`:
+
+```lean
+log base 2 of (log base 2 of (T.length as a real number + 4))
+```
+
+Parentheses delimit compound bases and arguments. Arithmetic outside those
+parentheses stays outside the logarithm: `log base 2 of x + y` means
+`Real.logb 2 x + y`. The renderer uses this wording inside larger arithmetic
+expressions too, while ordinary Lean output retains `Real.logb`.
 
 All forward scalar forms share `scalarType%`: typed values, subjects, existential witnesses,
 and singular or plural universal domains. Plurals delegate to the singular noun.

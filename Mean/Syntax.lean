@@ -3,6 +3,7 @@ import Mathlib.Basic.Complex.Basic
 import Mathlib.Basic.Countable.Defs
 import Mathlib.Computability.RE
 import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
+import Mathlib.Analysis.SpecialFunctions.Log.Base
 import Lean
 
 /-! # Mean: compositional controlled mathematical syntax inside Lean.
@@ -56,6 +57,13 @@ syntax:50 term:51 " is " "not " meanAdjective : term
 -- can compete with outer conjunctions; parentheses make the boundary explicit.
 syntax:50 term:51 atomic(" and " term:51 (" and " term:51)* " are ") meanAdjective : term
 syntax:50 term:51 atomic(" and " term:51 (" and " term:51)* " are ") "not " meanAdjective : term
+
+/-! Logarithms retain their base and argument explicitly. -/
+def logarithmWords : Lean.Parser.Parser :=
+  Lean.Parser.nonReservedSymbol "log " (includeIdent := true) >> Lean.Parser.nonReservedSymbol "base "
+syntax:max logarithmWords term:arg " of " term:arg : term
+macro_rules
+  | `(log base $base:term of $value:term) => `(Real.logb $base $value)
 
 /-! Relation operators remain relations; relatedness applies them in order. -/
 def closureWords : Lean.Parser.Parser :=

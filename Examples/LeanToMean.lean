@@ -1,6 +1,41 @@
 import Examples.MeanToLean
 import Mean
 
+section
+variable (b x y : Real) (n : Nat)
+/-- info: log base 2 of (log base 2 of x) -/
+#guard_msgs in
+#mean_term Real.logb 2 (Real.logb 2 x)
+#mean_term_compare Real.logb b x
+#mean_term_compare Real.logb 2 x
+#mean_term_compare Real.logb 2 (Real.logb 2 x)
+#mean_term_compare Real.logb (b + 1) (x + 4)
+#mean_term_compare Real.logb 2 x + y
+#mean_term_compare x * Real.logb 2 y
+#mean_term_compare (2 : Real) ^ Real.logb 2 x
+#mean_term_compare Real.logb 2 x ≤ 3 ∧ x > 0
+#mean_term_compare Real.logb 2 ((n : Real) + 4)
+#mean_term_compare fun z : Real => Real.logb 2 (Real.logb 2 z)
+#mean_term_compare Real.logb 2
+#mean_term_compare Nat.log 2 n
+end
+
+-- The base and argument cannot be exchanged, and nested logs cannot be dropped.
+open Lean Meta Elab Term in
+run_elab do
+  let ty ← elabType (← `(Real))
+  withLocalDeclD `b ty fun b => do
+    withLocalDeclD `x ty fun x => do
+      let original ← mkAppM ``Real.logb #[b, x]
+      let nested ← mkAppM ``Real.logb #[b, original]
+      for (e, text) in [(original, "log base x of b"), (nested, "log base b of x")] do
+        let rejected ← withoutModifyingState do
+          try
+            Mean.RoundTrip.checkText e text
+            pure false
+          catch _ => pure true
+        unless rejected do throwError "logarithm rendering changed its base, argument, or nesting"
+
 -- Break a whole connective chain together, preserving grouping and binder scope.
 section
 variable (P Q R S : Prop) (u v w : Nat)

@@ -1,6 +1,31 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+log base b of x
+
+log base 2 of x
+
+log base 2 of (log base 2 of x)
+
+log base (b + 1) of (x + 4)
+
+log base 2 of x + y
+
+x * log base 2 of y
+
+2 ^ log base 2 of x
+
+log base 2 of x ≤ 3 and x > 0
+
+log base 2 of (n as a real number + 4)
+
+the function mapping a real number z to
+  log base 2 of (log base 2 of z)
+
+Real.logb 2
+
+Nat.log 2 n
+
 P and
 Q and
 R and

@@ -217,6 +217,22 @@ private def indexDomainText? (ty : Expr) : MetaM (Option String) := do
   return some s!"in [0, {← propertyText bound})"
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.Real.logb]
+def delabLogarithm : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  guard <| !(pp.explicit.get (← getOptions))
+  let e ← getExpr
+  guard <| e.isAppOfArity ``Real.logb 2
+  let args := e.getAppArgs
+  let base ← withNaryArg 0 delab
+  let value ← withNaryArg 1 delab
+  let base ← if args[0]!.isConst || args[0]!.isFVar || base.raw.isOfKind numLitKind then
+      pure base else `(($base))
+  let value ← if args[1]!.isConst || args[1]!.isFVar || value.raw.isOfKind numLitKind then
+      pure value else `(($value))
+  `(log base $base of $value)
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app.Finset.sum]
 def delabSum : Delab := do
   guard <| mean.renderProperties.get (← getOptions)

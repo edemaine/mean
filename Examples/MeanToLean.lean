@@ -1,6 +1,20 @@
 import Mean.Syntax
 import Mathlib.MeasureTheory.Measure.Module
 
+namespace LogarithmExamples
+
+example (b x : Real) : (log base b of x) = Real.logb b x := rfl
+example (x : Real) : (log base 2 of (log base 2 of x)) = Real.logb 2 (Real.logb 2 x) := rfl
+example (b x : Real) : (log base (b + 1) of (x + 4)) = Real.logb (b + 1) (x + 4) := rfl
+example (x y : Real) : (log base 2 of x + y) = Real.logb 2 x + y := rfl
+example (x y : Real) : (x * log base 2 of y) = x * Real.logb 2 y := rfl
+example (x : Real) : (2 ^ log base 2 of x) = (2 : Real) ^ Real.logb 2 x := rfl
+example (x : Real) : (log base 2 of x ≤ 3 and x > 0) = (Real.logb 2 x ≤ 3 ∧ x > 0) := rfl
+-- The words remain usable as ordinary Lean identifiers.
+example (log base : Real) : log + base = log + base := rfl
+
+end LogarithmExamples
+
 namespace RelationOperatorExamples
 
 section

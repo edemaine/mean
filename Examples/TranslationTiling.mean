@@ -47,7 +47,7 @@ Theorem TranslationTiling.Abstract.tiling_simulates_wang:
       P is Connected and
       (T is LeanWang.Abstract.TilesPlane if and only if P is Tiles) and
       List.length P as a real number ≤
-        (T.length as a real number + 4) ^ (10 ^ 61 * Real.logb 2 (Real.logb 2 (T.length as a real number + 4)))
+        (T.length as a real number + 4) ^ (10 ^ 61 * log base 2 of (log base 2 of (T.length as a real number + 4)))
 
 Abbreviation:
   a TranslationTiling.Abstract.RealPoint is
@@ -84,4 +84,4 @@ Theorem TranslationTiling.Abstract.real_tiling_simulates_wang:
       P is Connected and
       (T is LeanWang.Abstract.TilesPlane if and only if P is RealTiles) and
       List.length P as a real number ≤
-        (T.length as a real number + 4) ^ (10 ^ 61 * Real.logb 2 (Real.logb 2 (T.length as a real number + 4)))
+        (T.length as a real number + 4) ^ (10 ^ 61 * log base 2 of (log base 2 of (T.length as a real number + 4)))
