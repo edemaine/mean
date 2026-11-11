@@ -654,6 +654,7 @@ def quantifiedBinding : Lean.Parser.Parser :=
 def quantifiedCondition : Lean.Parser.Parser :=
   Lean.Parser.withAntiquot (Lean.Parser.mkAntiquot "term" `term (isPseudoKind := true))
     (Lean.Parser.withForbidden ":" Lean.Parser.termParser)
+syntax ident "∈" quantifiedCondition : meanQuantified
 syntax "for" "every" quantifiedBinding ":" term : term
 syntax "for" "all" quantifiedBinding ":" term : term
 syntax "for" "every" quantifiedBinding "where" quantifiedCondition ":" term : term
@@ -674,6 +675,8 @@ macro_rules
       | none => `(∀ ($x : scalarDomainType% $domain), $body)
   | `(forallOver% $u:ident and $v:ident in $ty:term => $body:term) =>
       `(∀ ($u : $ty) ($v : $ty), $body)
+  | `(forallOver% $x:ident ∈ $collection:term => $body:term) =>
+      `(∀ ($x:ident : _), $x:ident ∈ $collection → $body)
   | `(forallOver% vertices $u:ident and $v:ident of $g:term => $body:term) =>
       `(forallOver% $u:ident and $v:ident in SimpleGraph.V $g => $body)
 

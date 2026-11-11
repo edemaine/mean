@@ -1192,16 +1192,92 @@ some (∃! n : ℕ, n = 0)
 -- LEAN INPUT:
 ∀ p ∈ P, p ∈ P
 -- MEAN OUTPUT:
-for every element p of Point where p ∈ P:
+for every p ∈ P:
   p ∈ P
 
 -- LEAN INPUT:
 ∀ p ∈ P, ∀ q ∈ P, p = q → q = p
 -- MEAN OUTPUT:
-for every element p of Point where p ∈ P:
-  for every element q of Point where q ∈ P:
-    if p = q then
-      q = p
+for every p ∈ P:
+  for every q ∈ P where p = q:
+    q = p
+
+-- LEAN INPUT:
+∀ p ∈ P ∩ Q, p ∈ P
+-- MEAN OUTPUT:
+for every p ∈ (P ∩ Q):
+  p ∈ P
+
+-- LEAN INPUT:
+∀ p ∈ P, R p → p ∈ P
+-- MEAN OUTPUT:
+for every p ∈ P where p is R:
+  p ∈ P
+
+-- LEAN INPUT:
+∀ p ∈ P, ∀ q ∈ F p, q ∈ F p
+-- MEAN OUTPUT:
+for every p ∈ P:
+  for every q ∈ (F p):
+    q ∈ F p
+
+-- LEAN INPUT:
+(∀ p ∈ P, R p) ∧ True
+-- MEAN OUTPUT:
+(for every p ∈ P:
+  p is R) and
+True
+
+-- LEAN INPUT:
+True ∨ ∀ p ∈ P, R p
+-- MEAN OUTPUT:
+True or
+(for every p ∈ P:
+  p is R)
+
+-- LEAN INPUT:
+(∀ p ∈ P, R p) → True
+-- MEAN OUTPUT:
+if (for every p ∈ P:
+  p is R) then
+  True
+
+-- LEAN INPUT:
+∀ (p : A), z ∈ P → p = p
+-- MEAN OUTPUT:
+for every element p of A where z ∈ P:
+  p = p
+
+-- LEAN INPUT:
+∀ (p : A) (h : p ∈ P), h = h
+-- MEAN OUTPUT:
+for every element p of A:
+  for every proof h that (p ∈ P):
+    h = h
+
+-- LEAN INPUT:
+∀ n ∈ xs, n ∈ xs
+-- MEAN OUTPUT:
+for every n ∈ xs:
+  n ∈ xs
+
+-- LEAN INPUT:
+∀ n ∈ s, n ∈ s
+-- MEAN OUTPUT:
+for every n ∈ s:
+  n ∈ s
+
+-- LEAN INPUT:
+∀ n ∈ domain, n = n
+-- MEAN OUTPUT:
+for every n ∈ domain:
+  n = n
+
+-- LEAN INPUT:
+∀ z ∈ domain, z = z
+-- MEAN OUTPUT:
+for every integer z where @Membership.mem Int Domain integerMembership domain z:
+  @Eq Int z z
 
 -- LEAN INPUT:
 ∀ (n m : ℕ), n ≤ m → n ≤ m

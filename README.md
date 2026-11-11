@@ -724,6 +724,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Set comprehension | `the set of elements x of T such that <proposition>` |
 | Function subject | `a function f from A to B`, `a function f from A and B to C` |
 | Universal quantifier | `for all <bindings> [where <condition>]: <proposition>`, `for every …` |
+| Membership quantifier | `for every x ∈ S: <proposition>`, `for all x ∈ S: <proposition>` |
 | Almost-everywhere quantifier | `for almost every <witness noun> [with respect to <measure>] [where <condition>]: <proposition>` |
 | Quantified bindings | `function q from ℕ to Prop`, `list xs of T elements`, `element x of T`, `u and v in V`, `vertices u and v of G` |
 | Existential quantifier | `there is <witness description> [such that <proposition>]` |
@@ -790,16 +791,24 @@ name and plural nouns for two.
 Universal quantifiers accept a restriction before the colon:
 
 ```lean
-for every element p of Point where p ∈ P:
-  for every element q of Point where q ∈ P:
+for every p ∈ P:
+  for every q ∈ P:
     Adjacent p q
 ```
+
+`for every x ∈ S: …` means Lean's `∀ x ∈ S, …`, inferring the element type
+from membership. Sets, lists, finsets, and other membership domains use the same
+syntax; compound domains can be parenthesized. Both `for every` and `for all`
+also accept `where C` after the domain.
 
 `where C` means `C → …` inside the quantified bindings. The bound names are in
 scope in both the condition and body. Both `for every` and `for all` support it,
 including paired bindings. Parenthesize a condition containing its own quantifier,
 such as `where (for every natural number m: n ≤ m): …`. The renderer uses this
 form for an immediate implication whose proof is unused in the conclusion.
+When that condition is membership of the bound element, it prefers the shorter
+`for every x ∈ S:` wording. Typed bindings remain available when inference
+would lose information, or when the membership proof is used in the body.
 
 `for almost every` means Lean's `∀ᵐ`: the condition holds outside a set of
 measure zero. It binds one witness noun, including an element, scalar, set, or

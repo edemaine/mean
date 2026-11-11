@@ -616,7 +616,7 @@ run_elab do
 section
 variable (Point : Type) (P : Set Point)
 /--
-info: for every element p of Point where p ∈ P:
+info: for every p ∈ P:
   p ∈ P
 -/
 #guard_msgs in
@@ -624,6 +624,43 @@ info: for every element p of Point where p ∈ P:
 #mean_term_compare ∀ p : Point, p ∈ P → p ∈ P
 #mean_term_compare ∀ p : Point, p ∈ P → ∀ q : Point, q ∈ P → p = q → q = p
 end
+section
+variable (A : Type u) (P Q : Set A) (F : A → Set A) (R : A → Prop) (z : A)
+#mean_term_compare ∀ p ∈ P ∩ Q, p ∈ P
+#mean_term_compare ∀ p ∈ P, R p → p ∈ P
+#mean_term_compare ∀ p ∈ P, ∀ q ∈ F p, q ∈ F p
+#mean_term_compare (∀ p ∈ P, R p) ∧ True
+#mean_term_compare True ∨ (∀ p ∈ P, R p)
+#mean_term_compare (∀ p ∈ P, R p) → True
+-- A restriction on another element must keep its typed binder.
+#mean_term_compare ∀ p : A, z ∈ P → p = p
+-- Membership proofs used by the body must remain explicit binders.
+#mean_term_compare ∀ p : A, ∀ h : p ∈ P, h = h
+end
+section
+variable (xs : List Nat) (s : Finset Int)
+/--
+info: for every n ∈ xs:
+  n ∈ xs
+-/
+#guard_msgs in
+#mean_term ∀ n ∈ xs, n ∈ xs
+#mean_term_compare ∀ n ∈ xs, n ∈ xs
+#mean_term_compare ∀ n ∈ s, n ∈ s
+end
+
+-- Membership alone need not determine the original element type. The checked
+-- renderer must retain a typed binder when instance inference would change it.
+namespace MembershipInferenceExamples
+structure Domain where
+  value : Nat
+local instance naturalMembership : Membership Nat Domain := ⟨fun _ _ => True⟩
+local instance integerMembership : Membership Int Domain := ⟨fun _ _ => False⟩
+variable (domain : Domain)
+#mean_term_compare ∀ n : Nat, @Membership.mem Nat Domain naturalMembership domain n → n = n
+#mean_term_compare ∀ z : Int, @Membership.mem Int Domain integerMembership domain z → z = z
+end MembershipInferenceExamples
+
 section
 variable (xs : List Nat) (P Q : Nat → Prop)
 #mean_term_compare ∀ n m : Nat, n ≤ m → n ≤ m

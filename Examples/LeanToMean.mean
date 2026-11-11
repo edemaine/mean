@@ -574,13 +574,53 @@ some (∃! n : ℕ, n = 0)
         n_1 + 1),
   n)
 
-for every element p of Point where p ∈ P:
+for every p ∈ P:
   p ∈ P
 
-for every element p of Point where p ∈ P:
-  for every element q of Point where q ∈ P:
-    if p = q then
-      q = p
+for every p ∈ P:
+  for every q ∈ P where p = q:
+    q = p
+
+for every p ∈ (P ∩ Q):
+  p ∈ P
+
+for every p ∈ P where p is R:
+  p ∈ P
+
+for every p ∈ P:
+  for every q ∈ (F p):
+    q ∈ F p
+
+(for every p ∈ P:
+  p is R) and
+True
+
+True or
+(for every p ∈ P:
+  p is R)
+
+if (for every p ∈ P:
+  p is R) then
+  True
+
+for every element p of A where z ∈ P:
+  p = p
+
+for every element p of A:
+  for every proof h that (p ∈ P):
+    h = h
+
+for every n ∈ xs:
+  n ∈ xs
+
+for every n ∈ s:
+  n ∈ s
+
+for every n ∈ domain:
+  n = n
+
+for every integer z where @Membership.mem Int Domain integerMembership domain z:
+  @Eq Int z z
 
 for all natural numbers n and m where n ≤ m:
   n ≤ m

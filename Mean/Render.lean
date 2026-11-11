@@ -583,8 +583,17 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
               return s!"{heading} where {condition}:\n{indented rest}"
           return s!"{heading}:\n{indented (← renderExpr body sentenceEnd)}"
         let renderSingle : MetaM String := do
+          let body := inlineLets (body.instantiate1 x)
+          if !(pp.explicit.get (← getOptions)) then
+            if let .forallE _ premise conclusion .default := body then
+              let premise := inlineLets premise
+              if premise.isAppOfArity ``Membership.mem 5 && !conclusion.hasLooseBVars then
+                let args := premise.getAppArgs
+                if args[4]! == x then
+                  let collection ← atomText args[3]!
+                  return ← renderQuantified s!"for every {← nameText n} ∈ {collection}" conclusion
           let (_, noun) ← witnessDescription ty (some (← nameText n))
-          renderQuantified s!"for every {noun}" (body.instantiate1 x)
+          renderQuantified s!"for every {noun}" body
         match body.instantiate1 x with
         | .forallE m ty₂ body₂ bi₂ =>
           if bi₂ == .default && ty == ty₂ then

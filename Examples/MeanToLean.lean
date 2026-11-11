@@ -310,6 +310,26 @@ end UniqueExistenceExamples
 
 namespace RestrictedQuantifierExamples
 
+example (A : Type u) (P : Set A) :
+    (for every p ∈ P: p ∈ P) = (∀ p ∈ P, p ∈ P) := rfl
+example (A : Type u) (P : Set A) :
+    (for all p ∈ P: p ∈ P) = (∀ p ∈ P, p ∈ P) := rfl
+example (xs : List Nat) :
+    (for every n ∈ xs: n ∈ xs) = (∀ n ∈ xs, n ∈ xs) := rfl
+example (s : Finset Int) :
+    (for every n ∈ s: n ∈ s) = (∀ n ∈ s, n ∈ s) := rfl
+example (A : Type u) (P Q : Set A) :
+    (for every p ∈ (P ∩ Q): p ∈ P) = (∀ p ∈ P ∩ Q, p ∈ P) := rfl
+example (A : Type u) (P : Set A) (Q : A → Prop) :
+    (for every p ∈ P where Q p: p ∈ P) = (∀ p ∈ P, Q p → p ∈ P) := rfl
+example (A : Type u) (P : Set A) :
+    (for every p ∈ P:
+      for every q ∈ P: p = q → q = p) =
+    (∀ p ∈ P, ∀ q ∈ P, p = q → q = p) := rfl
+example (A : Type u) (P : Set A) (Q : A → Set A) :
+    (for every p ∈ P: for every q ∈ (Q p): q ∈ Q p) =
+    (∀ p ∈ P, ∀ q ∈ Q p, q ∈ Q p) := rfl
+
 example (A : Type*) (P : Set A) :
     (for every element p of A where p ∈ P: p ∈ P) =
     (∀ p : A, p ∈ P → p ∈ P) := rfl
