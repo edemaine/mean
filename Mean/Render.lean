@@ -428,6 +428,14 @@ private def groupOperand (e : Expr) (parent : Name) (left : Bool) (text : String
     (left && e.isAppOfArity parent 2)
   return if grouped then "(" ++ text ++ ")" else text
 
+/-- Collect only the right spine: left-associated connectives retain their grouping. -/
+private partial def connectiveClauses (e : Expr) (op : Name) : List Expr :=
+  let e := inlineLets e
+  if e.isAppOfArity op 2 then
+    let args := e.getAppArgs
+    args[0]! :: connectiveClauses args[1]! op
+  else [e]
+
 /-- Independent inverse vocabulary plus named predicates with subject lists.
 Subjects are the trailing explicit arguments, after implicit parameters. -/
 private def adjectiveView? (e : Expr) : MetaM (Option (List Expr × String)) := do
@@ -643,13 +651,24 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
         let used := (inlineLets body).containsFVar x.fvarId!
         let suffix ← if used then pure s!" {← nameText n}" else pure ""
         return s!"the set of elements{suffix} of {← subjectTypeText ty} such that\n{indented (← renderExpr body sentenceEnd)}"
-    if e.isAppOfArity ``And 2 || e.isAppOfArity ``Or 2 || e.isAppOfArity ``Iff 2 then
+    if e.isAppOfArity ``And 2 || e.isAppOfArity ``Or 2 then
+      let op := e.getAppFn.constName!
+      let word := if op == ``And then "and" else "or"
+      let clauses := connectiveClauses e op
+      let texts ← clauses.mapIdxM fun i clause => do
+        let last := i + 1 == clauses.length
+        let text ← renderExpr clause (last && sentenceEnd) true
+        groupOperand clause op (!last) text
+      let flat := String.intercalate s!" {word} " texts
+      let width := Lean.Std.Format.getWidth (← getOptions)
+      let separator := if flat.contains '\n' || flat.length > width then s!" {word}\n" else s!" {word} "
+      return ← sentenceTail (String.intercalate separator texts) sentenceEnd
+    if e.isAppOfArity ``Iff 2 then
       let op := e.getAppFn.constName!
       let args := e.getAppArgs
       let left ← groupOperand args[0]! op true (← renderExpr args[0]! false true)
       let right ← groupOperand args[1]! op false (← renderExpr args[1]! sentenceEnd true)
-      let word := if op == ``And then "and" else if op == ``Or then "or" else "if and only if"
-      return ← sentenceTail s!"{left} {word} {right}" sentenceEnd
+      return ← sentenceTail s!"{left} if and only if {right}" sentenceEnd
     let negative := negatedExists? e
     let existential := negative.getD e
     let isUnique := existential.isAppOfArity ``ExistsUnique 2

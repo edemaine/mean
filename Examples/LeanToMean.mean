@@ -1,6 +1,79 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+P and
+Q and
+R and
+S
+
+((P and Q) and R) and
+S
+
+P and
+(Q or R) and
+S
+
+P and
+Q and
+R and
+S or
+Q
+
+P if and only if Q and R and S
+
+P and
+(u and v are BinaryPredicateExamples.Adjacent) and
+(u and v and w are BinaryPredicateExamples.ternary)
+
+P and
+(Q and R) and
+S
+
+P or
+Q or
+R or
+S or
+P
+
+((P or Q) or R) or
+S
+
+P or
+Q and R or
+S
+
+P or
+Q and R and S or
+Q
+
+P if and only if Q or R or S or P
+
+P or
+(u and v are BinaryPredicateExamples.Adjacent) or
+(u and v and w are BinaryPredicateExamples.ternary)
+
+P or
+(Q or R) or
+S
+
+P and
+(for every natural number n:
+  n = n) and
+Q
+
+P and
+(for every natural number n:
+  n = n and Q)
+
+P or
+(there is a natural number n such that
+  n = n) or
+Q
+
+P or
+(there is a natural number n such that
+  n = n or Q)
+
 the transitive closure of R
 
 the reflexive closure of R
@@ -92,7 +165,8 @@ x is related to y by the reflexive transitive closure of R if and only if Q
 if x is related to y by the reflexive transitive closure of R then
   y is related to z by the reflexive transitive closure of R
 
-x is related to y by the reflexive transitive closure of R and y is related to z by the reflexive transitive closure of R
+x is related to y by the reflexive transitive closure of R and
+y is related to z by the reflexive transitive closure of R
 
 for every element t of A:
   x is related to t by the reflexive transitive closure of R
@@ -211,7 +285,8 @@ for almost every element x of A with respect to μ:
     x is p and y is q
 
 (for almost every element x of A with respect to μ:
-  x is p) and True
+  x is p) and
+True
 
 if for almost every element x of A with respect to μ:
   x is p then
@@ -412,9 +487,11 @@ there is a unique function f from ℕ to ℕ such that
   f 0 = 0
 
 (there is a unique natural number n such that
-  n = 0) and False
+  n = 0) and
+False
 
-False or (there is a unique natural number n such that
+False or
+(there is a unique natural number n such that
   n = 0)
 
 (there is a unique natural number n such that
@@ -1536,7 +1613,8 @@ if P then
 P and (if Q then R)
 
 (there is a natural number n such that
-  n = 0) and P
+  n = 0) and
+P
 
 if P then
   there is a natural number n such that
@@ -1641,9 +1719,11 @@ there is no integer x such that
     x = y
 
 (there is no element x of T such that
-  x is P) and Q
+  x is P) and
+Q
 
-Q or (there is no element x of T such that
+Q or
+(there is no element x of T such that
   x is P)
 
 if there is no element x of T such that

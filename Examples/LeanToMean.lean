@@ -1,6 +1,85 @@
 import Examples.MeanToLean
 import Mean
 
+-- Break a whole connective chain together, preserving grouping and binder scope.
+section
+variable (P Q R S : Prop) (u v w : Nat)
+/-- info: P and Q and R -/
+#guard_msgs in
+set_option format.width 13 in
+#mean_term P ∧ Q ∧ R
+/--
+info: P and
+Q and
+R
+-/
+#guard_msgs in
+set_option format.width 12 in
+#mean_term P ∧ Q ∧ R
+/--
+info: P and
+Q and
+R and
+S
+-/
+#guard_msgs in
+set_option format.width 16 in
+#mean_term P ∧ Q ∧ R ∧ S
+/--
+info: P and
+(for every natural number n:
+  n = n) and
+Q
+-/
+#guard_msgs in
+#mean_term P ∧ (∀ n : Nat, n = n) ∧ Q
+/-- info: u and v are BinaryPredicateExamples.Adjacent -/
+#guard_msgs in
+set_option format.width 12 in
+#mean_term BinaryPredicateExamples.Adjacent u v
+/-- info: P or Q or R -/
+#guard_msgs in
+set_option format.width 11 in
+#mean_term P ∨ Q ∨ R
+/--
+info: P or
+Q or
+R
+-/
+#guard_msgs in
+set_option format.width 10 in
+#mean_term P ∨ Q ∨ R
+/--
+info: P or
+(there is a natural number n such that
+  n = n) or
+Q
+-/
+#guard_msgs in
+#mean_term P ∨ (∃ n : Nat, n = n) ∨ Q
+section
+set_option format.width 16
+#mean_term_compare P ∧ Q ∧ R ∧ S
+#mean_term_compare ((P ∧ Q) ∧ R) ∧ S
+#mean_term_compare P ∧ (Q ∨ R) ∧ S
+#mean_term_compare (P ∧ Q ∧ R ∧ S) ∨ Q
+#mean_term_compare P ↔ Q ∧ R ∧ S
+#mean_term_compare P ∧ BinaryPredicateExamples.Adjacent u v ∧ BinaryPredicateExamples.ternary u v w
+#mean_term_compare P ∧ (let condition := Q ∧ R; condition) ∧ S
+#mean_term_compare P ∨ Q ∨ R ∨ S ∨ P
+#mean_term_compare ((P ∨ Q) ∨ R) ∨ S
+#mean_term_compare P ∨ (Q ∧ R) ∨ S
+#mean_term_compare P ∨ (Q ∧ R ∧ S) ∨ Q
+#mean_term_compare P ↔ Q ∨ R ∨ S ∨ P
+#mean_term_compare P ∨ BinaryPredicateExamples.Adjacent u v ∨ BinaryPredicateExamples.ternary u v w
+#mean_term_compare P ∨ (let condition := Q ∨ R; condition) ∨ S
+end
+#mean_term_compare P ∧ (∀ n : Nat, n = n) ∧ Q
+#mean_term_compare P ∧ ∀ n : Nat, n = n ∧ Q
+#mean_term_compare P ∨ (∃ n : Nat, n = n) ∨ Q
+#mean_term_compare P ∨ ∃ n : Nat, n = n ∨ Q
+end
+
 section
 variable (A : Type u) (R S : A → A → Prop) (x y : A) (P : Prop)
 /-- info: x is related to y by the transitive closure of R -/

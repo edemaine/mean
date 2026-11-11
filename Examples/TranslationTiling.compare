@@ -80,7 +80,10 @@ theorem TranslationTiling.Abstract.tiling_simulates_wang :
 Theorem TranslationTiling.Abstract.tiling_simulates_wang:
   for every list T of LeanWang.Abstract.Tile elements:
     there is an element P of Prototile such that
-      P ≠ [] and P is Connected and (T is LeanWang.Abstract.TilesPlane if and only if P is Tiles) and List.length P as a real number ≤
+      P ≠ [] and
+      P is Connected and
+      (T is LeanWang.Abstract.TilesPlane if and only if P is Tiles) and
+      List.length P as a real number ≤
         (T.length as a real number + 4) ^ (10 ^ 61 * Real.logb 2 (Real.logb 2 (T.length as a real number + 4)))
 
 -- LEAN INPUT:
@@ -100,7 +103,8 @@ Definition:
     the function mapping an element P of Prototile to
       the set of elements x of RealPoint such that
         there is an element p of Point such that
-          p ∈ P and (for every index i in [0, 3):
+          p ∈ P and
+          (for every index i in [0, 3):
             p i as a real number ≤ x i and x i ≤ p i as a real number + 1).
 
 -- LEAN INPUT:
@@ -142,5 +146,8 @@ theorem TranslationTiling.Abstract.real_tiling_simulates_wang :
 Theorem TranslationTiling.Abstract.real_tiling_simulates_wang:
   for every list T of LeanWang.Abstract.Tile elements:
     there is an element P of Prototile such that
-      P ≠ [] and P is Connected and (T is LeanWang.Abstract.TilesPlane if and only if P is RealTiles) and List.length P as a real number ≤
+      P ≠ [] and
+      P is Connected and
+      (T is LeanWang.Abstract.TilesPlane if and only if P is RealTiles) and
+      List.length P as a real number ≤
         (T.length as a real number + 4) ^ (10 ^ 61 * Real.logb 2 (Real.logb 2 (T.length as a real number + 4)))

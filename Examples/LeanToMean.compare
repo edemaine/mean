@@ -2,6 +2,139 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+P ∧ Q ∧ R ∧ S
+-- MEAN OUTPUT:
+P and
+Q and
+R and
+S
+
+-- LEAN INPUT:
+((P ∧ Q) ∧ R) ∧ S
+-- MEAN OUTPUT:
+((P and Q) and R) and
+S
+
+-- LEAN INPUT:
+P ∧ (Q ∨ R) ∧ S
+-- MEAN OUTPUT:
+P and
+(Q or R) and
+S
+
+-- LEAN INPUT:
+P ∧ Q ∧ R ∧ S ∨ Q
+-- MEAN OUTPUT:
+P and
+Q and
+R and
+S or
+Q
+
+-- LEAN INPUT:
+P ↔ Q ∧ R ∧ S
+-- MEAN OUTPUT:
+P if and only if Q and R and S
+
+-- LEAN INPUT:
+P ∧ BinaryPredicateExamples.Adjacent u v ∧ BinaryPredicateExamples.ternary u v w
+-- MEAN OUTPUT:
+P and
+(u and v are BinaryPredicateExamples.Adjacent) and
+(u and v and w are BinaryPredicateExamples.ternary)
+
+-- LEAN INPUT:
+P ∧
+  (let condition := Q ∧ R;
+    condition) ∧
+    S
+-- MEAN OUTPUT:
+P and
+(Q and R) and
+S
+
+-- LEAN INPUT:
+P ∨ Q ∨ R ∨ S ∨ P
+-- MEAN OUTPUT:
+P or
+Q or
+R or
+S or
+P
+
+-- LEAN INPUT:
+((P ∨ Q) ∨ R) ∨ S
+-- MEAN OUTPUT:
+((P or Q) or R) or
+S
+
+-- LEAN INPUT:
+P ∨ Q ∧ R ∨ S
+-- MEAN OUTPUT:
+P or
+Q and R or
+S
+
+-- LEAN INPUT:
+P ∨ Q ∧ R ∧ S ∨ Q
+-- MEAN OUTPUT:
+P or
+Q and R and S or
+Q
+
+-- LEAN INPUT:
+P ↔ Q ∨ R ∨ S ∨ P
+-- MEAN OUTPUT:
+P if and only if Q or R or S or P
+
+-- LEAN INPUT:
+P ∨ BinaryPredicateExamples.Adjacent u v ∨ BinaryPredicateExamples.ternary u v w
+-- MEAN OUTPUT:
+P or
+(u and v are BinaryPredicateExamples.Adjacent) or
+(u and v and w are BinaryPredicateExamples.ternary)
+
+-- LEAN INPUT:
+P ∨
+  (let condition := Q ∨ R;
+    condition) ∨
+    S
+-- MEAN OUTPUT:
+P or
+(Q or R) or
+S
+
+-- LEAN INPUT:
+P ∧ (∀ (n : ℕ), n = n) ∧ Q
+-- MEAN OUTPUT:
+P and
+(for every natural number n:
+  n = n) and
+Q
+
+-- LEAN INPUT:
+P ∧ ∀ (n : ℕ), n = n ∧ Q
+-- MEAN OUTPUT:
+P and
+(for every natural number n:
+  n = n and Q)
+
+-- LEAN INPUT:
+P ∨ (∃ (n : ℕ), n = n) ∨ Q
+-- MEAN OUTPUT:
+P or
+(there is a natural number n such that
+  n = n) or
+Q
+
+-- LEAN INPUT:
+P ∨ ∃ (n : ℕ), n = n ∨ Q
+-- MEAN OUTPUT:
+P or
+(there is a natural number n such that
+  n = n or Q)
+
+-- LEAN INPUT:
 Relation.TransGen R
 -- MEAN OUTPUT:
 the transitive closure of R
@@ -206,7 +339,8 @@ if x is related to y by the reflexive transitive closure of R then
 -- LEAN INPUT:
 Relation.ReflTransGen R x y ∧ Relation.ReflTransGen R y z
 -- MEAN OUTPUT:
-x is related to y by the reflexive transitive closure of R and y is related to z by the reflexive transitive closure of R
+x is related to y by the reflexive transitive closure of R and
+y is related to z by the reflexive transitive closure of R
 
 -- LEAN INPUT:
 ∀ (t : A), Relation.ReflTransGen R x t
@@ -476,7 +610,8 @@ for almost every element x of A with respect to μ:
 (∀ᵐ (x : A) ∂μ, p x) ∧ True
 -- MEAN OUTPUT:
 (for almost every element x of A with respect to μ:
-  x is p) and True
+  x is p) and
+True
 
 -- LEAN INPUT:
 (∀ᵐ (x : A) ∂μ, p x) → False
@@ -899,12 +1034,14 @@ there is a unique function f from ℕ to ℕ such that
 (∃! n : ℕ, n = 0) ∧ False
 -- MEAN OUTPUT:
 (there is a unique natural number n such that
-  n = 0) and False
+  n = 0) and
+False
 
 -- LEAN INPUT:
 False ∨ ∃! n : ℕ, n = 0
 -- MEAN OUTPUT:
-False or (there is a unique natural number n such that
+False or
+(there is a unique natural number n such that
   n = 0)
 
 -- LEAN INPUT:
@@ -3138,7 +3275,8 @@ P and (if Q then R)
 (∃ (n : ℕ), n = 0) ∧ P
 -- MEAN OUTPUT:
 (there is a natural number n such that
-  n = 0) and P
+  n = 0) and
+P
 
 -- LEAN INPUT:
 P → ∃ (n : ℕ), n = 0 ∧ Q
@@ -3351,12 +3489,14 @@ there is no integer x such that
 (¬∃ (x : T), P x) ∧ Q
 -- MEAN OUTPUT:
 (there is no element x of T such that
-  x is P) and Q
+  x is P) and
+Q
 
 -- LEAN INPUT:
 Q ∨ ¬∃ (x : T), P x
 -- MEAN OUTPUT:
-Q or (there is no element x of T such that
+Q or
+(there is no element x of T such that
   x is P)
 
 -- LEAN INPUT:

@@ -950,6 +950,11 @@ p ∈ P and q ∈ P and (p and q are Adjacent)
 ```
 
 The renderer always adds this grouping inside logical `and` and `or`.
+Conjunction and disjunction chains stay inline when their rendered text is single-line
+and fits `format.width` (120 by default). Otherwise, the renderer puts a newline after each
+logical `and` or `or` in the chain, aligning the clauses. Parentheses retain logical
+grouping and quantifier scope; subject lists such as `u and v are Adjacent`
+keep their own `and` inline.
 Parenthesize a logical proposition used as one of the predicate arguments too.
 `P and Q and R are r` applies `r` to three propositions; it does not introduce
 an outer logical conjunction.
