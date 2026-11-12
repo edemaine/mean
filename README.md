@@ -736,7 +736,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Predicate subject lists | `u and v are Adjacent`, `x and y and z are R`, `u and v are not Adjacent` |
 | Relation closure | `x is related to y by the reflexive transitive closure of R` |
 | Relation composition | `x is related to z by the composition of R followed by S` |
-| Logarithm | `log base b of x` |
+| Logarithm | `ln x`, `log base b of x` |
 | Logical connectives | `P and Q`, `P or Q`, `if P then Q`, `P if and only if Q` |
 
 Here `T` is any type in scope. Standard scalar vocabulary works in subjects, function bindings, universal quantifiers,
@@ -791,6 +791,10 @@ Parentheses delimit compound bases and arguments. Arithmetic outside those
 parentheses stays outside the logarithm: `log base 2 of x + y` means
 `Real.logb 2 x + y`. The renderer uses this wording inside larger arithmetic
 expressions too, while ordinary Lean output retains `Real.logb`.
+The natural logarithm `Real.log x` renders as `ln x`, using the abbreviation
+`Mean.ln`. Compound arguments are parenthesized, as in `ln (x + 4)` or
+`ln (ln x)`. Local functions named `ln` keep their usual Lean meaning; the
+renderer retains `Real.log` when a local name would make the abbreviation ambiguous.
 
 All forward scalar forms share `scalarType%`: typed values, subjects, existential witnesses,
 and singular or plural universal domains. Plurals delegate to the singular noun.

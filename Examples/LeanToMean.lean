@@ -3,6 +3,18 @@ import Mean
 
 section
 variable (b x y : Real) (n : Nat)
+/-- info: ln (ln x) -/
+#guard_msgs in
+#mean_term Real.log (Real.log x)
+#mean_term_compare Real.log x
+#mean_term_compare Real.log 2
+#mean_term_compare Real.log (x + 4)
+#mean_term_compare Real.log (Real.log x)
+#mean_term_compare Real.log (Real.logb 2 x)
+#mean_term_compare Real.logb 2 (Real.log x)
+#mean_term_compare x * Real.log y + Real.log x
+#mean_term_compare fun z : Real => Real.log (Real.log z)
+#mean_term_compare Real.log
 /-- info: log base 2 of (log base 2 of x) -/
 #guard_msgs in
 #mean_term Real.logb 2 (Real.logb 2 x)
@@ -19,6 +31,12 @@ variable (b x y : Real) (n : Nat)
 #mean_term_compare Real.logb 2
 #mean_term_compare Nat.log 2 n
 end
+section
+variable (ln : Real → Real) (x : Real)
+-- A local function named ln must not change which logarithm is rendered.
+#mean_term_compare Real.log x
+#mean_term_compare ln x
+end
 
 -- The base and argument cannot be exchanged, and nested logs cannot be dropped.
 open Lean Meta Elab Term in
@@ -28,7 +46,9 @@ run_elab do
     withLocalDeclD `x ty fun x => do
       let original ← mkAppM ``Real.logb #[b, x]
       let nested ← mkAppM ``Real.logb #[b, original]
-      for (e, text) in [(original, "log base x of b"), (nested, "log base b of x")] do
+      let naturalLog ← mkAppM ``Real.log #[x]
+      for (e, text) in [(original, "log base x of b"), (nested, "log base b of x"),
+          (naturalLog, "log base 2 of x")] do
         let rejected ← withoutModifyingState do
           try
             Mean.RoundTrip.checkText e text

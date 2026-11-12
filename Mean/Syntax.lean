@@ -59,6 +59,9 @@ syntax:50 term:51 atomic(" and " term:51 (" and " term:51)* " are ") meanAdjecti
 syntax:50 term:51 atomic(" and " term:51 (" and " term:51)* " are ") "not " meanAdjective : term
 
 /-! Logarithms retain their base and argument explicitly. -/
+/-- The natural logarithm, using the standard mathematical name. -/
+noncomputable abbrev ln (x : Real) : Real := Real.log x
+
 def logarithmWords : Lean.Parser.Parser :=
   Lean.Parser.nonReservedSymbol "log " (includeIdent := true) >> Lean.Parser.nonReservedSymbol "base "
 syntax:max logarithmWords term:arg " of " term:arg : term
@@ -864,3 +867,5 @@ def ignoreUnusedEdgeSet : Lean.Linter.IgnoreFunction := fun binder stack _ =>
     | _ => false
 
 end Mean
+
+export Mean (ln)

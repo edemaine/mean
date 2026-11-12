@@ -3,6 +3,12 @@ import Mathlib.MeasureTheory.Measure.Module
 
 namespace LogarithmExamples
 
+example (x : Real) : ln x = Real.log x := rfl
+example (x : Real) : ln (ln x) = Real.log (Real.log x) := rfl
+example (x y : Real) : ln x + y = Real.log x + y := rfl
+example (x : Real) : ln (x + 4) = Real.log (x + 4) := rfl
+example (x : Real) : ln (log base 2 of x) = Real.log (Real.logb 2 x) := rfl
+example (x : Real) : (log base 2 of (ln x)) = Real.logb 2 (Real.log x) := rfl
 example (b x : Real) : (log base b of x) = Real.logb b x := rfl
 example (x : Real) : (log base 2 of (log base 2 of x)) = Real.logb 2 (Real.logb 2 x) := rfl
 example (b x : Real) : (log base (b + 1) of (x + 4)) = Real.logb (b + 1) (x + 4) := rfl
@@ -12,6 +18,7 @@ example (x : Real) : (2 ^ log base 2 of x) = (2 : Real) ^ Real.logb 2 x := rfl
 example (x : Real) : (log base 2 of x ≤ 3 and x > 0) = (Real.logb 2 x ≤ 3 ∧ x > 0) := rfl
 -- The words remain usable as ordinary Lean identifiers.
 example (log base : Real) : log + base = log + base := rfl
+example (ln : Real → Real) (x : Real) : ln x = ln x := rfl
 
 end LogarithmExamples
 

@@ -2,6 +2,52 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+Real.log x
+-- MEAN OUTPUT:
+ln x
+
+-- LEAN INPUT:
+Real.log 2
+-- MEAN OUTPUT:
+ln 2
+
+-- LEAN INPUT:
+Real.log (x + 4)
+-- MEAN OUTPUT:
+ln (x + 4)
+
+-- LEAN INPUT:
+Real.log (Real.log x)
+-- MEAN OUTPUT:
+ln (ln x)
+
+-- LEAN INPUT:
+Real.log (Real.logb 2 x)
+-- MEAN OUTPUT:
+ln (log base 2 of x)
+
+-- LEAN INPUT:
+Real.logb 2 (Real.log x)
+-- MEAN OUTPUT:
+log base 2 of (ln x)
+
+-- LEAN INPUT:
+x * Real.log y + Real.log x
+-- MEAN OUTPUT:
+x * ln y + ln x
+
+-- LEAN INPUT:
+fun (z : ℝ) => Real.log (Real.log z)
+-- MEAN OUTPUT:
+the function mapping a real number z to
+  ln (ln z)
+
+-- LEAN INPUT:
+Real.log
+-- MEAN OUTPUT:
+Real.log
+
+-- LEAN INPUT:
 Real.logb b x
 -- MEAN OUTPUT:
 log base b of x
@@ -61,6 +107,16 @@ Real.logb 2
 Nat.log 2 n
 -- MEAN OUTPUT:
 Nat.log 2 n
+
+-- LEAN INPUT:
+Real.log x
+-- MEAN OUTPUT:
+Real.log x
+
+-- LEAN INPUT:
+ln x
+-- MEAN OUTPUT:
+ln x
 
 -- LEAN INPUT:
 P ∧ Q ∧ R ∧ S
