@@ -244,8 +244,6 @@ theorem real_tiling_coRE_complete (d : ℕ) (hd : 3 ≤ d)
                     translationsAndReflections} : Set _)) :
     LeanWang.Abstract.CoREComplete fun P : Prototile d => Connected P ∧ RealTiles P motions := sorry
 
--- The baseline renderer needs explicit arguments to retain the finite-set element type.
-set_option pp.explicit true in
 #mean_compare real_tiling_coRE_complete
 
 set_option warn.sorry false in

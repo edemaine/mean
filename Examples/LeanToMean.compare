@@ -2,6 +2,24 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+{Set.univ, ∅}
+-- MEAN OUTPUT:
+({Set.univ, ∅} : Set (Set ℕ))
+
+-- LEAN INPUT:
+{1, 2}
+-- MEAN OUTPUT:
+{1, 2}
+
+-- LEAN INPUT:
+theorem finiteSetChoice :
+  ∀ s ∈ {Set.univ, ∅}, s ∈ {Set.univ, ∅}
+-- MEAN OUTPUT:
+Theorem finiteSetChoice:
+  for every s ∈ ({Set.univ, ∅} : Set (Set ℕ)):
+    s ∈ ({Set.univ, ∅} : Set (Set ℕ))
+
+-- LEAN INPUT:
 Real.log x
 -- MEAN OUTPUT:
 ln x
@@ -1013,7 +1031,7 @@ for every set S of integers where 0 ∈ S:
 ∃ (T : Set SetPhraseExamples.Point), T = ∅
 -- MEAN OUTPUT:
 there is a set T of SetPhraseExamples.Point elements such that
-  T = ∅
+  T = (∅ : Set SetPhraseExamples.Point)
 
 -- LEAN INPUT:
 ¬∃ (_S : Set ℕ), True
@@ -1024,7 +1042,7 @@ there is no set of natural numbers
 ∃! S : Set ℕ, S = ∅
 -- MEAN OUTPUT:
 there is a unique set S of natural numbers such that
-  S = ∅
+  S = (∅ : Set ℕ)
 
 -- LEAN INPUT:
 fun (f : Set ℕ → Set ℤ) => f
@@ -3247,7 +3265,7 @@ def edgeless : {V : Type u_1} → SimpleGraph V → Prop :=
 -- MEAN OUTPUT:
 Definition:
   a simple graph G = (V, E) is edgeless if
-    the edge set of G = ∅.
+    the edge set of G = (∅ : Set (Sym2 V)).
 
 -- LEAN INPUT:
 def zero : ℕ → Prop :=
@@ -3992,4 +4010,4 @@ the vertex type of G is nonempty
 -- LEAN INPUT:
 G.edgeSet = ∅ ∧ H.edgeSet = ∅
 -- MEAN OUTPUT:
-the edge set of G = ∅ and the edge set of H = ∅
+the edge set of G = (∅ : Set (Sym2 V)) and the edge set of H = (∅ : Set (Sym2 V))

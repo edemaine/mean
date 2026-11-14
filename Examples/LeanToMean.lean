@@ -1,6 +1,14 @@
 import Examples.MeanToLean
 import Mean
 
+#mean_term_compare ({Set.univ, ∅} : Set (Set Nat))
+#mean_term_compare ({1, 2} : Finset Nat)
+
+-- A finite set of sets needs its local type annotation in theorem output.
+theorem finiteSetChoice (s : Set Nat) (h : s ∈ ({Set.univ, ∅} : Set (Set Nat))) :
+    s ∈ ({Set.univ, ∅} : Set (Set Nat)) := h
+#mean_compare finiteSetChoice
+
 section
 variable (b x y : Real) (n : Nat)
 /-- info: ln (ln x) -/

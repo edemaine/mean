@@ -1,6 +1,14 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+({Set.univ, ∅} : Set (Set ℕ))
+
+{1, 2}
+
+Theorem finiteSetChoice:
+  for every s ∈ ({Set.univ, ∅} : Set (Set ℕ)):
+    s ∈ ({Set.univ, ∅} : Set (Set ℕ))
+
 ln x
 
 ln 2
@@ -472,12 +480,12 @@ for every set S of integers where 0 ∈ S:
   0 ∈ S
 
 there is a set T of SetPhraseExamples.Point elements such that
-  T = ∅
+  T = (∅ : Set SetPhraseExamples.Point)
 
 there is no set of natural numbers
 
 there is a unique set S of natural numbers such that
-  S = ∅
+  S = (∅ : Set ℕ)
 
 the function mapping a function f from sets of natural numbers to sets of integers to
   f
@@ -1592,7 +1600,7 @@ Definition:
 
 Definition:
   a simple graph G = (V, E) is edgeless if
-    the edge set of G = ∅.
+    the edge set of G = (∅ : Set (Sym2 V)).
 
 Definition:
   a natural number n is zero if
@@ -1941,4 +1949,4 @@ the edge set of (G ⊔ H) = (the edge set of G) ∪ (the edge set of H)
 
 the vertex type of G is nonempty
 
-the edge set of G = ∅ and the edge set of H = ∅
+the edge set of G = (∅ : Set (Sym2 V)) and the edge set of H = (∅ : Set (Sym2 V))

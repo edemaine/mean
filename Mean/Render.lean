@@ -14,8 +14,30 @@ register_option mean.renderFunctions : Bool := {
   descr := "Render function expressions in the Mean view, except where native notation binds them"
 }
 
+register_option mean.renderSetLiteralTypes : Bool := {
+  defValue := true
+  descr := "Retain local type annotations on finite set literals in the Mean view"
+}
+
 namespace Mean.Render
 open Lean Meta Elab Term
+
+private partial def groupedSyntax (stx : Syntax) : Bool :=
+  if stx.isOfKind choiceKind then stx.getArgs.all groupedSyntax
+  else stx.isOfKind ``Parser.Term.paren || stx.isOfKind ``Parser.Term.typeAscription
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.Insert.insert, delab app.Singleton.singleton, delab app.EmptyCollection.emptyCollection]
+def delabTypedSetLiteral : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  guard <| mean.renderSetLiteralTypes.get (← getOptions)
+  guard <| !(pp.explicit.get (← getOptions))
+  let ty ← inferType (← getExpr)
+  guard <| ty.isAppOfArity ``Set 1
+  let value ← withOptions (fun opts => opts.setBool `mean.renderSetLiteralTypes false) delab
+  let target ← withOptions (fun opts => opts.setBool `mean.renderProperties false
+    |>.setBool `mean.renderFunctions false) (withType delab)
+  `(($value : $target))
 
 -- These delaborators run only for the Mean view, leaving ordinary Lean output intact.
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
@@ -117,6 +139,8 @@ private def publicParameterName (n : Name) : Bool :=
 private def atomText (e : Expr) (propertySubject := false) : MetaM String := do
   let text ← propertyText e
   if e.isFVar || e.isConst || e.isLit then return text
+  if let .ok stx := Parser.runParserCategory (← getEnv) `term text then
+    if groupedSyntax stx then return text
   -- Property phrases bind tightly enough to be adjective subjects, but not application arguments.
   if propertySubject then
     match Parser.runParserCategory (← getEnv) `term text with
@@ -908,7 +932,7 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
       "-- Universe parameters: " ++ String.intercalate ", " (info.levelParams.map toString) ++ "\n"
     -- Module exports omit theorem proofs and may present them as axioms.
     if wasOriginallyTheorem (← getEnv) n then
-      let text := s!"Theorem {← nameText n}:\n{indented (← renderExpr info.type)}"
+      let text := s!"Theorem {← nameText n}:\n{indented (← renderChecked info.type)}"
       RoundTrip.checkText info.type text `meanTheoremStatement
       if compare then
         let before := s!"theorem {← nameText n} :\n{indented (← leanText info.type)}"

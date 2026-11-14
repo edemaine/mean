@@ -696,6 +696,15 @@ pairs it with Lean input. `python test.py` checks all 23 comparisons, including
 the added hardness interface. Unsupported
 structures retain Lean syntax and pass the same round-trip checks.
 
+The November 12 update prompted these general rendering improvements:
+
+1. **Keep set-literal type annotations locally.** The motion-policy condition in
+   `real_tiling_coRE_complete` needs the type of its finite set of sets. Compact
+   printing previously lost that information. Finite set literals now retain a
+   local type annotation, keeping the rest of the theorem compact. The checked
+   explicit-argument fallback remains available. `finiteSetChoice` is a regression
+   example for the local annotations.
+
 ## Compositional syntax
 
 The grammar separates logical structure from mathematical vocabulary:

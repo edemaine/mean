@@ -146,26 +146,10 @@ Theorem TranslationTiling.Abstract.real_tiling_undecidable:
         P is Connected and (P and motions are RealTiles)) is not computable
 
 Theorem TranslationTiling.Abstract.real_tiling_coRE_complete:
-  for every natural number d where @LE.le Nat instLENat (@OfNat.ofNat Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) d:
-    for every set motions of (Motion d) elements where @Membership.mem (the type of sets of (Motion d) elements)
-      (the type of sets of (the type of sets of (Motion d) elements) elements)
-      (@Set.instMembership (the type of sets of (Motion d) elements))
-      (@insert (the type of sets of (Motion d) elements)
-        (the type of sets of (the type of sets of (Motion d) elements) elements)
-        (@Set.instInsert (the type of sets of (Motion d) elements)) (@allMotions d)
-        (@insert (the type of sets of (Motion d) elements)
-          (the type of sets of (the type of sets of (Motion d) elements) elements)
-          (@Set.instInsert (the type of sets of (Motion d) elements)) (@translations d)
-          (@insert (the type of sets of (Motion d) elements)
-            (the type of sets of (the type of sets of (Motion d) elements) elements)
-            (@Set.instInsert (the type of sets of (Motion d) elements)) (@translationsAndRotations d)
-            (@singleton (the type of sets of (Motion d) elements)
-              (the type of sets of (the type of sets of (Motion d) elements) elements)
-              (@Set.instSingletonSet (the type of sets of (Motion d) elements)) (@translationsAndReflections d)))))
-      motions:
+  for every natural number d where 3 ≤ d:
+    for every motions ∈ ({allMotions, translations, translationsAndRotations, translationsAndReflections} : Set (Set (Motion d))):
       (the function mapping an element P of Prototile d to
-        P is (@Connected d) and @RealTiles d P motions) is (@LeanWang.Abstract.CoREComplete (Prototile d)
-        (@Primcodable.list (Point d) (@Primcodable.finArrow Int (@Primcodable.ofDenumerable Int Denumerable.int) d)))
+        P is Connected and (P and motions are RealTiles)) is LeanWang.Abstract.CoREComplete
 
 Theorem TranslationTiling.Abstract.real_tiling_reduction:
   for every natural number d where 3 ≤ d:
