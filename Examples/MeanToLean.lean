@@ -1,6 +1,13 @@
 import Mean.Syntax
 import Mathlib.MeasureTheory.Measure.Module
 
+namespace GeneralRenderingExamples
+example (d : Nat) : (the type of functions from indices in [0, d) to Int) = (Fin d → Int) := rfl
+example : (the function mapping a natural number d to the type of functions from indices in [0, d) to Int) =
+    (fun d : Nat => Fin d → Int) := rfl
+example : (the function mapping a natural number d to Fin (d + 1)) = (fun d : Nat => Fin (d + 1)) := rfl
+end GeneralRenderingExamples
+
 namespace LogarithmExamples
 
 example (x : Real) : ln x = Real.log x := rfl

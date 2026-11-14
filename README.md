@@ -705,6 +705,11 @@ The November 12 update prompted these general rendering improvements:
    explicit-argument fallback remains available. `finiteSetChoice` is a regression
    example for the local annotations.
 
+7. **Describe functions returning types clearly.** `Point`, `Prototile`, `RealPoint`,
+   and `Motion` use `the function mapping …` with a type description as the
+   result. In particular, `Point d` describes the type of functions from indices
+   in `[0, d)` to integers, preserving the explicit dimension parameter.
+
 ## Compositional syntax
 
 The grammar separates logical structure from mathematical vocabulary:
@@ -717,6 +722,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Abbreviation clause | `Abbreviation: <name> is <value>.`, `Abbreviation: <subject> is <name> if <proposition>.` |
 | Named type clause | `Definition: a <name> is <anonymous description>.`, `Abbreviation: an <name> is <anonymous description>.` |
 | Function expression | `the function [: <type>] mapping <subject> [and <subject> …] to <value>` |
+| Function type | `the type of functions from A to B` |
 | Finite sum | `the sum over indices i in [0, n) of f i`, `the sum over i in s of f i` |
 | Typed scalar value | `the <scalar> <value>`, `the integer 42`, `the real number (2 * x)` |
 | Scalar coercion | `<term> as a real number`, `<term> as an integer` |
@@ -810,6 +816,16 @@ The natural logarithm `Real.log x` renders as `ln x`, using the abbreviation
 `Mean.ln`. Compound arguments are parenthesized, as in `ln (x + 4)` or
 `ln (ln x)`. Local functions named `ln` keep their usual Lean meaning; the
 renderer retains `Real.log` when a local name would make the abbreviation ambiguous.
+
+Functions can return types:
+
+```lean
+the function mapping a natural number d to
+  the type of functions from indices in [0, d) to ℤ
+```
+
+This means `fun d : Nat => Fin d → Int`, using the ordinary function syntax.
+Named aliases are retained inside the resulting type descriptions.
 
 All forward scalar forms share `scalarType%`: typed values, subjects, existential witnesses,
 and singular or plural universal domains. Plurals delegate to the singular noun.

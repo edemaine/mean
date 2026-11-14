@@ -503,8 +503,10 @@ syntax "the" "function" "mapping" functionSubject (" and " functionSubject)*
   " to" ppIndent(ppLine term) : term
 syntax "the" "function" ":" term "mapping" functionSubject (" and " functionSubject)*
   " to" ppIndent(ppLine term) : term
+syntax:max "the " "type " "of " "functions " functionSignature : term
 
 macro_rules
+  | `(the type of functions $signature:meanFunctionSignature) => `(functionType% $signature)
   | `(the function mapping $subject:meanSubject $[and $subjects:meanSubject]* to $body:term) =>
       `(functionOver% $subject $[and $subjects]* => $body)
   | `(the function : $ty:term mapping $subject:meanSubject $[and $subjects:meanSubject]* to $body:term) =>

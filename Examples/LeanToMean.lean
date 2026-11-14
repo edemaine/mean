@@ -1,6 +1,16 @@
 import Examples.MeanToLean
 import Mean
 
+/--
+info: the function mapping a natural number n to
+  the type of functions from indices in [0, n) to ℤ
+-/
+#guard_msgs in
+#mean_term fun n : Nat => Fin n → Int
+#mean_term_compare fun n : Nat => Fin n → Int
+#mean_term_compare fun n : Nat => Fin (n + 1)
+#mean_term_compare (Nat → Int)
+
 #mean_term_compare ({Set.univ, ∅} : Set (Set Nat))
 #mean_term_compare ({1, 2} : Finset Nat)
 

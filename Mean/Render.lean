@@ -652,7 +652,10 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
               renderQuantified s!"for all {binding}" (body₂.instantiate1 y)
           else renderSingle
         | _ => renderSingle
-    else leafText e sentenceEnd
+    else
+      if let some signature ← functionSignatureText? e then
+        return ← sentenceTail s!"the type of functions {signature}" sentenceEnd
+      leafText e sentenceEnd
   | _ =>
     -- Structural forms take precedence over the open-ended predicate fallback.
     let negativeRelation := e.isAppOfArity ``Not 1

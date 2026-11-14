@@ -2,6 +2,23 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+fun (n : ℕ) => Fin n → ℤ
+-- MEAN OUTPUT:
+the function mapping a natural number n to
+  the type of functions from indices in [0, n) to ℤ
+
+-- LEAN INPUT:
+fun (n : ℕ) => Fin (n + 1)
+-- MEAN OUTPUT:
+the function mapping a natural number n to
+  the type of indices in [0, n + 1)
+
+-- LEAN INPUT:
+ℕ → ℤ
+-- MEAN OUTPUT:
+the type of functions from ℕ to ℤ
+
+-- LEAN INPUT:
 {Set.univ, ∅}
 -- MEAN OUTPUT:
 ({Set.univ, ∅} : Set (Set ℕ))
@@ -1880,7 +1897,7 @@ the type of lists of (ℕ → ℕ) elements
 -- LEAN INPUT:
 List ℕ → ℕ
 -- MEAN OUTPUT:
-the type of lists of natural numbers → ℕ
+the type of functions from lists of natural numbers to ℕ
 
 -- LEAN INPUT:
 ℕ × List ℤ

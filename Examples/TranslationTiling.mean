@@ -18,7 +18,7 @@ Definition:
 Abbreviation:
   TranslationTiling.Abstract.Point is
     the function mapping a natural number d to
-      the type of indices in [0, d) → ℤ.
+      the type of functions from indices in [0, d) to ℤ.
 
 Abbreviation:
   TranslationTiling.Abstract.Prototile is

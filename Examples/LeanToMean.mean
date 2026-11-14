@@ -1,6 +1,14 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+the function mapping a natural number n to
+  the type of functions from indices in [0, n) to ℤ
+
+the function mapping a natural number n to
+  the type of indices in [0, n + 1)
+
+the type of functions from ℕ to ℤ
+
 ({Set.univ, ∅} : Set (Set ℕ))
 
 {1, 2}
@@ -903,7 +911,7 @@ the type of lists of (the type of lists of natural numbers) elements
 
 the type of lists of (ℕ → ℕ) elements
 
-the type of lists of natural numbers → ℕ
+the type of functions from lists of natural numbers to ℕ
 
 ℕ × the type of lists of integers
 
