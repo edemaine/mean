@@ -28,7 +28,7 @@ Abbreviation:
     a function from Direction to ℕ.
 
 Definition:
-  a list T of Tile elements is LeanWang.Abstract.TilesPlane if
+  a list T of Tile elements satisfies LeanWang.Abstract.TilesPlane if
     there is a function t from ℤ and ℤ to Tile such that
       for all integers x and y:
         t x y ∈ T and t x y e = t (x + 1) y w and t x y n = t x (y + 1) s.
@@ -37,20 +37,20 @@ Definition:
   LeanWang.Abstract.CoRE is
     the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
       (the function mapping an element x of α to
-        x is not p) is recursively enumerable.
+        x does not satisfy p) is recursively enumerable.
 
 Definition:
   LeanWang.Abstract.CoREComplete is
     the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
-      p is CoRE and
-      (for every function q from ℕ to Prop where q is CoRE:
+      p satisfies CoRE and
+      (for every function q from ℕ to Prop where q satisfies CoRE:
         there is a function r from ℕ to α such that
           r is computable and
           (for every natural number n:
-            n is q if and only if (r n) is p)).
+            n satisfies q if and only if (r n) satisfies p)).
 
 Theorem LeanWang.Abstract.coRE_complete:
-  TilesPlane is CoREComplete
+  TilesPlane satisfies CoREComplete
 
 Theorem LeanWang.Abstract.undecidable:
   TilesPlane is not computable

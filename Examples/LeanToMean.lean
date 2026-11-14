@@ -1,6 +1,60 @@
 import Examples.MeanToLean
 import Mean
 
+#mean_compare PredicateWordingExamples.zero
+#mean_compare PredicateWordingExamples.less
+#mean_compare PredicateWordingExamples.nonzero
+#mean_compare PredicateWordingExamples.same
+#mean_compare PredicateWordingExamples.atEnd
+section
+variable (xs : List Nat) (P : List Nat → Prop) (n : Nat) (f : Nat → Nat) (A : Type u)
+/-- info: xs satisfies P -/
+#guard_msgs in
+#mean_term P xs
+#mean_term_compare P xs
+/-- info: n satisfies PredicateWordingExamples.injective -/
+#guard_msgs in
+#mean_term PredicateWordingExamples.injective n
+#mean_term_compare PredicateWordingExamples.injective n
+/-- info: f is injective -/
+#guard_msgs in
+#mean_term Function.Injective f
+/-- info: f is not injective -/
+#guard_msgs in
+#mean_term ¬ Function.Injective f
+/-- info: A is finite -/
+#guard_msgs in
+#mean_term Finite A
+end
+
+-- New definition forms retain declaration checks, including public binder names.
+open Lean Elab Term in
+run_elab do
+  for (name, text) in [
+      (``PredicateWordingExamples.zero, "Definition: a natural number m satisfies changed if m = 0."),
+      (``PredicateWordingExamples.less, "Definition: natural numbers x and y satisfy changed if y < x.")] do
+    let rejected ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkDefinition name text
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "satisfaction definition changed its declaration"
+
+-- Satisfaction aliases must keep the proposition-only application check.
+open Lean Elab Term in
+run_elab do
+  for text in ["7 satisfies PredicateExamples.BoolPred",
+      "7 and 8 satisfy BinaryPredicateExamples.booleanRelation"] do
+    let .ok stx := Parser.runParserCategory (← getEnv) `term text
+      | throwError "could not parse satisfaction syntax"
+    let rejected ← withoutModifyingState do
+      try
+        discard <| withoutErrToSorry <| elabTerm stx none
+        synthesizeSyntheticMVarsNoPostponing
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "satisfaction syntax accepted a Boolean-valued function"
+
 section
 open GeneralRenderingExamples
 variable (d : Nat) (x : EuclideanSpace Real (Fin d)) (i : Fin d) (p : Fin d → Int)
@@ -192,7 +246,7 @@ Q
 -/
 #guard_msgs in
 #mean_term P ∧ (∀ n : Nat, n = n) ∧ Q
-/-- info: u and v are BinaryPredicateExamples.Adjacent -/
+/-- info: u and v satisfy BinaryPredicateExamples.Adjacent -/
 #guard_msgs in
 set_option format.width 12 in
 #mean_term BinaryPredicateExamples.Adjacent u v
@@ -351,7 +405,7 @@ section
 open BinaryPredicateExamples
 variable (u v w : Nat) (z : Int) (P Q R : Prop) (S : Set Nat)
 variable (b : Bool)
-/-- info: u and v are Adjacent -/
+/-- info: u and v satisfy Adjacent -/
 #guard_msgs in
 #mean_term Adjacent u v
 #mean_term_compare Adjacent u v
@@ -420,10 +474,10 @@ run_elab do
 section
 open BinaryPredicateExamples
 variable (P Q : Prop) (u v w : Nat)
-/-- info: P and (u and v are Adjacent) -/
+/-- info: P and (u and v satisfy Adjacent) -/
 #guard_msgs in
 #mean_term P ∧ Adjacent u v
-/-- info: (u and v are Adjacent) and (u and v and w are ternary) -/
+/-- info: (u and v satisfy Adjacent) and (u and v and w satisfy ternary) -/
 #guard_msgs in
 #mean_term Adjacent u v ∧ ternary u v w
 end
@@ -487,7 +541,7 @@ open MeasureTheory
 variable (A : Type u) [MeasureSpace A] (p : A → Prop) (μ : Measure A)
 /--
 info: for almost every element x of A:
-  x is p
+  x satisfies p
 -/
 #guard_msgs in
 #mean_term ∀ᵐ x, p x
@@ -708,11 +762,12 @@ run_elab do
               throwError "quantifier reached generic predicate rendering: {text}"
           let e ← mkAppM ``ExistsUnique #[p]
           let text ← Mean.Render.renderChecked (mkNot e)
-          unless (text.splitOn " is not ").length == 1 do
+          unless (text.splitOn " is not ").length == 1 &&
+              (text.splitOn "does not satisfy").length == 1 do
             throwError "negated quantifier reached generic predicate rendering: {text}"
           let text ← Mean.Render.renderChecked (mkApp acceptsPredicate p)
-          unless text == "p is acceptsPredicate" do
-            throwError "ordinary predicate on predicates lost adjective wording: {text}"
+          unless text == "p satisfies acceptsPredicate" do
+            throwError "ordinary predicate on predicates lost satisfaction wording: {text}"
 
 open Lean Elab Term in
 run_elab do
@@ -850,7 +905,7 @@ run_elab do
 
 /--
 info: Definition:
-  elements «a» and b of PredicateExamples.Point are PredicateExamples.adjacent if
+  elements «a» and b of PredicateExamples.Point satisfy PredicateExamples.adjacent if
     (the sum over indices i in [0, 3) of |«a» i - b i| = 1).
 -/
 #guard_msgs in
@@ -1326,14 +1381,14 @@ run_elab do
       throwError "expected binder rejection '{reason}', got: {message}"
 /--
 info: Definition:
-  an index i in [0, 3) is TypeNounExamples.indexReflexive if
+  an index i in [0, 3) satisfies TypeNounExamples.indexReflexive if
     i = i.
 -/
 #guard_msgs in
 #mean TypeNounExamples.indexReflexive
 /--
 info: Definition:
-  a list xs of TypeNounExamples.Token elements is TypeNounExamples.emptyList if
+  a list xs of TypeNounExamples.Token elements satisfies TypeNounExamples.emptyList if
     xs = [].
 -/
 #guard_msgs in
@@ -1366,10 +1421,10 @@ end
 
 -- Universal noun phrases recurse into dependent domains and logical structure.
 /--
-info: for every function q from ℕ to Prop where 0 is q:
+info: for every function q from ℕ to Prop where 0 satisfies q:
   there is a function r from ℕ to ℕ such that
     for every natural number n:
-      n is q if and only if (r n) is q
+      n satisfies q if and only if (r n) satisfies q
 -/
 #guard_msgs in
 #mean_term ∀ q : Nat → Prop, q 0 → ∃ r : Nat → Nat, ∀ n : Nat, q n ↔ q (r n)
@@ -1654,7 +1709,7 @@ def ordinaryPreconnected {V : Type*} (G : SimpleGraph V) : Prop :=
 
 /--
 info: Definition:
-  a simple graph G = (V, E) is ordinaryPreconnected if
+  a simple graph G = (V, E) satisfies ordinaryPreconnected if
     for all vertices u and v of G:
       there is a path in G from u to v.
 -/
@@ -1836,15 +1891,15 @@ end
 -- Type and function adjectives use the same rendering rule.
 section
 variable (n : Nat) (p : Nat → Prop) (f : Nat → Nat) (P Q : Prop) (r : Prop → Prop)
-/-- info: n is p -/
+/-- info: n satisfies p -/
 #guard_msgs in
 #mean_term p n
-/-- info: n is not p -/
+/-- info: n does not satisfy p -/
 #guard_msgs in
 #mean_term ¬ p n
 /--
 info: (the function mapping a natural number k to
-  k is not p) is recursively enumerable
+  k does not satisfy p) is recursively enumerable
 -/
 #guard_msgs in
 #mean_term REPred (fun k : Nat => ¬ p k)

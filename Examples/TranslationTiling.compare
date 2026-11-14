@@ -14,11 +14,11 @@ def LeanWang.Abstract.CoREHard : {α : Type u_1} → [Primcodable α] → (α �
 Definition:
   LeanWang.Abstract.CoREHard is
     the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
-      for every function q from ℕ to Prop where q is CoRE:
+      for every function q from ℕ to Prop where q satisfies CoRE:
         there is a function r from ℕ to α such that
           r is computable and
           (for every natural number n:
-            n is q if and only if (r n) is p).
+            n satisfies q if and only if (r n) satisfies p).
 
 -- LEAN INPUT:
 abbrev TranslationTiling.Abstract.Point : ℕ → Type :=
@@ -59,7 +59,7 @@ Definition:
         for every y ∈ P:
           x is related to y by the reflexive transitive closure of
             (the function mapping an element p of Point d and an element q of Point d to
-                p ∈ P and q ∈ P and (p and q are Adjacent)).
+                p ∈ P and q ∈ P and (p and q satisfy Adjacent)).
 
 -- LEAN INPUT:
 def TranslationTiling.Abstract.Tiles : {d : ℕ} → Prototile d → Prop :=
@@ -80,7 +80,7 @@ theorem TranslationTiling.Abstract.tiling_coRE_complete :
 Theorem TranslationTiling.Abstract.tiling_coRE_complete:
   for every natural number d where 3 ≤ d:
     (the function mapping an element P of Prototile d to
-      P is Connected and P is Tiles) is LeanWang.Abstract.CoREComplete
+      P satisfies Connected and P satisfies Tiles) satisfies LeanWang.Abstract.CoREComplete
 
 -- LEAN INPUT:
 theorem TranslationTiling.Abstract.tiling_undecidable :
@@ -89,7 +89,7 @@ theorem TranslationTiling.Abstract.tiling_undecidable :
 Theorem TranslationTiling.Abstract.tiling_undecidable:
   for every natural number d where 3 ≤ d:
     (the function mapping an element P of Prototile d to
-      P is Connected and P is Tiles) is not computable
+      P satisfies Connected and P satisfies Tiles) is not computable
 
 -- LEAN INPUT:
 theorem TranslationTiling.Abstract.tiling_reduction :
@@ -110,8 +110,8 @@ Theorem TranslationTiling.Abstract.tiling_reduction:
       f is computable and
       (for every list T of LeanWang.Abstract.Tile elements:
         f T ≠ [] and
-        (f T) is Connected and
-        (T is LeanWang.Abstract.TilesPlane if and only if (f T) is Tiles) and
+        (f T) satisfies Connected and
+        (T satisfies LeanWang.Abstract.TilesPlane if and only if (f T) satisfies Tiles) and
         the length of (f T) as a real number ≤
           (the length of T as a real number + 4) ^
             (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4))))
@@ -219,7 +219,7 @@ Theorem TranslationTiling.Abstract.real_tiling_coRE_hard:
   for every natural number d where 3 ≤ d:
     for every set motions of (Motion d) elements where translations ⊆ motions:
       (the function mapping an element P of Prototile d to
-        P is Connected and (P and motions are RealTiles)) is LeanWang.Abstract.CoREHard
+        P satisfies Connected and (P and motions satisfy RealTiles)) satisfies LeanWang.Abstract.CoREHard
 
 -- LEAN INPUT:
 theorem TranslationTiling.Abstract.real_tiling_undecidable :
@@ -232,7 +232,7 @@ Theorem TranslationTiling.Abstract.real_tiling_undecidable:
   for every natural number d where 3 ≤ d:
     for every set motions of (Motion d) elements where translations ⊆ motions:
       (the function mapping an element P of Prototile d to
-        P is Connected and (P and motions are RealTiles)) is not computable
+        P satisfies Connected and (P and motions satisfy RealTiles)) is not computable
 
 -- LEAN INPUT:
 theorem TranslationTiling.Abstract.real_tiling_coRE_complete :
@@ -245,7 +245,7 @@ Theorem TranslationTiling.Abstract.real_tiling_coRE_complete:
   for every natural number d where 3 ≤ d:
     for every motions ∈ ({allMotions, translations, translationsAndRotations, translationsAndReflections} : Set (Set (Motion d))):
       (the function mapping an element P of Prototile d to
-        P is Connected and (P and motions are RealTiles)) is LeanWang.Abstract.CoREComplete
+        P satisfies Connected and (P and motions satisfy RealTiles)) satisfies LeanWang.Abstract.CoREComplete
 
 -- LEAN INPUT:
 theorem TranslationTiling.Abstract.real_tiling_reduction :
@@ -267,9 +267,9 @@ Theorem TranslationTiling.Abstract.real_tiling_reduction:
       f is computable and
       (for every list T of LeanWang.Abstract.Tile elements:
         f T ≠ [] and
-        (f T) is Connected and
-        (T is LeanWang.Abstract.TilesPlane if and only if (f T) is Tiles) and
-        ((f T) is Tiles if and only if (f T) and (translations) are RealTiles) and
+        (f T) satisfies Connected and
+        (T satisfies LeanWang.Abstract.TilesPlane if and only if (f T) satisfies Tiles) and
+        ((f T) satisfies Tiles if and only if (f T) and (translations) satisfy RealTiles) and
         the length of (f T) as a real number ≤
           (the length of T as a real number + 4) ^
             (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4))))
@@ -295,10 +295,10 @@ Theorem TranslationTiling.Abstract.rigid_tiling_reduction:
       f is computable and
       (for every list T of LeanWang.Abstract.Tile elements:
         f T ≠ [] and
-        (f T) is Connected and
-        (T is LeanWang.Abstract.TilesPlane if and only if (f T) is Tiles) and
+        (f T) satisfies Connected and
+        (T satisfies LeanWang.Abstract.TilesPlane if and only if (f T) satisfies Tiles) and
         (for every set motions of (Motion d) elements where translations ⊆ motions:
-          (f T) is Tiles if and only if (f T) and motions are RealTiles) and
+          (f T) satisfies Tiles if and only if (f T) and motions satisfy RealTiles) and
         the length of (f T) as a real number ≤
           2 ^ (10 * (d + 1) ^ 2) *
             (the length of T as a real number + 4) ^
@@ -321,10 +321,10 @@ Theorem TranslationTiling.Abstract.rigid_tiling_reduction_three:
     f is computable and
     (for every list T of LeanWang.Abstract.Tile elements:
       f T ≠ [] and
-      (f T) is Connected and
-      (T is LeanWang.Abstract.TilesPlane if and only if (f T) is Tiles) and
+      (f T) satisfies Connected and
+      (T satisfies LeanWang.Abstract.TilesPlane if and only if (f T) satisfies Tiles) and
       (for every set motions of (Motion 3) elements where translations ⊆ motions:
-        (f T) is Tiles if and only if (f T) and motions are RealTiles) and
+        (f T) satisfies Tiles if and only if (f T) and motions satisfy RealTiles) and
       the length of (f T) as a real number ≤
         64000 *
           (the length of T as a real number + 4) ^

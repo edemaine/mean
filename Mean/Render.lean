@@ -547,7 +547,9 @@ private partial def subjectListSyntax (stx : Syntax) : Bool :=
   if stx.isOfKind choiceKind then stx.getArgs.any subjectListSyntax
   else match stx with
     | `($_:term and $_:term $[and $_:term]* are $_:meanAdjective)
-    | `($_:term and $_:term $[and $_:term]* are not $_:meanAdjective) => true
+    | `($_:term and $_:term $[and $_:term]* are not $_:meanAdjective)
+    | `($_:term and $_:term $[and $_:term]* satisfy $_:meanAdjective)
+    | `($_:term and $_:term $[and $_:term]* do not satisfy $_:meanAdjective) => true
     | _ => false
 
 /-- Parentheses preserve binder scope, connective precedence, and associativity. -/
@@ -572,9 +574,14 @@ private partial def connectiveClauses (e : Expr) (op : Name) : List Expr :=
     args[0]! :: connectiveClauses args[1]! op
   else [e]
 
-/-- Independent inverse vocabulary plus named predicates with subject lists.
+private structure PredicateView where
+  subjects : List Expr
+  phrase : String
+  registered : Bool := false
+
+/-- Registered adjectives use `is/are`; generic names use `satisfies/satisfy`.
 Subjects are the trailing explicit arguments, after implicit parameters. -/
-private def adjectiveView? (e : Expr) : MetaM (Option (List Expr × String)) := do
+private def predicateView? (e : Expr) : MetaM (Option PredicateView) := do
   if e.isAppOfArity ``Not 1 then return none
   unless ← isProp e do return none
   let explicit := pp.explicit.get (← getOptions)
@@ -592,7 +599,7 @@ private def adjectiveView? (e : Expr) : MetaM (Option (List Expr × String)) := 
     (``Computable, 5, "computable")]
   for (predicate, arity, word) in vocabulary do
     if e.isAppOfArity predicate arity && !explicit then
-      return some ([e.getAppArgs[arity - 1]!], word)
+      return some ⟨[e.getAppArgs[arity - 1]!], word, true⟩
   -- A named predicate has trailing explicit arguments after implicit parameters.
   -- Inspect binder information rather than guessing from its spelling.
   let head := e.getAppFn
@@ -628,7 +635,7 @@ private def adjectiveView? (e : Expr) : MetaM (Option (List Expr × String)) := 
   let predicate ← match Parser.runParserCategory (← getEnv) `term text with
     | .ok stx => pure (if stx.isIdent then text else "(" ++ text ++ ")")
     | .error _ => pure ("(" ++ text ++ ")")
-  return some (subjects, predicate)
+  return some ⟨subjects, predicate, false⟩
 
 /-- Share function wording and binding scope between plain and typed forms. -/
 private partial def functionText (n : Name) (ty body : Expr) (bi : BinderInfo)
@@ -859,21 +866,25 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
           pure s!"there is {← witnessText ty name negative.isSome}"
         if body.isConstOf ``True then return ← sentenceTail heading sentenceEnd
         return s!"{heading} such that\n{indented (← renderExpr body sentenceEnd)}"
-    let negativeAdjective := e.isAppOfArity ``Not 1
-    let positive := if negativeAdjective then e.getAppArgs[0]! else e
+    let negativePredicate := e.isAppOfArity ``Not 1
+    let positive := if negativePredicate then e.getAppArgs[0]! else e
     -- A negated quantifier without dedicated wording stays Lean. Do not turn
     -- its predicate argument into an adjective subject either.
-    if negativeAdjective && isQuantifier positive then return ← leafText e sentenceEnd
-    if let some (subjects, adjective) ← adjectiveView? positive then
-      let texts ← subjects.mapM fun subject => do
+    if negativePredicate && isQuantifier positive then return ← leafText e sentenceEnd
+    if let some view ← predicateView? positive then
+      let texts ← view.subjects.mapM fun subject => do
         let rendered ← renderExpr subject false true
         if (unsignedNumeral? subject).isSome && !(pp.explicit.get (← getOptions)) then
           pure rendered
         else if rendered == (← propertyText subject) then atomText subject true
         else pure ("(" ++ rendered ++ ")")
-      let copula := if subjects.length == 1 then "is" else "are"
-      let copula := copula ++ if negativeAdjective then " not" else ""
-      return ← sentenceTail s!"{String.intercalate " and " texts} {copula} {adjective}" sentenceEnd
+      let singular := view.subjects.length == 1
+      let verb := if view.registered then
+          (if singular then "is" else "are") ++ (if negativePredicate then " not" else "")
+        else if negativePredicate then
+          if singular then "does not satisfy" else "do not satisfy"
+        else if singular then "satisfies" else "satisfy"
+      return ← sentenceTail s!"{String.intercalate " and " texts} {verb} {view.phrase}" sentenceEnd
     leafText e sentenceEnd
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
@@ -971,13 +982,13 @@ def renderDefinition (name : Name) (signatureType value : Expr) (abbreviation :=
               let graphSuffix ← if keepGraphName || (← mentionsName bodyText graphName) then
                 pure s!" {← nameText graphName}"
                 else pure ""
-              return some s!"{clause}:\n  a simple graph{graphSuffix}{parts} is {nameStr} if\n{indented (indented (bodyText ++ "."))}"
+              return some s!"{clause}:\n  a simple graph{graphSuffix}{parts} satisfies {nameStr} if\n{indented (indented (bodyText ++ "."))}"
           else return none
         | _ => return none
       if let some text := result then return text
   | _ => pure ()
   if let some (subjects, bodyText) ← predicateSubjectsText? value then
-    return s!"{clause}:\n  {subjects} are {nameStr} if\n{indented (indented (bodyText ++ "."))}"
+    return s!"{clause}:\n  {subjects} satisfy {nameStr} if\n{indented (indented (bodyText ++ "."))}"
   match value.consumeMData with
   | .lam n ty body .default =>
     let keepPublicName := publicParameterName n
@@ -988,7 +999,7 @@ def renderDefinition (name : Name) (signatureType value : Expr) (abbreviation :=
       let bodyText ← renderExpr body true
       let keepName := keepPublicName || (← mentionsName bodyText n)
       let subject ← subjectText ty (if keepName then some n else none) .default
-      return some s!"{clause}:\n  {subject} is {nameStr} if\n{indented (indented (bodyText ++ "."))}"
+      return some s!"{clause}:\n  {subject} satisfies {nameStr} if\n{indented (indented (bodyText ++ "."))}"
     if let some text := result then return text
   | _ => pure ()
   let valueText ← renderExpr value

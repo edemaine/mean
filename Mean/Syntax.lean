@@ -62,6 +62,16 @@ syntax:50 term:51 " is " "not " meanAdjective : term
 syntax:50 term:51 atomic(" and " term:51 (" and " term:51)* " are ") meanAdjective : term
 syntax:50 term:51 atomic(" and " term:51 (" and " term:51)* " are ") "not " meanAdjective : term
 
+syntax:50 term:51 " satisfies " meanAdjective : term
+syntax:50 term:51 " does " "not " "satisfy " meanAdjective : term
+syntax:50 term:51 atomic(" and " term:51 (" and " term:51)* " satisfy ") meanAdjective : term
+-- Stop before the negating `do`, rather than parsing a Lean do-block argument.
+def predicateSubjectBeforeDo : Lean.Parser.Parser :=
+  Lean.Parser.withAntiquot (Lean.Parser.mkAntiquot "term" `term (isPseudoKind := true))
+    (Lean.Parser.withForbidden "do" (Lean.Parser.termParser 51))
+syntax:50 term:51 atomic(" and " predicateSubjectBeforeDo (" and " predicateSubjectBeforeDo)*
+  " do " "not " "satisfy ") meanAdjective : term
+
 /-! Logarithms retain their base and argument explicitly. -/
 /-- The natural logarithm, using the standard mathematical name. -/
 noncomputable abbrev ln (x : Real) : Real := Real.log x
@@ -175,6 +185,14 @@ elab "computableOn%" t:term : term => do
   Lean.Meta.mkAppM (if isPredicate then ``ComputablePred else ``Computable) #[subject]
 
 macro_rules
+  | `($subject:term satisfies $predicate:meanAdjective) =>
+      `($subject is $predicate)
+  | `($subject:term does not satisfy $predicate:meanAdjective) =>
+      `($subject is not $predicate)
+  | `($x:term and $y:term $[and $zs:term]* satisfy $predicate:meanAdjective) =>
+      `($x and $y $[and $zs]* are $predicate)
+  | `($x:term and $y:term $[and $zs:term]* do not satisfy $predicate:meanAdjective) =>
+      `($x and $y $[and $zs]* are not $predicate)
   | `($x:term is related to $y:term by $r:term) =>
       `(relationApply% $r of [$x, $y])
   | `($x:term is not related to $y:term by $r:term) =>
@@ -283,12 +301,12 @@ def expandPossessiveNeighbors : Lean.Macro := fun stx => do
 def sentenceBody : Lean.Parser.Parser :=
   Lean.Parser.withForbidden "." Lean.Parser.termParser
 
-/-- Definitions end a subject type at `is`; function lists end it at `and`.
+/-- Definitions end a subject type at their predicate verb; function lists end it at `and`.
 Parentheses disable these delimiters inside a compound type. -/
 def subjectType : Lean.Parser.Parser :=
   Lean.Parser.adaptCacheableContext
     (fun ctx => if ctx.forbiddenTks.contains "and" then ctx
-      else { ctx with forbiddenTks := ctx.forbiddenTks.filter (· == ".") |>.push "is" |>.push "are" })
+      else { ctx with forbiddenTks := ctx.forbiddenTks.filter (· == ".") |>.push "is" |>.push "are" |>.push "satisfies" |>.push "satisfy" })
     Lean.Parser.termParser
 
 /-- Collection descriptions end their element type at the explicit plural noun. -/
@@ -305,7 +323,7 @@ def functionDomain : Lean.Parser.Parser :=
     (Lean.Parser.categoryParser `meanFunctionEndpoint 0)
 
 def functionResult : Lean.Parser.Parser :=
-  Lean.Parser.withForbiddens #["and", "to", "is"]
+  Lean.Parser.withForbiddens #["and", "to", "is", "satisfies", "satisfy"]
     (Lean.Parser.categoryParser `meanFunctionEndpoint 0)
 
 declare_syntax_cat meanFunctionSignature
@@ -654,6 +672,14 @@ macro_rules
 
 /-! The definition clause knows nothing about graphs or other subject types. -/
 syntax "Definition" ":" meanPredicateSubjects
+  "satisfy" ident "if" sentenceBody "." : command
+syntax "Abbreviation" ":" meanPredicateSubjects
+  "satisfy" ident "if" sentenceBody "." : command
+syntax "Definition" ":" meanSubject
+  "satisfies" ident "if" sentenceBody "." : command
+syntax "Abbreviation" ":" meanSubject
+  "satisfies" ident "if" sentenceBody "." : command
+syntax "Definition" ":" meanPredicateSubjects
   "are" ident "if" sentenceBody "." : command
 syntax "Abbreviation" ":" meanPredicateSubjects
   "are" ident "if" sentenceBody "." : command
@@ -665,6 +691,14 @@ syntax "Abbreviation" ":" meanSubject
 syntax "Abbreviation" ":" ident "is" sentenceBody "." : command
 
 macro_rules
+  | `(command| Definition: $subjects:meanPredicateSubjects satisfy $name:ident if $body:term .) =>
+      `(command| Definition: $subjects are $name if $body .)
+  | `(command| Abbreviation: $subjects:meanPredicateSubjects satisfy $name:ident if $body:term .) =>
+      `(command| Abbreviation: $subjects are $name if $body .)
+  | `(command| Definition: $subject:meanSubject satisfies $name:ident if $body:term .) =>
+      `(command| Definition: $subject is $name if $body .)
+  | `(command| Abbreviation: $subject:meanSubject satisfies $name:ident if $body:term .) =>
+      `(command| Abbreviation: $subject is $name if $body .)
   | `(command| Definition: $subjects:meanPredicateSubjects are $name:ident if $body:term .) =>
       `(command| def $name:ident := predicateOver% $subjects => $body)
   | `(command| Abbreviation: $subjects:meanPredicateSubjects are $name:ident if $body:term .) =>

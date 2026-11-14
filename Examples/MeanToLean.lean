@@ -198,6 +198,43 @@ example (P Q R : Prop) (r : Prop → Prop → Prop → Prop) :
 
 end BinaryPredicateExamples
 
+namespace PredicateWordingExamples
+open BinaryPredicateExamples
+
+Definition: a natural number n satisfies zero if (n = 0).
+Definition: natural numbers x and y satisfy less if (x < y).
+Abbreviation: a natural number n satisfies nonzero if (n ≠ 0).
+Abbreviation: natural numbers x and y satisfy same if (x = y).
+Definition: a natural number n and an index i in [0, n + 1) satisfy atEnd if (i.val = n).
+def «injective» (n : Nat) : Prop := n = 0
+
+example : zero = (fun n : Nat => n = 0) := rfl
+example : less = (fun x y : Nat => x < y) := rfl
+example : nonzero = (fun n : Nat => n ≠ 0) := rfl
+example : same = (fun x y : Nat => x = y) := rfl
+example : atEnd = (fun (n : Nat) (i : Fin (n + 1)) => i.val = n) := rfl
+example (A : Type u) (P : A → Prop) (x : A) : (x satisfies P) = (x is P) := rfl
+example (A : Type u) (P : A → Prop) (x : A) : (x does not satisfy P) = (x is not P) := rfl
+example (xs : List Nat) (P : List Nat → Prop) : (xs satisfies P) = P xs := rfl
+example (u v : Nat) : (u and v satisfy Adjacent) = (u and v are Adjacent) := rfl
+example (u v : Nat) : (u and v do not satisfy Adjacent) = (u and v are not Adjacent) := rfl
+example (u v : Nat) : (u and (Id.run do return v) do not satisfy Adjacent) = (¬ Adjacent u v) := rfl
+example (u v : Nat) : (u + 1 and v * 2 satisfy Adjacent) = Adjacent (u + 1) (v * 2) := rfl
+example (n : Nat) (z : Int) : (n and z satisfy ordered) = ordered n z := rfl
+example (R : (n : Nat) → Fin (n + 1) → Prop) (n : Nat) (i : Fin (n + 1)) :
+    (n and i satisfy R) = R n i := rfl
+example (u v w : Nat) : (u and v and w satisfy ternary) = ternary u v w := rfl
+example (u v w : Nat) : (u and v and w do not satisfy ternary) = (¬ ternary u v w) := rfl
+example (u v w z : Nat) : (u and v and w and z satisfy four) = four u v w z := rfl
+example (u v w : Nat) : (u satisfies (ternary v w)) = ternary v w u := rfl
+example (P : Prop) (u v : Nat) : (P and (u and v satisfy Adjacent)) = (P ∧ Adjacent u v) := rfl
+example (P : Prop) (u v : Nat) : ((u and v satisfy Adjacent) and P) = (Adjacent u v ∧ P) := rfl
+example (P : Prop) (u v w : Nat) : (P or (u and v and w do not satisfy ternary)) =
+    (P ∨ ¬ ternary u v w) := rfl
+example (P Q R : Prop) (r : Prop → Prop → Prop → Prop) : (P and Q and R satisfy r) = r P Q R := rfl
+
+end PredicateWordingExamples
+
 namespace CustomCoercionExamples
 
 structure Foo where

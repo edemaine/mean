@@ -61,6 +61,12 @@ private def checkValueText (original : Expr) (text : String) (category : Name)
     (abbreviation := false) : TermElabM Unit := do
   let stx ← parseText category text
   let graphSubject := match stx with
+    | `(command| Definition: a simple graph $[$_:ident]? satisfies $_:ident if $_:term .) => true
+    | `(command| Abbreviation: a simple graph $[$_:ident]? satisfies $_:ident if $_:term .) => true
+    | `(command| Definition: a simple graph $[$_:ident]? = ($_:ident, $_:ident)
+        satisfies $_:ident if $_:term .) => true
+    | `(command| Abbreviation: a simple graph $[$_:ident]? = ($_:ident, $_:ident)
+        satisfies $_:ident if $_:term .) => true
     | `(command| Definition: a simple graph $[$_:ident]? is $_:ident if $_:term .) => true
     | `(command| Abbreviation: a simple graph $[$_:ident]? is $_:ident if $_:term .) => true
     | `(command| Definition: a simple graph $[$_:ident]? = ($_:ident, $_:ident)
@@ -76,6 +82,14 @@ private def checkValueText (original : Expr) (text : String) (category : Name)
     | `(command| Abbreviation: a $_:ident is $description:meanWitness .)
     | `(command| Abbreviation: an $_:ident is $description:meanWitness .) =>
       pure (← `(anonymousType% $description), true)
+    | `(command| Definition: $subject:meanSubject satisfies $_:ident if $body:term .) =>
+      pure (← `(predicateOn% $subject => $body), false)
+    | `(command| Abbreviation: $subject:meanSubject satisfies $_:ident if $body:term .) =>
+      pure (← `(predicateOn% $subject => $body), true)
+    | `(command| Definition: $subjects:meanPredicateSubjects satisfy $_:ident if $body:term .) =>
+      pure (← `(predicateOver% $subjects => $body), false)
+    | `(command| Abbreviation: $subjects:meanPredicateSubjects satisfy $_:ident if $body:term .) =>
+      pure (← `(predicateOver% $subjects => $body), true)
     | `(command| Definition: $subject:meanSubject is $_:ident if $body:term .) => do
       pure (← `(predicateOn% $subject => $body), false)
     | `(command| Abbreviation: $subject:meanSubject is $_:ident if $body:term .) => do
@@ -138,6 +152,14 @@ private def renameDefinition (stx : Syntax) (name : Ident) : TermElabM (TSyntax 
     `(command| Abbreviation: a $name is $description .)
   | `(command| Abbreviation: an $_:ident is $description:meanWitness .) =>
     `(command| Abbreviation: an $name is $description .)
+  | `(command| Definition: $subject:meanSubject satisfies $_:ident if $body:term .) =>
+    `(command| Definition: $subject satisfies $name if $body .)
+  | `(command| Abbreviation: $subject:meanSubject satisfies $_:ident if $body:term .) =>
+    `(command| Abbreviation: $subject satisfies $name if $body .)
+  | `(command| Definition: $subjects:meanPredicateSubjects satisfy $_:ident if $body:term .) =>
+    `(command| Definition: $subjects satisfy $name if $body .)
+  | `(command| Abbreviation: $subjects:meanPredicateSubjects satisfy $_:ident if $body:term .) =>
+    `(command| Abbreviation: $subjects satisfy $name if $body .)
   | `(command| Definition: $subject:meanSubject is $_:ident if $body:term .) =>
     `(command| Definition: $subject is $name if $body .)
   | `(command| Abbreviation: $subject:meanSubject is $_:ident if $body:term .) =>

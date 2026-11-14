@@ -45,7 +45,7 @@ Mean renders it as:
 
 ```lean
 Definition:
-  a simple graph G is preconnected if
+  a simple graph G satisfies preconnected if
     for all vertices u and v of G:
       there is a path in G from u to v.
 ```
@@ -61,18 +61,18 @@ It creates a normal predicate named `preconnected`, usable in ordinary Lean theo
 statements and proofs. Mean propositions can also be embedded within Lean, and
 Mean definition bodies can contain ordinary Lean expressions.
 
-Predicates with multiple explicit arguments use `are`:
+Predicates with multiple explicit arguments use `satisfy` (`are` remains an alias):
 
 ```lean
 Definition:
-  elements p and q of Point are adjacent if
+  elements p and q of Point satisfy adjacent if
     (the sum over indices i in [0, 3) of |p i - q i| = 1).
 ```
 
 Here `Point` is an existing type, such as `Fin 3 → ℤ`. Group two or more names
 with `elements x and y of T`, scalar plurals such as `integers x and y`, or
 `indices i and j in [0, n)`. Mixed or dependent subjects retain their individual
-descriptions: `a natural number n and an index i in [0, n) are below if i.val < n.`
+descriptions: `a natural number n and an index i in [0, n) satisfy below if i.val < n.`
 Earlier subjects are in scope in later types and the proposition. `Abbreviation:`
 accepts the same forms. The renderer preserves the predicate's Lean name.
 
@@ -99,7 +99,7 @@ Use `Abbreviation:` with the same value or predicate clauses to create Lean
 
 ```lean
 Abbreviation: a Natural is a natural number.
-Abbreviation: a natural number n is zero if (n = 0).
+Abbreviation: a natural number n satisfies zero if (n = 0).
 ```
 
 These definitions are reducible: Lean unfolds them readily, including during
@@ -382,7 +382,7 @@ the function mapping a natural number n and a proof h that n > 0 to h
 This means `fun (n : Nat) (h : n > 0) => h`. The forms
 `an implicit proof h that P` and `a strictly implicit proof h that P` preserve
 their corresponding Lean binder kinds. Proof subjects also work in predicate
-definitions, for example `Definition: a proof h that True is reflexive if h = h.`
+definitions, for example `Definition: a proof h that True satisfies reflexive if h = h.`
 The proposition after `that` is checked to have type `Prop`.
 
 The renderer prefers proof wording wherever it would otherwise describe an
@@ -648,7 +648,7 @@ and `python test.py` checks the exact output. This is a baseline for improving
 the translation of real mathematics; unsupported portions retain Lean syntax.
 The tiling definition renders existential and integer quantifiers and conjunctions.
 The complexity definitions use `an instance of typeclass Primcodable α` for their
-instance parameters. `CoRE` describes the function mapping `x` to `x is not p`
+instance parameters. `CoRE` describes the function mapping `x` to `x does not satisfy p`
 as recursively enumerable. Named predicates without registered English wording
 use their Lean names after `is`. `CoREComplete` renders its function-valued universal and
 existential quantifiers, implication, conjunction, and equivalence in Mean.
@@ -715,7 +715,7 @@ The November 12 update prompted these general rendering improvements:
    “the image of (Solid P) under f.” Uniqueness remains restricted to motions
    in T; ordinary and negated existence support membership restrictions too.
 4. **Keep project-specific predicate wording local.** The generic subject-list rule
-   produces `P and motions are RealTiles`; “P tiles real space using motions”
+   produces `P and motions satisfy RealTiles`; “P tiles real space using motions”
    would express those roles. That wording, and names such as “co-RE-hard,”
    belong with local declarations rather than global TranslationTiling rules.
    Predicate definitions with implicit dimension parameters retain their current
@@ -738,10 +738,10 @@ The grammar separates logical structure from mathematical vocabulary:
 
 | Component | Examples |
 |---|---|
-| Definition clause | `Definition: <subject> is <name> if <proposition>.` |
-| Multiple predicate subjects | `Definition: <subject> and <subject> [and …] are <name> if <proposition>.` |
+| Definition clause | `Definition: <subject> satisfies <name> if <proposition>.` |
+| Multiple predicate subjects | `Definition: <subject> and <subject> [and …] satisfy <name> if <proposition>.` |
 | Named value clause | `Definition: <name> is <value>.` |
-| Abbreviation clause | `Abbreviation: <name> is <value>.`, `Abbreviation: <subject> is <name> if <proposition>.` |
+| Abbreviation clause | `Abbreviation: <name> is <value>.`, `Abbreviation: <subject> satisfies <name> if <proposition>.` |
 | Named type clause | `Definition: a <name> is <anonymous description>.`, `Abbreviation: an <name> is <anonymous description>.` |
 | Function expression | `the function [: <type>] mapping <subject> [and <subject> …] to <value>` |
 | Function type | `the type of functions from A to B` |
@@ -779,8 +779,9 @@ The grammar separates logical structure from mathematical vocabulary:
 | Negated existential | `there is no <witness noun> [such that <proposition>]` |
 | Witness description | `a path p in G from u to v`, `a natural number n`, `a boolean x`, `an element x of T`, `a proof h that P` |
 | Properties | `the edge set of G`, `G's edge set` |
-| Adjectives | `<term> is <adjective>`, `<term> is not <adjective>`, `x is FooPred` |
-| Predicate subject lists | `u and v are Adjacent`, `x and y and z are R`, `u and v are not Adjacent` |
+| Adjectives | `<term> is <adjective>`, `<term> is not <adjective>` |
+| Generic predicates | `x satisfies FooPred`, `x does not satisfy FooPred` |
+| Predicate subject lists | `u and v satisfy Adjacent`, `x and y and z satisfy R`, `u and v do not satisfy Adjacent` |
 | Relation closure | `x is related to y by the reflexive transitive closure of R` |
 | Relation composition | `x is related to z by the composition of R followed by S` |
 | Logarithm | `ln x`, `log base b of x` |
@@ -955,7 +956,7 @@ The explicit graph subject also works:
 
 ```lean
 Definition:
-  a simple graph G = (V, E) is preconnected if
+  a simple graph G = (V, E) satisfies preconnected if
     for every u and v in V:
       there is a path in G from u to v.
 ```
@@ -1030,47 +1031,58 @@ For example, `f is injective and f is surjective` preserves both predicates.
 such as `Set.Finite` are not yet overloaded onto this vocabulary.
 
 An unregistered predicate can use its Lean identifier: if `p : α → Prop`,
-`x is p` means `p x`, and `x is not p` means `¬ p x`. No `Pred` suffix or
-vocabulary registration is required. The application must produce a proposition;
-Boolean-valued functions are rejected instead of coerced to propositions.
-Two or more subjects use `u and v are Adjacent`, meaning `Adjacent u v`,
-or `x and y and z are R`, meaning `R x y z`. Add `not` after `are` to negate
-the application. Arguments remain in order, including when their types differ
+`x satisfies p` means `p x`, and `x does not satisfy p` means `¬ p x`.
+The existing `x is p` and `x is not p` remain accepted aliases. No `Pred`
+suffix or vocabulary registration is required. The application must produce a
+proposition; Boolean-valued functions are rejected instead of coerced to propositions.
+
+Two or more subjects use `u and v satisfy Adjacent`, meaning `Adjacent u v`,
+or `x and y and z satisfy R`, meaning `R x y z`. Negate the whole application
+with `u and v do not satisfy Adjacent`. The existing `are` and `are not` forms
+remain aliases. Arguments remain in order, including when their types differ
 or later types depend on earlier arguments. A parenthesized predicate expression
-also works, such as `u and v are (relation parameter)`.
+also works, such as `u and v satisfy (relation parameter)`.
+Agreement follows the number of subjects: a list `xs` is one subject, so
+`xs satisfies Sorted` applies `Sorted` to that list. Multiple subjects jointly
+satisfy one predicate; the wording does not assert a separate property of each.
 
 The phrase binds at the same precedence as `is`, above logical `and`. Longer
 subject lists can also admit an outer-conjunction parse; delimit them inside
 a conjunction or disjunction with parentheses:
 
 ```lean
-P and (u and v are Adjacent)
-(u and v are Adjacent) and (x and y and z are R)
-p ∈ P and q ∈ P and (p and q are Adjacent)
+P and (u and v satisfy Adjacent)
+(u and v satisfy Adjacent) and (x and y and z satisfy R)
+p ∈ P and q ∈ P and (p and q satisfy Adjacent)
 ```
 
 The renderer always adds this grouping inside logical `and` and `or`.
 Conjunction and disjunction chains stay inline when their rendered text is single-line
 and fits `format.width` (120 by default). Otherwise, the renderer puts a newline after each
 logical `and` or `or` in the chain, aligning the clauses. Parentheses retain logical
-grouping and quantifier scope; subject lists such as `u and v are Adjacent`
-keep their own `and` inline.
+grouping and quantifier scope; subject lists keep their own `and` inline.
 Parenthesize a logical proposition used as one of the predicate arguments too.
-`P and Q and R are r` applies `r` to three propositions; it does not introduce
+`P and Q and R satisfy r` applies `r` to three propositions; it does not introduce
 an outer logical conjunction.
 
-The renderer uses these forms for named predicates with trailing explicit
-subject arguments, preceded by implicit type or instance arguments. Native
-relation notation such as `=`, `≤`, `∈`, and `⊆` is retained. Predicates with
-implicit parameters interleaved among the subjects retain Lean application notation.
-The declared codomain must be `Prop` with formal type parameters still in place.
-Specializing a value operation such as `id`, `iInf`, or a coercion to return
-propositions does not turn it into an adjective.
+The renderer uses `satisfies/satisfy` for generic named predicates and `is/are`
+for registered adjectives such as `finite`, `injective`, and `computable`.
+This distinction uses registered declarations rather than guessing from a name's
+spelling. Predicate definitions and abbreviations also render with
+`satisfies/satisfy`; both the old and new forms are accepted as input. Named-value
+and type declarations retain `is`.
+
+Named predicates need trailing explicit subject arguments, preceded by implicit
+type or instance arguments. Native relation notation such as `=`, `≤`, `∈`, and
+`⊆` is retained. Predicates with implicit parameters interleaved among the
+subjects retain Lean application notation. The declared codomain must be `Prop`
+with formal type parameters still in place. Specializing a value operation such
+as `id`, `iInf`, or a coercion to return propositions does not turn it into a predicate.
 Known connectives and quantifiers are rendered before this generic rule. A
 quantifier applied to a predicate must keep its quantifier wording; ordinary
-predicates on functions can still use adjective wording.
-Parenthesized predicates are also accepted, such as `n is (relates m)`, and let
-the renderer retain explicit hidden arguments when inference would change them.
+predicates on functions can still use satisfaction wording.
+Parenthesized predicates are also accepted, such as `n satisfies (relates m)`,
+and let the renderer retain explicit hidden arguments when inference would change them.
 
 Relation closures have dedicated wording:
 
@@ -1110,16 +1122,17 @@ the composition of (the reflexive closure of R) followed by (the symmetric closu
 The renderer handles these operators before generic predicate subject lists,
 and renders nested operators and inline function bodies recursively.
 
-Adjective subjects render recursively, including function bodies:
+Predicate subjects render recursively, including function bodies:
 
 ```lean
 (the function mapping an element x of α to
-  x is not p) is recursively enumerable
+  x does not satisfy p) is recursively enumerable
 ```
 
 This means `REPred (fun x : α => ¬ p x)`. Parentheses keep the outer adjective
-outside the function body. Only negated predicate applications receive `is not`
-wording; general negations remain ordinary Lean.
+outside the function body. Negated generic predicate applications use
+`does not satisfy` or `do not satisfy`; registered adjectives retain `is not`
+or `are not`. General negations remain ordinary Lean.
 
 ## Current coverage and limitations
 
@@ -1157,7 +1170,7 @@ Indentation is currently for readability: **dedenting does not close a scope**.
 The grammar determines scope. The renderer removes unnecessary grouping, but some
 parentheses remain necessary. For example, `(n = 0).` prevents the final `0.` from
 being read as a Lean decimal token. Compound field projections may also need
-parentheses. English keywords such as `a` and `graph` are reserved after importing
+parentheses. English keywords such as `a`, `graph`, `satisfies`, `satisfy`, and `does` are reserved after importing
 Mean; Lean identifiers with those names need escaping, as in `«a»`.
 
 ## Development direction

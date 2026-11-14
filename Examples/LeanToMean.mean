@@ -1,6 +1,30 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+Definition:
+  a natural number n satisfies PredicateWordingExamples.zero if
+    (n = 0).
+
+Definition:
+  natural numbers x and y satisfy PredicateWordingExamples.less if
+    x < y.
+
+Abbreviation:
+  a natural number n satisfies PredicateWordingExamples.nonzero if
+    (n ≠ 0).
+
+Abbreviation:
+  natural numbers x and y satisfy PredicateWordingExamples.same if
+    x = y.
+
+Definition:
+  a natural number n and an index i in [0, n + 1) satisfy PredicateWordingExamples.atEnd if
+    i as a natural number = n.
+
+xs satisfies P
+
+n satisfies PredicateWordingExamples.injective
+
 x i
 
 p i as a real number
@@ -53,19 +77,19 @@ there is exactly one g ∈ ({f, t} : Set Motion) such that
 the image of s under f
 
 there is x ∈ s such that
-  x is P
+  x satisfies P
 
 there is exactly one x ∈ s such that
-  x is P
+  x satisfies P
 
 there is no x ∈ s such that
-  x is P
+  x satisfies P
 
 there is an element x of A such that
-  z ∈ s and x is P
+  z ∈ s and x satisfies P
 
 (there is exactly one x ∈ s such that
-  x is P) and
+  x satisfies P) and
 True
 
 there is a subset t of s such that
@@ -162,8 +186,8 @@ Q
 P if and only if Q and R and S
 
 P and
-(u and v are BinaryPredicateExamples.Adjacent) and
-(u and v and w are BinaryPredicateExamples.ternary)
+(u and v satisfy BinaryPredicateExamples.Adjacent) and
+(u and v and w satisfy BinaryPredicateExamples.ternary)
 
 P and
 (Q and R) and
@@ -189,8 +213,8 @@ Q
 P if and only if Q or R or S or P
 
 P or
-(u and v are BinaryPredicateExamples.Adjacent) or
-(u and v and w are BinaryPredicateExamples.ternary)
+(u and v satisfy BinaryPredicateExamples.Adjacent) or
+(u and v and w satisfy BinaryPredicateExamples.ternary)
 
 P or
 (Q or R) or
@@ -267,7 +291,7 @@ some
 x is related to z by the composition of R followed by S
 
 there is an element y of B such that
-  (x and y are R) and (y and z are S)
+  (x and y satisfy R) and (y and z satisfy S)
 
 (0) is related to (1) by the symmetric closure of
   (the function mapping a natural number x and a natural number y to
@@ -323,56 +347,56 @@ some
   (the function mapping a natural number x and a natural number y to
       x < y)
 
-u and v are Adjacent
+u and v satisfy Adjacent
 
-u and v are not Adjacent
+u and v do not satisfy Adjacent
 
-u and z are ordered
+u and z satisfy ordered
 
-u and v are same
+u and v satisfy same
 
-u and 0 are dependent
+u and 0 satisfy dependent
 
-(u + 1) and (v * 2) are Adjacent
+(u + 1) and (v * 2) satisfy Adjacent
 
-P and (u and v are Adjacent)
+P and (u and v satisfy Adjacent)
 
-(u and v are Adjacent) and P
+(u and v satisfy Adjacent) and P
 
-(u and v are Adjacent) and (v and w are Adjacent)
+(u and v satisfy Adjacent) and (v and w satisfy Adjacent)
 
-(u and v are Adjacent) and P or Q
+(u and v satisfy Adjacent) and P or Q
 
-P or (u and v are not Adjacent)
+P or (u and v do not satisfy Adjacent)
 
-u and v are Adjacent if and only if P
+u and v satisfy Adjacent if and only if P
 
-if u and v are Adjacent then
-  v and u are not Adjacent
+if u and v satisfy Adjacent then
+  v and u do not satisfy Adjacent
 
-(P and Q) and R are iffRelated
+(P and Q) and R satisfy iffRelated
 
-u and v and w are ternary
+u and v and w satisfy ternary
 
-u and v and w are not ternary
+u and v and w do not satisfy ternary
 
-u and v and w and 0 are four
+u and v and w and 0 satisfy four
 
-u and z and b are mixedTernary
+u and z and b satisfy mixedTernary
 
-u and v and w are sameThree
+u and v and w satisfy sameThree
 
-P and Q and (u and v and w are ternary)
+P and Q and (u and v and w satisfy ternary)
 
-(u and v and w are ternary) and P
+(u and v and w satisfy ternary) and P
 
-P or (u and v and w are not ternary)
+P or (u and v and w do not satisfy ternary)
 
-(u and v are Adjacent) and (u and v and w are ternary)
+(u and v satisfy Adjacent) and (u and v and w satisfy ternary)
 
-((u and v and w are ternary) and P) and Q
+((u and v and w satisfy ternary) and P) and Q
 
-u and v and w are ternary if and only if P
+u and v and w satisfy ternary if and only if P
 
 u = v
 
@@ -384,9 +408,9 @@ u ∈ S
 
 P and Q and R
 
-x and y are BinaryPredicateExamples.same
+x and y satisfy BinaryPredicateExamples.same
 
-x and y are r
+x and y satisfy r
 
 Definition:
   CustomCoercionExamples.wrap is
@@ -412,31 +436,31 @@ x as Box A
 Coe.coe x
 
 for almost every element x of A with respect to μ:
-  x is p
+  x satisfies p
 
 for almost every element x of A with respect to (μ + ν):
-  x is p
+  x satisfies p
 
-for almost every element x of A with respect to μ where x is p:
-  x is q
+for almost every element x of A with respect to μ where x satisfies p:
+  x satisfies q
 
 for almost every element x of A with respect to μ:
   for almost every element y of A with respect to ν:
-    x is p and y is q
+    x satisfies p and y satisfies q
 
 (for almost every element x of A with respect to μ:
-  x is p) and
+  x satisfies p) and
 True
 
 if for almost every element x of A with respect to μ:
-  x is p then
+  x satisfies p then
   False
 
 ¬∀ᵐ (x : A) ∂μ, p x
 
 for every element x of A where (for almost every element y of A with respect to μ:
-  y is p):
-  x is p
+  y satisfies p):
+  x satisfies p
 
 for almost every element of A with respect to μ:
   True
@@ -448,12 +472,12 @@ for almost every element x of A with respect to μ:
 ∀ᶠ (x : A) in F, p x
 
 for almost every element x of A:
-  x is p
+  x satisfies p
 
 for almost every element x of A with respect to μ:
-  x is p
+  x satisfies p
 
-for almost every element x of A where x is p:
+for almost every element x of A where x satisfies p:
   x = x
 
 for almost every element x of A:
@@ -514,10 +538,10 @@ the set of elements f of ℕ → ℕ such that
   f 0 = 0
 
 the set of elements x of A such that
-  x is p
+  x satisfies p
 
 the set of elements x of A such that
-  x is p
+  x satisfies p
 
 n ∈
   the set of elements m of ℕ such that
@@ -540,7 +564,7 @@ Abbreviation:
     a set of SetPhraseExamples.Point elements.
 
 Definition:
-  a set S of SetPhraseExamples.Point elements is SetPhraseExamples.reflexive if
+  a set S of SetPhraseExamples.Point elements satisfies SetPhraseExamples.reflexive if
     S = S.
 
 the type of sets of natural numbers
@@ -651,14 +675,14 @@ for every natural number n where (there is a unique natural number m such that
 ¬∃! n : ℕ, n = 0
 
 there is a unique element t of Point such that
-  t is P
+  t satisfies P
 
 there is a unique element witness of Point such that
-  witness is P
+  witness satisfies P
 
 p is related to q by the reflexive transitive closure of
   (the function mapping an element «a» of Point and an element b of Point to
-      «a» ∈ P and b ∈ P and («a» and b are Adjacent))
+      «a» ∈ P and b ∈ P and («a» and b satisfy Adjacent))
 
 List.map
   (the function mapping a natural number n to
@@ -724,7 +748,7 @@ for every p ∈ P:
 for every p ∈ (P ∩ Q):
   p ∈ P
 
-for every p ∈ P where p is R:
+for every p ∈ P where p satisfies R:
   p ∈ P
 
 for every p ∈ P:
@@ -732,15 +756,15 @@ for every p ∈ P:
     q ∈ F p
 
 (for every p ∈ P:
-  p is R) and
+  p satisfies R) and
 True
 
 True or
 (for every p ∈ P:
-  p is R)
+  p satisfies R)
 
 if (for every p ∈ P:
-  p is R) then
+  p satisfies R) then
   True
 
 for every element p of A where z ∈ P:
@@ -785,9 +809,9 @@ for every natural number n where (there is a natural number m such that
   n = m):
   n = n
 
-for every natural number n where n is P if and only if n is Q:
-  if n is P then
-    n is Q
+for every natural number n where n satisfies P if and only if n satisfies Q:
+  if n satisfies P then
+    n satisfies Q
 
 for every natural number n:
   for every proof h that (n > 0):
@@ -798,39 +822,39 @@ for every natural number n:
     h = h
 
 Definition:
-  elements «a» and b of PredicateExamples.Point are PredicateExamples.adjacent if
+  elements «a» and b of PredicateExamples.Point satisfy PredicateExamples.adjacent if
     (the sum over indices i in [0, 3) of |«a» i - b i| = 1).
 
 Definition:
-  natural numbers x and y and z are PredicateExamples.ordered if
+  natural numbers x and y and z satisfy PredicateExamples.ordered if
     x ≤ y and y ≤ z.
 
 Abbreviation:
-  integers x and y are PredicateExamples.equalIntegers if
+  integers x and y satisfy PredicateExamples.equalIntegers if
     x = y.
 
 Definition:
-  indices i and j in [0, 3) are PredicateExamples.sameIndex if
+  indices i and j in [0, 3) satisfy PredicateExamples.sameIndex if
     i = j.
 
 Definition:
-  a natural number n and an index i in [0, n) are PredicateExamples.below if
+  a natural number n and an index i in [0, n) satisfy PredicateExamples.below if
     i as a natural number < n.
 
 Definition:
-  an element T of Type and an element x of T are PredicateExamples.reflexivePair if
+  an element T of Type and an element x of T satisfy PredicateExamples.reflexivePair if
     x = x.
 
 Definition:
-  a natural number n and a proof h that n > 0 are PredicateExamples.positivePair if
+  a natural number n and a proof h that n > 0 satisfy PredicateExamples.positivePair if
     n ≥ 1 and h = h.
 
 Definition:
-  natural numbers x and y are PredicateExamples.ignoresSecond if
+  natural numbers x and y satisfy PredicateExamples.ignoresSecond if
     x = x.
 
 Definition:
-  a function f from ℕ and ℕ to ℕ and a boolean b are PredicateExamples.mixed if
+  a function f from ℕ and ℕ to ℕ and a boolean b satisfy PredicateExamples.mixed if
     f 0 0 = 0 and b = true.
 
 the function mapping a function «a» from indices in [0, 3) to ℤ and a function b from indices in [0, 3) to ℤ to
@@ -1030,7 +1054,7 @@ Definition:
       i as a natural number.
 
 Definition:
-  an index i in [0, 4) is IndexExamples.first if
+  an index i in [0, 4) satisfies IndexExamples.first if
     (i as a natural number = 0).
 
 the type of indices in [0, n)
@@ -1283,7 +1307,7 @@ Definition:
       h.
 
 Definition:
-  a proof h that True is ProofExamples.reflexive if
+  a proof h that True satisfies ProofExamples.reflexive if
     h = h.
 
 Definition:
@@ -1300,7 +1324,7 @@ Abbreviation:
     the integer 42.
 
 Abbreviation:
-  a natural number n is AbbreviationExamples.zero if
+  a natural number n satisfies AbbreviationExamples.zero if
     (n = 0).
 
 Abbreviation:
@@ -1314,7 +1338,7 @@ Abbreviation:
       (0).
 
 Abbreviation:
-  a simple graph G is AbbreviationExamples.pathLinked if
+  a simple graph G satisfies AbbreviationExamples.pathLinked if
     for all vertices u and v of G:
       there is a path in G from u to v.
 
@@ -1329,11 +1353,11 @@ Definition:
       the edge set of G.
 
 Definition:
-  an index i in [0, 3) is TypeNounExamples.indexReflexive if
+  an index i in [0, 3) satisfies TypeNounExamples.indexReflexive if
     i = i.
 
 Definition:
-  a list xs of TypeNounExamples.Token elements is TypeNounExamples.emptyList if
+  a list xs of TypeNounExamples.Token elements satisfies TypeNounExamples.emptyList if
     xs = [].
 
 Definition:
@@ -1362,7 +1386,7 @@ Definition:
       f n n.
 
 Definition:
-  a function f from ℕ and ℕ to ℕ is TypeNounExamples.diagonalZero if
+  a function f from ℕ and ℕ to ℕ satisfies TypeNounExamples.diagonalZero if
     (f 0 0 = 0).
 
 Definition:
@@ -1381,15 +1405,15 @@ Definition:
       true.
 
 Definition:
-  a natural number is BinderExamples.constantPredicate if
+  a natural number satisfies BinderExamples.constantPredicate if
     True.
 
 Definition:
-  a simple graph is BinderExamples.constantGraph if
+  a simple graph satisfies BinderExamples.constantGraph if
     True.
 
 Definition:
-  a simple graph = (V, E) is BinderExamples.inhabitedCarrier if
+  a simple graph = (V, E) satisfies BinderExamples.inhabitedCarrier if
     V is nonempty.
 
 Definition:
@@ -1500,10 +1524,10 @@ there is no function f from ℕ to ℕ such that
 
 there is no function from ℕ to ℕ
 
-for every function q from ℕ to Prop where 0 is q:
+for every function q from ℕ to Prop where 0 satisfies q:
   there is a function r from ℕ to ℕ such that
     for every natural number n:
-      n is q if and only if (r n) is q
+      n satisfies q if and only if (r n) satisfies q
 
 for every function f from ℕ and ℕ to ℕ:
   f 0 0 = 0
@@ -1678,35 +1702,35 @@ Theorem TheoremExamples.natAddZero:
     n + 0 = n
 
 Definition:
-  a simple graph G = (V, E) is ordinaryPreconnected if
+  a simple graph G = (V, E) satisfies ordinaryPreconnected if
     for all vertices u and v of G:
       there is a path in G from u to v.
 
 Definition:
-  a simple graph G is zeroLengthLinked if
+  a simple graph G satisfies zeroLengthLinked if
     for all vertices u and v of G:
       there is a path p in G from u to v such that
         ((p as G.Walk u v).length = 0).
 
 Definition:
-  a simple graph G = (V, E) is edgeless if
+  a simple graph G = (V, E) satisfies edgeless if
     the edge set of G = (∅ : Set (Sym2 V)).
 
 Definition:
-  a natural number n is zero if
+  a natural number n satisfies zero if
     (n = 0).
 
 Definition:
-  a natural number n is boundsPairSums if
+  a natural number n satisfies boundsPairSums if
     for all natural numbers x and y:
       x + y ≤ n.
 
 Definition:
-  a simple graph _G = (V, E) is inhabitedVertices if
+  a simple graph _G = (V, E) satisfies inhabitedVertices if
     V is nonempty.
 
 Definition:
-  a simple graph _G = (V, E) is emptyVertices if
+  a simple graph _G = (V, E) satisfies emptyVertices if
     V is empty.
 
 T is nonempty
@@ -1735,7 +1759,7 @@ Definition:
         there is a path in G from x to y.
 
 Definition:
-  a boolean b is truthy if
+  a boolean b satisfies truthy if
     b = true.
 
 there is a natural number n such that
@@ -1756,7 +1780,7 @@ there is a path p in G from u to v such that
   (p as G.Walk u v).length = 0
 
 Definition:
-  a natural number n and a proof h that n > 0 are withAssumption if
+  a natural number n and a proof h that n > 0 satisfy withAssumption if
     n ≥ 1 and h = h.
 
 -- Universe parameters: u_1
@@ -1807,11 +1831,11 @@ if P then
     n = 0 and Q
 
 Definition:
-  a natural number n is zeroOrPositive if
+  a natural number n satisfies zeroOrPositive if
     n = 0 or (if n ≠ 0 then (n > 0)).
 
 Definition:
-  an integer x is intZero if
+  an integer x satisfies intZero if
     (x = 0).
 
 there is an integer x such that
@@ -1820,7 +1844,7 @@ there is an integer x such that
 there is an integer
 
 Definition:
-  a rational number x is ratZero if
+  a rational number x satisfies ratZero if
     (x = 0).
 
 there is a rational number x such that
@@ -1829,7 +1853,7 @@ there is a rational number x such that
 there is a rational number
 
 Definition:
-  a real number x is realZero if
+  a real number x satisfies realZero if
     (x = 0).
 
 there is a real number x such that
@@ -1838,7 +1862,7 @@ there is a real number x such that
 there is a real number
 
 Definition:
-  a complex number x is complexZero if
+  a complex number x satisfies complexZero if
     (x = 0).
 
 there is a complex number x such that
@@ -1883,7 +1907,7 @@ for all booleans x and y:
   x = y
 
 Definition:
-  a real number x is hasNoSmallerSquare if
+  a real number x satisfies hasNoSmallerSquare if
     there is no real number y such that
       y * y < x.
 
@@ -1905,15 +1929,15 @@ there is no integer x such that
     x = y
 
 (there is no element x of T such that
-  x is P) and
+  x satisfies P) and
 Q
 
 Q or
 (there is no element x of T such that
-  x is P)
+  x satisfies P)
 
 if there is no element x of T such that
-  x is P then
+  x satisfies P then
   Q
 
 there is no path in G from u to v
@@ -1921,30 +1945,30 @@ there is no path in G from u to v
 there is no path p in G from u to v such that
   (p as G.Walk u v).length = 0
 
-n is PredicateExamples.FooPred
+n satisfies PredicateExamples.FooPred
 
-n is not PredicateExamples.FooPred
+n does not satisfy PredicateExamples.FooPred
 
-n is PredicateExamples.accepts
+n satisfies PredicateExamples.accepts
 
 PredicateExamples.BoolPred n
 
-n and 0 are PredicateExamples.relates
+n and 0 satisfy PredicateExamples.relates
 
-n is p
+n satisfies p
 
-n is not p
+n does not satisfy p
 
 ¬¬p n
 
-n is p and (n + 1) is not p
+n satisfies p and (n + 1) does not satisfy p
 
-if n is p if and only if n is not p then
-  n is p
+if n satisfies p if and only if n does not satisfy p then
+  n satisfies p
 
-(P and Q) is r
+(P and Q) satisfies r
 
-(P if and only if Q) is not r
+(P if and only if Q) does not satisfy r
 
 ¬(P ∧ Q)
 
@@ -1961,10 +1985,10 @@ p is computable
 p is not computable
 
 (the function mapping a natural number n_1 to
-  n_1 is not p) is recursively enumerable
+  n_1 does not satisfy p) is recursively enumerable
 
 (the function mapping a natural number n_1 to
-  n_1 is not p) is computable
+  n_1 does not satisfy p) is computable
 
 (the function mapping a natural number n_1 to
   n_1 + 1) is computable
@@ -1977,19 +2001,19 @@ p is not computable
 
 ℕ is not finite
 
-x is p
+x satisfies p
 
-x is not p
+x does not satisfy p
 
-x is PredicateExamples.accepts
+x satisfies PredicateExamples.accepts
 
 the function mapping an instance inst of typeclass Inhabited Nat to
   the function mapping an instance of typeclass Inhabited Nat to
-    (@OfNat.ofNat Nat (nat_lit 7) (instOfNatNat (nat_lit 7))) is (@PredicateExamples.classified inst)
+    (@OfNat.ofNat Nat (nat_lit 7) (instOfNatNat (nat_lit 7))) satisfies (@PredicateExamples.classified inst)
 
 the function mapping an instance inst of typeclass Primcodable Nat to
   the function mapping an instance of typeclass Primcodable Nat and a function p from Nat to Prop to
-    p is not (@REPred Nat inst)
+    p does not satisfy (@REPred Nat inst)
 
 T is finite
 
@@ -2012,7 +2036,7 @@ if T is finite then
   x + 1) is injective
 
 Definition:
-  a function f from ℕ to ℕ is oneToOne if
+  a function f from ℕ to ℕ satisfies oneToOne if
     f is injective.
 
 the edge set of G
@@ -2033,7 +2057,7 @@ the edge set of G ⊆ the edge set of H
 
 (the set of neighbors of u in G) ∩ (the set of neighbors of v in H)
 
-the edge set of G is Set.Nonempty
+the edge set of G satisfies Set.Nonempty
 
 the edge set of (G ⊔ H) = (the edge set of G) ∪ (the edge set of H)
 

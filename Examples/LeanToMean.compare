@@ -2,6 +2,56 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+def PredicateWordingExamples.zero : ℕ → Prop :=
+  fun (n : ℕ) => n = 0
+-- MEAN OUTPUT:
+Definition:
+  a natural number n satisfies PredicateWordingExamples.zero if
+    (n = 0).
+
+-- LEAN INPUT:
+def PredicateWordingExamples.less : ℕ → ℕ → Prop :=
+  fun (x y : ℕ) => x < y
+-- MEAN OUTPUT:
+Definition:
+  natural numbers x and y satisfy PredicateWordingExamples.less if
+    x < y.
+
+-- LEAN INPUT:
+abbrev PredicateWordingExamples.nonzero : ℕ → Prop :=
+  fun (n : ℕ) => n ≠ 0
+-- MEAN OUTPUT:
+Abbreviation:
+  a natural number n satisfies PredicateWordingExamples.nonzero if
+    (n ≠ 0).
+
+-- LEAN INPUT:
+abbrev PredicateWordingExamples.same : ℕ → ℕ → Prop :=
+  fun (x y : ℕ) => x = y
+-- MEAN OUTPUT:
+Abbreviation:
+  natural numbers x and y satisfy PredicateWordingExamples.same if
+    x = y.
+
+-- LEAN INPUT:
+def PredicateWordingExamples.atEnd : (n : ℕ) → Fin (n + 1) → Prop :=
+  fun (n : ℕ) (i : Fin (n + 1)) => (↑i : ℕ) = n
+-- MEAN OUTPUT:
+Definition:
+  a natural number n and an index i in [0, n + 1) satisfy PredicateWordingExamples.atEnd if
+    i as a natural number = n.
+
+-- LEAN INPUT:
+P xs
+-- MEAN OUTPUT:
+xs satisfies P
+
+-- LEAN INPUT:
+PredicateWordingExamples.injective n
+-- MEAN OUTPUT:
+n satisfies PredicateWordingExamples.injective
+
+-- LEAN INPUT:
 x.ofLp i
 -- MEAN OUTPUT:
 x i
@@ -125,31 +175,31 @@ the image of s under f
 ∃ x ∈ s, P x
 -- MEAN OUTPUT:
 there is x ∈ s such that
-  x is P
+  x satisfies P
 
 -- LEAN INPUT:
 ∃! x : A, x ∈ s ∧ P x
 -- MEAN OUTPUT:
 there is exactly one x ∈ s such that
-  x is P
+  x satisfies P
 
 -- LEAN INPUT:
 ¬∃ x ∈ s, P x
 -- MEAN OUTPUT:
 there is no x ∈ s such that
-  x is P
+  x satisfies P
 
 -- LEAN INPUT:
 ∃ (x : A), z ∈ s ∧ P x
 -- MEAN OUTPUT:
 there is an element x of A such that
-  z ∈ s and x is P
+  z ∈ s and x satisfies P
 
 -- LEAN INPUT:
 (∃! x : A, x ∈ s ∧ P x) ∧ True
 -- MEAN OUTPUT:
 (there is exactly one x ∈ s such that
-  x is P) and
+  x satisfies P) and
 True
 
 -- LEAN INPUT:
@@ -349,8 +399,8 @@ P if and only if Q and R and S
 P ∧ BinaryPredicateExamples.Adjacent u v ∧ BinaryPredicateExamples.ternary u v w
 -- MEAN OUTPUT:
 P and
-(u and v are BinaryPredicateExamples.Adjacent) and
-(u and v and w are BinaryPredicateExamples.ternary)
+(u and v satisfy BinaryPredicateExamples.Adjacent) and
+(u and v and w satisfy BinaryPredicateExamples.ternary)
 
 -- LEAN INPUT:
 P ∧
@@ -400,8 +450,8 @@ P if and only if Q or R or S or P
 P ∨ BinaryPredicateExamples.Adjacent u v ∨ BinaryPredicateExamples.ternary u v w
 -- MEAN OUTPUT:
 P or
-(u and v are BinaryPredicateExamples.Adjacent) or
-(u and v and w are BinaryPredicateExamples.ternary)
+(u and v satisfy BinaryPredicateExamples.Adjacent) or
+(u and v and w satisfy BinaryPredicateExamples.ternary)
 
 -- LEAN INPUT:
 P ∨
@@ -574,7 +624,7 @@ x is related to z by the composition of R followed by S
 ∃ (y : B), R x y ∧ S y z
 -- MEAN OUTPUT:
 there is an element y of B such that
-  (x and y are R) and (y and z are S)
+  (x and y satisfy R) and (y and z satisfy S)
 
 -- LEAN INPUT:
 Relation.SymmGen (fun (x y : ℕ) => x < y) 0 1
@@ -681,128 +731,128 @@ Relation.ReflTransGen (fun (x y : ℕ) => x < y) 0 3
 -- LEAN INPUT:
 Adjacent u v
 -- MEAN OUTPUT:
-u and v are Adjacent
+u and v satisfy Adjacent
 
 -- LEAN INPUT:
 ¬Adjacent u v
 -- MEAN OUTPUT:
-u and v are not Adjacent
+u and v do not satisfy Adjacent
 
 -- LEAN INPUT:
 ordered u z
 -- MEAN OUTPUT:
-u and z are ordered
+u and z satisfy ordered
 
 -- LEAN INPUT:
 same u v
 -- MEAN OUTPUT:
-u and v are same
+u and v satisfy same
 
 -- LEAN INPUT:
 dependent u 0
 -- MEAN OUTPUT:
-u and 0 are dependent
+u and 0 satisfy dependent
 
 -- LEAN INPUT:
 Adjacent (u + 1) (v * 2)
 -- MEAN OUTPUT:
-(u + 1) and (v * 2) are Adjacent
+(u + 1) and (v * 2) satisfy Adjacent
 
 -- LEAN INPUT:
 P ∧ Adjacent u v
 -- MEAN OUTPUT:
-P and (u and v are Adjacent)
+P and (u and v satisfy Adjacent)
 
 -- LEAN INPUT:
 Adjacent u v ∧ P
 -- MEAN OUTPUT:
-(u and v are Adjacent) and P
+(u and v satisfy Adjacent) and P
 
 -- LEAN INPUT:
 Adjacent u v ∧ Adjacent v w
 -- MEAN OUTPUT:
-(u and v are Adjacent) and (v and w are Adjacent)
+(u and v satisfy Adjacent) and (v and w satisfy Adjacent)
 
 -- LEAN INPUT:
 Adjacent u v ∧ P ∨ Q
 -- MEAN OUTPUT:
-(u and v are Adjacent) and P or Q
+(u and v satisfy Adjacent) and P or Q
 
 -- LEAN INPUT:
 P ∨ ¬Adjacent u v
 -- MEAN OUTPUT:
-P or (u and v are not Adjacent)
+P or (u and v do not satisfy Adjacent)
 
 -- LEAN INPUT:
 Adjacent u v ↔ P
 -- MEAN OUTPUT:
-u and v are Adjacent if and only if P
+u and v satisfy Adjacent if and only if P
 
 -- LEAN INPUT:
 Adjacent u v → ¬Adjacent v u
 -- MEAN OUTPUT:
-if u and v are Adjacent then
-  v and u are not Adjacent
+if u and v satisfy Adjacent then
+  v and u do not satisfy Adjacent
 
 -- LEAN INPUT:
 iffRelated (P ∧ Q) R
 -- MEAN OUTPUT:
-(P and Q) and R are iffRelated
+(P and Q) and R satisfy iffRelated
 
 -- LEAN INPUT:
 ternary u v w
 -- MEAN OUTPUT:
-u and v and w are ternary
+u and v and w satisfy ternary
 
 -- LEAN INPUT:
 ¬ternary u v w
 -- MEAN OUTPUT:
-u and v and w are not ternary
+u and v and w do not satisfy ternary
 
 -- LEAN INPUT:
 four u v w 0
 -- MEAN OUTPUT:
-u and v and w and 0 are four
+u and v and w and 0 satisfy four
 
 -- LEAN INPUT:
 mixedTernary u z b
 -- MEAN OUTPUT:
-u and z and b are mixedTernary
+u and z and b satisfy mixedTernary
 
 -- LEAN INPUT:
 sameThree u v w
 -- MEAN OUTPUT:
-u and v and w are sameThree
+u and v and w satisfy sameThree
 
 -- LEAN INPUT:
 P ∧ Q ∧ ternary u v w
 -- MEAN OUTPUT:
-P and Q and (u and v and w are ternary)
+P and Q and (u and v and w satisfy ternary)
 
 -- LEAN INPUT:
 ternary u v w ∧ P
 -- MEAN OUTPUT:
-(u and v and w are ternary) and P
+(u and v and w satisfy ternary) and P
 
 -- LEAN INPUT:
 P ∨ ¬ternary u v w
 -- MEAN OUTPUT:
-P or (u and v and w are not ternary)
+P or (u and v and w do not satisfy ternary)
 
 -- LEAN INPUT:
 Adjacent u v ∧ ternary u v w
 -- MEAN OUTPUT:
-(u and v are Adjacent) and (u and v and w are ternary)
+(u and v satisfy Adjacent) and (u and v and w satisfy ternary)
 
 -- LEAN INPUT:
 (ternary u v w ∧ P) ∧ Q
 -- MEAN OUTPUT:
-((u and v and w are ternary) and P) and Q
+((u and v and w satisfy ternary) and P) and Q
 
 -- LEAN INPUT:
 ternary u v w ↔ P
 -- MEAN OUTPUT:
-u and v and w are ternary if and only if P
+u and v and w satisfy ternary if and only if P
 
 -- LEAN INPUT:
 u = v
@@ -832,12 +882,12 @@ P and Q and R
 -- LEAN INPUT:
 BinaryPredicateExamples.same x y
 -- MEAN OUTPUT:
-x and y are BinaryPredicateExamples.same
+x and y satisfy BinaryPredicateExamples.same
 
 -- LEAN INPUT:
 r x y
 -- MEAN OUTPUT:
-x and y are r
+x and y satisfy r
 
 -- LEAN INPUT:
 def CustomCoercionExamples.wrap : ℕ → CustomCoercionExamples.Foo :=
@@ -894,39 +944,39 @@ Coe.coe x
 ∀ᵐ (x : A) ∂μ, p x
 -- MEAN OUTPUT:
 for almost every element x of A with respect to μ:
-  x is p
+  x satisfies p
 
 -- LEAN INPUT:
 ∀ᵐ (x : A) ∂μ + ν, p x
 -- MEAN OUTPUT:
 for almost every element x of A with respect to (μ + ν):
-  x is p
+  x satisfies p
 
 -- LEAN INPUT:
 ∀ᵐ (x : A) ∂μ, p x → q x
 -- MEAN OUTPUT:
-for almost every element x of A with respect to μ where x is p:
-  x is q
+for almost every element x of A with respect to μ where x satisfies p:
+  x satisfies q
 
 -- LEAN INPUT:
 ∀ᵐ (x : A) ∂μ, ∀ᵐ (y : A) ∂ν, p x ∧ q y
 -- MEAN OUTPUT:
 for almost every element x of A with respect to μ:
   for almost every element y of A with respect to ν:
-    x is p and y is q
+    x satisfies p and y satisfies q
 
 -- LEAN INPUT:
 (∀ᵐ (x : A) ∂μ, p x) ∧ True
 -- MEAN OUTPUT:
 (for almost every element x of A with respect to μ:
-  x is p) and
+  x satisfies p) and
 True
 
 -- LEAN INPUT:
 (∀ᵐ (x : A) ∂μ, p x) → False
 -- MEAN OUTPUT:
 if for almost every element x of A with respect to μ:
-  x is p then
+  x satisfies p then
   False
 
 -- LEAN INPUT:
@@ -938,8 +988,8 @@ if for almost every element x of A with respect to μ:
 ∀ (x : A), (∀ᵐ (y : A) ∂μ, p y) → p x
 -- MEAN OUTPUT:
 for every element x of A where (for almost every element y of A with respect to μ:
-  y is p):
-  x is p
+  y satisfies p):
+  x satisfies p
 
 -- LEAN INPUT:
 ∀ᵐ (_x : A) ∂μ, True
@@ -963,18 +1013,18 @@ for almost every element x of A with respect to μ:
 ∀ᵐ (x : A), p x
 -- MEAN OUTPUT:
 for almost every element x of A:
-  x is p
+  x satisfies p
 
 -- LEAN INPUT:
 ∀ᵐ (x : A) ∂μ, p x
 -- MEAN OUTPUT:
 for almost every element x of A with respect to μ:
-  x is p
+  x satisfies p
 
 -- LEAN INPUT:
 ∀ᵐ (x : A), p x → x = x
 -- MEAN OUTPUT:
-for almost every element x of A where x is p:
+for almost every element x of A where x satisfies p:
   x = x
 
 -- LEAN INPUT:
@@ -1105,13 +1155,13 @@ the set of elements f of ℕ → ℕ such that
 {x : A | p x}
 -- MEAN OUTPUT:
 the set of elements x of A such that
-  x is p
+  x satisfies p
 
 -- LEAN INPUT:
 Set.ofPred p
 -- MEAN OUTPUT:
 the set of elements x of A such that
-  x is p
+  x satisfies p
 
 -- LEAN INPUT:
 n ∈ {m : ℕ | m > 0}
@@ -1154,7 +1204,7 @@ def SetPhraseExamples.reflexive : Set SetPhraseExamples.Point → Prop :=
   fun (S : Set SetPhraseExamples.Point) => S = S
 -- MEAN OUTPUT:
 Definition:
-  a set S of SetPhraseExamples.Point elements is SetPhraseExamples.reflexive if
+  a set S of SetPhraseExamples.Point elements satisfies SetPhraseExamples.reflexive if
     S = S.
 
 -- LEAN INPUT:
@@ -1388,20 +1438,20 @@ for every natural number n where (there is a unique natural number m such that
 ∃! t : Point, P t
 -- MEAN OUTPUT:
 there is a unique element t of Point such that
-  t is P
+  t satisfies P
 
 -- LEAN INPUT:
 ExistsUnique P
 -- MEAN OUTPUT:
 there is a unique element witness of Point such that
-  witness is P
+  witness satisfies P
 
 -- LEAN INPUT:
 Relation.ReflTransGen (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q
 -- MEAN OUTPUT:
 p is related to q by the reflexive transitive closure of
   (the function mapping an element «a» of Point and an element b of Point to
-      «a» ∈ P and b ∈ P and («a» and b are Adjacent))
+      «a» ∈ P and b ∈ P and («a» and b satisfy Adjacent))
 
 -- LEAN INPUT:
 List.map (fun (n : ℕ) => n + 1) [1, 2]
@@ -1520,7 +1570,7 @@ for every p ∈ (P ∩ Q):
 -- LEAN INPUT:
 ∀ p ∈ P, R p → p ∈ P
 -- MEAN OUTPUT:
-for every p ∈ P where p is R:
+for every p ∈ P where p satisfies R:
   p ∈ P
 
 -- LEAN INPUT:
@@ -1534,7 +1584,7 @@ for every p ∈ P:
 (∀ p ∈ P, R p) ∧ True
 -- MEAN OUTPUT:
 (for every p ∈ P:
-  p is R) and
+  p satisfies R) and
 True
 
 -- LEAN INPUT:
@@ -1542,13 +1592,13 @@ True ∨ ∀ p ∈ P, R p
 -- MEAN OUTPUT:
 True or
 (for every p ∈ P:
-  p is R)
+  p satisfies R)
 
 -- LEAN INPUT:
 (∀ p ∈ P, R p) → True
 -- MEAN OUTPUT:
 if (for every p ∈ P:
-  p is R) then
+  p satisfies R) then
   True
 
 -- LEAN INPUT:
@@ -1635,9 +1685,9 @@ for every natural number n where (there is a natural number m such that
 -- LEAN INPUT:
 ∀ (n : ℕ), (P n ↔ Q n) → P n → Q n
 -- MEAN OUTPUT:
-for every natural number n where n is P if and only if n is Q:
-  if n is P then
-    n is Q
+for every natural number n where n satisfies P if and only if n satisfies Q:
+  if n satisfies P then
+    n satisfies Q
 
 -- LEAN INPUT:
 ∀ (n : ℕ) (h : n > 0), h = h
@@ -1658,7 +1708,7 @@ def PredicateExamples.adjacent : PredicateExamples.Point → PredicateExamples.P
   fun («a» b : PredicateExamples.Point) => ∑ i : Fin 3, |«a» i - b i| = 1
 -- MEAN OUTPUT:
 Definition:
-  elements «a» and b of PredicateExamples.Point are PredicateExamples.adjacent if
+  elements «a» and b of PredicateExamples.Point satisfy PredicateExamples.adjacent if
     (the sum over indices i in [0, 3) of |«a» i - b i| = 1).
 
 -- LEAN INPUT:
@@ -1666,7 +1716,7 @@ def PredicateExamples.ordered : ℕ → ℕ → ℕ → Prop :=
   fun (x y z : ℕ) => x ≤ y ∧ y ≤ z
 -- MEAN OUTPUT:
 Definition:
-  natural numbers x and y and z are PredicateExamples.ordered if
+  natural numbers x and y and z satisfy PredicateExamples.ordered if
     x ≤ y and y ≤ z.
 
 -- LEAN INPUT:
@@ -1674,7 +1724,7 @@ abbrev PredicateExamples.equalIntegers : ℤ → ℤ → Prop :=
   fun (x y : ℤ) => x = y
 -- MEAN OUTPUT:
 Abbreviation:
-  integers x and y are PredicateExamples.equalIntegers if
+  integers x and y satisfy PredicateExamples.equalIntegers if
     x = y.
 
 -- LEAN INPUT:
@@ -1682,7 +1732,7 @@ def PredicateExamples.sameIndex : Fin 3 → Fin 3 → Prop :=
   fun (i j : Fin 3) => i = j
 -- MEAN OUTPUT:
 Definition:
-  indices i and j in [0, 3) are PredicateExamples.sameIndex if
+  indices i and j in [0, 3) satisfy PredicateExamples.sameIndex if
     i = j.
 
 -- LEAN INPUT:
@@ -1690,7 +1740,7 @@ def PredicateExamples.below : (n : ℕ) → Fin n → Prop :=
   fun (n : ℕ) (i : Fin n) => (↑i : ℕ) < n
 -- MEAN OUTPUT:
 Definition:
-  a natural number n and an index i in [0, n) are PredicateExamples.below if
+  a natural number n and an index i in [0, n) satisfy PredicateExamples.below if
     i as a natural number < n.
 
 -- LEAN INPUT:
@@ -1698,7 +1748,7 @@ def PredicateExamples.reflexivePair : (T : Type) → T → Prop :=
   fun (T : Type) (x : T) => x = x
 -- MEAN OUTPUT:
 Definition:
-  an element T of Type and an element x of T are PredicateExamples.reflexivePair if
+  an element T of Type and an element x of T satisfy PredicateExamples.reflexivePair if
     x = x.
 
 -- LEAN INPUT:
@@ -1706,7 +1756,7 @@ def PredicateExamples.positivePair : (n : ℕ) → n > 0 → Prop :=
   fun (n : ℕ) (h : n > 0) => n ≥ 1 ∧ h = h
 -- MEAN OUTPUT:
 Definition:
-  a natural number n and a proof h that n > 0 are PredicateExamples.positivePair if
+  a natural number n and a proof h that n > 0 satisfy PredicateExamples.positivePair if
     n ≥ 1 and h = h.
 
 -- LEAN INPUT:
@@ -1714,7 +1764,7 @@ def PredicateExamples.ignoresSecond : ℕ → ℕ → Prop :=
   fun (x y : ℕ) => x = x
 -- MEAN OUTPUT:
 Definition:
-  natural numbers x and y are PredicateExamples.ignoresSecond if
+  natural numbers x and y satisfy PredicateExamples.ignoresSecond if
     x = x.
 
 -- LEAN INPUT:
@@ -1722,7 +1772,7 @@ def PredicateExamples.mixed : (ℕ → ℕ → ℕ) → Bool → Prop :=
   fun (f : ℕ → ℕ → ℕ) (b : Bool) => f 0 0 = 0 ∧ b = true
 -- MEAN OUTPUT:
 Definition:
-  a function f from ℕ and ℕ to ℕ and a boolean b are PredicateExamples.mixed if
+  a function f from ℕ and ℕ to ℕ and a boolean b satisfy PredicateExamples.mixed if
     f 0 0 = 0 and b = true.
 
 -- LEAN INPUT:
@@ -2137,7 +2187,7 @@ def IndexExamples.first : Fin 4 → Prop :=
   fun (i : Fin 4) => (↑i : ℕ) = 0
 -- MEAN OUTPUT:
 Definition:
-  an index i in [0, 4) is IndexExamples.first if
+  an index i in [0, 4) satisfies IndexExamples.first if
     (i as a natural number = 0).
 
 -- LEAN INPUT:
@@ -2625,7 +2675,7 @@ def ProofExamples.reflexive : True → Prop :=
   fun (h : True) => h = h
 -- MEAN OUTPUT:
 Definition:
-  a proof h that True is ProofExamples.reflexive if
+  a proof h that True satisfies ProofExamples.reflexive if
     h = h.
 
 -- LEAN INPUT:
@@ -2658,7 +2708,7 @@ abbrev AbbreviationExamples.zero : ℕ → Prop :=
   fun (n : ℕ) => n = 0
 -- MEAN OUTPUT:
 Abbreviation:
-  a natural number n is AbbreviationExamples.zero if
+  a natural number n satisfies AbbreviationExamples.zero if
     (n = 0).
 
 -- LEAN INPUT:
@@ -2684,7 +2734,7 @@ abbrev AbbreviationExamples.pathLinked : {Vertex : Type u_1} → SimpleGraph Ver
   fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => ∀ (u v : G.V), ∃ (existentialWitness : G.Path u v), True
 -- MEAN OUTPUT:
 Abbreviation:
-  a simple graph G is AbbreviationExamples.pathLinked if
+  a simple graph G satisfies AbbreviationExamples.pathLinked if
     for all vertices u and v of G:
       there is a path in G from u to v.
 
@@ -2713,7 +2763,7 @@ def TypeNounExamples.indexReflexive : Fin 3 → Prop :=
   fun (i : Fin 3) => i = i
 -- MEAN OUTPUT:
 Definition:
-  an index i in [0, 3) is TypeNounExamples.indexReflexive if
+  an index i in [0, 3) satisfies TypeNounExamples.indexReflexive if
     i = i.
 
 -- LEAN INPUT:
@@ -2721,7 +2771,7 @@ def TypeNounExamples.emptyList : List TypeNounExamples.Token → Prop :=
   fun (xs : List TypeNounExamples.Token) => xs = []
 -- MEAN OUTPUT:
 Definition:
-  a list xs of TypeNounExamples.Token elements is TypeNounExamples.emptyList if
+  a list xs of TypeNounExamples.Token elements satisfies TypeNounExamples.emptyList if
     xs = [].
 
 -- LEAN INPUT:
@@ -2774,7 +2824,7 @@ def TypeNounExamples.diagonalZero : (ℕ → ℕ → ℕ) → Prop :=
   fun (f : ℕ → ℕ → ℕ) => f 0 0 = 0
 -- MEAN OUTPUT:
 Definition:
-  a function f from ℕ and ℕ to ℕ is TypeNounExamples.diagonalZero if
+  a function f from ℕ and ℕ to ℕ satisfies TypeNounExamples.diagonalZero if
     (f 0 0 = 0).
 
 -- LEAN INPUT:
@@ -2809,7 +2859,7 @@ def BinderExamples.constantPredicate : ℕ → Prop :=
   fun (_anonymousParameter : ℕ) => True
 -- MEAN OUTPUT:
 Definition:
-  a natural number is BinderExamples.constantPredicate if
+  a natural number satisfies BinderExamples.constantPredicate if
     True.
 
 -- LEAN INPUT:
@@ -2817,7 +2867,7 @@ def BinderExamples.constantGraph : {Vertex : Type u_1} → SimpleGraph Vertex �
   fun {Vertex : Type u_1} (_anonymousParameter : SimpleGraph Vertex) => True
 -- MEAN OUTPUT:
 Definition:
-  a simple graph is BinderExamples.constantGraph if
+  a simple graph satisfies BinderExamples.constantGraph if
     True.
 
 -- LEAN INPUT:
@@ -2827,7 +2877,7 @@ def BinderExamples.inhabitedCarrier : {V : Type u_1} → SimpleGraph V → Prop 
     Nonempty V
 -- MEAN OUTPUT:
 Definition:
-  a simple graph = (V, E) is BinderExamples.inhabitedCarrier if
+  a simple graph = (V, E) satisfies BinderExamples.inhabitedCarrier if
     V is nonempty.
 
 -- LEAN INPUT:
@@ -3058,10 +3108,10 @@ there is no function from ℕ to ℕ
 -- LEAN INPUT:
 ∀ (q : ℕ → Prop), q 0 → ∃ (r : ℕ → ℕ), ∀ (n : ℕ), q n ↔ q (r n)
 -- MEAN OUTPUT:
-for every function q from ℕ to Prop where 0 is q:
+for every function q from ℕ to Prop where 0 satisfies q:
   there is a function r from ℕ to ℕ such that
     for every natural number n:
-      n is q if and only if (r n) is q
+      n satisfies q if and only if (r n) satisfies q
 
 -- LEAN INPUT:
 ∀ (f : ℕ → ℕ → ℕ), f 0 0 = 0
@@ -3429,7 +3479,7 @@ def ordinaryPreconnected : {V : Type u_1} → SimpleGraph V → Prop :=
   fun {V : Type u_1} (G : SimpleGraph V) => ∀ (u v : V), ∃ (_p : G.Path u v), True
 -- MEAN OUTPUT:
 Definition:
-  a simple graph G = (V, E) is ordinaryPreconnected if
+  a simple graph G = (V, E) satisfies ordinaryPreconnected if
     for all vertices u and v of G:
       there is a path in G from u to v.
 
@@ -3438,7 +3488,7 @@ def zeroLengthLinked : {Vertex : Type u_1} → SimpleGraph Vertex → Prop :=
   fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => ∀ (u v : G.V), ∃ (p : G.Path u v), (↑p : G.Walk u v).length = 0
 -- MEAN OUTPUT:
 Definition:
-  a simple graph G is zeroLengthLinked if
+  a simple graph G satisfies zeroLengthLinked if
     for all vertices u and v of G:
       there is a path p in G from u to v such that
         ((p as G.Walk u v).length = 0).
@@ -3450,7 +3500,7 @@ def edgeless : {V : Type u_1} → SimpleGraph V → Prop :=
     E = ∅
 -- MEAN OUTPUT:
 Definition:
-  a simple graph G = (V, E) is edgeless if
+  a simple graph G = (V, E) satisfies edgeless if
     the edge set of G = (∅ : Set (Sym2 V)).
 
 -- LEAN INPUT:
@@ -3458,7 +3508,7 @@ def zero : ℕ → Prop :=
   fun (n : ℕ) => n = 0
 -- MEAN OUTPUT:
 Definition:
-  a natural number n is zero if
+  a natural number n satisfies zero if
     (n = 0).
 
 -- LEAN INPUT:
@@ -3466,7 +3516,7 @@ def boundsPairSums : ℕ → Prop :=
   fun (n : ℕ) => ∀ (x y : ℕ), x + y ≤ n
 -- MEAN OUTPUT:
 Definition:
-  a natural number n is boundsPairSums if
+  a natural number n satisfies boundsPairSums if
     for all natural numbers x and y:
       x + y ≤ n.
 
@@ -3475,7 +3525,7 @@ def inhabitedVertices : {V : Type u_1} → SimpleGraph V → Prop :=
   fun {V : Type u_1} (_G : SimpleGraph V) => Nonempty V
 -- MEAN OUTPUT:
 Definition:
-  a simple graph _G = (V, E) is inhabitedVertices if
+  a simple graph _G = (V, E) satisfies inhabitedVertices if
     V is nonempty.
 
 -- LEAN INPUT:
@@ -3483,7 +3533,7 @@ def emptyVertices : {V : Type u_1} → SimpleGraph V → Prop :=
   fun {V : Type u_1} (_G : SimpleGraph V) => IsEmpty V
 -- MEAN OUTPUT:
 Definition:
-  a simple graph _G = (V, E) is emptyVertices if
+  a simple graph _G = (V, E) satisfies emptyVertices if
     V is empty.
 
 -- LEAN INPUT:
@@ -3542,7 +3592,7 @@ def truthy : Bool → Prop :=
   fun (b : Bool) => b = true
 -- MEAN OUTPUT:
 Definition:
-  a boolean b is truthy if
+  a boolean b satisfies truthy if
     b = true.
 
 -- LEAN INPUT:
@@ -3585,7 +3635,7 @@ def withAssumption : (n : ℕ) → n > 0 → Prop :=
   fun (n : ℕ) (h : n > 0) => n ≥ 1 ∧ h = h
 -- MEAN OUTPUT:
 Definition:
-  a natural number n and a proof h that n > 0 are withAssumption if
+  a natural number n and a proof h that n > 0 satisfy withAssumption if
     n ≥ 1 and h = h.
 
 -- LEAN INPUT:
@@ -3687,7 +3737,7 @@ def zeroOrPositive : ℕ → Prop :=
   fun (n : ℕ) => n = 0 ∨ (n ≠ 0 → n > 0)
 -- MEAN OUTPUT:
 Definition:
-  a natural number n is zeroOrPositive if
+  a natural number n satisfies zeroOrPositive if
     n = 0 or (if n ≠ 0 then (n > 0)).
 
 -- LEAN INPUT:
@@ -3695,7 +3745,7 @@ def intZero : ℤ → Prop :=
   fun (x : ℤ) => x = 0
 -- MEAN OUTPUT:
 Definition:
-  an integer x is intZero if
+  an integer x satisfies intZero if
     (x = 0).
 
 -- LEAN INPUT:
@@ -3714,7 +3764,7 @@ def ratZero : ℚ → Prop :=
   fun (x : ℚ) => x = 0
 -- MEAN OUTPUT:
 Definition:
-  a rational number x is ratZero if
+  a rational number x satisfies ratZero if
     (x = 0).
 
 -- LEAN INPUT:
@@ -3733,7 +3783,7 @@ def realZero : ℝ → Prop :=
   fun (x : ℝ) => x = 0
 -- MEAN OUTPUT:
 Definition:
-  a real number x is realZero if
+  a real number x satisfies realZero if
     (x = 0).
 
 -- LEAN INPUT:
@@ -3752,7 +3802,7 @@ def complexZero : ℂ → Prop :=
   fun (x : ℂ) => x = 0
 -- MEAN OUTPUT:
 Definition:
-  a complex number x is complexZero if
+  a complex number x satisfies complexZero if
     (x = 0).
 
 -- LEAN INPUT:
@@ -3843,7 +3893,7 @@ def hasNoSmallerSquare : ℝ → Prop :=
   fun (x : ℝ) => ¬∃ (y : ℝ), y * y < x
 -- MEAN OUTPUT:
 Definition:
-  a real number x is hasNoSmallerSquare if
+  a real number x satisfies hasNoSmallerSquare if
     there is no real number y such that
       y * y < x.
 
@@ -3886,7 +3936,7 @@ there is no integer x such that
 (¬∃ (x : T), P x) ∧ Q
 -- MEAN OUTPUT:
 (there is no element x of T such that
-  x is P) and
+  x satisfies P) and
 Q
 
 -- LEAN INPUT:
@@ -3894,13 +3944,13 @@ Q ∨ ¬∃ (x : T), P x
 -- MEAN OUTPUT:
 Q or
 (there is no element x of T such that
-  x is P)
+  x satisfies P)
 
 -- LEAN INPUT:
 (¬∃ (x : T), P x) → Q
 -- MEAN OUTPUT:
 if there is no element x of T such that
-  x is P then
+  x satisfies P then
   Q
 
 -- LEAN INPUT:
@@ -3917,17 +3967,17 @@ there is no path p in G from u to v such that
 -- LEAN INPUT:
 PredicateExamples.FooPred n
 -- MEAN OUTPUT:
-n is PredicateExamples.FooPred
+n satisfies PredicateExamples.FooPred
 
 -- LEAN INPUT:
 ¬PredicateExamples.FooPred n
 -- MEAN OUTPUT:
-n is not PredicateExamples.FooPred
+n does not satisfy PredicateExamples.FooPred
 
 -- LEAN INPUT:
 PredicateExamples.accepts n
 -- MEAN OUTPUT:
-n is PredicateExamples.accepts
+n satisfies PredicateExamples.accepts
 
 -- LEAN INPUT:
 PredicateExamples.BoolPred n
@@ -3937,17 +3987,17 @@ PredicateExamples.BoolPred n
 -- LEAN INPUT:
 PredicateExamples.relates n 0
 -- MEAN OUTPUT:
-n and 0 are PredicateExamples.relates
+n and 0 satisfy PredicateExamples.relates
 
 -- LEAN INPUT:
 p n
 -- MEAN OUTPUT:
-n is p
+n satisfies p
 
 -- LEAN INPUT:
 ¬p n
 -- MEAN OUTPUT:
-n is not p
+n does not satisfy p
 
 -- LEAN INPUT:
 ¬¬p n
@@ -3957,23 +4007,23 @@ n is not p
 -- LEAN INPUT:
 p n ∧ ¬p (n + 1)
 -- MEAN OUTPUT:
-n is p and (n + 1) is not p
+n satisfies p and (n + 1) does not satisfy p
 
 -- LEAN INPUT:
 (p n ↔ ¬p n) → p n
 -- MEAN OUTPUT:
-if n is p if and only if n is not p then
-  n is p
+if n satisfies p if and only if n does not satisfy p then
+  n satisfies p
 
 -- LEAN INPUT:
 r (P ∧ Q)
 -- MEAN OUTPUT:
-(P and Q) is r
+(P and Q) satisfies r
 
 -- LEAN INPUT:
 ¬r (P ↔ Q)
 -- MEAN OUTPUT:
-(P if and only if Q) is not r
+(P if and only if Q) does not satisfy r
 
 -- LEAN INPUT:
 ¬(P ∧ Q)
@@ -4014,13 +4064,13 @@ p is not computable
 REPred fun (n : ℕ) => ¬p n
 -- MEAN OUTPUT:
 (the function mapping a natural number n_1 to
-  n_1 is not p) is recursively enumerable
+  n_1 does not satisfy p) is recursively enumerable
 
 -- LEAN INPUT:
 ComputablePred fun (n : ℕ) => ¬p n
 -- MEAN OUTPUT:
 (the function mapping a natural number n_1 to
-  n_1 is not p) is computable
+  n_1 does not satisfy p) is computable
 
 -- LEAN INPUT:
 Computable fun (n : ℕ) => n + 1
@@ -4048,17 +4098,17 @@ Function.Injective fun (n : ℕ) => n + 1
 -- LEAN INPUT:
 p x
 -- MEAN OUTPUT:
-x is p
+x satisfies p
 
 -- LEAN INPUT:
 ¬p x
 -- MEAN OUTPUT:
-x is not p
+x does not satisfy p
 
 -- LEAN INPUT:
 PredicateExamples.accepts x
 -- MEAN OUTPUT:
-x is PredicateExamples.accepts
+x satisfies PredicateExamples.accepts
 
 -- LEAN INPUT:
 fun [inst : Inhabited ℕ] =>
@@ -4067,7 +4117,7 @@ fun [inst : Inhabited ℕ] =>
 -- MEAN OUTPUT:
 the function mapping an instance inst of typeclass Inhabited Nat to
   the function mapping an instance of typeclass Inhabited Nat to
-    (@OfNat.ofNat Nat (nat_lit 7) (instOfNatNat (nat_lit 7))) is (@PredicateExamples.classified inst)
+    (@OfNat.ofNat Nat (nat_lit 7) (instOfNatNat (nat_lit 7))) satisfies (@PredicateExamples.classified inst)
 
 -- LEAN INPUT:
 fun [inst : Primcodable ℕ] =>
@@ -4076,7 +4126,7 @@ fun [inst : Primcodable ℕ] =>
 -- MEAN OUTPUT:
 the function mapping an instance inst of typeclass Primcodable Nat to
   the function mapping an instance of typeclass Primcodable Nat and a function p from Nat to Prop to
-    p is not (@REPred Nat inst)
+    p does not satisfy (@REPred Nat inst)
 
 -- LEAN INPUT:
 Finite T
@@ -4130,7 +4180,7 @@ def oneToOne : (ℕ → ℕ) → Prop :=
   fun (f : ℕ → ℕ) => Function.Injective f
 -- MEAN OUTPUT:
 Definition:
-  a function f from ℕ to ℕ is oneToOne if
+  a function f from ℕ to ℕ satisfies oneToOne if
     f is injective.
 
 -- LEAN INPUT:
@@ -4181,7 +4231,7 @@ G.neighborSet u ∩ H.neighborSet v
 -- LEAN INPUT:
 G.edgeSet.Nonempty
 -- MEAN OUTPUT:
-the edge set of G is Set.Nonempty
+the edge set of G satisfies Set.Nonempty
 
 -- LEAN INPUT:
 (G ⊔ H).edgeSet = G.edgeSet ∪ H.edgeSet
