@@ -656,22 +656,27 @@ existential quantifiers, implication, conjunction, and equivalence in Mean.
 ## Translation tiling example
 
 [Examples/TranslationTiling.lean](Examples/TranslationTiling.lean) adapts the
-[formal abstract at commit 6dec54a](https://github.com/edemaine/translation-tiling-paper/blob/6dec54ac736f46447c9bb3e64c9d17691a4e6920/lean/TranslationTiling/Abstract.lean)
+[formal abstract at commit 79b39ab](https://github.com/edemaine/translation-tiling-paper/blob/79b39abcd4f6bd070610657d1c2ef187b3e2bd1a/lean/TranslationTiling/Abstract.lean)
 from [Tiling 3D by Translates of a Single Polycube is Undecidable](https://edemaine.github.io/translation-tiling-paper/).
-It retains all eight definitions/abbreviations and six theorem declarations for
-lattice and real translation tiling, including the Wang-simulation bounds added
-on November 8, 2026. For `n` Wang tiles, both simulation theorems give a nonempty
-connected polycube with at most `(n + 4) ^ (10 ^ 61 * log₂(log₂(n + 4)))` cubes.
-The six bridge proofs are replaced with
+It retains all 13 definitions/abbreviations and nine theorem declarations from
+the November 12, 2026 update. They cover each fixed dimension `d ≥ 3`, lattice
+translations, and real translations with optional rotations and reflections.
+The reduction theorems now provide computable functions with explicit cube bounds.
+Rigid reductions preserve tileability for every permitted motion set containing
+all translations, with a dimension-dependent size factor and a sharper factor
+of 64000 in dimension three. The nine bridge proofs are replaced with
 `sorry`, as in Wang; the complete proofs remain upstream.
 
 The input imports [Examples/Wang.lean](Examples/Wang.lean) and uses
-`LeanWang.Abstract.CoREComplete` in its two completeness statements. Upstream
+`LeanWang.Abstract.CoREComplete` in its completeness statements. Upstream
 uses `LeanWang.CoREComplete`, which quantifies over all encoded source types of
 the same universe; the Wang abstract instead uses predicates on natural numbers
 as source problems. These are equivalent formulations here, but are not
 definitionally identical in Lean. This interface adaptation is recorded in the
-input's top comment. The simulation statements likewise use `List LeanWang.Abstract.Tile`
+input's top comment. A companion `LeanWang.Abstract.CoREHard` definition is added
+in this example for the new hardness theorem, using the same source encoding.
+Its relation to the existing completeness definition is checked by `Iff.rfl`.
+The reduction statements likewise use `List LeanWang.Abstract.Tile`
 and `LeanWang.Abstract.TilesPlane` from our Wang example. Upstream uses lists of
 four-field Wang-tile structures; our abstract uses functions from `Fin 4` to `ℕ`.
 The correspondence preserves edge colors, list lengths, and tileability, but the
@@ -687,7 +692,8 @@ license and notices.
 
 [TranslationTiling.mean](Examples/TranslationTiling.mean) contains the checked
 Mean output; [TranslationTiling.compare](Examples/TranslationTiling.compare)
-pairs it with Lean input. `python test.py` checks all 14 comparisons. Unsupported
+pairs it with Lean input. `python test.py` checks all 23 comparisons, including
+the added hardness interface. Unsupported
 structures retain Lean syntax and pass the same round-trip checks.
 
 ## Compositional syntax

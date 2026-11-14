@@ -1,87 +1,206 @@
 -- Automatically generated from Examples/TranslationTiling.lean by python test.py --update.
 -- Checked Mean output; see Examples/TranslationTiling.compare for paired Lean/Mean comparisons.
--- Upstream source: [TranslationTiling/Abstract.lean](https://github.com/edemaine/translation-tiling-paper/blob/6dec54ac736f46447c9bb3e64c9d17691a4e6920/lean/TranslationTiling/Abstract.lean)
+-- Upstream source: [TranslationTiling/Abstract.lean](https://github.com/edemaine/translation-tiling-paper/blob/79b39abcd4f6bd070610657d1c2ef187b3e2bd1a/lean/TranslationTiling/Abstract.lean)
 -- Upstream license: no project-wide license is declared in the pinned TranslationTiling repository.
 -- Upstream source: [LeanWang/Abstract.lean](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LeanWang/Abstract.lean)
--- Upstream license: the imported Wang example retains [Apache 2.0](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE) in Wang.LICENSE.
+-- Upstream source: [LeanWang/CoRE.lean](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LeanWang/CoRE.lean)
+-- Upstream license: the imported Wang example and adapted hardness interface retain [Apache 2.0](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE) in Wang.LICENSE.
+
+Definition:
+  LeanWang.Abstract.CoREHard is
+    the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
+      for every function q from ℕ to Prop where q is CoRE:
+        there is a function r from ℕ to α such that
+          r is computable and
+          (for every natural number n:
+            n is q if and only if (r n) is p).
 
 Abbreviation:
-  a TranslationTiling.Abstract.Point is
-    a function from indices in [0, 3) to ℤ.
+  TranslationTiling.Abstract.Point is
+    the function mapping a natural number d to
+      the type of indices in [0, d) → ℤ.
 
 Abbreviation:
-  a TranslationTiling.Abstract.Prototile is
-    a list of Point elements.
+  TranslationTiling.Abstract.Prototile is
+    the function mapping a natural number d to
+      the type of lists of (Point d) elements.
 
 Definition:
-  elements p and q of Point are TranslationTiling.Abstract.Adjacent if
-    (the sum over indices i in [0, 3) of |p i - q i| = 1).
+  TranslationTiling.Abstract.Adjacent is
+    (the function mapping an implicit natural number d and an element p of Point d and an element q of Point d to
+      the sum over indices i in [0, d) of |p i - q i| = 1).
 
 Definition:
-  an element P of Prototile is TranslationTiling.Abstract.Connected if
-    for every x ∈ P:
-      for every y ∈ P:
-        x is related to y by the reflexive transitive closure of
-          (the function mapping an element p of Point and an element q of Point to
-              p ∈ P and q ∈ P and (p and q are Adjacent)).
+  TranslationTiling.Abstract.Connected is
+    the function mapping an implicit natural number d and an element P of Prototile d to
+      for every x ∈ P:
+        for every y ∈ P:
+          x is related to y by the reflexive transitive closure of
+            (the function mapping an element p of Point d and an element q of Point d to
+                p ∈ P and q ∈ P and (p and q are Adjacent)).
 
 Definition:
-  an element P of Prototile is TranslationTiling.Abstract.Tiles if
-    there is a set T of Point elements such that
-      for every element x of Point:
-        there is a unique element t of Point such that
-          t ∈ T and x - t ∈ P.
+  TranslationTiling.Abstract.Tiles is
+    the function mapping an implicit natural number d and an element P of Prototile d to
+      there is a set T of (Point d) elements such that
+        for every element x of (Point d):
+          there is a unique element t of (Point d) such that
+            t ∈ T and x - t ∈ P.
 
 Theorem TranslationTiling.Abstract.tiling_coRE_complete:
-  (the function mapping an element P of Prototile to
-    P is Connected and P is Tiles) is LeanWang.Abstract.CoREComplete
+  for every natural number d where 3 ≤ d:
+    (the function mapping an element P of Prototile d to
+      P is Connected and P is Tiles) is LeanWang.Abstract.CoREComplete
 
 Theorem TranslationTiling.Abstract.tiling_undecidable:
-  (the function mapping an element P of Prototile to
-    P is Connected and P is Tiles) is not computable
+  for every natural number d where 3 ≤ d:
+    (the function mapping an element P of Prototile d to
+      P is Connected and P is Tiles) is not computable
 
-Theorem TranslationTiling.Abstract.tiling_simulates_wang:
-  for every list T of LeanWang.Abstract.Tile elements:
-    there is an element P of Prototile such that
-      P ≠ [] and
-      P is Connected and
-      (T is LeanWang.Abstract.TilesPlane if and only if P is Tiles) and
-      List.length P as a real number ≤
-        (T.length as a real number + 4) ^ (10 ^ 61 * log base 2 of (log base 2 of (T.length as a real number + 4)))
+Theorem TranslationTiling.Abstract.tiling_reduction:
+  for every natural number d where 3 ≤ d:
+    there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile d such that
+      f is computable and
+      (for every list T of LeanWang.Abstract.Tile elements:
+        f T ≠ [] and
+        (f T) is Connected and
+        (T is LeanWang.Abstract.TilesPlane if and only if (f T) is Tiles) and
+        List.length (f T) as a real number ≤
+          (T.length as a real number + 4) ^ (10 ^ 61 * log base 2 of (log base 2 of (T.length as a real number + 4))))
 
 Abbreviation:
-  a TranslationTiling.Abstract.RealPoint is
-    a function from indices in [0, 3) to ℝ.
+  TranslationTiling.Abstract.RealPoint is
+    the function mapping a natural number d to
+      EuclideanSpace ℝ (the type of indices in [0, d)).
 
 Definition:
   TranslationTiling.Abstract.Solid is
-    the function mapping an element P of Prototile to
-      the set of elements x of RealPoint such that
-        there is an element p of Point such that
+    the function mapping an implicit natural number d and an element P of Prototile d to
+      the set of elements x of RealPoint d such that
+        there is an element p of (Point d) such that
           p ∈ P and
-          (for every index i in [0, 3):
-            p i as a real number ≤ x i and x i ≤ p i as a real number + 1).
+          (for every index i in [0, d):
+            p i as
+                (the function mapping an index in [0, d) to
+                      ℝ)
+                  i ≤
+              x.ofLp i and
+            x.ofLp i ≤
+              p i as
+                  (the function mapping an index in [0, d) to
+                        ℝ)
+                    i +
+                1).
+
+Abbreviation:
+  TranslationTiling.Abstract.Motion is
+    the function mapping a natural number d to
+      RealPoint d ≃ᵃⁱ[ℝ] RealPoint d.
 
 Definition:
-  an element P of Prototile is TranslationTiling.Abstract.RealTiles if
-    there is a set T of RealPoint elements such that
-      for almost every element x of RealPoint:
-        there is a unique element t of RealPoint such that
-          t ∈ T and x - t ∈ Solid P.
+  TranslationTiling.Abstract.allMotions is
+    the function : {d : ℕ} → Set (Motion d) mapping an implicit natural number d to
+      Set.univ.
 
-Theorem TranslationTiling.Abstract.real_tiling_coRE_complete:
-  (the function mapping an element P of Prototile to
-    P is Connected and P is RealTiles) is LeanWang.Abstract.CoREComplete
+Definition:
+  TranslationTiling.Abstract.translations is
+    (the function mapping an implicit natural number d to
+      the set of elements f of Motion d such that
+        f.linear = 1).
+
+Definition:
+  TranslationTiling.Abstract.translationsAndRotations is
+    (the function mapping an implicit natural number d to
+      the set of elements f of Motion d such that
+        (LinearEquiv.det : (RealPoint d ≃ₗ[ℝ] RealPoint d) → ℝˣ) f.linear = 1).
+
+Definition:
+  TranslationTiling.Abstract.translationsAndReflections is
+    the function mapping an implicit natural number d to
+      the set of elements f of Motion d such that
+        there is an element t of (Motion d) such that
+          t ∈ translations and
+          (there is an element p of (RealPoint d) such that
+            there is an element q of (RealPoint d) such that
+              f = t * EuclideanGeometry.reflection (AffineSubspace.perpBisector p q)).
+
+Definition:
+  TranslationTiling.Abstract.RealTiles is
+    the function mapping an implicit natural number d and an element P of Prototile d and a set motions of (Motion d) elements to
+      there is a set T of (Motion d) elements such that
+        T ⊆ motions and
+        (for almost every element x of (RealPoint d):
+          there is a unique element f of (Motion d) such that
+            f ∈ T and x ∈ (⇑f : RealPoint d → RealPoint d) '' Solid P).
+
+Theorem TranslationTiling.Abstract.real_tiling_coRE_hard:
+  for every natural number d where 3 ≤ d:
+    for every set motions of (Motion d) elements where translations ⊆ motions:
+      (the function mapping an element P of Prototile d to
+        P is Connected and (P and motions are RealTiles)) is LeanWang.Abstract.CoREHard
 
 Theorem TranslationTiling.Abstract.real_tiling_undecidable:
-  (the function mapping an element P of Prototile to
-    P is Connected and P is RealTiles) is not computable
+  for every natural number d where 3 ≤ d:
+    for every set motions of (Motion d) elements where translations ⊆ motions:
+      (the function mapping an element P of Prototile d to
+        P is Connected and (P and motions are RealTiles)) is not computable
 
-Theorem TranslationTiling.Abstract.real_tiling_simulates_wang:
-  for every list T of LeanWang.Abstract.Tile elements:
-    there is an element P of Prototile such that
-      P ≠ [] and
-      P is Connected and
-      (T is LeanWang.Abstract.TilesPlane if and only if P is RealTiles) and
-      List.length P as a real number ≤
-        (T.length as a real number + 4) ^ (10 ^ 61 * log base 2 of (log base 2 of (T.length as a real number + 4)))
+Theorem TranslationTiling.Abstract.real_tiling_coRE_complete:
+  for every natural number d where @LE.le Nat instLENat (@OfNat.ofNat Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) d:
+    for every set motions of (Motion d) elements where @Membership.mem (the type of sets of (Motion d) elements)
+      (the type of sets of (the type of sets of (Motion d) elements) elements)
+      (@Set.instMembership (the type of sets of (Motion d) elements))
+      (@insert (the type of sets of (Motion d) elements)
+        (the type of sets of (the type of sets of (Motion d) elements) elements)
+        (@Set.instInsert (the type of sets of (Motion d) elements)) (@allMotions d)
+        (@insert (the type of sets of (Motion d) elements)
+          (the type of sets of (the type of sets of (Motion d) elements) elements)
+          (@Set.instInsert (the type of sets of (Motion d) elements)) (@translations d)
+          (@insert (the type of sets of (Motion d) elements)
+            (the type of sets of (the type of sets of (Motion d) elements) elements)
+            (@Set.instInsert (the type of sets of (Motion d) elements)) (@translationsAndRotations d)
+            (@singleton (the type of sets of (Motion d) elements)
+              (the type of sets of (the type of sets of (Motion d) elements) elements)
+              (@Set.instSingletonSet (the type of sets of (Motion d) elements)) (@translationsAndReflections d)))))
+      motions:
+      (the function mapping an element P of Prototile d to
+        P is (@Connected d) and @RealTiles d P motions) is (@LeanWang.Abstract.CoREComplete (Prototile d)
+        (@Primcodable.list (Point d) (@Primcodable.finArrow Int (@Primcodable.ofDenumerable Int Denumerable.int) d)))
+
+Theorem TranslationTiling.Abstract.real_tiling_reduction:
+  for every natural number d where 3 ≤ d:
+    there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile d such that
+      f is computable and
+      (for every list T of LeanWang.Abstract.Tile elements:
+        f T ≠ [] and
+        (f T) is Connected and
+        (T is LeanWang.Abstract.TilesPlane if and only if (f T) is Tiles) and
+        ((f T) is Tiles if and only if (f T) and (translations) are RealTiles) and
+        List.length (f T) as a real number ≤
+          (T.length as a real number + 4) ^ (10 ^ 61 * log base 2 of (log base 2 of (T.length as a real number + 4))))
+
+Theorem TranslationTiling.Abstract.rigid_tiling_reduction:
+  for every natural number d where 3 ≤ d:
+    there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile d such that
+      f is computable and
+      (for every list T of LeanWang.Abstract.Tile elements:
+        f T ≠ [] and
+        (f T) is Connected and
+        (T is LeanWang.Abstract.TilesPlane if and only if (f T) is Tiles) and
+        (for every set motions of (Motion d) elements where translations ⊆ motions:
+          (f T) is Tiles if and only if (f T) and motions are RealTiles) and
+        List.length (f T) as a real number ≤
+          2 ^ (10 * (d + 1) ^ 2) *
+            (T.length as a real number + 4) ^ (10 ^ 61 * log base 2 of (log base 2 of (T.length as a real number + 4))))
+
+Theorem TranslationTiling.Abstract.rigid_tiling_reduction_three:
+  there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile 3 such that
+    f is computable and
+    (for every list T of LeanWang.Abstract.Tile elements:
+      f T ≠ [] and
+      (f T) is Connected and
+      (T is LeanWang.Abstract.TilesPlane if and only if (f T) is Tiles) and
+      (for every set motions of (Motion 3) elements where translations ⊆ motions:
+        (f T) is Tiles if and only if (f T) and motions are RealTiles) and
+      List.length (f T) as a real number ≤
+        64000 * (T.length as a real number + 4) ^ (10 ^ 61 * log base 2 of (log base 2 of (T.length as a real number + 4))))
