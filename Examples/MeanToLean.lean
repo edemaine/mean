@@ -5,6 +5,18 @@ namespace GeneralRenderingExamples
 example (A : Type u) (xs : List A) : (the length of xs) = xs.length := rfl
 example (A : Type u) : (the set of all elements of A) = (Set.univ : Set A) := rfl
 example (A B : Type u) (f : A → B) (s : Set A) : (the image of s under f) = f '' s := rfl
+example (A : Type u) (s : Set A) (P : A → Prop) :
+    (there is x ∈ s such that P x) = (∃ x ∈ s, P x) := rfl
+example (xs : List Nat) : (there is n ∈ xs) = (∃ n ∈ xs, True) := rfl
+example (A : Type u) (s : Set A) (P : A → Prop) :
+    (there is exactly one x ∈ s such that P x) = (∃! x, x ∈ s ∧ P x) := rfl
+example (A : Type u) (s : Set A) (P : A → Prop) :
+    (there is a unique x ∈ s such that P x) = (∃! x, x ∈ s ∧ P x) := rfl
+example (A : Type u) (s : Set A) (P : A → Prop) :
+    (there is no x ∈ s such that P x) = (¬ ∃ x ∈ s, P x) := rfl
+example (A : Type u) (s : Set A) (P : Set A → Prop) :
+    (there is a subset t of s such that P t) = (∃ t ⊆ s, P t) := rfl
+example (A : Type u) (s : Set A) : (there is no subset t of s) = (¬ ∃ t ⊆ s, True) := rfl
 example (d : Nat) : (the type of functions from indices in [0, d) to Int) = (Fin d → Int) := rfl
 example : (the function mapping a natural number d to the type of functions from indices in [0, d) to Int) =
     (fun d : Nat => Fin d → Int) := rfl

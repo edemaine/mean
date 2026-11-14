@@ -777,6 +777,25 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
         let used := body.containsFVar x.fvarId!
         let witnessName ← nameText n
         let name := if used then some witnessName else none
+        if !(pp.explicit.get (← getOptions)) && body.isAppOfArity ``And 2 then
+          let condition := inlineLets body.getAppArgs[0]!
+          let rest := body.getAppArgs[1]!
+          let bounded ← if condition.isAppOfArity ``Membership.mem 5 && condition.getAppArgs[4]! == x then
+              pure (some s!"{witnessName} ∈ {← atomText condition.getAppArgs[3]!}")
+            else if !isUnique && condition.isAppOfArity ``HasSubset.Subset 4 && condition.getAppArgs[2]! == x then
+              pure (some s!"subset {witnessName} of {← atomText condition.getAppArgs[3]!}")
+            else if !isUnique && condition.isAppOfArity ``Set.Subset 3 && condition.getAppArgs[1]! == x then
+              pure (some s!"subset {witnessName} of {← atomText condition.getAppArgs[2]!}")
+            else if !isUnique && condition.isAppOfArity ``LE.le 4 &&
+                condition.getAppArgs[1]!.isAppOf ``Set.instLE && condition.getAppArgs[2]! == x then
+              pure (some s!"subset {witnessName} of {← atomText condition.getAppArgs[3]!}")
+            else pure none
+          if let some bounded := bounded then
+            let article := if negative.isSome then "no " else if isUnique then "exactly one "
+              else if bounded.startsWith "subset " then "a " else ""
+            let heading := s!"there is {article}{bounded}"
+            if rest.isConstOf ``True then return ← sentenceTail heading sentenceEnd
+            return s!"{heading} such that\n{indented (← renderExpr rest sentenceEnd)}"
         let heading ← if isUnique then do
           let (_, noun) ← witnessDescription ty name
           pure s!"there is a unique {noun}"

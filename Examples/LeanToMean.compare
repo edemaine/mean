@@ -44,6 +44,55 @@ f '' s
 the image of s under f
 
 -- LEAN INPUT:
+∃ x ∈ s, P x
+-- MEAN OUTPUT:
+there is x ∈ s such that
+  x is P
+
+-- LEAN INPUT:
+∃! x : A, x ∈ s ∧ P x
+-- MEAN OUTPUT:
+there is exactly one x ∈ s such that
+  x is P
+
+-- LEAN INPUT:
+¬∃ x ∈ s, P x
+-- MEAN OUTPUT:
+there is no x ∈ s such that
+  x is P
+
+-- LEAN INPUT:
+∃ (x : A), z ∈ s ∧ P x
+-- MEAN OUTPUT:
+there is an element x of A such that
+  z ∈ s and x is P
+
+-- LEAN INPUT:
+(∃! x : A, x ∈ s ∧ P x) ∧ True
+-- MEAN OUTPUT:
+(there is exactly one x ∈ s such that
+  x is P) and
+True
+
+-- LEAN INPUT:
+∃ t ⊆ s, t = s
+-- MEAN OUTPUT:
+there is a subset t of s such that
+  t = s
+
+-- LEAN INPUT:
+∃ n ∈ xs, n = 0
+-- MEAN OUTPUT:
+there is n ∈ xs such that
+  n = 0
+
+-- LEAN INPUT:
+∃! n : ℤ, n ∈ s ∧ n = 0
+-- MEAN OUTPUT:
+there is exactly one n ∈ s such that
+  n = 0
+
+-- LEAN INPUT:
 theorem finiteSetChoice :
   ∀ s ∈ {Set.univ, ∅}, s ∈ {Set.univ, ∅}
 -- MEAN OUTPUT:
@@ -1445,6 +1494,18 @@ for every n ∈ domain:
 -- MEAN OUTPUT:
 for every integer z where @Membership.mem Int Domain integerMembership domain z:
   @Eq Int z z
+
+-- LEAN INPUT:
+∃ n ∈ domain, n = n
+-- MEAN OUTPUT:
+there is n ∈ domain such that
+  n = n
+
+-- LEAN INPUT:
+∃! z : ℤ, z ∈ domain ∧ z = z
+-- MEAN OUTPUT:
+there is a unique integer z such that
+  @Membership.mem Int Domain integerMembership domain z and @Eq Int z z
 
 -- LEAN INPUT:
 ∀ (n m : ℕ), n ≤ m → n ≤ m

@@ -19,6 +19,31 @@ the set of all elements of ℕ
 
 the image of s under f
 
+there is x ∈ s such that
+  x is P
+
+there is exactly one x ∈ s such that
+  x is P
+
+there is no x ∈ s such that
+  x is P
+
+there is an element x of A such that
+  z ∈ s and x is P
+
+(there is exactly one x ∈ s such that
+  x is P) and
+True
+
+there is a subset t of s such that
+  t = s
+
+there is n ∈ xs such that
+  n = 0
+
+there is exactly one n ∈ s such that
+  n = 0
+
 Theorem finiteSetChoice:
   for every s ∈ ({the set of all elements of ℕ, ∅} : Set (Set ℕ)):
     s ∈ ({the set of all elements of ℕ, ∅} : Set (Set ℕ))
@@ -691,6 +716,12 @@ for every n ∈ domain:
 
 for every integer z where @Membership.mem Int Domain integerMembership domain z:
   @Eq Int z z
+
+there is n ∈ domain such that
+  n = n
+
+there is a unique integer z such that
+  @Membership.mem Int Domain integerMembership domain z and @Eq Int z z
 
 for all natural numbers n and m where n ≤ m:
   n ≤ m

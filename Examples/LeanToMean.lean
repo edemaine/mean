@@ -17,9 +17,39 @@ info: the function mapping a natural number n to
 #mean_term_compare (Set.univ : Set Nat)
 
 section
-variable (A B : Type u) (s : Set A) (f : A → B)
+variable (A B : Type u) (s : Set A) (f : A → B) (P : A → Prop) (z : A)
 #mean_term_compare f '' s
+#mean_term_compare ∃ x ∈ s, P x
+#mean_term_compare ∃! x, x ∈ s ∧ P x
+#mean_term_compare ¬ ∃ x ∈ s, P x
+#mean_term_compare ∃ x : A, z ∈ s ∧ P x
+#mean_term_compare (∃! x, x ∈ s ∧ P x) ∧ True
+#mean_term_compare ∃ t ⊆ s, t = s
 end
+section
+variable (xs : List Nat) (s : Finset Int)
+#mean_term_compare ∃ n ∈ xs, n = 0
+#mean_term_compare ∃! n, n ∈ s ∧ n = 0
+end
+
+-- Bounded uniqueness must retain both uniqueness and membership.
+open Lean Meta Elab Term in
+run_elab do
+  let predicateType ← elabType (← `(Nat → Prop))
+  let setType ← elabType (← `(Set Nat))
+  withLocalDeclD `P predicateType fun p => do
+    withLocalDeclD `s setType fun s => do
+      withLocalDeclD `n (mkConst ``Nat) fun n => do
+        let member ← mkAppM ``Membership.mem #[s, n]
+        let body := mkApp2 (mkConst ``And) member (mkApp p n)
+        let original ← mkAppM ``ExistsUnique #[← mkLambdaFVars #[n] body]
+        for text in ["there is n ∈ s such that n is P", "there is a unique natural number n such that n is P"] do
+          let rejected ← withoutModifyingState do
+            try
+              Mean.RoundTrip.checkText original text
+              pure false
+            catch _ => pure true
+          unless rejected do throwError "bounded unique existence changed meaning"
 
 -- A finite set of sets needs its local type annotation in theorem output.
 theorem finiteSetChoice (s : Set Nat) (h : s ∈ ({Set.univ, ∅} : Set (Set Nat))) :
@@ -739,6 +769,8 @@ local instance integerMembership : Membership Int Domain := ⟨fun _ _ => False�
 variable (domain : Domain)
 #mean_term_compare ∀ n : Nat, @Membership.mem Nat Domain naturalMembership domain n → n = n
 #mean_term_compare ∀ z : Int, @Membership.mem Int Domain integerMembership domain z → z = z
+#mean_term_compare ∃ n : Nat, @Membership.mem Nat Domain naturalMembership domain n ∧ n = n
+#mean_term_compare ∃! z : Int, @Membership.mem Int Domain integerMembership domain z ∧ z = z
 end MembershipInferenceExamples
 
 section

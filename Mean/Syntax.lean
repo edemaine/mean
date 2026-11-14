@@ -836,6 +836,38 @@ syntax "there" "is" "exactly" "one" meanWitnessNoun ("such" "that" term)? : term
 syntax "there" "is" "no" meanWitnessNoun ("such" "that" term)? : term
 syntax "there" "is" meanWitness ("such" "that" term)? : term
 
+def boundedCollection : Lean.Parser.Parser :=
+  Lean.Parser.withAntiquot (Lean.Parser.mkAntiquot "term" `term (isPseudoKind := true))
+    (Lean.Parser.withForbidden "such" Lean.Parser.termParser)
+def subsetWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "subset "
+declare_syntax_cat meanBoundedWitness
+syntax ident "∈" boundedCollection : meanBoundedWitness
+syntax ident "⊆" boundedCollection : meanBoundedWitness
+syntax "boundedWitness%" meanBoundedWitness "=>" term : term
+syntax "there" "is" meanBoundedWitness ("such" "that" term)? : term
+syntax "there" "is" "exactly" "one" meanBoundedWitness ("such" "that" term)? : term
+syntax "there" "is" "a" "unique" meanBoundedWitness ("such" "that" term)? : term
+syntax "there" "is" "no" meanBoundedWitness ("such" "that" term)? : term
+syntax "there" "is" "a" subsetWord ident "of" boundedCollection ("such" "that" term)? : term
+syntax "there" "is" "no" subsetWord ident "of" boundedCollection ("such" "that" term)? : term
+macro_rules
+  | `(boundedWitness% $x:ident ∈ $s:term => $body:term) =>
+      `(fun ($x:ident : _) => $x:ident ∈ $s ∧ ($body : Prop))
+  | `(boundedWitness% $x:ident ⊆ $s:term => $body:term) =>
+      `(fun ($x:ident : _) => $x:ident ⊆ $s ∧ ($body : Prop))
+  | `(there is $binding:meanBoundedWitness $[such that $body:term]?) => do
+      `(Exists (boundedWitness% $binding => $(body.getD (← `(True)))))
+  | `(there is exactly one $binding:meanBoundedWitness $[such that $body:term]?) => do
+      `(ExistsUnique (boundedWitness% $binding => $(body.getD (← `(True)))))
+  | `(there is a unique $binding:meanBoundedWitness $[such that $body:term]?) =>
+      `(there is exactly one $binding:meanBoundedWitness $[such that $body]?)
+  | `(there is no $binding:meanBoundedWitness $[such that $body:term]?) => do
+      `(Not (Exists (boundedWitness% $binding => $(body.getD (← `(True))))))
+  | `(there is a subset $x:ident of $s:term $[such that $body:term]?) =>
+      `(there is $x:ident ⊆ $s $[such that $body]?)
+  | `(there is no subset $x:ident of $s:term $[such that $body:term]?) =>
+      `(there is no $x:ident ⊆ $s $[such that $body]?)
+
 macro_rules
   | `(there is a unique $description:meanWitnessNoun
         $[such that $condition:term]?) =>

@@ -705,6 +705,16 @@ The November 12 update prompted these general rendering improvements:
    explicit-argument fallback remains available. `finiteSetChoice` is a regression
    example for the local annotations.
 
+3. **Extend bounded quantifiers to existence and add set-image wording.** `RealTiles`
+   uses “there is a subset T of motions,” “there is exactly one f ∈ T,” and
+   “the image of (Solid P) under f.” Uniqueness remains restricted to motions
+   in T; ordinary and negated existence support membership restrictions too.
+4. **Keep project-specific predicate wording local.** The generic subject-list rule
+   produces `P and motions are RealTiles`; “P tiles real space using motions”
+   would express those roles. That wording, and names such as “co-RE-hard,”
+   belong with local declarations rather than global TranslationTiling rules.
+   Predicate definitions with implicit dimension parameters retain their current
+   function descriptions.
 6. **Shorten collection properties.** `List.length (f T)` renders as
    `the length of (f T)`; `Set.univ` names the set of all elements of its type.
 7. **Describe functions returning types clearly.** `Point`, `Prototile`, `RealPoint`,
@@ -754,6 +764,8 @@ The grammar separates logical structure from mathematical vocabulary:
 | Quantified bindings | `function q from ℕ to Prop`, `list xs of T elements`, `element x of T`, `u and v in V`, `vertices u and v of G` |
 | Existential quantifier | `there is <witness description> [such that <proposition>]` |
 | Unique existential | `there is a unique <witness noun> [such that <proposition>]` |
+| Bounded existence | `there is x ∈ S such that P`, `there is exactly one x ∈ S such that P`, `there is no x ∈ S such that P` |
+| Subset existence | `there is a subset T of S such that P` |
 | Negated existential | `there is no <witness noun> [such that <proposition>]` |
 | Witness description | `a path p in G from u to v`, `a natural number n`, `a boolean x`, `an element x of T`, `a proof h that P` |
 | Properties | `the edge set of G`, `G's edge set` |
@@ -830,6 +842,14 @@ the function mapping a natural number d to
 
 This means `fun d : Nat => Fin d → Int`, using the ordinary function syntax.
 Named aliases are retained inside the resulting type descriptions.
+
+Bounded existential phrases preserve the original conjunction with membership:
+`there is x ∈ S such that P x` means `∃ x, x ∈ S ∧ P x`; the unique form means
+`∃! x, x ∈ S ∧ P x`, counting only witnesses in S. Negation applies to the
+whole bounded existence. `there is a subset T of S such that P T` similarly
+means `∃ T, T ⊆ S ∧ P T`. Omit `such that` when the remaining condition is True.
+The renderer uses typed witnesses when inference would change their type or
+membership instance.
 
 The image phrase uses the function's usual coercion when it is a bijection or
 other function-like value. For example, `the image of S under f` means `f '' S`
