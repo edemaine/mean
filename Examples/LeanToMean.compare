@@ -21,20 +21,35 @@ the type of functions from ℕ to ℤ
 -- LEAN INPUT:
 {Set.univ, ∅}
 -- MEAN OUTPUT:
-({Set.univ, ∅} : Set (Set ℕ))
+({the set of all elements of ℕ, ∅} : Set (Set ℕ))
 
 -- LEAN INPUT:
 {1, 2}
 -- MEAN OUTPUT:
 {1, 2}
+
+-- LEAN INPUT:
+[1, 2, 3].length
+-- MEAN OUTPUT:
+the length of ([1, 2, 3])
+
+-- LEAN INPUT:
+Set.univ
+-- MEAN OUTPUT:
+the set of all elements of ℕ
+
+-- LEAN INPUT:
+f '' s
+-- MEAN OUTPUT:
+the image of s under f
 
 -- LEAN INPUT:
 theorem finiteSetChoice :
   ∀ s ∈ {Set.univ, ∅}, s ∈ {Set.univ, ∅}
 -- MEAN OUTPUT:
 Theorem finiteSetChoice:
-  for every s ∈ ({Set.univ, ∅} : Set (Set ℕ)):
-    s ∈ ({Set.univ, ∅} : Set (Set ℕ))
+  for every s ∈ ({the set of all elements of ℕ, ∅} : Set (Set ℕ)):
+    s ∈ ({the set of all elements of ℕ, ∅} : Set (Set ℕ))
 
 -- LEAN INPUT:
 Real.log x
@@ -1845,7 +1860,7 @@ abbrev TypeDeclarationExamples.Position : List ℕ → Type :=
 Abbreviation:
   TypeDeclarationExamples.Position is
     the function mapping a list xs of natural numbers to
-      the type of indices in [0, xs.length).
+      the type of indices in [0, the length of xs).
 
 -- LEAN INPUT:
 abbrev TypeDeclarationExamples.Route : {V : Type u} → SimpleGraph V → V → V → Type u :=
@@ -2580,7 +2595,7 @@ def TypeNounExamples.implicitLength : {xs : List TypeNounExamples.Token} → ℕ
 Definition:
   TypeNounExamples.implicitLength is
     the function mapping an implicit list xs of TypeNounExamples.Token elements and a natural number n to
-      xs.length + n.
+      the length of xs + n.
 
 -- LEAN INPUT:
 def TypeNounExamples.strictLength : ⦃xs : List TypeNounExamples.Token⦄ → ℕ → ℕ :=
@@ -2589,7 +2604,7 @@ def TypeNounExamples.strictLength : ⦃xs : List TypeNounExamples.Token⦄ → �
 Definition:
   TypeNounExamples.strictLength is
     the function mapping a strictly implicit list xs of TypeNounExamples.Token elements and a natural number n to
-      xs.length + n.
+      the length of xs + n.
 
 -- LEAN INPUT:
 def TypeNounExamples.diagonal : (ℕ → ℕ → ℕ) → ℕ → ℕ :=
@@ -2804,7 +2819,7 @@ the function mapping a list xs of natural numbers and an index i into xs to
 fun (fs : List (ℕ → ℕ)) => fs.length
 -- MEAN OUTPUT:
 the function mapping a list fs of (ℕ → ℕ) elements to
-  fs.length
+  the length of fs
 
 -- LEAN INPUT:
 fun (f : ℕ × ℕ → ℕ) => f (0, 0)

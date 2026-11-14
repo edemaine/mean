@@ -26,6 +26,41 @@ private partial def groupedSyntax (stx : Syntax) : Bool :=
   if stx.isOfKind choiceKind then stx.getArgs.all groupedSyntax
   else stx.isOfKind ``Parser.Term.paren || stx.isOfKind ``Parser.Term.typeAscription
 
+open Lean.PrettyPrinter.Delaborator in
+private def phraseArgument (e : Expr) (text : Term) : Delab :=
+  if e.isConst || e.isFVar || e.isLit || text.raw.isOfKind numLitKind ||
+      groupedSyntax text.raw then pure text
+  else `(($text))
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.List.length, delab app.Set.univ]
+def delabCollectionProperty : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  guard <| !(pp.explicit.get (← getOptions))
+  let e ← getExpr
+  if e.isAppOfArity ``List.length 2 then
+    let xs ← phraseArgument e.getAppArgs[1]! (← withNaryArg 1 delab)
+    `(the length of $xs)
+  else
+    guard <| e.isAppOfArity ``Set.univ 1
+    let ty ← phraseArgument e.getAppArgs[0]! (← withNaryArg 0 delab)
+    `(the set of all elements of $ty)
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.Set.image]
+def delabSetImage : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  guard <| !(pp.explicit.get (← getOptions))
+  let e ← getExpr
+  guard <| e.isAppOfArity ``Set.image 4
+  let args := e.getAppArgs
+  let s ← phraseArgument args[3]! (← withNaryArg 3 delab)
+  let f ← withNaryArg 2 do
+    if args[2]!.isAppOfArity ``DFunLike.coe 5 then
+      phraseArgument args[2]!.getAppArgs[4]! (← withNaryArg 4 delab)
+    else phraseArgument args[2]! (← delab)
+  `(the image of $s under $f)
+
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app.Insert.insert, delab app.Singleton.singleton, delab app.EmptyCollection.emptyCollection]
 def delabTypedSetLiteral : Delab := do

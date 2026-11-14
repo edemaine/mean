@@ -2,6 +2,9 @@ import Mean.Syntax
 import Mathlib.MeasureTheory.Measure.Module
 
 namespace GeneralRenderingExamples
+example (A : Type u) (xs : List A) : (the length of xs) = xs.length := rfl
+example (A : Type u) : (the set of all elements of A) = (Set.univ : Set A) := rfl
+example (A B : Type u) (f : A → B) (s : Set A) : (the image of s under f) = f '' s := rfl
 example (d : Nat) : (the type of functions from indices in [0, d) to Int) = (Fin d → Int) := rfl
 example : (the function mapping a natural number d to the type of functions from indices in [0, d) to Int) =
     (fun d : Nat => Fin d → Int) := rfl

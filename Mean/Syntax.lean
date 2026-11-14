@@ -68,6 +68,18 @@ syntax:max logarithmWords term:arg " of " term:arg : term
 macro_rules
   | `(log base $base:term of $value:term) => `(Real.logb $base $value)
 
+/-! General set and geometry expressions use contextual words after `the`. -/
+def imageWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "image "
+def lengthWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "length "
+def underWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "under "
+syntax:max "the " imageWord "of " term:arg ppSpace underWord term:arg : term
+syntax:max "the " lengthWord "of " term:arg : term
+syntax:max "the " "set " "of " "all " "elements " "of " term:arg : term
+macro_rules
+  | `(the image of $s:term under $f:term) => `(Set.image $f $s)
+  | `(the length of $xs:term) => `(List.length $xs)
+  | `(the set of all elements of $ty:term) => `((Set.univ : Set $ty))
+
 /-! Relation operators remain relations; relatedness applies them in order. -/
 def closureWords : Lean.Parser.Parser :=
   Lean.Parser.nonReservedSymbol "reflexive " >>

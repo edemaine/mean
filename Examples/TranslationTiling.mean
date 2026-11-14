@@ -65,8 +65,9 @@ Theorem TranslationTiling.Abstract.tiling_reduction:
         f T ≠ [] and
         (f T) is Connected and
         (T is LeanWang.Abstract.TilesPlane if and only if (f T) is Tiles) and
-        List.length (f T) as a real number ≤
-          (T.length as a real number + 4) ^ (10 ^ 61 * log base 2 of (log base 2 of (T.length as a real number + 4))))
+        the length of (f T) as a real number ≤
+          (the length of T as a real number + 4) ^
+            (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4))))
 
 Abbreviation:
   TranslationTiling.Abstract.RealPoint is
@@ -99,8 +100,8 @@ Abbreviation:
 
 Definition:
   TranslationTiling.Abstract.allMotions is
-    the function : {d : ℕ} → Set (Motion d) mapping an implicit natural number d to
-      Set.univ.
+    the function mapping an implicit natural number d to
+      the set of all elements of (Motion d).
 
 Definition:
   TranslationTiling.Abstract.translations is
@@ -131,7 +132,7 @@ Definition:
         T ⊆ motions and
         (for almost every element x of (RealPoint d):
           there is a unique element f of (Motion d) such that
-            f ∈ T and x ∈ (⇑f : RealPoint d → RealPoint d) '' Solid P).
+            f ∈ T and x ∈ the image of (Solid P) under f).
 
 Theorem TranslationTiling.Abstract.real_tiling_coRE_hard:
   for every natural number d where 3 ≤ d:
@@ -160,8 +161,9 @@ Theorem TranslationTiling.Abstract.real_tiling_reduction:
         (f T) is Connected and
         (T is LeanWang.Abstract.TilesPlane if and only if (f T) is Tiles) and
         ((f T) is Tiles if and only if (f T) and (translations) are RealTiles) and
-        List.length (f T) as a real number ≤
-          (T.length as a real number + 4) ^ (10 ^ 61 * log base 2 of (log base 2 of (T.length as a real number + 4))))
+        the length of (f T) as a real number ≤
+          (the length of T as a real number + 4) ^
+            (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4))))
 
 Theorem TranslationTiling.Abstract.rigid_tiling_reduction:
   for every natural number d where 3 ≤ d:
@@ -173,9 +175,10 @@ Theorem TranslationTiling.Abstract.rigid_tiling_reduction:
         (T is LeanWang.Abstract.TilesPlane if and only if (f T) is Tiles) and
         (for every set motions of (Motion d) elements where translations ⊆ motions:
           (f T) is Tiles if and only if (f T) and motions are RealTiles) and
-        List.length (f T) as a real number ≤
+        the length of (f T) as a real number ≤
           2 ^ (10 * (d + 1) ^ 2) *
-            (T.length as a real number + 4) ^ (10 ^ 61 * log base 2 of (log base 2 of (T.length as a real number + 4))))
+            (the length of T as a real number + 4) ^
+              (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4))))
 
 Theorem TranslationTiling.Abstract.rigid_tiling_reduction_three:
   there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile 3 such that
@@ -186,5 +189,7 @@ Theorem TranslationTiling.Abstract.rigid_tiling_reduction_three:
       (T is LeanWang.Abstract.TilesPlane if and only if (f T) is Tiles) and
       (for every set motions of (Motion 3) elements where translations ⊆ motions:
         (f T) is Tiles if and only if (f T) and motions are RealTiles) and
-      List.length (f T) as a real number ≤
-        64000 * (T.length as a real number + 4) ^ (10 ^ 61 * log base 2 of (log base 2 of (T.length as a real number + 4))))
+      the length of (f T) as a real number ≤
+        64000 *
+          (the length of T as a real number + 4) ^
+            (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4))))

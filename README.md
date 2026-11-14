@@ -705,6 +705,8 @@ The November 12 update prompted these general rendering improvements:
    explicit-argument fallback remains available. `finiteSetChoice` is a regression
    example for the local annotations.
 
+6. **Shorten collection properties.** `List.length (f T)` renders as
+   `the length of (f T)`; `Set.univ` names the set of all elements of its type.
 7. **Describe functions returning types clearly.** `Point`, `Prototile`, `RealPoint`,
    and `Motion` use `the function mapping …` with a type description as the
    result. In particular, `Point d` describes the type of functions from indices
@@ -743,6 +745,8 @@ The grammar separates logical structure from mathematical vocabulary:
 | List subject | `a list T of Tile elements`, `a list xs of natural numbers` |
 | Set subject | `a set S of Point elements`, `a set S of integers` |
 | Set comprehension | `the set of elements x of T such that <proposition>` |
+| Set image | `the image of S under f` |
+| Collection properties | `the length of xs`, `the set of all elements of T` |
 | Function subject | `a function f from A to B`, `a function f from A and B to C` |
 | Universal quantifier | `for all <bindings> [where <condition>]: <proposition>`, `for every …` |
 | Membership quantifier | `for every x ∈ S: <proposition>`, `for all x ∈ S: <proposition>` |
@@ -826,6 +830,10 @@ the function mapping a natural number d to
 
 This means `fun d : Nat => Fin d → Int`, using the ordinary function syntax.
 Named aliases are retained inside the resulting type descriptions.
+
+The image phrase uses the function's usual coercion when it is a bijection or
+other function-like value. For example, `the image of S under f` means `f '' S`
+for an affine isometry f.
 
 All forward scalar forms share `scalarType%`: typed values, subjects, existential witnesses,
 and singular or plural universal domains. Plurals delegate to the singular noun.

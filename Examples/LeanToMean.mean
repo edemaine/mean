@@ -9,13 +9,19 @@ the function mapping a natural number n to
 
 the type of functions from ℕ to ℤ
 
-({Set.univ, ∅} : Set (Set ℕ))
+({the set of all elements of ℕ, ∅} : Set (Set ℕ))
 
 {1, 2}
 
+the length of ([1, 2, 3])
+
+the set of all elements of ℕ
+
+the image of s under f
+
 Theorem finiteSetChoice:
-  for every s ∈ ({Set.univ, ∅} : Set (Set ℕ)):
-    s ∈ ({Set.univ, ∅} : Set (Set ℕ))
+  for every s ∈ ({the set of all elements of ℕ, ∅} : Set (Set ℕ)):
+    s ∈ ({the set of all elements of ℕ, ∅} : Set (Set ℕ))
 
 ln x
 
@@ -888,7 +894,7 @@ Abbreviation:
 Abbreviation:
   TypeDeclarationExamples.Position is
     the function mapping a list xs of natural numbers to
-      the type of indices in [0, xs.length).
+      the type of indices in [0, the length of xs).
 
 Abbreviation:
   TypeDeclarationExamples.Route is
@@ -1267,12 +1273,12 @@ Definition:
 Definition:
   TypeNounExamples.implicitLength is
     the function mapping an implicit list xs of TypeNounExamples.Token elements and a natural number n to
-      xs.length + n.
+      the length of xs + n.
 
 Definition:
   TypeNounExamples.strictLength is
     the function mapping a strictly implicit list xs of TypeNounExamples.Token elements and a natural number n to
-      xs.length + n.
+      the length of xs + n.
 
 Definition:
   TypeNounExamples.diagonal is
@@ -1378,7 +1384,7 @@ the function mapping a list xs of natural numbers and an index i into xs to
   xs[i]
 
 the function mapping a list fs of (ℕ → ℕ) elements to
-  fs.length
+  the length of fs
 
 the function mapping a function f from (ℕ × ℕ) to ℕ to
   f (0, 0)

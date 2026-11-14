@@ -13,6 +13,13 @@ info: the function mapping a natural number n to
 
 #mean_term_compare ({Set.univ, ∅} : Set (Set Nat))
 #mean_term_compare ({1, 2} : Finset Nat)
+#mean_term_compare ([1, 2, 3] : List Nat).length
+#mean_term_compare (Set.univ : Set Nat)
+
+section
+variable (A B : Type u) (s : Set A) (f : A → B)
+#mean_term_compare f '' s
+end
 
 -- A finite set of sets needs its local type annotation in theorem output.
 theorem finiteSetChoice (s : Set Nat) (h : s ∈ ({Set.univ, ∅} : Set (Set Nat))) :
