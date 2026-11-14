@@ -47,6 +47,25 @@ def delabCollectionProperty : Delab := do
     `(the set of all elements of $ty)
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.EuclideanSpace, delab app.AffineIsometryEquiv]
+def delabGeometryType : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  guard <| !(pp.explicit.get (← getOptions))
+  let e ← getExpr
+  let args := e.getAppArgs
+  if e.isAppOfArity ``EuclideanSpace 2 then
+    guard <| args[0]!.isConstOf ``Real && args[1]!.isAppOfArity ``Fin 1
+    let d ← withNaryArg 1 <| withAppArg delab
+    let d ← phraseArgument args[1]!.getAppArgs[0]! d
+    `(the real Euclidean space of dimension $d)
+  else
+    guard <| e.isAppOfArity ``AffineIsometryEquiv 14
+    let source ← phraseArgument args[3]! (← withNaryArg 3 delab)
+    let target ← phraseArgument args[4]! (← withNaryArg 4 delab)
+    let scalar ← phraseArgument args[0]! (← withNaryArg 0 delab)
+    `(the type of bijective affine isometries from $source to $target over $scalar)
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app.Set.image]
 def delabSetImage : Delab := do
   guard <| mean.renderProperties.get (← getOptions)
@@ -60,6 +79,33 @@ def delabSetImage : Delab := do
       phraseArgument args[2]!.getAppArgs[4]! (← withNaryArg 4 delab)
     else phraseArgument args[2]! (← delab)
   `(the image of $s under $f)
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.AffineEquiv.linear, delab app.DFunLike.coe,
+  delab app.AffineSubspace.perpBisector, delab app.EuclideanGeometry.reflection]
+def delabGeometryValue : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  guard <| !(pp.explicit.get (← getOptions))
+  let e ← getExpr
+  let args := e.getAppArgs
+  if e.isAppOfArity ``AffineEquiv.linear 13 then
+    let f ← withNaryArg 12 do
+      if args[12]!.isAppOfArity ``AffineIsometryEquiv.toAffineEquiv 15 then
+        phraseArgument args[12]!.getAppArgs[14]! (← withNaryArg 14 delab)
+      else phraseArgument args[12]! (← delab)
+    `(the linear part of $f)
+  else if e.isAppOfArity ``DFunLike.coe 6 then
+    guard <| args[4]!.isAppOf ``LinearEquiv.det || args[4]!.isAppOf ``LinearMap.det
+    let f ← phraseArgument args[5]! (← withNaryArg 5 delab)
+    `(the determinant of $f)
+  else if e.isAppOfArity ``AffineSubspace.perpBisector 8 then
+    let p ← phraseArgument args[6]! (← withNaryArg 6 delab)
+    let q ← phraseArgument args[7]! (← withNaryArg 7 delab)
+    `(the perpendicular bisector of $p and $q)
+  else
+    guard <| e.isAppOfArity ``EuclideanGeometry.reflection 11
+    let s ← phraseArgument args[8]! (← withNaryArg 8 delab)
+    `(the reflection across $s)
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app.Insert.insert, delab app.Singleton.singleton, delab app.EmptyCollection.emptyCollection]
@@ -244,6 +290,16 @@ private def scalarNouns? (ty : Expr) : Option (String × String) :=
   none
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.WithLp.ofLp]
+def delabLpCoordinate : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  guard <| !(pp.explicit.get (← getOptions))
+  guard <| (← getExpr).isAppOfArity ``WithLp.ofLp 4
+  let point ← withNaryArg 2 delab
+  let coordinate ← withNaryArg 3 delab
+  `($point $coordinate)
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app]
 def delabValueCoercion : Delab := do
   guard <| mean.renderProperties.get (← getOptions)
@@ -252,7 +308,7 @@ def delabValueCoercion : Delab := do
   let .const name _ := e.getAppFn | failure
   let some info ← Meta.getCoeFnInfo? name | failure
   guard <| info.type == .coe && e.getAppNumArgs == info.numArgs
-  let ty ← inferType e
+  let ty := (← inferType e).headBeta
   let value ← withNaryArg info.coercee delab
   if let some (singular, _) := scalarNouns? ty then
     let .ok noun := Parser.runParserCategory (← getEnv) `meanScalar singular | failure

@@ -1,6 +1,14 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
+x i
+
+p i as a real number
+
+the real Euclidean space of dimension d
+
+EuclideanSpace ℂ (the type of indices in [0, d))
+
 the function mapping a natural number n to
   the type of functions from indices in [0, n) to ℤ
 
@@ -16,6 +24,31 @@ the type of functions from ℕ to ℤ
 the length of ([1, 2, 3])
 
 the set of all elements of ℕ
+
+the type of bijective affine isometries from Space to Space over ℝ
+
+the linear part of f
+
+the determinant of (the linear part of f)
+
+the determinant of L
+
+the perpendicular bisector of p and q
+
+the reflection across (the perpendicular bisector of p and q)
+
+the reflection across (the perpendicular bisector of p and p)
+
+t * the reflection across (the perpendicular bisector of p and q)
+
+the image of s under f
+
+there is a subset T of s such that
+  for every x ∈ T:
+    x ∈ s
+
+there is exactly one g ∈ ({f, t} : Set Motion) such that
+  p ∈ the image of s under g
 
 the image of s under f
 
@@ -43,6 +76,18 @@ there is n ∈ xs such that
 
 there is exactly one n ∈ s such that
   n = 0
+
+@WithLp.ofLp
+  (@OfNat.ofNat ENNReal (nat_lit 2)
+    (@instOfNatAtLeastTwo ENNReal (nat_lit 2)
+      (@AddMonoidWithOne.toNatCast ENNReal
+        (@AddCommMonoidWithOne.toAddMonoidWithOne ENNReal ENNReal.instAddCommMonoidWithOne))
+      PiLp.innerProductSpace._proof_1))
+  ((i : the type of indices in [0, @OfNat.ofNat Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))) →
+    (the function mapping an index in [0, @OfNat.ofNat Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) to
+          Real)
+      i)
+  x i
 
 Theorem finiteSetChoice:
   for every s ∈ ({the set of all elements of ℕ, ∅} : Set (Set ℕ)):

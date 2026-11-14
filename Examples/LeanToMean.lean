@@ -1,6 +1,16 @@
 import Examples.MeanToLean
 import Mean
 
+section
+open GeneralRenderingExamples
+variable (d : Nat) (x : EuclideanSpace Real (Fin d)) (i : Fin d) (p : Fin d → Int)
+/-- info: x i -/
+#guard_msgs in
+#mean_term x.ofLp i
+#mean_term_compare x.ofLp i
+#mean_term_compare ((p i : Int) : (fun (_ : Fin d) => Real) i)
+#mean_term_compare EuclideanSpace Real (Fin d)
+#mean_term_compare EuclideanSpace Complex (Fin d)
 /--
 info: the function mapping a natural number n to
   the type of functions from indices in [0, n) to ℤ
@@ -10,12 +20,34 @@ info: the function mapping a natural number n to
 #mean_term_compare fun n : Nat => Fin n → Int
 #mean_term_compare fun n : Nat => Fin (n + 1)
 #mean_term_compare (Nat → Int)
-
 #mean_term_compare ({Set.univ, ∅} : Set (Set Nat))
 #mean_term_compare ({1, 2} : Finset Nat)
 #mean_term_compare ([1, 2, 3] : List Nat).length
 #mean_term_compare (Set.univ : Set Nat)
-
+end
+section
+open GeneralRenderingExamples
+variable (f t : Motion) (p q : Space) (s : Set Space)
+variable (L : Space →ₗ[Real] Space)
+#mean_term_compare (Space ≃ᵃⁱ[Real] Space)
+#mean_term_compare f.linear
+#mean_term_compare f.linear.det
+#mean_term_compare L.det
+#mean_term_compare AffineSubspace.perpBisector p q
+#mean_term_compare EuclideanGeometry.reflection (AffineSubspace.perpBisector p q)
+#mean_term_compare EuclideanGeometry.reflection (AffineSubspace.perpBisector p p)
+#mean_term_compare t * EuclideanGeometry.reflection (AffineSubspace.perpBisector p q)
+#mean_term_compare f '' s
+/--
+info: there is a subset T of s such that
+  for every x ∈ T:
+    x ∈ s
+-/
+#guard_msgs in
+#mean_term ∃ T ⊆ s, ∀ x ∈ T, x ∈ s
+#mean_term_compare ∃ T ⊆ s, ∀ x ∈ T, x ∈ s
+#mean_term_compare ∃! g ∈ ({f, t} : Set Motion), p ∈ g '' s
+end
 section
 variable (A B : Type u) (s : Set A) (f : A → B) (P : A → Prop) (z : A)
 #mean_term_compare f '' s
@@ -31,10 +63,27 @@ variable (xs : List Nat) (s : Finset Int)
 #mean_term_compare ∃ n ∈ xs, n = 0
 #mean_term_compare ∃! n, n ∈ s ∧ n = 0
 end
+section
+open GeneralRenderingExamples
+local instance : CoeFun Space (fun _ => Fin 3 → Real) := ⟨fun _ _ => 42⟩
+variable (x : Space) (i : Fin 3)
+#mean_term_compare x.ofLp i
+end
 
--- Bounded uniqueness must retain both uniqueness and membership.
+-- New wording must retain bounded uniqueness and the order of Euclidean motions.
 open Lean Meta Elab Term in
 run_elab do
+  let original ← elabTerm (← `(fun (t : GeneralRenderingExamples.Motion)
+      (p q : GeneralRenderingExamples.Space) =>
+        t * EuclideanGeometry.reflection (AffineSubspace.perpBisector p q))) none
+  synthesizeSyntheticMVarsNoPostponing
+  let rejected ← withoutModifyingState do
+    try
+      Mean.RoundTrip.checkText (← instantiateMVars original)
+        "fun (t : GeneralRenderingExamples.Motion) (p q : GeneralRenderingExamples.Space) => EuclideanGeometry.reflection (AffineSubspace.perpBisector p q) * t"
+      pure false
+    catch _ => pure true
+  unless rejected do throwError "motion rendering reversed composition"
   let predicateType ← elabType (← `(Nat → Prop))
   let setType ← elabType (← `(Set Nat))
   withLocalDeclD `P predicateType fun p => do

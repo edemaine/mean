@@ -4,6 +4,10 @@ import Mathlib.Basic.Countable.Defs
 import Mathlib.Computability.RE
 import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 import Mathlib.Analysis.SpecialFunctions.Log.Base
+import Mathlib.Analysis.Normed.Affine.Isometry
+import Mathlib.Analysis.InnerProductSpace.PiL2
+import Mathlib.Geometry.Euclidean.Projection
+import Mathlib.LinearAlgebra.Determinant
 import Lean
 
 /-! # Mean: compositional controlled mathematical syntax inside Lean.
@@ -72,13 +76,41 @@ macro_rules
 def imageWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "image "
 def lengthWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "length "
 def underWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "under "
+def euclideanSpaceWords : Lean.Parser.Parser :=
+  Lean.Parser.nonReservedSymbol "real " >> Lean.Parser.nonReservedSymbol "Euclidean " >>
+    Lean.Parser.nonReservedSymbol "space "
+def dimensionWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "dimension "
+def isometryTypeWords : Lean.Parser.Parser :=
+  Lean.Parser.nonReservedSymbol "bijective " >> Lean.Parser.nonReservedSymbol "affine " >>
+    Lean.Parser.nonReservedSymbol "isometries "
+def overWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "over "
+def linearPartWords : Lean.Parser.Parser :=
+  Lean.Parser.nonReservedSymbol "linear " >> Lean.Parser.nonReservedSymbol "part "
+def determinantWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "determinant "
+def bisectorWords : Lean.Parser.Parser :=
+  Lean.Parser.nonReservedSymbol "perpendicular " >> Lean.Parser.nonReservedSymbol "bisector "
+def reflectionWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "reflection "
+def acrossWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "across "
 syntax:max "the " imageWord "of " term:arg ppSpace underWord term:arg : term
 syntax:max "the " lengthWord "of " term:arg : term
 syntax:max "the " "set " "of " "all " "elements " "of " term:arg : term
+syntax:max "the " euclideanSpaceWords "of " dimensionWord term:arg : term
+syntax:max "the " "type " "of " isometryTypeWords "from " term:arg " to " term:arg ppSpace overWord term:arg : term
+syntax:max "the " linearPartWords "of " term:arg : term
+syntax:max "the " determinantWord "of " term:arg : term
+syntax:max "the " bisectorWords "of " term:arg " and " term:arg : term
+syntax:max "the " reflectionWord acrossWord term:arg : term
 macro_rules
   | `(the image of $s:term under $f:term) => `(Set.image $f $s)
   | `(the length of $xs:term) => `(List.length $xs)
   | `(the set of all elements of $ty:term) => `((Set.univ : Set $ty))
+  | `(the real Euclidean space of dimension $d:term) => `(EuclideanSpace Real (Fin $d))
+  | `(the type of bijective affine isometries from $a:term to $b:term over $k:term) =>
+      `(AffineIsometryEquiv $k $a $b)
+  | `(the linear part of $f:term) => `(($f).linear)
+  | `(the determinant of $f:term) => `(($f).det)
+  | `(the perpendicular bisector of $p:term and $q:term) => `(AffineSubspace.perpBisector $p $q)
+  | `(the reflection across $s:term) => `(EuclideanGeometry.reflection $s)
 
 /-! Relation operators remain relations; relatedness applies them in order. -/
 def closureWords : Lean.Parser.Parser :=

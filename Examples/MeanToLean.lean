@@ -4,7 +4,22 @@ import Mathlib.MeasureTheory.Measure.Module
 namespace GeneralRenderingExamples
 example (A : Type u) (xs : List A) : (the length of xs) = xs.length := rfl
 example (A : Type u) : (the set of all elements of A) = (Set.univ : Set A) := rfl
+abbrev Space := EuclideanSpace Real (Fin 3)
+abbrev Motion := Space ≃ᵃⁱ[Real] Space
+example (d : Nat) : (the real Euclidean space of dimension d) = EuclideanSpace Real (Fin d) := rfl
+example : (the type of bijective affine isometries from Space to Space over Real) = Motion := rfl
+example (f : Motion) : (the linear part of f) = f.linear := rfl
+example (f : Motion) : (the determinant of (the linear part of f)) = f.linear.det := rfl
+example (L : Space →ₗ[Real] Space) : (the determinant of L) = L.det := rfl
+example (p q : Space) : (the perpendicular bisector of p and q) = AffineSubspace.perpBisector p q := rfl
+example (p q : Space) : (the reflection across (the perpendicular bisector of p and q)) =
+    EuclideanGeometry.reflection (AffineSubspace.perpBisector p q) := rfl
+example (p : Space) : (the reflection across (the perpendicular bisector of p and p)) =
+    EuclideanGeometry.reflection (AffineSubspace.perpBisector p p) := rfl
+example (t : Motion) (p q : Space) : (t * the reflection across (the perpendicular bisector of p and q)) =
+    t * EuclideanGeometry.reflection (AffineSubspace.perpBisector p q) := rfl
 example (A B : Type u) (f : A → B) (s : Set A) : (the image of s under f) = f '' s := rfl
+example (f : Motion) (s : Set Space) : (the image of s under f) = f '' s := rfl
 example (A : Type u) (s : Set A) (P : A → Prop) :
     (there is x ∈ s such that P x) = (∃ x ∈ s, P x) := rfl
 example (xs : List Nat) : (there is n ∈ xs) = (∃ n ∈ xs, True) := rfl

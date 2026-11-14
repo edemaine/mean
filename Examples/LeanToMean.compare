@@ -2,6 +2,26 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+x.ofLp i
+-- MEAN OUTPUT:
+x i
+
+-- LEAN INPUT:
+(↑(p i) : (fun (x : Fin d) => ℝ) i)
+-- MEAN OUTPUT:
+p i as a real number
+
+-- LEAN INPUT:
+EuclideanSpace ℝ (Fin d)
+-- MEAN OUTPUT:
+the real Euclidean space of dimension d
+
+-- LEAN INPUT:
+EuclideanSpace ℂ (Fin d)
+-- MEAN OUTPUT:
+EuclideanSpace ℂ (the type of indices in [0, d))
+
+-- LEAN INPUT:
 fun (n : ℕ) => Fin n → ℤ
 -- MEAN OUTPUT:
 the function mapping a natural number n to
@@ -37,6 +57,64 @@ the length of ([1, 2, 3])
 Set.univ
 -- MEAN OUTPUT:
 the set of all elements of ℕ
+
+-- LEAN INPUT:
+Space ≃ᵃⁱ[ℝ] Space
+-- MEAN OUTPUT:
+the type of bijective affine isometries from Space to Space over ℝ
+
+-- LEAN INPUT:
+f.linear
+-- MEAN OUTPUT:
+the linear part of f
+
+-- LEAN INPUT:
+(LinearEquiv.det : (Space ≃ₗ[ℝ] Space) → ℝˣ) f.linear
+-- MEAN OUTPUT:
+the determinant of (the linear part of f)
+
+-- LEAN INPUT:
+(LinearMap.det : (Space →ₗ[ℝ] Space) → ℝ) L
+-- MEAN OUTPUT:
+the determinant of L
+
+-- LEAN INPUT:
+AffineSubspace.perpBisector p q
+-- MEAN OUTPUT:
+the perpendicular bisector of p and q
+
+-- LEAN INPUT:
+EuclideanGeometry.reflection (AffineSubspace.perpBisector p q)
+-- MEAN OUTPUT:
+the reflection across (the perpendicular bisector of p and q)
+
+-- LEAN INPUT:
+EuclideanGeometry.reflection (AffineSubspace.perpBisector p p)
+-- MEAN OUTPUT:
+the reflection across (the perpendicular bisector of p and p)
+
+-- LEAN INPUT:
+t * EuclideanGeometry.reflection (AffineSubspace.perpBisector p q)
+-- MEAN OUTPUT:
+t * the reflection across (the perpendicular bisector of p and q)
+
+-- LEAN INPUT:
+(⇑f : Space → Space) '' s
+-- MEAN OUTPUT:
+the image of s under f
+
+-- LEAN INPUT:
+∃ T ⊆ s, ∀ x ∈ T, x ∈ s
+-- MEAN OUTPUT:
+there is a subset T of s such that
+  for every x ∈ T:
+    x ∈ s
+
+-- LEAN INPUT:
+∃! g : Motion, g ∈ {f, t} ∧ p ∈ (⇑g : Space → Space) '' s
+-- MEAN OUTPUT:
+there is exactly one g ∈ ({f, t} : Set Motion) such that
+  p ∈ the image of s under g
 
 -- LEAN INPUT:
 f '' s
@@ -91,6 +169,21 @@ there is n ∈ xs such that
 -- MEAN OUTPUT:
 there is exactly one n ∈ s such that
   n = 0
+
+-- LEAN INPUT:
+x.ofLp i
+-- MEAN OUTPUT:
+@WithLp.ofLp
+  (@OfNat.ofNat ENNReal (nat_lit 2)
+    (@instOfNatAtLeastTwo ENNReal (nat_lit 2)
+      (@AddMonoidWithOne.toNatCast ENNReal
+        (@AddCommMonoidWithOne.toAddMonoidWithOne ENNReal ENNReal.instAddCommMonoidWithOne))
+      PiLp.innerProductSpace._proof_1))
+  ((i : the type of indices in [0, @OfNat.ofNat Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))) →
+    (the function mapping an index in [0, @OfNat.ofNat Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) to
+          Real)
+      i)
+  x i
 
 -- LEAN INPUT:
 theorem finiteSetChoice :

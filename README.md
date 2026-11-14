@@ -704,7 +704,12 @@ The November 12 update prompted these general rendering improvements:
    local type annotation, keeping the rest of the theorem compact. The checked
    explicit-argument fallback remains available. `finiteSetChoice` is a regression
    example for the local annotations.
-
+2. **Normalize scalar cast targets and Euclidean coordinates.** In `Solid`, the
+   target `(fun i => ℝ) i` is beta-reduced before recognizing scalar vocabulary,
+   and coordinate access renders as `x i`, restoring
+   `p i as a real number ≤ x i`. Named type aliases and the Euclidean norm on
+   `RealPoint d` are preserved. A different local coordinate coercion triggers
+   the checked explicit fallback.
 3. **Extend bounded quantifiers to existence and add set-image wording.** `RealTiles`
    uses “there is a subset T of motions,” “there is exactly one f ∈ T,” and
    “the image of (Solid P) under f.” Uniqueness remains restricted to motions
@@ -715,6 +720,11 @@ The November 12 update prompted these general rendering improvements:
    belong with local declarations rather than global TranslationTiling rules.
    Predicate definitions with implicit dimension parameters retain their current
    function descriptions.
+5. **Add geometry vocabulary.** Euclidean spaces, bijective affine isometries,
+   linear parts, determinants, perpendicular bisectors, and reflections now have
+   general wording. The isometry type explicitly retains bijectivity and its
+   scalar field. Multiplication keeps its order: `t * r` applies r first, then t.
+   Reflection tests include the degenerate bisector case p = q.
 6. **Shorten collection properties.** `List.length (f T)` renders as
    `the length of (f T)`; `Set.univ` names the set of all elements of its type.
 7. **Describe functions returning types clearly.** `Point`, `Prototile`, `RealPoint`,
@@ -774,6 +784,8 @@ The grammar separates logical structure from mathematical vocabulary:
 | Relation closure | `x is related to y by the reflexive transitive closure of R` |
 | Relation composition | `x is related to z by the composition of R followed by S` |
 | Logarithm | `ln x`, `log base b of x` |
+| Geometry types | `the real Euclidean space of dimension d`, `the type of bijective affine isometries from A to B over K` |
+| Geometry properties | `the linear part of f`, `the determinant of L`, `the perpendicular bisector of p and q`, `the reflection across S` |
 | Logical connectives | `P and Q`, `P or Q`, `if P then Q`, `P if and only if Q` |
 
 Here `T` is any type in scope. Standard scalar vocabulary works in subjects, function bindings, universal quantifiers,
@@ -853,7 +865,11 @@ membership instance.
 
 The image phrase uses the function's usual coercion when it is a bijection or
 other function-like value. For example, `the image of S under f` means `f '' S`
-for an affine isometry f.
+for an affine isometry f. Geometry phrases retain Mathlib's objects and scalar
+field: `the linear part of f` means `f.linear`, and determinants of linear
+equivalences retain their units-valued type. `the reflection across S` is
+reflection in an affine subspace; it does not require S to be a hyperplane.
+Parenthesize compound operands of these phrases.
 
 All forward scalar forms share `scalarType%`: typed values, subjects, existential witnesses,
 and singular or plural universal domains. Plurals delegate to the singular noun.
