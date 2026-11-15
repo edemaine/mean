@@ -769,6 +769,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Collection properties | `the length of xs`, `the set of all elements of T` |
 | Function subject | `a function f from A to B`, `a function f from A and B to C` |
 | Universal quantifier | `for all <bindings> [where <condition>]: <proposition>`, `for every …` |
+| Predicate qualifier | `for every function q from ℕ to Prop satisfying CoRE: P`, `for all integers x and y satisfying R: P` |
 | Membership quantifier | `for every x ∈ S: <proposition>`, `for all x ∈ S: <proposition>` |
 | Superset quantifier | `for every superset S of T: P`, `for every set S ⊇ T: P`, `for all S ⊇ T: P` |
 | Almost-everywhere quantifier | `for almost every <witness noun> [with respect to <measure>] [where <condition>]: <proposition>` |
@@ -856,6 +857,39 @@ the function mapping a natural number d to
 
 This means `fun d : Nat => Fin d → Int`, using the ordinary function syntax.
 Named aliases are retained inside the resulting type descriptions.
+
+A `satisfying` qualifier applies a predicate directly to the bound subjects:
+`for every function q from ℕ to Prop satisfying CoRE: P q` means
+`∀ q : ℕ → Prop, CoRE q → P q`. For paired subjects,
+`for all integers x and y satisfying R: P x y` uses `R x y`, preserving their
+order. The qualifier also works with membership and superset bindings and can
+be followed by an additional `where` condition. The renderer uses it for a
+generic predicate applied exactly to the subjects being bound. Conditions on
+other expressions, quantifiers used as conditions, and registered adjectives
+retain `where` wording; the existing `where q satisfies CoRE` form remains valid.
+
+Almost-everywhere quantifiers use the same qualifier: `for almost every element
+x of A satisfying P with respect to μ: Q x` means `∀ᵐ x ∂μ, P x → Q x`.
+The measure stays μ; the qualifier is an implication inside the almost-everywhere
+statement. The measure can be omitted for canonical volume, and the qualifier
+may also follow an explicit measure. An additional `where` condition is supported.
+A plain `∀ᵐ x, P x` remains an assertion and is not turned into a restriction.
+
+Existential witnesses also accept `satisfying`: `there is an element x of A
+satisfying P such that Q x` means `∃ x : A, P x ∧ Q x`.
+Omitting `such that` gives `∃ x : A, P x`; an explicit `such that True`
+retains the conjunction with `True`. The unique form counts witnesses satisfying
+both conditions: `there is a unique element x of A satisfying P such that Q x`
+means `∃! x : A, P x ∧ Q x`. Negated existence applies to that whole condition.
+Membership and subset witnesses accept the same qualifier, for example
+`there is x ∈ S satisfying P` and `there is a subset T of S satisfying R`.
+Registered adjectives and conditions on other expressions retain `such that`.
+
+Quantifiers share witness-domain binding, predicate application, and restriction
+composition. Universal and almost-everywhere conditions use implication;
+existential conditions use conjunction. Their renderers share qualifier recognition
+and restriction decomposition; universal and almost-everywhere headers use the
+same formatter. Unique and negated existence wrap the same existential condition.
 
 Superset quantifiers range over sets containing a given set:
 `for every superset S of T: P S` means `∀ S : Set _, T ⊆ S → P S`.
@@ -1186,7 +1220,7 @@ Indentation is currently for readability: **dedenting does not close a scope**.
 The grammar determines scope. The renderer removes unnecessary grouping, but some
 parentheses remain necessary. For example, `(n = 0).` prevents the final `0.` from
 being read as a Lean decimal token. Compound field projections may also need
-parentheses. English keywords such as `a`, `graph`, `satisfies`, `satisfy`, and `does` are reserved after importing
+parentheses. English keywords such as `a`, `graph`, `satisfies`, `satisfy`, `satisfying`, and `does` are reserved after importing
 Mean; Lean identifiers with those names need escaping, as in `«a»`.
 
 ## Development direction

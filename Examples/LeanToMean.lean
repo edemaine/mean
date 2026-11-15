@@ -214,6 +214,163 @@ run_elab do
           catch _ => pure true
         unless rejected do throwError "logarithm rendering changed its base, argument, or nesting"
 
+-- Existential qualifiers preserve conjunctions, uniqueness, and negation.
+section
+variable (P Q : Nat → Prop) (s : Set Nat) (F : Set Nat → Prop)
+/-- info: there is a natural number n satisfying P -/
+#guard_msgs in
+#mean_term ∃ n : Nat, P n
+/--
+info: there is a unique natural number n satisfying P such that
+  True
+-/
+#guard_msgs in
+#mean_term ∃! n : Nat, P n ∧ True
+#mean_term_compare ∃ n : Nat, P n
+#mean_term_compare ∃ n : Nat, P n ∧ Q n
+#mean_term_compare ∃ n : Nat, P n ∧ True
+#mean_term_compare ∃! n : Nat, P n
+#mean_term_compare ∃! n : Nat, P n ∧ Q n
+#mean_term_compare ∃! n : Nat, P n ∧ True
+#mean_term_compare ¬ ∃ n : Nat, P n
+#mean_term_compare ¬ ∃ n : Nat, P n ∧ Q n
+#mean_term_compare ∃ n ∈ s, P n
+#mean_term_compare ∃ n ∈ s, P n ∧ Q n
+#mean_term_compare ∃! n : Nat, n ∈ s ∧ P n
+#mean_term_compare ¬ ∃ n ∈ s, P n
+#mean_term_compare ∃ T ⊆ s, F T
+#mean_term_compare ∃ n : Nat, (P n ∧ Q n) ∧ n = n
+#mean_term_compare ∃ n : Nat, P 0 ∧ Q n
+#mean_term_compare ∃ f : Nat → Nat, Function.Injective f
+end
+
+open Lean Meta Elab Term in
+run_elab do
+  for text in ["there is a natural number n satisfying PredicateExamples.BoolPred",
+      "there is exactly one n ∈ ([0] : List Nat) satisfying PredicateExamples.BoolPred"] do
+    let .ok stx := Parser.runParserCategory (← getEnv) `term text
+      | throwError "could not parse existential qualifier"
+    let invalid ← withoutModifyingState do
+      try
+        discard <| withoutErrToSorry <| elabTerm stx none
+        synthesizeSyntheticMVarsNoPostponing
+        pure false
+      catch _ => pure true
+    unless invalid do throwError "existential qualifier accepted a Boolean-valued function"
+  let original ← elabTerm (← `(∃! n : Nat, PredicateExamples.FooPred n ∧ n = 0)) none
+  synthesizeSyntheticMVarsNoPostponing
+  let original ← instantiateMVars original
+  for text in [
+      "there is a natural number n satisfying PredicateExamples.FooPred such that n = 0",
+      "there is exactly one natural number n such that n = 0"] do
+    let rejected ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkText original text
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "existential qualifier changed uniqueness or its condition"
+
+-- Satisfaction qualifiers apply exactly to the named bound subjects.
+section
+variable (P : (Nat → Prop) → Prop) (R Q : Nat → Prop) (L : List Nat → Prop)
+variable (B : Nat → Nat → Prop) (s : Set Nat) (S : Set Nat → Prop)
+/--
+info: for every function q from ℕ to Prop satisfying P:
+  0 satisfies q
+-/
+#guard_msgs in
+#mean_term ∀ q : Nat → Prop, P q → q 0
+#mean_term_compare ∀ q : Nat → Prop, P q → q 0
+#mean_term_compare ∀ n : Nat, R n → n = n
+#mean_term_compare ∀ xs : List Nat, L xs → xs = xs
+#mean_term_compare ∀ n ∈ s, R n → n = n
+#mean_term_compare ∀ T : Set Nat, s ⊆ T → S T → T = T
+#mean_term_compare ∀ x y : Nat, B x y → x = x
+#mean_term_compare ∀ x y : Nat, B y x → x = x
+#mean_term_compare ∀ x y : Nat, R x → x = y
+#mean_term_compare ∀ n : Nat, R 0 → n = n
+#mean_term_compare ∀ q : Nat → Prop, (∃! n, q n) → q 0
+#mean_term_compare ∀ (n : Nat) (h : R n), h = h
+#mean_term_compare ∀ n : Nat, R n → Q n → n = n
+/--
+info: for every function f from ℕ to ℕ where f is injective:
+  f 0 = f 0
+-/
+#guard_msgs in
+#mean_term ∀ f : Nat → Nat, Function.Injective f → f 0 = f 0
+#mean_term_compare ∀ f : Nat → Nat, Function.Injective f → f 0 = f 0
+end
+#mean_term_compare fun [Inhabited Nat] =>
+  let first := inferInstanceAs (Inhabited Nat)
+  fun [Inhabited Nat] => ∀ n : Nat, @PredicateExamples.classified first n → n = n
+
+open Lean Meta Elab Term in
+run_elab do
+  for text in [
+      "for every natural number n satisfying PredicateExamples.BoolPred: True",
+      "for all natural numbers x and y satisfying BinaryPredicateExamples.booleanRelation: True"] do
+    let .ok stx := Parser.runParserCategory (← getEnv) `term text
+      | throwError "could not parse satisfying qualifier"
+    let invalid ← withoutModifyingState do
+      try
+        discard <| withoutErrToSorry <| elabTerm stx none
+        synthesizeSyntheticMVarsNoPostponing
+        pure false
+      catch _ => pure true
+    unless invalid do throwError "qualifier accepted a Boolean-valued function"
+  let original ← elabTerm (← `(∀ n : Nat, PredicateExamples.FooPred n → n = n)) none
+  synthesizeSyntheticMVarsNoPostponing
+  let original ← instantiateMVars original
+  for text in [
+      "for every natural number n satisfying PredicateExamples.FooPred: n = 1",
+      "for every natural number n: n = n"] do
+    let rejected ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkText original text
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "qualifier changed or dropped its restriction"
+
+section
+open MeasureTheory
+variable [MeasurableSpace (Nat → Prop)] (μ : Measure (Nat → Prop)) (P : (Nat → Prop) → Prop)
+#mean_term_compare ∀ᵐ q ∂μ, P q → q 0
+end
+section
+open MeasureTheory
+variable [MeasurableSpace (Nat → Nat)] (μ : Measure (Nat → Nat))
+#mean_term_compare ∀ᵐ f ∂μ, Function.Injective f → f 0 = f 0
+end
+
+-- The shared restriction code cannot change a measure or the qualifying predicate.
+open Lean Meta Elab Term in
+run_elab do
+  let original ← elabTerm (← `(fun (A : Type) [MeasurableSpace A]
+      (μ ν : MeasureTheory.Measure A) (p q : A → Prop) => ∀ᵐ x ∂μ, p x → q x)) none
+  synthesizeSyntheticMVarsNoPostponing
+  let original ← instantiateMVars original
+  let preamble := "the function mapping an element A of Type and an instance of typeclass MeasurableSpace A and an element μ of MeasureTheory.Measure A and an element ν of MeasureTheory.Measure A and a function p from A to Prop and a function q from A to Prop to "
+  for text in [
+      "for almost every element x of A satisfying p with respect to ν: q x",
+      "for almost every element x of A satisfying q with respect to μ: q x",
+      "for almost every element x of A with respect to μ: q x"] do
+    let rejected ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkText original (preamble ++ text)
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "almost-everywhere qualifier changed its measure or restriction"
+  let text := "the function mapping an element A of Type and an instance of typeclass MeasurableSpace A and an element μ of MeasureTheory.Measure A and a function b from A to Bool to for almost every element x of A satisfying b with respect to μ: True"
+  let .ok stx := Parser.runParserCategory (← getEnv) `term text
+    | throwError "could not parse almost-everywhere qualifier"
+  let rejected ← withoutModifyingState do
+    try
+      discard <| withoutErrToSorry <| elabTerm stx none
+      synthesizeSyntheticMVarsNoPostponing
+      pure false
+    catch _ => pure true
+  unless rejected do throwError "almost-everywhere qualifier accepted a Boolean-valued function"
+
 -- Superset restrictions retain their direction, type, and subset instance.
 section
 variable (A : Type u) (s t : Set A) (R Q : Set A → Prop)
@@ -271,11 +428,7 @@ for every natural number n:
 -/
 #guard_msgs in
 #mean_term P ∧ ∀ n : Nat, R n
-/--
-info: P or
-there is a natural number n such that
-  n satisfies R
--/
+/-- info: P or there is a natural number n satisfying R -/
 #guard_msgs in
 #mean_term P ∨ ∃ n : Nat, R n
 /-- info: P and (if P then Q) -/
@@ -629,6 +782,25 @@ run_elab do
 section
 open MeasureTheory
 variable (A : Type u) [MeasurableSpace A] (μ ν : Measure A) (p q : A → Prop)
+/--
+info: for almost every element x of A satisfying p with respect to μ:
+  x satisfies q
+-/
+#guard_msgs in
+#mean_term ∀ᵐ x ∂μ, p x → q x
+/--
+info: for almost every element x of A with respect to μ:
+  x satisfies p
+-/
+#guard_msgs in
+#mean_term ∀ᵐ x ∂μ, p x
+#mean_term_compare ∀ᵐ x ∂(μ + ν), p x → q x
+#mean_term_compare ∀ᵐ x ∂μ, p x → q x → x = x
+#mean_term_compare ∀ᵐ x ∂μ, p x → ∀ᵐ y ∂ν, q y → x = y
+#mean_term_compare ∀ᵐ x ∂μ, ∀ h : p x, h = h
+#mean_term_compare (True ∧ (∀ᵐ x ∂μ, p x → q x)) ↔ False
+variable (y : A)
+#mean_term_compare ∀ᵐ x ∂μ, p y → q x
 #mean_term_compare ∀ᵐ x ∂μ, p x
 #mean_term_compare ∀ᵐ x ∂(μ + ν), p x
 #mean_term_compare ∀ᵐ x ∂μ, p x → q x

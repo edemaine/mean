@@ -222,6 +222,35 @@ macro_rules
   | `(adjectivePredicate% $predicate:ident) => `($predicate)
   | `(adjectivePredicate% ($predicate:term)) => `($predicate)
 
+/-- Quantifiers share predicate application, including ordered subject lists. -/
+private def qualifierCondition (names : Array Lean.Ident) (predicate : Lean.TSyntax `meanAdjective) :
+    Lean.MacroM (Lean.TSyntax `term) := do
+  if names.size == 1 then
+    `(adjectiveOn% $predicate of $(names[0]!))
+  else
+    let args : Array (Lean.TSyntax `term) := names.map (fun name => ⟨name.raw⟩)
+    `(relationApply% (adjectivePredicate% $predicate) of [$args,*])
+
+private inductive RestrictionMode where
+  | implication
+  | conjunction
+
+/-- Universal and almost-everywhere restrictions imply their body; existential
+restrictions conjoin with it. No body is distinct from an explicit `True` body. -/
+private def restrictedBody (mode : RestrictionMode) (conditions : Array (Lean.TSyntax `term))
+    (body : Option (Lean.TSyntax `term)) : Lean.MacroM (Lean.TSyntax `term) := do
+  let mut result := body
+  for condition in conditions.reverse do
+    let next ← match result with
+      | none => pure condition
+      | some body => match mode with
+        | .implication => `(∀ (_ : ($condition : Prop)), ($body : Prop))
+        | .conjunction => `($condition ∧ ($body : Prop))
+    result := some next
+  match result with
+  | some body => pure body
+  | none => `(True)
+
 /-! Properties share both surface forms; each noun supplies its interpretation.
 Lean lexes `G's` as one identifier, so the possessive rule removes that suffix. -/
 declare_syntax_cat meanProperty
@@ -738,10 +767,11 @@ syntax meanScalarDomain ident ("and" ident)? : meanQuantified
 syntax ident "and" ident "in" term : meanQuantified
 syntax "vertices" ident "and" ident "of" term : meanQuantified
 syntax "forallOver%" meanQuantified "=>" term : term
+syntax "forallSatisfying%" meanQuantified "with" meanAdjective "=>" term : term
 /-- A restriction belongs to the quantifier, outside its domain description.
 Parentheses allow type ascriptions and nested quantifiers in the condition. -/
 def quantifiedBinding : Lean.Parser.Parser :=
-  Lean.Parser.withForbidden "where" (Lean.Parser.categoryParser `meanQuantified 0)
+  Lean.Parser.withForbiddens #["where", "satisfying"] (Lean.Parser.categoryParser `meanQuantified 0)
 def quantifiedCondition : Lean.Parser.Parser :=
   Lean.Parser.withAntiquot (Lean.Parser.mkAntiquot "term" `term (isPseudoKind := true))
     (Lean.Parser.withForbidden ":" Lean.Parser.termParser)
@@ -755,12 +785,24 @@ syntax "for" "every" quantifiedBinding ":" term : term
 syntax "for" "all" quantifiedBinding ":" term : term
 syntax "for" "every" quantifiedBinding "where" quantifiedCondition ":" term : term
 syntax "for" "all" quantifiedBinding "where" quantifiedCondition ":" term : term
+syntax "for" "every" quantifiedBinding "satisfying" meanAdjective
+  ("where" quantifiedCondition)? ":" term : term
+syntax "for" "all" quantifiedBinding "satisfying" meanAdjective
+  ("where" quantifiedCondition)? ":" term : term
 
 macro_rules
-  | `(for every $binding:meanQuantified where $condition:term : $body:term) =>
-      `(forallOver% $binding => ∀ (_ : ($condition : Prop)), ($body : Prop))
+  | `(for every $binding:meanQuantified satisfying $predicate:meanAdjective
+        $[where $condition:term]? : $body:term) => do
+      let body ← restrictedBody .implication condition.toArray (some body)
+      `(forallSatisfying% $binding with $predicate => $body)
+  | `(for all $binding:meanQuantified satisfying $predicate:meanAdjective
+        $[where $condition:term]? : $body:term) =>
+      `(for every $binding satisfying $predicate $[where $condition]? : $body)
+  | `(for every $binding:meanQuantified where $condition:term : $body:term) => do
+      let body ← restrictedBody .implication #[condition] (some body)
+      `(forallOver% $binding => $body)
   | `(for all $binding:meanQuantified where $condition:term : $body:term) =>
-      `(forallOver% $binding => ∀ (_ : ($condition : Prop)), ($body : Prop))
+      `(for every $binding where $condition : $body)
   | `(for every $binding:meanQuantified : $body:term) =>
       `(forallOver% $binding => $body)
   | `(for all $binding:meanQuantified : $body:term) =>
@@ -829,27 +871,61 @@ private def witnessBinding (noun : Lean.TSyntax `meanWitnessNoun) :
     | none => `(ident| existentialWitness)
   return (name, ty)
 
+/-- Qualify the named subjects together, preserving domain restrictions and order. -/
+macro_rules
+  | `(forallSatisfying% $binding:meanQuantified with $predicate:meanAdjective => $body:term) => do
+      if let `(meanQuantified| $noun:meanWitnessNoun) := binding then
+        let (name, ty) ← witnessBinding noun
+        let condition ← qualifierCondition #[name] predicate
+        let body ← restrictedBody .implication #[condition] (some body)
+        return ← `(∀ ($name:ident : $ty), $body)
+      let names : Array Lean.Ident ← match binding with
+        | `(meanQuantified| $_:meanScalarDomain $x:ident $[and $y:ident]?) =>
+          pure (#[x] ++ y.toArray)
+        | `(meanQuantified| $x:ident and $y:ident in $_:term) => pure #[x, y]
+        | `(meanQuantified| vertices $x:ident and $y:ident of $_:term) => pure #[x, y]
+        | `(meanQuantified| $x:ident ∈ $_:term) => pure #[x]
+        | `(meanQuantified| superset $x:ident of $_:term) => pure #[x]
+        | `(meanQuantified| $x:ident ⊇ $_:term) => pure #[x]
+        | `(meanQuantified| set $x:ident ⊇ $_:term) => pure #[x]
+        | _ => Lean.Macro.throwErrorAt binding "unsupported satisfying quantifier binding"
+      let condition ← qualifierCondition names predicate
+      let body ← restrictedBody .implication #[condition] (some body)
+      `(forallOver% $binding => $body)
+
 /-! Almost-everywhere quantification uses one witness domain and a measure.
 An omitted measure uses the domain's canonical `volume`. -/
 def almostEveryBinding : Lean.Parser.Parser :=
-  Lean.Parser.withForbiddens #["with", "where"]
+  Lean.Parser.withForbiddens #["with", "where", "satisfying"]
     (Lean.Parser.categoryParser `meanWitnessNoun 0)
 def almostEveryMeasure : Lean.Parser.Parser :=
   Lean.Parser.withAntiquot (Lean.Parser.mkAntiquot "term" `term (isPseudoKind := true))
-    (Lean.Parser.withForbiddens #[":", "where"] Lean.Parser.termParser)
+    (Lean.Parser.withForbiddens #[":", "where", "satisfying"] Lean.Parser.termParser)
 syntax "for " "almost " "every " almostEveryBinding
+  (" satisfying " meanAdjective)?
   (" with " "respect " "to " almostEveryMeasure)?
   (" where " quantifiedCondition)? ":" ppIndent(ppLine term) : term
+-- Also accept the qualifier after an explicitly specified measure.
+syntax "for " "almost " "every " almostEveryBinding
+  " with " "respect " "to " almostEveryMeasure " satisfying " meanAdjective
+  (" where " quantifiedCondition)? ":" ppIndent(ppLine term) : term
 macro_rules
-  | `(for almost every $noun:meanWitnessNoun $[with respect to $measure:term]?
-        $[where $condition:term]? : $body:term) => do
+  | `(for almost every $noun:meanWitnessNoun with respect to $measure:term
+        satisfying $predicate:meanAdjective $[where $condition:term]? : $body:term) =>
+      `(for almost every $noun satisfying $predicate with respect to $measure
+        $[where $condition]? : $body)
+  | `(for almost every $noun:meanWitnessNoun $[satisfying $predicate:meanAdjective]?
+        $[with respect to $measure:term]? $[where $condition:term]? : $body:term) => do
       let (name, ty) ← witnessBinding noun
       let measure ← match measure with
         | some measure => pure measure
         | none => `(MeasureTheory.volume)
-      let body ← match condition with
-        | some condition => `(∀ (_ : ($condition : Prop)), ($body : Prop))
-        | none => `(($body : Prop))
+      let qualifier ← match predicate with
+        | some predicate => do
+            pure (some (← qualifierCondition #[name] predicate))
+        | none => pure none
+      let body ← restrictedBody .implication (qualifier.toArray ++ condition.toArray)
+        (some (← `(($body : Prop))))
       `(Filter.Eventually (fun ($name : $ty) => $body) (MeasureTheory.ae $measure))
 
 /-- A set comprehension owns its element name and proposition. The type stops
@@ -908,6 +984,30 @@ macro_rules
 syntax "existsWitness%" meanWitnessNoun "=>" term : term
 syntax "uniqueWitness%" meanWitnessNoun "=>" term : term
 syntax "existsOver%" meanWitness "=>" term : term
+syntax "satisfyingWitness%" meanWitnessNoun "with" meanAdjective ("such" "that" term)? : term
+syntax "there" "is" meanWitness "satisfying" meanAdjective ("such" "that" term)? : term
+syntax "there" "is" "a" "unique" meanWitnessNoun "satisfying" meanAdjective ("such" "that" term)? : term
+syntax "there" "is" "exactly" "one" meanWitnessNoun "satisfying" meanAdjective ("such" "that" term)? : term
+syntax "there" "is" "no" meanWitnessNoun "satisfying" meanAdjective ("such" "that" term)? : term
+macro_rules
+  | `(satisfyingWitness% $noun:meanWitnessNoun with $predicate:meanAdjective $[such that $body:term]?) => do
+      let (name, ty) ← witnessBinding noun
+      let condition ← qualifierCondition #[name] predicate
+      let body ← restrictedBody .conjunction #[condition] body
+      `(fun ($name:ident : $ty) => $body)
+  | `(there is $description:meanWitness satisfying $predicate:meanAdjective $[such that $body:term]?) => do
+      let noun ← match description with
+        | `(meanWitness| a $noun:meanWitnessNoun) => pure noun
+        | `(meanWitness| an $noun:meanWitnessNoun) => pure noun
+        | _ => Lean.Macro.throwUnsupported
+      `(Exists (satisfyingWitness% $noun with $predicate $[such that $body]?))
+  | `(there is a unique $noun:meanWitnessNoun satisfying $predicate:meanAdjective $[such that $body:term]?) =>
+      `(there is exactly one $noun satisfying $predicate $[such that $body]?)
+  | `(there is exactly one $noun:meanWitnessNoun satisfying $predicate:meanAdjective $[such that $body:term]?) =>
+      `(ExistsUnique (satisfyingWitness% $noun with $predicate $[such that $body]?))
+  | `(there is no $noun:meanWitnessNoun satisfying $predicate:meanAdjective $[such that $body:term]?) =>
+      `(Not (Exists (satisfyingWitness% $noun with $predicate $[such that $body]?)))
+
 syntax "there" "is" "a" "unique" meanWitnessNoun ("such" "that" term)? : term
 syntax "there" "is" "exactly" "one" meanWitnessNoun ("such" "that" term)? : term
 syntax "there" "is" "no" meanWitnessNoun ("such" "that" term)? : term
@@ -921,6 +1021,35 @@ declare_syntax_cat meanBoundedWitness
 syntax ident "∈" boundedCollection : meanBoundedWitness
 syntax ident "⊆" boundedCollection : meanBoundedWitness
 syntax "boundedWitness%" meanBoundedWitness "=>" term : term
+syntax "satisfyingBoundedWitness%" meanBoundedWitness "with" meanAdjective ("such" "that" term)? : term
+syntax "there" "is" meanBoundedWitness "satisfying" meanAdjective ("such" "that" term)? : term
+syntax "there" "is" "exactly" "one" meanBoundedWitness "satisfying" meanAdjective ("such" "that" term)? : term
+syntax "there" "is" "a" "unique" meanBoundedWitness "satisfying" meanAdjective ("such" "that" term)? : term
+syntax "there" "is" "no" meanBoundedWitness "satisfying" meanAdjective ("such" "that" term)? : term
+syntax "there" "is" "a" subsetWord ident "of" boundedCollection "satisfying" meanAdjective ("such" "that" term)? : term
+syntax "there" "is" "no" subsetWord ident "of" boundedCollection "satisfying" meanAdjective ("such" "that" term)? : term
+macro_rules
+  | `(satisfyingBoundedWitness% $binding:meanBoundedWitness with $predicate:meanAdjective $[such that $body:term]?) => do
+      let name ← match binding with
+        | `(meanBoundedWitness| $x:ident ∈ $_:term) => pure x
+        | `(meanBoundedWitness| $x:ident ⊆ $_:term) => pure x
+        | _ => Lean.Macro.throwUnsupported
+      let condition ← qualifierCondition #[name] predicate
+      let body ← restrictedBody .conjunction #[condition] body
+      `(boundedWitness% $binding => $body)
+  | `(there is $binding:meanBoundedWitness satisfying $predicate:meanAdjective $[such that $body:term]?) =>
+      `(Exists (satisfyingBoundedWitness% $binding with $predicate $[such that $body]?))
+  | `(there is exactly one $binding:meanBoundedWitness satisfying $predicate:meanAdjective $[such that $body:term]?) =>
+      `(ExistsUnique (satisfyingBoundedWitness% $binding with $predicate $[such that $body]?))
+  | `(there is a unique $binding:meanBoundedWitness satisfying $predicate:meanAdjective $[such that $body:term]?) =>
+      `(there is exactly one $binding:meanBoundedWitness satisfying $predicate $[such that $body]?)
+  | `(there is no $binding:meanBoundedWitness satisfying $predicate:meanAdjective $[such that $body:term]?) =>
+      `(Not (Exists (satisfyingBoundedWitness% $binding with $predicate $[such that $body]?)))
+  | `(there is a subset $x:ident of $s:term satisfying $predicate:meanAdjective $[such that $body:term]?) =>
+      `(there is $x:ident ⊆ $s satisfying $predicate $[such that $body]?)
+  | `(there is no subset $x:ident of $s:term satisfying $predicate:meanAdjective $[such that $body:term]?) =>
+      `(there is no $x:ident ⊆ $s satisfying $predicate $[such that $body]?)
+
 syntax "there" "is" meanBoundedWitness ("such" "that" term)? : term
 syntax "there" "is" "exactly" "one" meanBoundedWitness ("such" "that" term)? : term
 syntax "there" "is" "a" "unique" meanBoundedWitness ("such" "that" term)? : term

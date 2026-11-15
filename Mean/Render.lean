@@ -657,6 +657,48 @@ private def predicateView? (e : Expr) : MetaM (Option PredicateView) := do
     | .error _ => pure ("(" ++ text ++ ")")
   return some ⟨subjects, predicate, false⟩
 
+/-- Only a generic predicate applied exactly to these bound subjects can
+replace a restriction. Quantifiers and registered adjectives keep their own wording. -/
+private def satisfyingPredicate? (condition : Expr) (subjects : List Expr) : MetaM (Option String) := do
+  let condition := inlineLets condition
+  if pp.explicit.get (← getOptions) || isQuantifier condition then return none
+  let some view ← predicateView? condition | return none
+  if view.registered || view.subjects != subjects then return none
+  return some view.phrase
+
+/-- Peel one restriction without dropping a proof used by the remaining body. -/
+private def restrictionParts? (body : Expr) (conjunctive := false) : MetaM (Option (Expr × Expr)) := do
+  let body := inlineLets body
+  if conjunctive then
+    if body.isAppOfArity ``And 2 then return some (body.getAppArgs[0]!, body.getAppArgs[1]!)
+  else if let .forallE _ condition rest .default := body then
+    if (← isProp condition) && !rest.hasLooseBVars then return some (condition, rest)
+  return none
+
+private def satisfyingRestriction? (body : Expr) (subjects : List Expr) (conjunctive := false) :
+    MetaM (Option (String × Option Expr)) := do
+  if let some (condition, rest) ← restrictionParts? body conjunctive then
+    if let some predicate ← satisfyingPredicate? condition subjects then return some (predicate, some rest)
+  if conjunctive then
+    if let some predicate ← satisfyingPredicate? body subjects then return some (predicate, none)
+  return none
+
+/-- Universal and almost-everywhere headers share restriction selection and layout.
+A measure suffix belongs after the qualifier and before any general `where` clause. -/
+private def restrictedQuantifierText (heading : String) (body : Expr) (subjects : List Expr)
+    (renderBody renderCondition : Expr → MetaM String) (suffix := "") : MetaM String := do
+  if let some (predicate, some rest) ← satisfyingRestriction? body subjects then
+    return s!"{heading} satisfying {predicate}{suffix}:
+{indented (← renderBody rest)}"
+  if let some (condition, rest) ← restrictionParts? body then
+    let text ← renderCondition condition
+    let text := if isQuantifier (inlineLets condition) || (negatedExists? (inlineLets condition)).isSome then
+      "(" ++ text ++ ")" else text
+    return s!"{heading}{suffix} where {text}:
+{indented (← renderBody rest)}"
+  return s!"{heading}{suffix}:
+{indented (← renderBody body)}"
+
 /-- Share function wording and binding scope between plain and typed forms. -/
 private partial def functionText (n : Name) (ty body : Expr) (bi : BinderInfo)
     (renderBody : Expr → MetaM String)
@@ -734,18 +776,9 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
     if bi == .default && (← isProp e) then
       let n ← freshName n
       withLocalDecl n bi ty fun x => do
-        let renderQuantified (heading : String) (body : Expr) : MetaM String := do
-          let body := inlineLets body
-          if let .forallE _ premise conclusion .default := body then
-            -- Keep a proof binder when its proof is used by the conclusion.
-            if (← isProp premise) && !conclusion.hasLooseBVars then
-              let condition ← renderExpr premise false true
-              let condition := if isQuantifier (inlineLets premise) ||
-                  (negatedExists? (inlineLets premise)).isSome then
-                "(" ++ condition ++ ")" else condition
-              let rest ← renderExpr conclusion sentenceEnd
-              return s!"{heading} where {condition}:\n{indented rest}"
-          return s!"{heading}:\n{indented (← renderExpr body sentenceEnd)}"
+        let renderQuantified (heading : String) (body : Expr) (subjects : List Expr := [x]) : MetaM String :=
+          restrictedQuantifierText heading body subjects (fun body => renderExpr body sentenceEnd)
+            (fun condition => renderExpr condition false true)
         let renderSingle : MetaM String := do
           let body := inlineLets (body.instantiate1 x)
           if !(pp.explicit.get (← getOptions)) then
@@ -774,7 +807,7 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
                 | none => match scalarNouns? ty with
                   | some (_, plural) => pure s!"{plural} {← nameText n} and {← nameText m}"
                   | none => pure s!"{← nameText n} and {← nameText m} in {← atomText ty}"
-              renderQuantified s!"for all {binding}" (body₂.instantiate1 y)
+              renderQuantified s!"for all {binding}" (body₂.instantiate1 y) [x, y]
           else renderSingle
         | _ => renderSingle
     else
@@ -811,15 +844,8 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
           catch _ => pure false
         let measureText ← if canonical then pure ""
           else pure s!" with respect to {← atomText measure}"
-        let heading := s!"for almost every {noun}{measureText}"
-        if let .forallE _ premise conclusion .default := body then
-          if (← isProp premise) && !conclusion.hasLooseBVars then
-            let condition ← renderExpr premise false true
-            let condition := if isQuantifier (inlineLets premise) ||
-                (negatedExists? (inlineLets premise)).isSome then
-              "(" ++ condition ++ ")" else condition
-            return s!"{heading} where {condition}:\n{indented (← renderExpr conclusion sentenceEnd)}"
-        return s!"{heading}:\n{indented (← renderExpr body sentenceEnd)}"
+        return ← restrictedQuantifierText s!"for almost every {noun}" body [x]
+          (fun body => renderExpr body sentenceEnd) (fun condition => renderExpr condition false true) measureText
     if e.isAppOfArity ``Set.ofPred 2 then
       let args := e.getAppArgs
       let ty := args[0]!
@@ -868,6 +894,13 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
         let used := body.containsFVar x.fvarId!
         let witnessName ← nameText n
         let name := if used then some witnessName else none
+        let renderSatisfying (heading : String) (condition : Expr) : MetaM (Option String) := do
+          let some (predicate, rest) ← satisfyingRestriction? condition [x] true | return none
+          let heading := s!"{heading} satisfying {predicate}"
+          match rest with
+          | none => return some (← sentenceTail heading sentenceEnd)
+          | some rest => return some s!"{heading} such that
+{indented (← renderExpr rest sentenceEnd)}"
         if !(pp.explicit.get (← getOptions)) && body.isAppOfArity ``And 2 then
           let condition := inlineLets body.getAppArgs[0]!
           let rest := body.getAppArgs[1]!
@@ -884,6 +917,7 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
             let article := if negative.isSome then "no " else if isUnique then "exactly one "
               else if bounded.startsWith "subset " then "a " else ""
             let heading := s!"there is {article}{bounded}"
+            if let some text ← renderSatisfying heading rest then return text
             if rest.isConstOf ``True then return ← sentenceTail heading sentenceEnd
             return s!"{heading} such that\n{indented (← renderExpr rest sentenceEnd)}"
         let heading ← if isUnique then do
@@ -891,6 +925,7 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
           pure s!"there is a unique {noun}"
         else do
           pure s!"there is {← witnessText ty name negative.isSome}"
+        if let some text ← renderSatisfying heading body then return text
         if body.isConstOf ``True then return ← sentenceTail heading sentenceEnd
         return s!"{heading} such that\n{indented (← renderExpr body sentenceEnd)}"
     let negativePredicate := e.isAppOfArity ``Not 1

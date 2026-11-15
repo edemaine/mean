@@ -174,20 +174,17 @@ the image of s under f
 -- LEAN INPUT:
 ∃ x ∈ s, P x
 -- MEAN OUTPUT:
-there is x ∈ s such that
-  x satisfies P
+there is x ∈ s satisfying P
 
 -- LEAN INPUT:
 ∃! x : A, x ∈ s ∧ P x
 -- MEAN OUTPUT:
-there is exactly one x ∈ s such that
-  x satisfies P
+there is exactly one x ∈ s satisfying P
 
 -- LEAN INPUT:
 ¬∃ x ∈ s, P x
 -- MEAN OUTPUT:
-there is no x ∈ s such that
-  x satisfies P
+there is no x ∈ s satisfying P
 
 -- LEAN INPUT:
 ∃ (x : A), z ∈ s ∧ P x
@@ -198,9 +195,7 @@ there is an element x of A such that
 -- LEAN INPUT:
 (∃! x : A, x ∈ s ∧ P x) ∧ True
 -- MEAN OUTPUT:
-(there is exactly one x ∈ s such that
-  x satisfies P) and
-True
+(there is exactly one x ∈ s satisfying P) and True
 
 -- LEAN INPUT:
 ∃ t ⊆ s, t = s
@@ -361,6 +356,197 @@ ln x
 ln x
 
 -- LEAN INPUT:
+∃ (n : ℕ), P n
+-- MEAN OUTPUT:
+there is a natural number n satisfying P
+
+-- LEAN INPUT:
+∃ (n : ℕ), P n ∧ Q n
+-- MEAN OUTPUT:
+there is a natural number n satisfying P such that
+  n satisfies Q
+
+-- LEAN INPUT:
+∃ (n : ℕ), P n ∧ True
+-- MEAN OUTPUT:
+there is a natural number n satisfying P such that
+  True
+
+-- LEAN INPUT:
+∃! n : ℕ, P n
+-- MEAN OUTPUT:
+there is a unique natural number n satisfying P
+
+-- LEAN INPUT:
+∃! n : ℕ, P n ∧ Q n
+-- MEAN OUTPUT:
+there is a unique natural number n satisfying P such that
+  n satisfies Q
+
+-- LEAN INPUT:
+∃! n : ℕ, P n ∧ True
+-- MEAN OUTPUT:
+there is a unique natural number n satisfying P such that
+  True
+
+-- LEAN INPUT:
+¬∃ (n : ℕ), P n
+-- MEAN OUTPUT:
+there is no natural number n satisfying P
+
+-- LEAN INPUT:
+¬∃ (n : ℕ), P n ∧ Q n
+-- MEAN OUTPUT:
+there is no natural number n satisfying P such that
+  n satisfies Q
+
+-- LEAN INPUT:
+∃ n ∈ s, P n
+-- MEAN OUTPUT:
+there is n ∈ s satisfying P
+
+-- LEAN INPUT:
+∃ n ∈ s, P n ∧ Q n
+-- MEAN OUTPUT:
+there is n ∈ s satisfying P such that
+  n satisfies Q
+
+-- LEAN INPUT:
+∃! n : ℕ, n ∈ s ∧ P n
+-- MEAN OUTPUT:
+there is exactly one n ∈ s satisfying P
+
+-- LEAN INPUT:
+¬∃ n ∈ s, P n
+-- MEAN OUTPUT:
+there is no n ∈ s satisfying P
+
+-- LEAN INPUT:
+∃ T ⊆ s, F T
+-- MEAN OUTPUT:
+there is a subset T of s satisfying F
+
+-- LEAN INPUT:
+∃ (n : ℕ), (P n ∧ Q n) ∧ n = n
+-- MEAN OUTPUT:
+there is a natural number n such that
+  (n satisfies P and n satisfies Q) and n = n
+
+-- LEAN INPUT:
+∃ (n : ℕ), P 0 ∧ Q n
+-- MEAN OUTPUT:
+there is a natural number n such that
+  0 satisfies P and n satisfies Q
+
+-- LEAN INPUT:
+∃ (f : ℕ → ℕ), Function.Injective f
+-- MEAN OUTPUT:
+there is a function f from ℕ to ℕ such that
+  f is injective
+
+-- LEAN INPUT:
+∀ (q : ℕ → Prop), P q → q 0
+-- MEAN OUTPUT:
+for every function q from ℕ to Prop satisfying P:
+  0 satisfies q
+
+-- LEAN INPUT:
+∀ (n : ℕ), R n → n = n
+-- MEAN OUTPUT:
+for every natural number n satisfying R:
+  n = n
+
+-- LEAN INPUT:
+∀ (xs : List ℕ), L xs → xs = xs
+-- MEAN OUTPUT:
+for every list xs of natural numbers satisfying L:
+  xs = xs
+
+-- LEAN INPUT:
+∀ n ∈ s, R n → n = n
+-- MEAN OUTPUT:
+for every n ∈ s satisfying R:
+  n = n
+
+-- LEAN INPUT:
+∀ (T : Set ℕ), s ⊆ T → S T → T = T
+-- MEAN OUTPUT:
+for every superset T of s satisfying S:
+  T = T
+
+-- LEAN INPUT:
+∀ (x y : ℕ), B x y → x = x
+-- MEAN OUTPUT:
+for all natural numbers x and y satisfying B:
+  x = x
+
+-- LEAN INPUT:
+∀ (x y : ℕ), B y x → x = x
+-- MEAN OUTPUT:
+for all natural numbers x and y where y and x satisfy B:
+  x = x
+
+-- LEAN INPUT:
+∀ (x y : ℕ), R x → x = y
+-- MEAN OUTPUT:
+for all natural numbers x and y where x satisfies R:
+  x = y
+
+-- LEAN INPUT:
+∀ (n : ℕ), R 0 → n = n
+-- MEAN OUTPUT:
+for every natural number n where 0 satisfies R:
+  n = n
+
+-- LEAN INPUT:
+∀ (q : ℕ → Prop), (∃! n : ℕ, q n) → q 0
+-- MEAN OUTPUT:
+for every function q from ℕ to Prop where (there is a unique natural number n satisfying q):
+  0 satisfies q
+
+-- LEAN INPUT:
+∀ (n : ℕ) (h : R n), h = h
+-- MEAN OUTPUT:
+for every natural number n:
+  for every proof h that (R n):
+    h = h
+
+-- LEAN INPUT:
+∀ (n : ℕ), R n → Q n → n = n
+-- MEAN OUTPUT:
+for every natural number n satisfying R:
+  if n satisfies Q then
+    n = n
+
+-- LEAN INPUT:
+∀ (f : ℕ → ℕ), Function.Injective f → f 0 = f 0
+-- MEAN OUTPUT:
+for every function f from ℕ to ℕ where f is injective:
+  f 0 = f 0
+
+-- LEAN INPUT:
+fun [inst : Inhabited ℕ] =>
+  let first := inst;
+  fun [Inhabited ℕ] => ∀ (n : ℕ), PredicateExamples.classified n → n = n
+-- MEAN OUTPUT:
+the function mapping an instance inst of typeclass Inhabited Nat to
+  the function mapping an instance of typeclass Inhabited Nat to
+    for every natural number n where n satisfies (@PredicateExamples.classified inst):
+      @Eq Nat n n
+
+-- LEAN INPUT:
+∀ᵐ (q : ℕ → Prop) ∂μ, P q → q 0
+-- MEAN OUTPUT:
+for almost every function q from ℕ to Prop satisfying P with respect to μ:
+  0 satisfies q
+
+-- LEAN INPUT:
+∀ᵐ (f : ℕ → ℕ) ∂μ, Function.Injective f → f 0 = f 0
+-- MEAN OUTPUT:
+for almost every function f from ℕ to ℕ with respect to μ where f is injective:
+  f 0 = f 0
+
+-- LEAN INPUT:
 ∀ (S : Set A), s ⊆ S → R S
 -- MEAN OUTPUT:
 for every superset S of s:
@@ -381,7 +567,7 @@ for every superset S of s:
 -- LEAN INPUT:
 ∀ (S : Set A), s ⊆ S → Q S → R S
 -- MEAN OUTPUT:
-for every superset S of s where S satisfies Q:
+for every superset S of s satisfying Q:
   S satisfies R
 
 -- LEAN INPUT:
@@ -468,23 +654,17 @@ for every natural number n:
 -- LEAN INPUT:
 P ∨ ∃ (n : ℕ), R n
 -- MEAN OUTPUT:
-P or
-there is a natural number n such that
-  n satisfies R
+P or there is a natural number n satisfying R
 
 -- LEAN INPUT:
 P ∧ ¬∃ (n : ℕ), R n
 -- MEAN OUTPUT:
-P and
-there is no natural number n such that
-  n satisfies R
+P and there is no natural number n satisfying R
 
 -- LEAN INPUT:
 P ∧ ∃! n : ℕ, R n
 -- MEAN OUTPUT:
-P and
-there is a unique natural number n such that
-  n satisfies R
+P and there is a unique natural number n satisfying R
 
 -- LEAN INPUT:
 P ↔ ∀ (n : ℕ), R n
@@ -495,8 +675,7 @@ P if and only if for every natural number n:
 -- LEAN INPUT:
 P ↔ ∃ (n : ℕ), R n
 -- MEAN OUTPUT:
-P if and only if there is a natural number n such that
-  n satisfies R
+P if and only if there is a natural number n satisfying R
 
 -- LEAN INPUT:
 (P ∧ ∀ (n : ℕ), R n) ↔ Q
@@ -508,9 +687,7 @@ P and
 -- LEAN INPUT:
 (P ∨ ∃ (n : ℕ), R n) ↔ Q
 -- MEAN OUTPUT:
-P or
-(there is a natural number n such that
-  n satisfies R) if and only if Q
+P or (there is a natural number n satisfying R) if and only if Q
 
 -- LEAN INPUT:
 (P ∧ ∀ (n : ℕ), R n) ∨ Q
@@ -1142,6 +1319,46 @@ Coe.coe x
 Coe.coe x
 
 -- LEAN INPUT:
+∀ᵐ (x : A) ∂μ + ν, p x → q x
+-- MEAN OUTPUT:
+for almost every element x of A satisfying p with respect to (μ + ν):
+  x satisfies q
+
+-- LEAN INPUT:
+∀ᵐ (x : A) ∂μ, p x → q x → x = x
+-- MEAN OUTPUT:
+for almost every element x of A satisfying p with respect to μ:
+  if x satisfies q then
+    x = x
+
+-- LEAN INPUT:
+∀ᵐ (x : A) ∂μ, p x → ∀ᵐ (y : A) ∂ν, q y → x = y
+-- MEAN OUTPUT:
+for almost every element x of A satisfying p with respect to μ:
+  for almost every element y of A satisfying q with respect to ν:
+    x = y
+
+-- LEAN INPUT:
+∀ᵐ (x : A) ∂μ, ∀ (h : p x), h = h
+-- MEAN OUTPUT:
+for almost every element x of A with respect to μ:
+  for every proof h that (p x):
+    h = h
+
+-- LEAN INPUT:
+(True ∧ ∀ᵐ (x : A) ∂μ, p x → q x) ↔ False
+-- MEAN OUTPUT:
+True and
+(for almost every element x of A satisfying p with respect to μ:
+  x satisfies q) if and only if False
+
+-- LEAN INPUT:
+∀ᵐ (x : A) ∂μ, p y → q x
+-- MEAN OUTPUT:
+for almost every element x of A with respect to μ where y satisfies p:
+  x satisfies q
+
+-- LEAN INPUT:
 ∀ᵐ (x : A) ∂μ, p x
 -- MEAN OUTPUT:
 for almost every element x of A with respect to μ:
@@ -1156,15 +1373,15 @@ for almost every element x of A with respect to (μ + ν):
 -- LEAN INPUT:
 ∀ᵐ (x : A) ∂μ, p x → q x
 -- MEAN OUTPUT:
-for almost every element x of A with respect to μ where x satisfies p:
+for almost every element x of A satisfying p with respect to μ:
   x satisfies q
 
 -- LEAN INPUT:
 ∀ᵐ (x : A) ∂μ, ∀ᵐ (y : A) ∂ν, p x ∧ q y
 -- MEAN OUTPUT:
 for almost every element x of A with respect to μ:
-  for almost every element y of A with respect to ν:
-    x satisfies p and y satisfies q
+  for almost every element y_1 of A with respect to ν:
+    x satisfies p and y_1 satisfies q
 
 -- LEAN INPUT:
 (∀ᵐ (x : A) ∂μ, p x) ∧ True
@@ -1188,8 +1405,8 @@ if for almost every element x of A with respect to μ:
 -- LEAN INPUT:
 ∀ (x : A), (∀ᵐ (y : A) ∂μ, p y) → p x
 -- MEAN OUTPUT:
-for every element x of A where (for almost every element y of A with respect to μ:
-  y satisfies p):
+for every element x of A where (for almost every element y_1 of A with respect to μ:
+  y_1 satisfies p):
   x satisfies p
 
 -- LEAN INPUT:
@@ -1202,8 +1419,8 @@ for almost every element of A with respect to μ:
 ∀ᵐ (x : A) ∂μ, ∃! y : A, x = y
 -- MEAN OUTPUT:
 for almost every element x of A with respect to μ:
-  there is a unique element y of A such that
-    x = y
+  there is a unique element y_1 of A such that
+    x = y_1
 
 -- LEAN INPUT:
 ∀ᶠ (x : A) in F, p x
@@ -1225,7 +1442,7 @@ for almost every element x of A with respect to μ:
 -- LEAN INPUT:
 ∀ᵐ (x : A), p x → x = x
 -- MEAN OUTPUT:
-for almost every element x of A where x satisfies p:
+for almost every element x of A satisfying p:
   x = x
 
 -- LEAN INPUT:
@@ -1638,14 +1855,12 @@ for every natural number n where (there is a unique natural number m such that
 -- LEAN INPUT:
 ∃! t : Point, P t
 -- MEAN OUTPUT:
-there is a unique element t of Point such that
-  t satisfies P
+there is a unique element t of Point satisfying P
 
 -- LEAN INPUT:
 ExistsUnique P
 -- MEAN OUTPUT:
-there is a unique element witness of Point such that
-  witness satisfies P
+there is a unique element witness of Point satisfying P
 
 -- LEAN INPUT:
 Relation.ReflTransGen (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q
@@ -1771,7 +1986,7 @@ for every p ∈ (P ∩ Q):
 -- LEAN INPUT:
 ∀ p ∈ P, R p → p ∈ P
 -- MEAN OUTPUT:
-for every p ∈ P where p satisfies R:
+for every p ∈ P satisfying R:
   p ∈ P
 
 -- LEAN INPUT:
@@ -4136,22 +4351,17 @@ there is no integer x such that
 -- LEAN INPUT:
 (¬∃ (x : T), P x) ∧ Q
 -- MEAN OUTPUT:
-(there is no element x of T such that
-  x satisfies P) and
-Q
+(there is no element x of T satisfying P) and Q
 
 -- LEAN INPUT:
 Q ∨ ¬∃ (x : T), P x
 -- MEAN OUTPUT:
-Q or
-there is no element x of T such that
-  x satisfies P
+Q or there is no element x of T satisfying P
 
 -- LEAN INPUT:
 (¬∃ (x : T), P x) → Q
 -- MEAN OUTPUT:
-if there is no element x of T such that
-  x satisfies P then
+if there is no element x of T satisfying P then
   Q
 
 -- LEAN INPUT:

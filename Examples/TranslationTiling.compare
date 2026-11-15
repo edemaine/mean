@@ -14,7 +14,7 @@ def LeanWang.Abstract.CoREHard : {α : Type u_1} → [Primcodable α] → (α �
 Definition:
   LeanWang.Abstract.CoREHard is
     the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
-      for every function q from ℕ to Prop where q satisfies CoRE:
+      for every function q from ℕ to Prop satisfying CoRE:
         there is a function r from ℕ to α such that
           r is computable and
           for every natural number n:

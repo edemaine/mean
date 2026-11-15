@@ -271,6 +271,19 @@ open MeasureTheory
 
 section
 variable (A : Type u) [MeasurableSpace A] (μ ν : Measure A) (p q : A → Prop)
+example : (for almost every element x of A satisfying p with respect to μ: q x) =
+    (∀ᵐ x ∂μ, p x → q x) := rfl
+example : (for almost every element x of A with respect to μ satisfying p: q x) =
+    (∀ᵐ x ∂μ, p x → q x) := rfl
+example : (for almost every element x of A satisfying p with respect to μ where q x: x = x) =
+    (∀ᵐ x ∂μ, p x → q x → x = x) := rfl
+example : (for almost every element of A satisfying p with respect to μ: True) =
+    (∀ᵐ x ∂μ, p x → True) := rfl
+example : (for almost every element x of A satisfying p with respect to (μ + ν): q x) =
+    (∀ᵐ x ∂(μ + ν), p x → q x) := rfl
+example : (for almost every element x of A satisfying p with respect to μ:
+      for almost every element y of A satisfying q with respect to ν: x = y) =
+    (∀ᵐ x ∂μ, p x → ∀ᵐ y ∂ν, q y → x = y) := rfl
 example : (for almost every element x of A with respect to μ: p x) =
     (∀ᵐ x ∂μ, p x) := rfl
 example : (for almost every element x of A with respect to μ where p x: q x) =
@@ -287,12 +300,18 @@ end
 
 section
 variable (A : Type u) [MeasureSpace A] (p : A → Prop)
+example : (for almost every element x of A satisfying p: x = x) =
+    (∀ᵐ x, p x → x = x) := rfl
 example : (for almost every element x of A: p x) = (∀ᵐ x, p x) := rfl
 example : (for almost every element x of A where p x: x = x) =
     (∀ᵐ x, p x → x = x) := rfl
 example : (for almost every element x of A: there is a unique element y of A such that y = x) =
     (∀ᵐ x, ∃! y : A, y = x) := rfl
 end
+
+example [MeasurableSpace (Nat → Prop)] (μ : Measure (Nat → Prop)) (P : (Nat → Prop) → Prop) :
+    (for almost every function q from Nat to Prop satisfying P with respect to μ: q 0) =
+    (∀ᵐ q ∂μ, P q → q 0) := rfl
 
 end AlmostEveryExamples
 
@@ -377,6 +396,46 @@ end SetPhraseExamples
 
 namespace UniqueExistenceExamples
 
+example (A : Type u) (P : A → Prop) :
+    (there is an element x of A satisfying P) = (∃ x, P x) := rfl
+example (A : Type u) (P Q : A → Prop) :
+    (there is an element x of A satisfying P such that Q x) = (∃ x, P x ∧ Q x) := rfl
+example (P : Nat → Prop) :
+    (there is a natural number satisfying P) = (∃ n, P n) := rfl
+example (P : Nat → Prop) :
+    (there is a natural number n satisfying P such that True) = (∃ n, P n ∧ True) := rfl
+example (P : (Nat → Nat) → Prop) :
+    (there is a function f from Nat to Nat satisfying P such that f 0 = 0) =
+    (∃ f : Nat → Nat, P f ∧ f 0 = 0) := rfl
+example (A : Type u) (P : A → Prop) :
+    (there is a unique element x of A satisfying P) = (∃! x, P x) := rfl
+example (A : Type u) (P Q : A → Prop) :
+    (there is exactly one element x of A satisfying P such that Q x) =
+    (∃! x, P x ∧ Q x) := rfl
+example (A : Type u) (P : A → Prop) :
+    (there is a unique element x of A satisfying P such that True) =
+    (∃! x, P x ∧ True) := rfl
+example (A : Type u) (P : A → Prop) :
+    (there is no element x of A satisfying P) = (¬ ∃ x, P x) := rfl
+example (A : Type u) (P Q : A → Prop) :
+    (there is no element x of A satisfying P such that Q x) = (¬ ∃ x, P x ∧ Q x) := rfl
+example (A : Type u) (s : Set A) (P : A → Prop) :
+    (there is x ∈ s satisfying P) = (∃ x ∈ s, P x) := rfl
+example (A : Type u) (s : Set A) (P Q : A → Prop) :
+    (there is x ∈ s satisfying P such that Q x) = (∃ x ∈ s, P x ∧ Q x) := rfl
+example (A : Type u) (s : Set A) (P : A → Prop) :
+    (there is a unique x ∈ s satisfying P) = (∃! x, x ∈ s ∧ P x) := rfl
+example (A : Type u) (s : Set A) (P Q : A → Prop) :
+    (there is exactly one x ∈ s satisfying P such that Q x) = (∃! x, x ∈ s ∧ (P x ∧ Q x)) := rfl
+example (A : Type u) (s : Set A) (P : A → Prop) :
+    (there is no x ∈ s satisfying P) = (¬ ∃ x ∈ s, P x) := rfl
+example (s : Set Nat) (P : Set Nat → Prop) :
+    (there is a subset T of s satisfying P) = (∃ T ⊆ s, P T) := rfl
+example (s : Set Nat) (P : Set Nat → Prop) :
+    (there is no subset T of s satisfying P) = (¬ ∃ T ⊆ s, P T) := rfl
+example (s : Set Nat) (P : Set Nat → Prop) :
+    (there is exactly one T ⊆ s satisfying P) = (∃! T, T ⊆ s ∧ P T) := rfl
+
 example (A : Type*) (p : A → Prop) :
     (there is a unique element x of A such that p x) =
     (there is exactly one element x of A such that p x) := rfl
@@ -404,6 +463,37 @@ example (existentialWitness : Nat) :
 end UniqueExistenceExamples
 
 namespace RestrictedQuantifierExamples
+
+example (P : (Nat → Prop) → Prop) :
+    (for every function q from Nat to Prop satisfying P: q 0) =
+    (∀ q : Nat → Prop, P q → q 0) := rfl
+example (P : Nat → Prop) :
+    (for all natural number n satisfying P: n = n) = (∀ n : Nat, P n → n = n) := rfl
+example (P : Nat → Prop) :
+    (for every natural number satisfying P: True) = (∀ n : Nat, P n → True) := rfl
+example (A : Type u) (P : A → Prop) :
+    (for every element x of A satisfying P: x = x) = (∀ x : A, P x → x = x) := rfl
+example (P : List Nat → Prop) :
+    (for every list xs of natural numbers satisfying P: xs = xs) =
+    (∀ xs : List Nat, P xs → xs = xs) := rfl
+example (s : Set Nat) (P : Nat → Prop) :
+    (for every n ∈ s satisfying P: n = n) = (∀ n ∈ s, P n → n = n) := rfl
+example (s : Set Nat) (P : Set Nat → Prop) :
+    (for every superset S of s satisfying P: S = S) = (∀ S : Set Nat, s ⊆ S → P S → S = S) := rfl
+example (s : Set Nat) (P : Set Nat → Prop) :
+    (for every set S ⊇ s satisfying P: S = S) = (∀ S : Set Nat, s ⊆ S → P S → S = S) := rfl
+example (R : Nat → Nat → Prop) :
+    (for all natural numbers x and y satisfying R: x = x) =
+    (∀ x y : Nat, R x y → x = x) := rfl
+example (A : Type u) (R : A → A → Prop) :
+    (for every x and y in A satisfying R: x = x) = (∀ x y : A, R x y → x = x) := rfl
+example (V : Type u) (G : SimpleGraph V) (R : V → V → Prop) :
+    (for all vertices x and y of G satisfying R: x = x) = (∀ x y : V, R x y → x = x) := rfl
+example (P Q : Nat → Prop) :
+    (for every natural number n satisfying P where Q n: n = n) =
+    (∀ n : Nat, P n → Q n → n = n) := rfl
+example (R : Nat → Nat → Prop) (m : Nat) :
+    (for every natural number n satisfying (R m): n = n) = (∀ n : Nat, R m n → n = n) := rfl
 
 example (A : Type u) (s : Set A) (P : Set A → Prop) :
     (for every superset S of s: P S) = (∀ S : Set A, s ⊆ S → P S) := rfl

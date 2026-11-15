@@ -76,21 +76,16 @@ there is exactly one g ∈ ({f, t} : Set Motion) such that
 
 the image of s under f
 
-there is x ∈ s such that
-  x satisfies P
+there is x ∈ s satisfying P
 
-there is exactly one x ∈ s such that
-  x satisfies P
+there is exactly one x ∈ s satisfying P
 
-there is no x ∈ s such that
-  x satisfies P
+there is no x ∈ s satisfying P
 
 there is an element x of A such that
   z ∈ s and x satisfies P
 
-(there is exactly one x ∈ s such that
-  x satisfies P) and
-True
+(there is exactly one x ∈ s satisfying P) and True
 
 there is a subset t of s such that
   t = s
@@ -165,8 +160,98 @@ Real.log x
 
 ln x
 
-for every superset S of s:
-  S satisfies R
+there is a natural number n satisfying P
+
+there is a natural number n satisfying P such that
+  n satisfies Q
+
+there is a natural number n satisfying P such that
+  True
+
+there is a unique natural number n satisfying P
+
+there is a unique natural number n satisfying P such that
+  n satisfies Q
+
+there is a unique natural number n satisfying P such that
+  True
+
+there is no natural number n satisfying P
+
+there is no natural number n satisfying P such that
+  n satisfies Q
+
+there is n ∈ s satisfying P
+
+there is n ∈ s satisfying P such that
+  n satisfies Q
+
+there is exactly one n ∈ s satisfying P
+
+there is no n ∈ s satisfying P
+
+there is a subset T of s satisfying F
+
+there is a natural number n such that
+  (n satisfies P and n satisfies Q) and n = n
+
+there is a natural number n such that
+  0 satisfies P and n satisfies Q
+
+there is a function f from ℕ to ℕ such that
+  f is injective
+
+for every function q from ℕ to Prop satisfying P:
+  0 satisfies q
+
+for every natural number n satisfying R:
+  n = n
+
+for every list xs of natural numbers satisfying L:
+  xs = xs
+
+for every n ∈ s satisfying R:
+  n = n
+
+for every superset T of s satisfying S:
+  T = T
+
+for all natural numbers x and y satisfying B:
+  x = x
+
+for all natural numbers x and y where y and x satisfy B:
+  x = x
+
+for all natural numbers x and y where x satisfies R:
+  x = y
+
+for every natural number n where 0 satisfies R:
+  n = n
+
+for every function q from ℕ to Prop where (there is a unique natural number n satisfying q):
+  0 satisfies q
+
+for every natural number n:
+  for every proof h that (R n):
+    h = h
+
+for every natural number n satisfying R:
+  if n satisfies Q then
+    n = n
+
+for every function f from ℕ to ℕ where f is injective:
+  f 0 = f 0
+
+the function mapping an instance inst of typeclass Inhabited Nat to
+  the function mapping an instance of typeclass Inhabited Nat to
+    for every natural number n where n satisfies (@PredicateExamples.classified inst):
+      @Eq Nat n n
+
+for almost every function q from ℕ to Prop satisfying P with respect to μ:
+  0 satisfies q
+
+for almost every function f from ℕ to ℕ with respect to μ where f is injective:
+  f 0 = f 0
 
 for every superset S of s:
   S satisfies R
@@ -174,7 +259,10 @@ for every superset S of s:
 for every superset S of s:
   S satisfies R
 
-for every superset S of s where S satisfies Q:
+for every superset S of s:
+  S satisfies R
+
+for every superset S of s satisfying Q:
   S satisfies R
 
 for every superset S of s ∪ t:
@@ -228,31 +316,22 @@ P and
 for every natural number n:
   n satisfies R
 
-P or
-there is a natural number n such that
-  n satisfies R
+P or there is a natural number n satisfying R
 
-P and
-there is no natural number n such that
-  n satisfies R
+P and there is no natural number n satisfying R
 
-P and
-there is a unique natural number n such that
-  n satisfies R
+P and there is a unique natural number n satisfying R
 
 P if and only if for every natural number n:
   n satisfies R
 
-P if and only if there is a natural number n such that
-  n satisfies R
+P if and only if there is a natural number n satisfying R
 
 P and
 (for every natural number n:
   n satisfies R) if and only if Q
 
-P or
-(there is a natural number n such that
-  n satisfies R) if and only if Q
+P or (there is a natural number n satisfying R) if and only if Q
 
 P and
 (for every natural number n:
@@ -552,18 +631,40 @@ x as Box A
 
 Coe.coe x
 
+for almost every element x of A satisfying p with respect to (μ + ν):
+  x satisfies q
+
+for almost every element x of A satisfying p with respect to μ:
+  if x satisfies q then
+    x = x
+
+for almost every element x of A satisfying p with respect to μ:
+  for almost every element y of A satisfying q with respect to ν:
+    x = y
+
+for almost every element x of A with respect to μ:
+  for every proof h that (p x):
+    h = h
+
+True and
+(for almost every element x of A satisfying p with respect to μ:
+  x satisfies q) if and only if False
+
+for almost every element x of A with respect to μ where y satisfies p:
+  x satisfies q
+
 for almost every element x of A with respect to μ:
   x satisfies p
 
 for almost every element x of A with respect to (μ + ν):
   x satisfies p
 
-for almost every element x of A with respect to μ where x satisfies p:
+for almost every element x of A satisfying p with respect to μ:
   x satisfies q
 
 for almost every element x of A with respect to μ:
-  for almost every element y of A with respect to ν:
-    x satisfies p and y satisfies q
+  for almost every element y_1 of A with respect to ν:
+    x satisfies p and y_1 satisfies q
 
 (for almost every element x of A with respect to μ:
   x satisfies p) and
@@ -575,16 +676,16 @@ if for almost every element x of A with respect to μ:
 
 ¬∀ᵐ (x : A) ∂μ, p x
 
-for every element x of A where (for almost every element y of A with respect to μ:
-  y satisfies p):
+for every element x of A where (for almost every element y_1 of A with respect to μ:
+  y_1 satisfies p):
   x satisfies p
 
 for almost every element of A with respect to μ:
   True
 
 for almost every element x of A with respect to μ:
-  there is a unique element y of A such that
-    x = y
+  there is a unique element y_1 of A such that
+    x = y_1
 
 ∀ᶠ (x : A) in F, p x
 
@@ -594,7 +695,7 @@ for almost every element x of A:
 for almost every element x of A with respect to μ:
   x satisfies p
 
-for almost every element x of A where x satisfies p:
+for almost every element x of A satisfying p:
   x = x
 
 for almost every element x of A:
@@ -791,11 +892,9 @@ for every natural number n where (there is a unique natural number m such that
 
 ¬∃! n : ℕ, n = 0
 
-there is a unique element t of Point such that
-  t satisfies P
+there is a unique element t of Point satisfying P
 
-there is a unique element witness of Point such that
-  witness satisfies P
+there is a unique element witness of Point satisfying P
 
 p is related to q by the reflexive transitive closure of
   (the function mapping an element «a» of Point and an element b of Point to
@@ -865,7 +964,7 @@ for every p ∈ P:
 for every p ∈ (P ∩ Q):
   p ∈ P
 
-for every p ∈ P where p satisfies R:
+for every p ∈ P satisfying R:
   p ∈ P
 
 for every p ∈ P:
@@ -2045,16 +2144,11 @@ there is no integer x such that
   there is no integer y such that
     x = y
 
-(there is no element x of T such that
-  x satisfies P) and
-Q
+(there is no element x of T satisfying P) and Q
 
-Q or
-there is no element x of T such that
-  x satisfies P
+Q or there is no element x of T satisfying P
 
-if there is no element x of T such that
-  x satisfies P then
+if there is no element x of T satisfying P then
   Q
 
 there is no path in G from u to v
