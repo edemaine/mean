@@ -1012,6 +1012,13 @@ exposes mathlib's existing vertex-type parameter without changing its representa
 To extend the forward language, add a subject, domain, or witness description and
 its interpretation. A subject implements `functionOn%`, shared by function expressions
 and predicate definitions; `predicateOn%` and `predicateOver%` additionally require a proposition body.
+
+Built-in function subjects and quantified witnesses share noun decoding. A universal
+domain implements `forallOver%`: its named explicit forall binders become the
+subjects of `satisfying`, in order. Arrow premises retain domain restrictions;
+the user's body is not inspected for additional subjects. Qualifiers therefore
+need no separate domain rule.
+
 A new witness noun implements `existsWitness%`; it does
 not require another rule for `there is … such that …`. The corresponding renderer
 vocabulary can be extended independently.

@@ -1651,13 +1651,21 @@ run_elab do
       (``BinderExamples.namedUnused,
         "Definition: changed is the function mapping an instance of typeclass Nat to true.",
         "expected a typeclass application")] do
-    let message ← withoutModifyingState do
+    let (message, parameterFailure) ← withoutModifyingState do
       try
         Mean.RoundTrip.checkDefinition name text
-        pure "accepted"
-      catch ex => ex.toMessageData.toString
+        pure ("accepted", false)
+      catch ex => pure (← ex.toMessageData.toString, Mean.RoundTrip.isParameterNameFailure ex)
+    unless parameterFailure == (reason == "Mean round-trip changed a named parameter") do
+      throwError "incorrect parameter-name failure classification"
     unless message == reason do
       throwError "expected binder rejection '{reason}', got: {message}"
+-- Matching diagnostic text alone must not select the parameter-name fallback.
+open Lean in
+run_elab do
+  let ex := Exception.error Syntax.missing m!"Mean round-trip changed a named parameter"
+  if Mean.RoundTrip.isParameterNameFailure ex then
+    throwError "classified an untagged diagnostic as a parameter-name failure"
 /--
 info: Definition:
   an index i in [0, 3) satisfies TypeNounExamples.indexReflexive if

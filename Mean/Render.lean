@@ -319,10 +319,6 @@ def delabValueCoercion : Delab := do
     let target ← withType delab
     `($value as $target)
 
-private def scalarDescription? (ty : Expr) : Option String := do
-  let (singular, _) ← scalarNouns? ty
-  return (if ty.isConstOf ``Int then "an " else "a ") ++ singular
-
 /-- Preserve type aliases; specialize only an explicit `Fin` application. -/
 private def indexDomainText? (ty : Expr) : MetaM (Option String) := do
   unless ty.isAppOfArity ``Fin 1 do return none
@@ -427,33 +423,41 @@ private def functionSignatureText? (ty : Expr) : MetaM (Option String) := do
   let domains ← domains.mapM (fun domain => functionEndpointText domain)
   return some s!"from {String.intercalate " and " domains} to {← functionEndpointText codomain true}"
 
-/-- Propositions describe proofs; supported types supply their own noun phrases.
-Use the same vocabulary for function parameters and predicate subjects. -/
-private def subjectText (ty : Expr) (n : Option Name) (bi : BinderInfo) : MetaM String := do
-  let suffix ← match n with
-    | some n => do pure (" " ++ (← nameText n))
-    | none => pure ""
-  let modifier := match bi with
-    | .implicit => some "an implicit"
-    | .strictImplicit => some "a strictly implicit"
-    | _ => none
-  let typeText := subjectTypeText ty
-  if bi == .instImplicit then
-    return s!"an instance{suffix} of typeclass {← typeText}"
+/-- One inverse noun vocabulary serves parameters and witnesses. Context controls
+only the places where their grammar needs different type grouping or articles. -/
+private def bindingDescription (ty : Expr) (name : Option String)
+    (parameter := false) (instanceBinder := false) : MetaM (String × String) := do
+  let suffix := name.map (" " ++ ·) |>.getD ""
+  let typeText := if parameter then subjectTypeText ty else typeAtomText ty
+  if instanceBinder || (!parameter && (← isClass? ty).isSome) then
+    return ("an", s!"instance{suffix} of typeclass {← subjectTypeText ty}")
   if ← isProp ty then
-    return s!"{modifier.getD "a"} proof{suffix} that {← typeText}"
+    let text ← if parameter then subjectTypeText ty else atomText ty
+    return ("a", s!"proof{suffix} that {text}")
   if let some domain ← indexDomainText? ty then
-    return s!"{modifier.getD "an"} index{suffix} {domain}"
+    return ("an", s!"index{suffix} {domain}")
+  -- Parameters retain their established element wording for paths.
+  if !parameter && ty.isAppOfArity ``SimpleGraph.Path 4 then
+    let args := ty.getAppArgs
+    return ("a", s!"path{suffix} in {← atomText args[1]!} from {← atomText args[2]!} to {← atomText args[3]!}")
   if ty.isAppOfArity ``List 1 then
-    return s!"{modifier.getD "a"} list{suffix} of {← collectionElementsText ty.getAppArgs[0]!}"
+    return ("a", s!"list{suffix} of {← collectionElementsText ty.getAppArgs[0]!}")
   if ty.isAppOfArity ``Set 1 then
-    return s!"{modifier.getD "a"} set{suffix} of {← collectionElementsText ty.getAppArgs[0]!}"
+    return ("a", s!"set{suffix} of {← collectionElementsText ty.getAppArgs[0]!}")
   if let some signature ← functionSignatureText? ty then
-    return s!"{modifier.getD "a"} function{suffix} {signature}"
+    return ("a", s!"function{suffix} {signature}")
   if let some (noun, _) := scalarNouns? ty then
-    if let some modifier := modifier then return s!"{modifier} {noun}{suffix}"
-    if let some description := scalarDescription? ty then return s!"{description}{suffix}"
-  return s!"{modifier.getD "an"} element{suffix} of {← typeText}"
+    return (if ty.isConstOf ``Int then "an" else "a", noun ++ suffix)
+  return ("an", s!"element{suffix} of {← typeText}")
+
+private def subjectText (ty : Expr) (n : Option Name) (bi : BinderInfo) : MetaM String := do
+  let name ← n.mapM nameText
+  let (article, noun) ← bindingDescription ty name true (bi == .instImplicit)
+  let article := match bi with
+    | .implicit => "an implicit"
+    | .strictImplicit => "a strictly implicit"
+    | _ => article
+  return s!"{article} {noun}"
 
 /-- Recognize numeral syntax without evaluating arbitrary arithmetic. -/
 private def unsignedNumeral? (e : Expr) : Option Nat :=
@@ -490,27 +494,8 @@ private def scalarLiteralText? (e : Expr) : MetaM (Option String) := do
   | .error _ => pure ()
   return none
 
-/-- Shared noun vocabulary, with the appropriate indefinite article kept separate. -/
-private def witnessDescription (ty : Expr) (name : Option String) : MetaM (String × String) := do
-  let suffix := name.map (" " ++ ·) |>.getD ""
-  if (← isClass? ty).isSome then
-    return ("an", s!"instance{suffix} of typeclass {← subjectTypeText ty}")
-  if ← isProp ty then
-    return ("a", s!"proof{suffix} that {← atomText ty}")
-  if let some domain ← indexDomainText? ty then
-    return ("an", s!"index{suffix} {domain}")
-  if ty.isAppOfArity ``SimpleGraph.Path 4 then
-    let args := ty.getAppArgs
-    return ("a", s!"path{suffix} in {← atomText args[1]!} from {← atomText args[2]!} to {← atomText args[3]!}")
-  if ty.isAppOfArity ``List 1 then
-    return ("a", s!"list{suffix} of {← collectionElementsText ty.getAppArgs[0]!}")
-  if ty.isAppOfArity ``Set 1 then
-    return ("a", s!"set{suffix} of {← collectionElementsText ty.getAppArgs[0]!}")
-  if let some signature ← functionSignatureText? ty then
-    return ("a", s!"function{suffix} {signature}")
-  if let some (singular, _) := scalarNouns? ty then
-    return (if ty.isConstOf ``Int then "an" else "a", singular ++ suffix)
-  return ("an", s!"element{suffix} of {← typeAtomText ty}")
+private def witnessDescription (ty : Expr) (name : Option String) : MetaM (String × String) :=
+  bindingDescription ty name
 
 private def witnessText (ty : Expr) (name : Option String) (negative := false) : MetaM String := do
   let (article, noun) ← witnessDescription ty name
@@ -554,11 +539,16 @@ private def subsetView? (e : Expr) : Option (Expr × Expr) :=
 
 /-- Implications share Lean's forall node, but their `if ... then` syntax
 still needs grouping at higher precedence even at the end of an expression. -/
-private def isImplication (e : Expr) : MetaM Bool := do
+private def implicationParts? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   match e with
-  | .forallE _ ty body .default =>
-    return !body.hasLooseBVars && (← isProp ty) && (← isProp e)
-  | _ => return false
+  | .forallE _ premise body .default =>
+    if !body.hasLooseBVars && (← isProp premise) && (← isProp e) then
+      return some (premise, body)
+  | _ => pure ()
+  return none
+
+private def isImplication (e : Expr) : MetaM Bool :=
+  return (← implicationParts? e).isSome
 
 private partial def subjectListSyntax (stx : Syntax) : Bool :=
   if stx.isOfKind choiceKind then stx.getArgs.any subjectListSyntax
@@ -671,9 +661,9 @@ private def restrictionParts? (body : Expr) (conjunctive := false) : MetaM (Opti
   let body := inlineLets body
   if conjunctive then
     if body.isAppOfArity ``And 2 then return some (body.getAppArgs[0]!, body.getAppArgs[1]!)
-  else if let .forallE _ condition rest .default := body then
-    if (← isProp condition) && !rest.hasLooseBVars then return some (condition, rest)
-  return none
+    return none
+  else
+    implicationParts? body
 
 private def satisfyingRestriction? (body : Expr) (subjects : List Expr) (conjunctive := false) :
     MetaM (Option (String × Option Expr)) := do
@@ -1005,6 +995,24 @@ where
         pure (String.intercalate " and " descriptions)
       return some (text, bodyText)
 
+/-- Probe the preferred rendering without retaining checker state; validate the
+fallback with the same contract. Value probes and declaration audits supply
+separate validators. -/
+private def checkedRendering (preferred : TermElabM String)
+    (validate : String → TermElabM Unit) (fallback : Exception → TermElabM String) :
+    TermElabM String := do
+  let text ← preferred
+  let failure ← withoutModifyingState do
+    try
+      validate text
+      pure none
+    catch ex => pure (some ex)
+  if let some ex := failure then
+    let text ← fallback ex
+    validate text
+    return text
+  return text
+
 /-- Prefer predicate subjects; other values use named definitions. -/
 def renderDefinition (name : Name) (signatureType value : Expr) (abbreviation := false) : TermElabM String := do
   let value := declarationBinders signatureType value
@@ -1067,33 +1075,24 @@ def renderDefinition (name : Name) (signatureType value : Expr) (abbreviation :=
   let valueText ← renderExpr value
   let text := s!"{clause}:\n  {nameStr} is\n{indented (indented ((← sentenceTail valueText true) ++ "."))}"
   -- Prefer the plain value when its text independently infers the right type.
-  let untypedFits ← withoutModifyingState do
-    try
-      RoundTrip.checkDefinitionValue value text abbreviation
-      pure true
-    catch _ => pure false
-  if untypedFits then return text
-  -- Overloaded constants or function results may need their original type.
-  if let .lam n ty body bi := value.consumeMData then
-    let typedValue ← functionText n ty body bi (fun body => renderExpr body true)
-      (some (← leanText (← inferType value)))
-    return s!"{clause}:\n  {nameStr} is\n{indented (indented (typedValue ++ "."))}"
-  let typedValue := s!"({valueText} : {← leanText (← inferType value)})."
-  return s!"{clause}:\n  {nameStr} is\n{indented (indented typedValue)}"
+  checkedRendering (pure text) (RoundTrip.checkDefinitionValue value · abbreviation) fun _ => do
+    -- Overloaded constants or function results may need their original type.
+    if let .lam n ty body bi := value.consumeMData then
+      let typedValue ← functionText n ty body bi (fun body => renderExpr body true)
+        (some (← leanText (← inferType value)))
+      return s!"{clause}:
+  {nameStr} is
+{indented (indented (typedValue ++ "."))}"
+    let typedValue := s!"({valueText} : {← leanText (← inferType value)})."
+    return s!"{clause}:
+  {nameStr} is
+{indented (indented typedValue)}"
 
 /-- Return text only after checking its meaning. -/
-def renderChecked (e : Expr) : TermElabM String := do
-  let text ← renderExpr e
-  let compactFits ← withoutModifyingState do
-    try
-      RoundTrip.checkText e text
-      pure true
-    catch _ => pure false
-  if compactFits then return text
-  -- In particular, hidden instance arguments may select a different local instance.
-  let text ← withOptions (fun opts => opts.setBool `pp.explicit true) (renderExpr e)
-  RoundTrip.checkText e text
-  return text
+def renderChecked (e : Expr) : TermElabM String :=
+  checkedRendering (renderExpr e) (RoundTrip.checkText e) fun _ =>
+    -- Hidden instance arguments may select a different local instance.
+    withOptions (fun opts => opts.setBool `pp.explicit true) (renderExpr e)
 
 /-- Share the comparison layout across terms and every declaration kind. -/
 private def comparisonText (before after : String) : String :=
@@ -1128,25 +1127,16 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
     match info with
     | .defnInfo d =>
       let abbreviation := d.hints.isAbbrev
-      let candidate ← renderDefinition n d.type d.value abbreviation
-      let text ← try
-        RoundTrip.checkDefinition n candidate
-        pure candidate
-      catch ex =>
-        if (← ex.toMessageData.toString) != "Mean round-trip changed a named parameter" then
-          -- Keep the English structure but expose arguments hidden by Lean's printer.
-          let text ← withOptions (fun opts => opts.setBool `pp.explicit true) do
-            renderDefinition n d.type d.value abbreviation
-          RoundTrip.checkDefinition n text
-          pure text
-        else
-          -- Some function aliases need an explicit declaration type to retain
-          -- their public names, even though the value is definitionally equal.
-          let text ← withOptions (fun opts => opts.setBool `pp.explicit true) do
+      let text ← checkedRendering (renderDefinition n d.type d.value abbreviation)
+          (RoundTrip.checkDefinition n) fun ex =>
+        withOptions (fun opts => opts.setBool `pp.explicit true) do
+          if RoundTrip.isParameterNameFailure ex then
+            -- Some aliases need a declaration type to retain public parameter names.
             let keyword := if abbreviation then "abbrev" else "def"
-            pure s!"{keyword} {← nameText n} : {← typeText d.type} :=\n{indented (← leanText d.value)}"
-          RoundTrip.checkDefinition n text
-          pure text
+            pure s!"{keyword} {← nameText n} : {← typeText d.type} :=
+{indented (← leanText d.value)}"
+          else
+            renderDefinition n d.type d.value abbreviation
       if compare then
         let keyword := if abbreviation then "abbrev" else "def"
         let before := s!"{keyword} {← nameText n} : {← leanText info.type} :=\n{indented (← leanText d.value)}"

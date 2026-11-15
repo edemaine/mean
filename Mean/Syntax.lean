@@ -156,20 +156,19 @@ macro_rules
 
 /-- Infer the application without a Prop expectation, so Boolean coercions do
 not silently turn an arbitrary function into a predicate. -/
-elab "adjectiveApply%" p:term "of" x:term : term => do
-  let application ← Lean.Elab.Term.elabTerm (← `($p $x)) none
-  Lean.Elab.Term.synthesizeSyntheticMVarsNoPostponing
-  unless ← Lean.Meta.isProp application do
-    Lean.throwErrorAt p "expected a proposition-valued predicate"
-  return application
-
-elab "relationApply%" p:term "of" "[" xs:term,* "]" : term => do
-  let args := xs.getElems
+private def checkedPredicateApplication (p : Lean.Term) (args : Array Lean.Term) :
+    Lean.Elab.Term.TermElabM Lean.Expr := do
   let application ← Lean.Elab.Term.elabTerm (← `($p $args*)) none
   Lean.Elab.Term.synthesizeSyntheticMVarsNoPostponing
   unless ← Lean.Meta.isProp application do
     Lean.throwErrorAt p "expected a proposition-valued predicate"
   return application
+
+elab "adjectiveApply%" p:term "of" x:term : term =>
+  checkedPredicateApplication p #[x]
+
+elab "relationApply%" p:term "of" "[" xs:term,* "]" : term =>
+  checkedPredicateApplication p xs.getElems
 
 /-- Predicate computability concerns an indicator function; other functions use
 `Computable` directly. Inspect the codomain without unfolding the subject. -/
@@ -330,12 +329,17 @@ def expandPossessiveNeighbors : Lean.Macro := fun stx => do
 def sentenceBody : Lean.Parser.Parser :=
   Lean.Parser.withForbidden "." Lean.Parser.termParser
 
+private def predicateVerbs : Array String := #["is", "are", "satisfies", "satisfy"]
+
+private def subjectContext (ctx : Lean.Parser.CacheableParserContext) :
+    Lean.Parser.CacheableParserContext :=
+  if ctx.forbiddenTks.contains "and" then ctx
+  else { ctx with forbiddenTks := ctx.forbiddenTks.filter (· == ".") ++ predicateVerbs }
+
 /-- Definitions end a subject type at their predicate verb; function lists end it at `and`.
 Parentheses disable these delimiters inside a compound type. -/
 def subjectType : Lean.Parser.Parser :=
-  Lean.Parser.adaptCacheableContext
-    (fun ctx => if ctx.forbiddenTks.contains "and" then ctx
-      else { ctx with forbiddenTks := ctx.forbiddenTks.filter (· == ".") |>.push "is" |>.push "are" |>.push "satisfies" |>.push "satisfy" })
+  Lean.Parser.adaptCacheableContext subjectContext
     Lean.Parser.termParser
 
 /-- Collection descriptions end their element type at the explicit plural noun. -/
@@ -352,7 +356,7 @@ def functionDomain : Lean.Parser.Parser :=
     (Lean.Parser.categoryParser `meanFunctionEndpoint 0)
 
 def functionResult : Lean.Parser.Parser :=
-  Lean.Parser.withForbiddens #["and", "to", "is", "satisfies", "satisfy"]
+  Lean.Parser.withForbiddens (#["and", "to"] ++ predicateVerbs)
     (Lean.Parser.categoryParser `meanFunctionEndpoint 0)
 
 declare_syntax_cat meanFunctionSignature
@@ -539,48 +543,66 @@ macro_rules
   | `(the sum over $i:ident in $s:term of $body:term) =>
       `(Finset.sum $s (fun $i => $body))
 
-/-! Subjects specify bindings, independently of the definition clause.
-New subject forms implement `functionOn%`, shared by functions and predicates. -/
-declare_syntax_cat meanSubject
-syntax "a" "simple" "graph" (ppSpace ident)? : meanSubject
-syntax "a" "simple" "graph" (ppSpace ident)? "=" "(" ident "," ident ")" : meanSubject
-syntax "an" "element" (ppSpace ident)? " of " subjectType : meanSubject
-syntax "a" meanScalar (ppSpace ident)? : meanSubject
-syntax "an" meanScalar (ppSpace ident)? : meanSubject
-syntax "an" "implicit" meanScalar (ppSpace ident)? : meanSubject
-syntax "an" "implicit" "element" (ppSpace ident)? " of " subjectType : meanSubject
-syntax "a" "strictly" "implicit" meanScalar (ppSpace ident)? : meanSubject
-syntax "a" "strictly" "implicit" "element" (ppSpace ident)? " of " subjectType : meanSubject
-syntax "a" "proof" (ppSpace ident)? " that " subjectType : meanSubject
-syntax "an" "implicit" "proof" (ppSpace ident)? " that " subjectType : meanSubject
-syntax "a" "strictly" "implicit" "proof" (ppSpace ident)? " that " subjectType : meanSubject
-syntax "a" "list" (ppSpace ident)? " of " meanListElements : meanSubject
-syntax "an" "implicit" "list" (ppSpace ident)? " of " meanListElements : meanSubject
-syntax "a" "strictly" "implicit" "list" (ppSpace ident)? " of " meanListElements : meanSubject
-syntax "a" "set" (ppSpace ident)? " of " meanListElements : meanSubject
-syntax "an" "implicit" "set" (ppSpace ident)? " of " meanListElements : meanSubject
-syntax "a" "strictly" "implicit" "set" (ppSpace ident)? " of " meanListElements : meanSubject
-syntax "an" "index" (ppSpace ident)? meanIndexDomain : meanSubject
-syntax "an" "implicit" "index" (ppSpace ident)? meanIndexDomain : meanSubject
-syntax "a" "strictly" "implicit" "index" (ppSpace ident)? meanIndexDomain : meanSubject
-syntax "a" "function" (ppSpace ident)? functionSignature : meanSubject
-syntax "an" "implicit" "function" (ppSpace ident)? functionSignature : meanSubject
-syntax "a" "strictly" "implicit" "function" (ppSpace ident)? functionSignature : meanSubject
-
-syntax "an" "instance" (ppSpace ident)? " of " "typeclass" subjectType : meanSubject
-
-/-- Omitted names are hygienic: they cannot capture references in the user's body. -/
-private def parameterName (name : Option (Lean.TSyntax `ident)) : Lean.MacroM (Lean.TSyntax `ident) :=
-  match name with
-  | some name => pure name
-  | none => `(ident| _anonymousParameter)
-
 /-- The word `typeclass` requires a class application, including proposition-valued classes. -/
 elab "typeclassType%" t:term : term => do
   let ty ← Lean.Elab.Term.elabType t
   unless (← Lean.Meta.isClass? ty).isSome do
     Lean.throwErrorAt t "expected a typeclass application"
   return ty
+
+declare_syntax_cat meanWitnessNoun
+syntax "element" (ppSpace ident)? " of " term : meanWitnessNoun
+syntax "proof" (ppSpace ident)? " that " term : meanWitnessNoun
+syntax meanScalar (ppSpace ident)? : meanWitnessNoun
+syntax "path" (ppSpace ident)? " in " term " from " term " to " term : meanWitnessNoun
+syntax "list" (ppSpace ident)? " of " meanListElements : meanWitnessNoun
+syntax "set" (ppSpace ident)? " of " meanListElements : meanWitnessNoun
+syntax "index" (ppSpace ident)? meanIndexDomain : meanWitnessNoun
+syntax "function" (ppSpace ident)? functionSignature : meanWitnessNoun
+syntax "instance" (ppSpace ident)? " of " "typeclass" term : meanWitnessNoun
+
+private def nounBinding (noun : Lean.TSyntax `meanWitnessNoun) :
+    Lean.MacroM (Option Lean.Ident × Lean.TSyntax `term) :=
+  match noun with
+    | `(meanWitnessNoun| element $[$x:ident]? of $ty:term) => pure (x, ty)
+    | `(meanWitnessNoun| proof $[$x:ident]? that $p:term) => do
+        pure (x, ← `(($p : Prop)))
+    | `(meanWitnessNoun| $scalar:meanScalar $[$x:ident]?) => do
+        pure (x, ← `(scalarType% $scalar))
+    | `(meanWitnessNoun| list $[$x:ident]? of $items:meanListElements) => do
+        pure (x, ← `(listType% $items))
+    | `(meanWitnessNoun| set $[$x:ident]? of $items:meanListElements) => do
+        pure (x, ← `(setType% $items))
+    | `(meanWitnessNoun| index $[$x:ident]? $domain:meanIndexDomain) => do
+        pure (x, ← `(indexType% $domain))
+    | `(meanWitnessNoun| function $[$x:ident]? $signature:meanFunctionSignature) => do
+        pure (x, ← `(functionType% $signature))
+    | `(meanWitnessNoun| instance $[$x:ident]? of typeclass $ty:term) => do
+        pure (x, ← `(typeclassType% $ty))
+    | `(meanWitnessNoun| path $[$x:ident]? in $g:term from $u:term to $v:term) => do
+        pure (x, ← `(SimpleGraph.Path $g $u $v))
+    | _ => Lean.Macro.throwErrorAt noun "unsupported quantified noun"
+
+/-! Subjects specify bindings, independently of the definition clause.
+New subject forms implement `functionOn%`, shared by functions and predicates. -/
+/-- Subject nouns keep predicate verbs outside their type expressions. -/
+def subjectNoun : Lean.Parser.Parser :=
+  Lean.Parser.adaptCacheableContext subjectContext
+    (Lean.Parser.categoryParser `meanWitnessNoun 0)
+
+declare_syntax_cat meanSubject
+syntax "a" "simple" "graph" (ppSpace ident)? : meanSubject
+syntax "a" "simple" "graph" (ppSpace ident)? "=" "(" ident "," ident ")" : meanSubject
+syntax "a" subjectNoun : meanSubject
+syntax "an" subjectNoun : meanSubject
+syntax "an" "implicit" subjectNoun : meanSubject
+syntax "a" "strictly" "implicit" subjectNoun : meanSubject
+
+/-- Omitted names are hygienic: they cannot capture references in the user's body. -/
+private def parameterName (name : Option (Lean.TSyntax `ident)) : Lean.MacroM (Lean.TSyntax `ident) :=
+  match name with
+  | some name => pure name
+  | none => `(ident| _anonymousParameter)
 
 /-- Keep binder separators out of an unparenthesized element type. -/
 def functionSubject : Lean.Parser.Parser :=
@@ -621,57 +643,23 @@ macro_rules
       `(fun {$vs : Type*} ($g : SimpleGraph $vs) =>
           let $es := SimpleGraph.edgeSet $g
           $body)
-  | `(functionOn% an element $[$x:ident]? of $ty:term => $body:term) => do
-      let x ← parameterName x
-      `(fun ($x : $ty) => $body)
-  | `(functionOn% an implicit element $[$x:ident]? of $ty:term => $body:term) => do
-      let x ← parameterName x
-      `(fun {$x : $ty} => $body)
-  | `(functionOn% an implicit $noun:meanScalar $[$x:ident]? => $body:term) =>
-      `(functionOn% an implicit element $[$x:ident]? of (scalarType% $noun) => $body)
-  | `(functionOn% a strictly implicit element $[$x:ident]? of $ty:term => $body:term) => do
-      let x ← parameterName x
-      `(fun ⦃$x : $ty⦄ => $body)
-  | `(functionOn% a strictly implicit $noun:meanScalar $[$x:ident]? => $body:term) =>
-      `(functionOn% a strictly implicit element $[$x:ident]? of (scalarType% $noun) => $body)
-  | `(functionOn% a list $[$x:ident]? of $items:meanListElements => $body:term) =>
-      `(functionOn% an element $[$x:ident]? of (listType% $items) => $body)
-  | `(functionOn% an implicit list $[$x:ident]? of $items:meanListElements => $body:term) =>
-      `(functionOn% an implicit element $[$x:ident]? of (listType% $items) => $body)
-  | `(functionOn% a strictly implicit list $[$x:ident]? of $items:meanListElements => $body:term) =>
-      `(functionOn% a strictly implicit element $[$x:ident]? of (listType% $items) => $body)
-  | `(functionOn% a set $[$x:ident]? of $items:meanListElements => $body:term) =>
-      `(functionOn% an element $[$x:ident]? of (setType% $items) => $body)
-  | `(functionOn% an implicit set $[$x:ident]? of $items:meanListElements => $body:term) =>
-      `(functionOn% an implicit element $[$x:ident]? of (setType% $items) => $body)
-  | `(functionOn% a strictly implicit set $[$x:ident]? of $items:meanListElements => $body:term) =>
-      `(functionOn% a strictly implicit element $[$x:ident]? of (setType% $items) => $body)
-  | `(functionOn% an index $[$x:ident]? $domain:meanIndexDomain => $body:term) =>
-      `(functionOn% an element $[$x:ident]? of (indexType% $domain) => $body)
-  | `(functionOn% an implicit index $[$x:ident]? $domain:meanIndexDomain => $body:term) =>
-      `(functionOn% an implicit element $[$x:ident]? of (indexType% $domain) => $body)
-  | `(functionOn% a strictly implicit index $[$x:ident]? $domain:meanIndexDomain => $body:term) =>
-      `(functionOn% a strictly implicit element $[$x:ident]? of (indexType% $domain) => $body)
-  | `(functionOn% a function $[$x:ident]? $signature:meanFunctionSignature => $body:term) =>
-      `(functionOn% an element $[$x:ident]? of (functionType% $signature) => $body)
-  | `(functionOn% an implicit function $[$x:ident]? $signature:meanFunctionSignature => $body:term) =>
-      `(functionOn% an implicit element $[$x:ident]? of (functionType% $signature) => $body)
-  | `(functionOn% a strictly implicit function $[$x:ident]? $signature:meanFunctionSignature => $body:term) =>
-      `(functionOn% a strictly implicit element $[$x:ident]? of (functionType% $signature) => $body)
-  | `(functionOn% a proof $[$h:ident]? that $p:term => $body:term) =>
-      `(functionOn% an element $[$h:ident]? of ($p : Prop) => $body)
-  | `(functionOn% an implicit proof $[$h:ident]? that $p:term => $body:term) =>
-      `(functionOn% an implicit element $[$h:ident]? of ($p : Prop) => $body)
-  | `(functionOn% a strictly implicit proof $[$h:ident]? that $p:term => $body:term) =>
-      `(functionOn% a strictly implicit element $[$h:ident]? of ($p : Prop) => $body)
-  | `(functionOn% a $noun:meanScalar $[$x:ident]? => $body:term) =>
-      `(functionOn% an element $[$x:ident]? of (scalarType% $noun) => $body)
-  | `(functionOn% an $noun:meanScalar $[$x:ident]? => $body:term) =>
-      `(functionOn% an element $[$x:ident]? of (scalarType% $noun) => $body)
-
-  | `(functionOn% an instance $[$x:ident]? of typeclass $ty:term => $body:term) => do
-      let x ← parameterName x
-      `(fun [$x : typeclassType% $ty] => $body)
+  | `(functionOn% a $noun:meanWitnessNoun => $body:term) =>
+      `(functionOn% an $noun => $body)
+  | `(functionOn% an $noun:meanWitnessNoun => $body:term) => do
+      let (name, ty) ← nounBinding noun
+      let name ← parameterName name
+      if let `(meanWitnessNoun| instance $[$_:ident]? of typeclass $_:term) := noun then
+        `(fun [$name : $ty] => $body)
+      else
+        `(fun ($name : $ty) => $body)
+  | `(functionOn% an implicit $noun:meanWitnessNoun => $body:term) => do
+      let (name, ty) ← nounBinding noun
+      let name ← parameterName name
+      `(fun {$name : $ty} => $body)
+  | `(functionOn% a strictly implicit $noun:meanWitnessNoun => $body:term) => do
+      let (name, ty) ← nounBinding noun
+      let name ← parameterName name
+      `(fun ⦃$name : $ty⦄ => $body)
 
 /-! Multiple predicate subjects share function binding semantics. Plural nouns
 group names of the same type; mixed subjects keep their individual descriptions. -/
@@ -827,42 +815,10 @@ macro_rules
 /-! Quantification is independent of its noun description.
 `witnessBinding` supplies shared noun meanings; `existsOver%` handles articles.
 Positive and negative existence share the noun and optional condition. -/
-declare_syntax_cat meanWitnessNoun
-syntax "element" (ppSpace ident)? "of" term : meanWitnessNoun
-syntax "proof" (ppSpace ident)? "that" term : meanWitnessNoun
-syntax meanScalar (ppSpace ident)? : meanWitnessNoun
-syntax "path" (ppSpace ident)? "in" term "from" term "to" term : meanWitnessNoun
-syntax "list" (ppSpace ident)? "of" meanListElements : meanWitnessNoun
-syntax "set" (ppSpace ident)? "of" meanListElements : meanWitnessNoun
-syntax "index" (ppSpace ident)? meanIndexDomain : meanWitnessNoun
-syntax "function" (ppSpace ident)? functionSignature : meanWitnessNoun
-syntax "instance" (ppSpace ident)? "of" "typeclass" term : meanWitnessNoun
-
 -- Universal and existential quantifiers share noun meanings and binding scope.
 -- Prefer the existing scalar-domain grammar where both forms match.
 syntax (priority := low) meanWitnessNoun : meanQuantified
 
-private def nounBinding (noun : Lean.TSyntax `meanWitnessNoun) :
-    Lean.MacroM (Option Lean.Ident × Lean.TSyntax `term) :=
-  match noun with
-    | `(meanWitnessNoun| element $[$x:ident]? of $ty:term) => pure (x, ty)
-    | `(meanWitnessNoun| proof $[$x:ident]? that $p:term) => do
-        pure (x, ← `(($p : Prop)))
-    | `(meanWitnessNoun| $scalar:meanScalar $[$x:ident]?) => do
-        pure (x, ← `(scalarType% $scalar))
-    | `(meanWitnessNoun| list $[$x:ident]? of $items:meanListElements) => do
-        pure (x, ← `(listType% $items))
-    | `(meanWitnessNoun| set $[$x:ident]? of $items:meanListElements) => do
-        pure (x, ← `(setType% $items))
-    | `(meanWitnessNoun| index $[$x:ident]? $domain:meanIndexDomain) => do
-        pure (x, ← `(indexType% $domain))
-    | `(meanWitnessNoun| function $[$x:ident]? $signature:meanFunctionSignature) => do
-        pure (x, ← `(functionType% $signature))
-    | `(meanWitnessNoun| instance $[$x:ident]? of typeclass $ty:term) => do
-        pure (x, ← `(typeclassType% $ty))
-    | `(meanWitnessNoun| path $[$x:ident]? in $g:term from $u:term to $v:term) => do
-        pure (x, ← `(SimpleGraph.Path $g $u $v))
-    | _ => Lean.Macro.throwErrorAt noun "unsupported quantified noun"
 private def witnessBinding (noun : Lean.TSyntax `meanWitnessNoun) :
     Lean.MacroM (Lean.Ident × Lean.TSyntax `term) := do
   let (name, ty) ← nounBinding noun
@@ -871,27 +827,46 @@ private def witnessBinding (noun : Lean.TSyntax `meanWitnessNoun) :
     | none => `(ident| existentialWitness)
   return (name, ty)
 
-/-- Qualify the named subjects together, preserving domain restrictions and order. -/
+/-- Walk only the domain expansion, ending at a fresh marker rather than the
+user's body. Named explicit binders are subjects; arrows retain restrictions.
+Consequently a `forallOver%` extension automatically supports qualifiers. -/
+private partial def qualifyForall (stx marker : Lean.Term) (predicate : Lean.TSyntax `meanAdjective)
+    (body : Lean.Term) (names : Array Lean.Ident := #[]) : Lean.MacroM Lean.Term := do
+  if stx.raw == marker.raw then
+    if names.isEmpty then Lean.Macro.throwErrorAt stx "expected a named quantified subject"
+    let condition ← qualifierCondition names predicate
+    return ← restrictedBody .implication #[condition] (some body)
+  -- Expand aliases (including forall's shared-type shorthand) before inspecting binders.
+  if let some expanded ← Lean.expandMacro? stx then
+    return ← qualifyForall ⟨expanded⟩ marker predicate body names
+  match stx with
+  | `(∀ $binders*, $rest) =>
+    let mut names := names
+    for binder in binders do
+      let binder := binder.raw
+      if binder.isIdent then
+        names := names.push ⟨binder⟩
+      else if binder.isOfKind ``Lean.Parser.Term.explicitBinder then
+        for name in binder[1].getArgs do
+          if name.isIdent then names := names.push ⟨name⟩
+    let rest ← qualifyForall rest marker predicate body names
+    `(∀ $binders*, $rest)
+  | `($condition → $rest) => do
+    let rest ← qualifyForall rest marker predicate body names
+    `($condition → $rest)
+  | `(($inner : $ty)) => do
+    let inner ← qualifyForall inner marker predicate body names
+    `(($inner : $ty))
+  | `(($inner)) => do
+    let inner ← qualifyForall inner marker predicate body names
+    `(($inner))
+  | _ => Lean.Macro.throwErrorAt stx "expected forallOver% to introduce quantified bindings"
+
 macro_rules
   | `(forallSatisfying% $binding:meanQuantified with $predicate:meanAdjective => $body:term) => do
-      if let `(meanQuantified| $noun:meanWitnessNoun) := binding then
-        let (name, ty) ← witnessBinding noun
-        let condition ← qualifierCondition #[name] predicate
-        let body ← restrictedBody .implication #[condition] (some body)
-        return ← `(∀ ($name:ident : $ty), $body)
-      let names : Array Lean.Ident ← match binding with
-        | `(meanQuantified| $_:meanScalarDomain $x:ident $[and $y:ident]?) =>
-          pure (#[x] ++ y.toArray)
-        | `(meanQuantified| $x:ident and $y:ident in $_:term) => pure #[x, y]
-        | `(meanQuantified| vertices $x:ident and $y:ident of $_:term) => pure #[x, y]
-        | `(meanQuantified| $x:ident ∈ $_:term) => pure #[x]
-        | `(meanQuantified| superset $x:ident of $_:term) => pure #[x]
-        | `(meanQuantified| $x:ident ⊇ $_:term) => pure #[x]
-        | `(meanQuantified| set $x:ident ⊇ $_:term) => pure #[x]
-        | _ => Lean.Macro.throwErrorAt binding "unsupported satisfying quantifier binding"
-      let condition ← qualifierCondition names predicate
-      let body ← restrictedBody .implication #[condition] (some body)
-      `(forallOver% $binding => $body)
+      let marker ← `(quantifiedBodyMarker)
+      let domain ← `(forallOver% $binding => $marker)
+      qualifyForall domain marker predicate body
 
 /-! Almost-everywhere quantification uses one witness domain and a measure.
 An omitted measure uses the domain's canonical `volume`. -/

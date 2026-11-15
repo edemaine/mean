@@ -462,6 +462,45 @@ example (existentialWitness : Nat) :
 
 end UniqueExistenceExamples
 
+-- A domain extension supplies only forallOver%; qualifiers reuse its expansion.
+namespace Mean
+syntax "testElements" ident "of" term : meanQuantified
+syntax "testPair" ident "and" ident "of" term : meanQuantified
+syntax "testMembers" ident "of" term : meanQuantified
+syntax "testDependent" ident "and" ident : meanQuantified
+macro_rules
+  | `(forallOver% testElements $x:ident of $ty:term => $body:term) =>
+    `(∀ ($x : $ty), $body)
+  | `(forallOver% testPair $x:ident and $y:ident of $ty:term => $body:term) =>
+    `(∀ $x $y : $ty, $body)
+  | `(forallOver% testMembers $x:ident of $s:term => $body:term) =>
+    `(forallOver% $x:ident ∈ $s => $body)
+  | `(forallOver% testDependent $n:ident and $i:ident => $body:term) =>
+    `(∀ ($n : Nat) ($i : Fin $n), $body)
+end Mean
+
+namespace QuantifierExtensionExamples
+example (A : Type u) (P : A → Prop) :
+    (for every testElements x of A: P x) = (∀ x : A, P x) := rfl
+example (A : Type u) (P : A → Prop) :
+    (for every testElements x of A satisfying P: x = x) =
+    (∀ x : A, P x → x = x) := rfl
+example (A : Type u) (R : A → A → Prop) :
+    (for all testPair x and y of A satisfying R: x = x) =
+    (∀ x y : A, R x y → x = x) := rfl
+example (s : Set Nat) (P : Nat → Prop) :
+    (for every testMembers n of s satisfying P where n = 0: n = n) =
+    (∀ n ∈ s, P n → n = 0 → n = n) := rfl
+example (R : (n : Nat) → Fin n → Prop) :
+    (for every testDependent n and i satisfying R: i = i) =
+    (∀ (n : Nat) (i : Fin n), R n i → i = i) := rfl
+-- Only binders introduced by the domain are qualified, even if the body quantifies more.
+example (P : Nat → Prop) (quantifiedBodyMarker : Nat) :
+    (for every testElements n of Nat satisfying P:
+      ∀ m : Nat, n + m = quantifiedBodyMarker) =
+    (∀ n : Nat, P n → ∀ m : Nat, n + m = quantifiedBodyMarker) := rfl
+end QuantifierExtensionExamples
+
 namespace RestrictedQuantifierExamples
 
 example (P : (Nat → Prop) → Prop) :
@@ -1097,6 +1136,17 @@ example : namedStrict (ignored := 7) (n := 3) = 3 := rfl
 example : differentNames (input := 7) = 7 := rfl
 example : aliasWithName (input := 7) = 8 := rfl
 example : namedCallback (f := fun n => n) = 0 := rfl
+-- Function parameters share the path noun's domain decoding with witnesses.
+example {V : Type u} (G : SimpleGraph V) (u v : V) :
+    (the function mapping a path p in G from u to v to p) =
+    (fun p : G.Path u v => p) := rfl
+example {V : Type u} (G : SimpleGraph V) (u v : V) :
+    (the function mapping an implicit path p in G from u to v to p) =
+    (fun {p : G.Path u v} => p) := rfl
+example {V : Type u} (G : SimpleGraph V) (u v : V) :
+    (the function mapping a strictly implicit path p in G from u to v to p) =
+    (fun ⦃p : G.Path u v⦄ => p) := rfl
+
 end BinderExamples
 
 namespace ProofExamples

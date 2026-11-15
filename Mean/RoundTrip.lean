@@ -26,6 +26,12 @@ private partial def checkFunctionBinders (original reparsed : Expr) : TermElabM 
     checkFunctionBinders body body'
   | _, _ => pure ()
 
+private def parameterNameFailureTag : Name := `Mean.RoundTrip.parameterNames
+
+/-- Stable failure classification, independent of the diagnostic's wording. -/
+def isParameterNameFailure (ex : Exception) : Bool :=
+  ex.toMessageData.hasTag (· == parameterNameFailureTag)
+
 /-- Named arguments are a declaration interface, even for unused parameters.
 Anonymous and hygienically generated names carry no public spelling to preserve. -/
 private partial def checkParameterNames (original reparsed : Expr) : TermElabM Unit := do
@@ -36,7 +42,7 @@ private partial def checkParameterNames (original reparsed : Expr) : TermElabM U
     unless bi == bi' do
       throwError "Mean round-trip changed function argument implicitness"
     if !name.isAnonymous && !name.hasMacroScopes && !name.isInaccessibleUserName && name != name' then
-      throwError "Mean round-trip changed a named parameter"
+      throwError (.tagged parameterNameFailureTag m!"Mean round-trip changed a named parameter")
     checkParameterNames ty ty'
     withLocalDecl name bi ty fun x =>
       checkParameterNames (body.instantiate1 x) (body'.instantiate1 x)
@@ -57,54 +63,130 @@ private def checkExpressions (original reparsed : Expr) (text : String) : TermEl
   let lctx ← instantiateLCtxMVars (← getLCtx)
   withLCtx' lctx do checkWithKernel certificate
 
+/-- Inspect a declaration once, retaining its original syntax for the full audit. -/
+private structure DeclarationView where
+  value : Term
+  abbreviation : Bool
+  graphSubject : Bool := false
+  rename : Ident → TermElabM (TSyntax `command)
+
+private def isGraphSubject (subject : TSyntax `meanSubject) : Bool :=
+  match subject with
+  | `(meanSubject| a simple graph $[$_:ident]?)
+  | `(meanSubject| a simple graph $[$_:ident]? = ($_:ident, $_:ident)) => true
+  | _ => false
+
+private def declarationView (stx : Syntax) : TermElabM DeclarationView := do
+  match stx with
+  | `(command| Definition: a $_:ident is $description:meanWitness .) =>
+    return {
+      value := (← `(anonymousType% $description))
+      abbreviation := false
+      rename := fun name => `(command| Definition: a $name is $description .)
+    }
+  | `(command| Definition: an $_:ident is $description:meanWitness .) =>
+    return {
+      value := (← `(anonymousType% $description))
+      abbreviation := false
+      rename := fun name => `(command| Definition: an $name is $description .)
+    }
+  | `(command| Definition: $subject:meanSubject satisfies $_:ident if $body:term .) =>
+    return {
+      value := (← `(predicateOn% $subject => $body))
+      abbreviation := false
+      graphSubject := isGraphSubject subject
+      rename := fun name => `(command| Definition: $subject satisfies $name if $body .)
+    }
+  | `(command| Definition: $subject:meanSubject is $_:ident if $body:term .) =>
+    return {
+      value := (← `(predicateOn% $subject => $body))
+      abbreviation := false
+      graphSubject := isGraphSubject subject
+      rename := fun name => `(command| Definition: $subject is $name if $body .)
+    }
+  | `(command| Definition: $subjects:meanPredicateSubjects satisfy $_:ident if $body:term .) =>
+    return {
+      value := (← `(predicateOver% $subjects => $body))
+      abbreviation := false
+      rename := fun name => `(command| Definition: $subjects satisfy $name if $body .)
+    }
+  | `(command| Definition: $subjects:meanPredicateSubjects are $_:ident if $body:term .) =>
+    return {
+      value := (← `(predicateOver% $subjects => $body))
+      abbreviation := false
+      rename := fun name => `(command| Definition: $subjects are $name if $body .)
+    }
+  | `(command| Definition: $_:ident is $value:term .) =>
+    return {
+      value
+      abbreviation := false
+      rename := fun name => `(command| Definition: $name is $value .)
+    }
+  | `(command| Abbreviation: a $_:ident is $description:meanWitness .) =>
+    return {
+      value := (← `(anonymousType% $description))
+      abbreviation := true
+      rename := fun name => `(command| Abbreviation: a $name is $description .)
+    }
+  | `(command| Abbreviation: an $_:ident is $description:meanWitness .) =>
+    return {
+      value := (← `(anonymousType% $description))
+      abbreviation := true
+      rename := fun name => `(command| Abbreviation: an $name is $description .)
+    }
+  | `(command| Abbreviation: $subject:meanSubject satisfies $_:ident if $body:term .) =>
+    return {
+      value := (← `(predicateOn% $subject => $body))
+      abbreviation := true
+      graphSubject := isGraphSubject subject
+      rename := fun name => `(command| Abbreviation: $subject satisfies $name if $body .)
+    }
+  | `(command| Abbreviation: $subject:meanSubject is $_:ident if $body:term .) =>
+    return {
+      value := (← `(predicateOn% $subject => $body))
+      abbreviation := true
+      graphSubject := isGraphSubject subject
+      rename := fun name => `(command| Abbreviation: $subject is $name if $body .)
+    }
+  | `(command| Abbreviation: $subjects:meanPredicateSubjects satisfy $_:ident if $body:term .) =>
+    return {
+      value := (← `(predicateOver% $subjects => $body))
+      abbreviation := true
+      rename := fun name => `(command| Abbreviation: $subjects satisfy $name if $body .)
+    }
+  | `(command| Abbreviation: $subjects:meanPredicateSubjects are $_:ident if $body:term .) =>
+    return {
+      value := (← `(predicateOver% $subjects => $body))
+      abbreviation := true
+      rename := fun name => `(command| Abbreviation: $subjects are $name if $body .)
+    }
+  | `(command| Abbreviation: $_:ident is $value:term .) =>
+    return {
+      value
+      abbreviation := true
+      rename := fun name => `(command| Abbreviation: $name is $value .)
+    }
+  | `(command| def $_:ident : $ty:term := $body:term) =>
+    return {
+      value := (← `(($body : $ty)))
+      abbreviation := false
+      rename := fun name => `(command| def $name : $ty := $body)
+    }
+  | `(command| abbrev $_:ident : $ty:term := $body:term) =>
+    return {
+      value := (← `(($body : $ty)))
+      abbreviation := true
+      rename := fun name => `(command| abbrev $name : $ty := $body)
+    }
+  | _ => throwError "unsupported rendered declaration"
+
 private def checkValueText (original : Expr) (text : String) (category : Name)
     (abbreviation := false) : TermElabM Unit := do
   let stx ← parseText category text
-  let graphSubject := match stx with
-    | `(command| Definition: a simple graph $[$_:ident]? satisfies $_:ident if $_:term .) => true
-    | `(command| Abbreviation: a simple graph $[$_:ident]? satisfies $_:ident if $_:term .) => true
-    | `(command| Definition: a simple graph $[$_:ident]? = ($_:ident, $_:ident)
-        satisfies $_:ident if $_:term .) => true
-    | `(command| Abbreviation: a simple graph $[$_:ident]? = ($_:ident, $_:ident)
-        satisfies $_:ident if $_:term .) => true
-    | `(command| Definition: a simple graph $[$_:ident]? is $_:ident if $_:term .) => true
-    | `(command| Abbreviation: a simple graph $[$_:ident]? is $_:ident if $_:term .) => true
-    | `(command| Definition: a simple graph $[$_:ident]? = ($_:ident, $_:ident)
-        is $_:ident if $_:term .) => true
-    | `(command| Abbreviation: a simple graph $[$_:ident]? = ($_:ident, $_:ident)
-        is $_:ident if $_:term .) => true
-    | _ => false
-  let (term, actualAbbreviation) ← if category == `command then
-    match stx with
-    | `(command| Definition: a $_:ident is $description:meanWitness .)
-    | `(command| Definition: an $_:ident is $description:meanWitness .) =>
-      pure (← `(anonymousType% $description), false)
-    | `(command| Abbreviation: a $_:ident is $description:meanWitness .)
-    | `(command| Abbreviation: an $_:ident is $description:meanWitness .) =>
-      pure (← `(anonymousType% $description), true)
-    | `(command| Definition: $subject:meanSubject satisfies $_:ident if $body:term .) =>
-      pure (← `(predicateOn% $subject => $body), false)
-    | `(command| Abbreviation: $subject:meanSubject satisfies $_:ident if $body:term .) =>
-      pure (← `(predicateOn% $subject => $body), true)
-    | `(command| Definition: $subjects:meanPredicateSubjects satisfy $_:ident if $body:term .) =>
-      pure (← `(predicateOver% $subjects => $body), false)
-    | `(command| Abbreviation: $subjects:meanPredicateSubjects satisfy $_:ident if $body:term .) =>
-      pure (← `(predicateOver% $subjects => $body), true)
-    | `(command| Definition: $subject:meanSubject is $_:ident if $body:term .) => do
-      pure (← `(predicateOn% $subject => $body), false)
-    | `(command| Abbreviation: $subject:meanSubject is $_:ident if $body:term .) => do
-      pure (← `(predicateOn% $subject => $body), true)
-    | `(command| Definition: $subjects:meanPredicateSubjects are $_:ident if $body:term .) =>
-      pure (← `(predicateOver% $subjects => $body), false)
-    | `(command| Abbreviation: $subjects:meanPredicateSubjects are $_:ident if $body:term .) =>
-      pure (← `(predicateOver% $subjects => $body), true)
-    | `(command| Definition: $_:ident is $value:term .) => pure (value, false)
-    | `(command| Abbreviation: $_:ident is $value:term .) => pure (value, true)
-    | `(command| def $_:ident : $ty:term := $body:term) => do
-      pure (← `(($body : $ty)), false)
-    | `(command| abbrev $_:ident : $ty:term := $body:term) => do
-      pure (← `(($body : $ty)), true)
-    | _ => throwError "unsupported rendered declaration"
+  let declaration ← if category == `command then some <$> declarationView stx else pure none
+  let graphSubject := declaration.any (·.graphSubject)
+  let (term, actualAbbreviation) ← if let some declaration := declaration then
+    pure (declaration.value, declaration.abbreviation)
   else if category == `meanTheoremStatement then
     match stx with
     | `(meanTheoremStatement| Theorem $_:ident : $statement:term) => pure (statement, false)
@@ -141,43 +223,6 @@ Final definition output must also pass `checkDefinition`. -/
 def checkDefinitionValue (original : Expr) (text : String) (abbreviation := false) : TermElabM Unit :=
   checkValueText original text `command abbreviation
 
-/-- Rename only the declaration being introduced, leaving its printed body intact. -/
-private def renameDefinition (stx : Syntax) (name : Ident) : TermElabM (TSyntax `command) := do
-  match stx with
-  | `(command| Definition: a $_:ident is $description:meanWitness .) =>
-    `(command| Definition: a $name is $description .)
-  | `(command| Definition: an $_:ident is $description:meanWitness .) =>
-    `(command| Definition: an $name is $description .)
-  | `(command| Abbreviation: a $_:ident is $description:meanWitness .) =>
-    `(command| Abbreviation: a $name is $description .)
-  | `(command| Abbreviation: an $_:ident is $description:meanWitness .) =>
-    `(command| Abbreviation: an $name is $description .)
-  | `(command| Definition: $subject:meanSubject satisfies $_:ident if $body:term .) =>
-    `(command| Definition: $subject satisfies $name if $body .)
-  | `(command| Abbreviation: $subject:meanSubject satisfies $_:ident if $body:term .) =>
-    `(command| Abbreviation: $subject satisfies $name if $body .)
-  | `(command| Definition: $subjects:meanPredicateSubjects satisfy $_:ident if $body:term .) =>
-    `(command| Definition: $subjects satisfy $name if $body .)
-  | `(command| Abbreviation: $subjects:meanPredicateSubjects satisfy $_:ident if $body:term .) =>
-    `(command| Abbreviation: $subjects satisfy $name if $body .)
-  | `(command| Definition: $subject:meanSubject is $_:ident if $body:term .) =>
-    `(command| Definition: $subject is $name if $body .)
-  | `(command| Abbreviation: $subject:meanSubject is $_:ident if $body:term .) =>
-    `(command| Abbreviation: $subject is $name if $body .)
-  | `(command| Definition: $subjects:meanPredicateSubjects are $_:ident if $body:term .) =>
-    `(command| Definition: $subjects are $name if $body .)
-  | `(command| Abbreviation: $subjects:meanPredicateSubjects are $_:ident if $body:term .) =>
-    `(command| Abbreviation: $subjects are $name if $body .)
-  | `(command| Definition: $_:ident is $value:term .) =>
-    `(command| Definition: $name is $value .)
-  | `(command| Abbreviation: $_:ident is $value:term .) =>
-    `(command| Abbreviation: $name is $value .)
-  | `(command| def $_:ident : $ty:term := $body:term) =>
-    `(command| def $name : $ty := $body)
-  | `(command| abbrev $_:ident : $ty:term := $body:term) =>
-    `(command| abbrev $name : $ty := $body)
-  | _ => throwError "unsupported rendered declaration"
-
 /-- Elaborate the actual output as a temporary declaration and inspect the result.
 Expected metadata comes from the original environment, not from the renderer.
 The temporary declaration, messages, and elaboration state are always discarded. -/
@@ -187,7 +232,7 @@ def checkDefinition (originalName : Name) (text : String) : TermElabM Unit :=
       | throwError "Mean declaration checker expects a definition or abbreviation"
     let stx ← parseText `command text
     let fresh ← mkFreshUserName `meanRoundTrip
-    let renamed ← renameDefinition stx (mkIdent fresh)
+    let renamed ← (← declarationView stx).rename (mkIdent fresh)
     let currNamespace ← getCurrNamespace
     let openDecls ← getOpenDecls
     let levelNames := original.levelParams
