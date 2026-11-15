@@ -217,7 +217,7 @@ theorem TranslationTiling.Abstract.real_tiling_coRE_hard :
 -- MEAN OUTPUT:
 Theorem TranslationTiling.Abstract.real_tiling_coRE_hard:
   for every natural number d where 3 ≤ d:
-    for every set motions of (Motion d) elements where translations ⊆ motions:
+    for every superset motions of translations:
       (the function mapping an element P of Prototile d to
         P satisfies Connected and (P and motions satisfy RealTiles)) satisfies LeanWang.Abstract.CoREHard
 
@@ -230,7 +230,7 @@ theorem TranslationTiling.Abstract.real_tiling_undecidable :
 -- MEAN OUTPUT:
 Theorem TranslationTiling.Abstract.real_tiling_undecidable:
   for every natural number d where 3 ≤ d:
-    for every set motions of (Motion d) elements where translations ⊆ motions:
+    for every superset motions of translations:
       (the function mapping an element P of Prototile d to
         P satisfies Connected and (P and motions satisfy RealTiles)) is not computable
 
@@ -297,7 +297,7 @@ Theorem TranslationTiling.Abstract.rigid_tiling_reduction:
         f T ≠ [] and
         (f T) satisfies Connected and
         (T satisfies LeanWang.Abstract.TilesPlane if and only if (f T) satisfies Tiles) and
-        (for every set motions of (Motion d) elements where translations ⊆ motions:
+        (for every superset motions of translations:
           (f T) satisfies Tiles if and only if (f T) and motions satisfy RealTiles) and
         the length of (f T) as a real number ≤
           2 ^ (10 * (d + 1) ^ 2) *
@@ -323,7 +323,7 @@ Theorem TranslationTiling.Abstract.rigid_tiling_reduction_three:
       f T ≠ [] and
       (f T) satisfies Connected and
       (T satisfies LeanWang.Abstract.TilesPlane if and only if (f T) satisfies Tiles) and
-      (for every set motions of (Motion 3) elements where translations ⊆ motions:
+      (for every superset motions of translations:
         (f T) satisfies Tiles if and only if (f T) and motions satisfy RealTiles) and
       the length of (f T) as a real number ≤
         64000 *

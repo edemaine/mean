@@ -405,6 +405,25 @@ end UniqueExistenceExamples
 
 namespace RestrictedQuantifierExamples
 
+example (A : Type u) (s : Set A) (P : Set A → Prop) :
+    (for every superset S of s: P S) = (∀ S : Set A, s ⊆ S → P S) := rfl
+example (A : Type u) (s : Set A) (P : Set A → Prop) :
+    (for all superset S of s: P S) = (∀ S : Set A, s ⊆ S → P S) := rfl
+example (A : Type u) (s : Set A) (P : Set A → Prop) :
+    (for every set S ⊇ s: P S) = (∀ S : Set A, s ⊆ S → P S) := rfl
+example (A : Type u) (s : Set A) (P : Set A → Prop) :
+    (for all S ⊇ s: P S) = (∀ S : Set A, s ⊆ S → P S) := rfl
+example (A : Type u) (s t : Set A) (P : Set A → Prop) :
+    (for every superset S of s ∪ t: P S) = (∀ S : Set A, s ∪ t ⊆ S → P S) := rfl
+example (A : Type u) (s : Set A) (P Q : Set A → Prop) :
+    (for every superset S of s where Q S: P S) =
+    (∀ S : Set A, s ⊆ S → Q S → P S) := rfl
+example (A : Type u) (s : Set A) (P : Set A → Prop) :
+    (for every superset S of s: for every superset T of S: P T) =
+    (∀ S : Set A, s ⊆ S → ∀ T : Set A, S ⊆ T → P T) := rfl
+-- The contextual noun remains an ordinary identifier outside the quantifier.
+example (superset : Nat) : superset = superset := rfl
+
 example (A : Type u) (P : Set A) :
     (for every p ∈ P: p ∈ P) = (∀ p ∈ P, p ∈ P) := rfl
 example (A : Type u) (P : Set A) :

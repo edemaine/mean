@@ -543,6 +543,15 @@ private partial def inlineLets (e : Expr) : Expr :=
   | .letE _ _ value body _ => inlineLets (body.instantiate1 value)
   | e => e
 
+/-- Recognize subset constraints without treating arbitrary order relations as subsets. -/
+private def subsetView? (e : Expr) : Option (Expr × Expr) :=
+  let args := e.getAppArgs
+  if e.isAppOfArity ``HasSubset.Subset 4 then some (args[2]!, args[3]!)
+  else if e.isAppOfArity ``Set.Subset 3 then some (args[1]!, args[2]!)
+  else if e.isAppOfArity ``LE.le 4 && args[1]!.isAppOf ``Set.instLE then
+    some (args[2]!, args[3]!)
+  else none
+
 /-- Implications share Lean's forall node, but their `if ... then` syntax
 still needs grouping at higher precedence even at the end of an expression. -/
 private def isImplication (e : Expr) : MetaM Bool := do
@@ -742,11 +751,17 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
           if !(pp.explicit.get (← getOptions)) then
             if let .forallE _ premise conclusion .default := body then
               let premise := inlineLets premise
-              if premise.isAppOfArity ``Membership.mem 5 && !conclusion.hasLooseBVars then
-                let args := premise.getAppArgs
-                if args[4]! == x then
-                  let collection ← atomText args[3]!
-                  return ← renderQuantified s!"for every {← nameText n} ∈ {collection}" conclusion
+              if !conclusion.hasLooseBVars then
+                if premise.isAppOfArity ``Membership.mem 5 then
+                  let args := premise.getAppArgs
+                  if args[4]! == x then
+                    let collection ← atomText args[3]!
+                    return ← renderQuantified s!"for every {← nameText n} ∈ {collection}" conclusion
+                if ty.isAppOfArity ``Set 1 then
+                  if let some (base, target) := subsetView? premise then
+                    if target == x then
+                      let collection ← propertyText base
+                      return ← renderQuantified s!"for every superset {← nameText n} of {collection}" conclusion
           let (_, noun) ← witnessDescription ty (some (← nameText n))
           renderQuantified s!"for every {noun}" body
         match body.instantiate1 x with
@@ -858,13 +873,12 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
           let rest := body.getAppArgs[1]!
           let bounded ← if condition.isAppOfArity ``Membership.mem 5 && condition.getAppArgs[4]! == x then
               pure (some s!"{witnessName} ∈ {← atomText condition.getAppArgs[3]!}")
-            else if !isUnique && condition.isAppOfArity ``HasSubset.Subset 4 && condition.getAppArgs[2]! == x then
-              pure (some s!"subset {witnessName} of {← atomText condition.getAppArgs[3]!}")
-            else if !isUnique && condition.isAppOfArity ``Set.Subset 3 && condition.getAppArgs[1]! == x then
-              pure (some s!"subset {witnessName} of {← atomText condition.getAppArgs[2]!}")
-            else if !isUnique && condition.isAppOfArity ``LE.le 4 &&
-                condition.getAppArgs[1]!.isAppOf ``Set.instLE && condition.getAppArgs[2]! == x then
-              pure (some s!"subset {witnessName} of {← atomText condition.getAppArgs[3]!}")
+            else if !isUnique then
+              match subsetView? condition with
+              | some (source, target) =>
+                if source == x then pure (some s!"subset {witnessName} of {← atomText target}")
+                else pure none
+              | none => pure none
             else pure none
           if let some bounded := bounded then
             let article := if negative.isSome then "no " else if isUnique then "exactly one "

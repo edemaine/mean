@@ -214,6 +214,53 @@ run_elab do
           catch _ => pure true
         unless rejected do throwError "logarithm rendering changed its base, argument, or nesting"
 
+-- Superset restrictions retain their direction, type, and subset instance.
+section
+variable (A : Type u) (s t : Set A) (R Q : Set A → Prop)
+/--
+info: for every superset S of s:
+  S satisfies R
+-/
+#guard_msgs in
+#mean_term ∀ S : Set A, s ⊆ S → R S
+#mean_term_compare ∀ S : Set A, s ⊆ S → R S
+#mean_term_compare ∀ S : Set A, Set.Subset s S → R S
+#mean_term_compare ∀ S : Set A, s ≤ S → R S
+#mean_term_compare ∀ S : Set A, s ⊆ S → Q S → R S
+#mean_term_compare ∀ S : Set A, s ∪ t ⊆ S → R S
+#mean_term_compare ∀ S : Set A, S ⊆ s → R S
+#mean_term_compare ∀ S : Set A, s ⊆ t → R S
+#mean_term_compare ∀ S : Set A, s ⊆ S → ∀ T : Set A, S ⊆ T → R T
+#mean_term_compare ∀ (S : Set A) (h : s ⊆ S), h = h
+end
+#mean_term_compare ∀ n : Nat, 0 ≤ n → n = n
+#mean_term_compare ∀ S : Finset Nat, {0} ⊆ S → S = S
+namespace SupersetInferenceExamples
+def allIndices {n : Nat} : Set (Fin (n + 1)) := Set.univ
+#mean_term_compare ∀ S : Set (Fin 3), @allIndices 2 ⊆ S → True
+section
+variable (A : Type u) (s : Set A) (R : Set A → Prop)
+local instance : HasSubset (Set A) := ⟨fun _ _ => False⟩
+#mean_term_compare ∀ S : Set A, Set.Subset s S → R S
+end
+end SupersetInferenceExamples
+
+open Lean Meta Elab Term in
+run_elab do
+  let original ← elabTerm (← `(∀ S : Set Nat, ({0} : Set Nat) ⊆ S → 1 ∈ S)) none
+  synthesizeSyntheticMVarsNoPostponing
+  let original ← instantiateMVars original
+  for text in [
+      "for every superset S of ({1} : Set Nat): 1 ∈ S",
+      "for every set S of natural numbers where S ⊆ ({0} : Set Nat): 1 ∈ S",
+      "for every set S of natural numbers: 1 ∈ S"] do
+    let rejected ← withoutModifyingState do
+      try
+        Mean.RoundTrip.checkText original text
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "superset quantifier changed or dropped its restriction"
+
 -- Final quantifiers can consume the remaining text; interior ones must stop.
 section
 variable (P Q : Prop) (R : Nat → Prop)

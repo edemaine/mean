@@ -746,6 +746,11 @@ def quantifiedCondition : Lean.Parser.Parser :=
   Lean.Parser.withAntiquot (Lean.Parser.mkAntiquot "term" `term (isPseudoKind := true))
     (Lean.Parser.withForbidden ":" Lean.Parser.termParser)
 syntax ident "∈" quantifiedCondition : meanQuantified
+def supersetWord : Lean.Parser.Parser :=
+  Lean.Parser.nonReservedSymbol "superset " (includeIdent := true)
+syntax supersetWord ident "of" quantifiedCondition : meanQuantified
+syntax ident "⊇" quantifiedCondition : meanQuantified
+syntax "set" ident "⊇" quantifiedCondition : meanQuantified
 syntax "for" "every" quantifiedBinding ":" term : term
 syntax "for" "all" quantifiedBinding ":" term : term
 syntax "for" "every" quantifiedBinding "where" quantifiedCondition ":" term : term
@@ -766,6 +771,12 @@ macro_rules
       | none => `(∀ ($x : scalarDomainType% $domain), $body)
   | `(forallOver% $u:ident and $v:ident in $ty:term => $body:term) =>
       `(∀ ($u : $ty) ($v : $ty), $body)
+  | `(forallOver% superset $x:ident of $collection:term => $body:term) =>
+      `(∀ ($x:ident : Set _), $collection ⊆ $x:ident → ($body : Prop))
+  | `(forallOver% $x:ident ⊇ $collection:term => $body:term) =>
+      `(forallOver% superset $x of $collection => $body)
+  | `(forallOver% set $x:ident ⊇ $collection:term => $body:term) =>
+      `(forallOver% superset $x of $collection => $body)
   | `(forallOver% $x:ident ∈ $collection:term => $body:term) =>
       `(∀ ($x:ident : _), $x:ident ∈ $collection → $body)
   | `(forallOver% vertices $u:ident and $v:ident of $g:term => $body:term) =>

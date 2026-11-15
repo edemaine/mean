@@ -165,6 +165,65 @@ Real.log x
 
 ln x
 
+for every superset S of s:
+  S satisfies R
+
+for every superset S of s:
+  S satisfies R
+
+for every superset S of s:
+  S satisfies R
+
+for every superset S of s where S satisfies Q:
+  S satisfies R
+
+for every superset S of s ∪ t:
+  S satisfies R
+
+for every set S of A elements where S ⊆ s:
+  S satisfies R
+
+for every set S of A elements where s ⊆ t:
+  S satisfies R
+
+for every superset S of s:
+  for every superset T of S:
+    T satisfies R
+
+for every set S of A elements:
+  for every proof h that (s ⊆ S):
+    h = h
+
+for every natural number n where 0 ≤ n:
+  n = n
+
+for every element S of (Finset ℕ) where {0} ⊆ S:
+  S = S
+
+for every set S of (the type of indices in [0, @OfNat.ofNat Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))) elements where @LE.le
+  (the type of
+    sets of
+      (the type of
+          indices
+            in
+              [0,
+                @HAdd.hAdd Nat Nat Nat (@instHAdd Nat instAddNat)
+                  (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+                  (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+        elements)
+  (@Set.instLE
+    (the type of
+      indices
+        in
+          [0,
+            @HAdd.hAdd Nat Nat Nat (@instHAdd Nat instAddNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+              (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))))
+  (@allIndices (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))) S:
+  True
+
+for every superset S of s:
+  S satisfies R
+
 P and
 for every natural number n:
   n satisfies R

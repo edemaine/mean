@@ -770,6 +770,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Function subject | `a function f from A to B`, `a function f from A and B to C` |
 | Universal quantifier | `for all <bindings> [where <condition>]: <proposition>`, `for every …` |
 | Membership quantifier | `for every x ∈ S: <proposition>`, `for all x ∈ S: <proposition>` |
+| Superset quantifier | `for every superset S of T: P`, `for every set S ⊇ T: P`, `for all S ⊇ T: P` |
 | Almost-everywhere quantifier | `for almost every <witness noun> [with respect to <measure>] [where <condition>]: <proposition>` |
 | Quantified bindings | `function q from ℕ to Prop`, `list xs of T elements`, `element x of T`, `u and v in V`, `vertices u and v of G` |
 | Existential quantifier | `there is <witness description> [such that <proposition>]` |
@@ -855,6 +856,14 @@ the function mapping a natural number d to
 
 This means `fun d : Nat => Fin d → Int`, using the ordinary function syntax.
 Named aliases are retained inside the resulting type descriptions.
+
+Superset quantifiers range over sets containing a given set:
+`for every superset S of T: P S` means `∀ S : Set _, T ⊆ S → P S`.
+The symbolic forms `for every set S ⊇ T: P S` and `for every S ⊇ T: P S`
+have the same meaning; all forms also accept `for all` and an extra `where`
+condition. The renderer prefers the word form when the element type can be
+inferred, retaining typed wording when inference or a local subset instance
+would change the meaning. Arbitrary order relations are not treated as subsets.
 
 Bounded existential phrases preserve the original conjunction with membership:
 `there is x ∈ S such that P x` means `∃ x, x ∈ S ∧ P x`; the unique form means
