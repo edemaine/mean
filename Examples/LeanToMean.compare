@@ -361,6 +361,109 @@ ln x
 ln x
 
 -- LEAN INPUT:
+P ∧ ∀ (n : ℕ), R n
+-- MEAN OUTPUT:
+P and
+for every natural number n:
+  n satisfies R
+
+-- LEAN INPUT:
+P ∨ ∃ (n : ℕ), R n
+-- MEAN OUTPUT:
+P or
+there is a natural number n such that
+  n satisfies R
+
+-- LEAN INPUT:
+P ∧ ¬∃ (n : ℕ), R n
+-- MEAN OUTPUT:
+P and
+there is no natural number n such that
+  n satisfies R
+
+-- LEAN INPUT:
+P ∧ ∃! n : ℕ, R n
+-- MEAN OUTPUT:
+P and
+there is a unique natural number n such that
+  n satisfies R
+
+-- LEAN INPUT:
+P ↔ ∀ (n : ℕ), R n
+-- MEAN OUTPUT:
+P if and only if for every natural number n:
+  n satisfies R
+
+-- LEAN INPUT:
+P ↔ ∃ (n : ℕ), R n
+-- MEAN OUTPUT:
+P if and only if there is a natural number n such that
+  n satisfies R
+
+-- LEAN INPUT:
+(P ∧ ∀ (n : ℕ), R n) ↔ Q
+-- MEAN OUTPUT:
+P and
+(for every natural number n:
+  n satisfies R) if and only if Q
+
+-- LEAN INPUT:
+(P ∨ ∃ (n : ℕ), R n) ↔ Q
+-- MEAN OUTPUT:
+P or
+(there is a natural number n such that
+  n satisfies R) if and only if Q
+
+-- LEAN INPUT:
+(P ∧ ∀ (n : ℕ), R n) ∨ Q
+-- MEAN OUTPUT:
+P and
+(for every natural number n:
+  n satisfies R) or
+Q
+
+-- LEAN INPUT:
+P ↔ Q ∧ ∀ (n : ℕ), R n
+-- MEAN OUTPUT:
+P if and only if Q and
+for every natural number n:
+  n satisfies R
+
+-- LEAN INPUT:
+P ∧ (∀ (n : ℕ), R n) ∧ Q
+-- MEAN OUTPUT:
+P and
+(for every natural number n:
+  n satisfies R) and
+Q
+
+-- LEAN INPUT:
+P ∧
+  (let condition := ∀ (n : ℕ), R n;
+    condition) ∧
+    Q
+-- MEAN OUTPUT:
+P and
+(for every natural number n:
+  n satisfies R) and
+Q
+
+-- LEAN INPUT:
+∀ (n : ℕ), P ∧ ∀ (m : ℕ), R (n + m)
+-- MEAN OUTPUT:
+for every natural number n:
+  P and
+  for every natural number m:
+    (n + m) satisfies R
+
+-- LEAN INPUT:
+P ∧ ∀ᵐ (x : A), R x
+-- MEAN OUTPUT:
+P and
+for almost every element x of A:
+  x satisfies R
+
+-- LEAN INPUT:
 P ∧ Q ∧ R ∧ S
 -- MEAN OUTPUT:
 P and
@@ -475,8 +578,8 @@ Q
 P ∧ ∀ (n : ℕ), n = n ∧ Q
 -- MEAN OUTPUT:
 P and
-(for every natural number n:
-  n = n and Q)
+for every natural number n:
+  n = n and Q
 
 -- LEAN INPUT:
 P ∨ (∃ (n : ℕ), n = n) ∨ Q
@@ -490,8 +593,8 @@ Q
 P ∨ ∃ (n : ℕ), n = n ∨ Q
 -- MEAN OUTPUT:
 P or
-(there is a natural number n such that
-  n = n or Q)
+there is a natural number n such that
+  n = n or Q
 
 -- LEAN INPUT:
 Relation.TransGen R
@@ -1400,8 +1503,8 @@ False
 False ∨ ∃! n : ℕ, n = 0
 -- MEAN OUTPUT:
 False or
-(there is a unique natural number n such that
-  n = 0)
+there is a unique natural number n such that
+  n = 0
 
 -- LEAN INPUT:
 (∃! n : ℕ, n = 0) ↔ True
@@ -1591,8 +1694,8 @@ True
 True ∨ ∀ p ∈ P, R p
 -- MEAN OUTPUT:
 True or
-(for every p ∈ P:
-  p satisfies R)
+for every p ∈ P:
+  p satisfies R
 
 -- LEAN INPUT:
 (∀ p ∈ P, R p) → True
@@ -3273,8 +3376,8 @@ if P then
 -- LEAN INPUT:
 P ↔ ∃ (x : A), x = x
 -- MEAN OUTPUT:
-P if and only if (there is an element x of A such that
-  x = x)
+P if and only if there is an element x of A such that
+  x = x
 
 -- LEAN INPUT:
 fun (n : ℕ) => 2 * n
@@ -3943,8 +4046,8 @@ Q
 Q ∨ ¬∃ (x : T), P x
 -- MEAN OUTPUT:
 Q or
-(there is no element x of T such that
-  x satisfies P)
+there is no element x of T such that
+  x satisfies P
 
 -- LEAN INPUT:
 (¬∃ (x : T), P x) → Q

@@ -12,8 +12,8 @@ Definition:
       for every function q from ℕ to Prop where q satisfies CoRE:
         there is a function r from ℕ to α such that
           r is computable and
-          (for every natural number n:
-            n satisfies q if and only if (r n) satisfies p).
+          for every natural number n:
+            n satisfies q if and only if (r n) satisfies p.
 
 Abbreviation:
   TranslationTiling.Abstract.Point is
@@ -61,13 +61,13 @@ Theorem TranslationTiling.Abstract.tiling_reduction:
   for every natural number d where 3 ≤ d:
     there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile d such that
       f is computable and
-      (for every list T of LeanWang.Abstract.Tile elements:
+      for every list T of LeanWang.Abstract.Tile elements:
         f T ≠ [] and
         (f T) satisfies Connected and
         (T satisfies LeanWang.Abstract.TilesPlane if and only if (f T) satisfies Tiles) and
         the length of (f T) as a real number ≤
           (the length of T as a real number + 4) ^
-            (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4))))
+            (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4)))
 
 Abbreviation:
   TranslationTiling.Abstract.RealPoint is
@@ -143,20 +143,20 @@ Theorem TranslationTiling.Abstract.real_tiling_reduction:
   for every natural number d where 3 ≤ d:
     there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile d such that
       f is computable and
-      (for every list T of LeanWang.Abstract.Tile elements:
+      for every list T of LeanWang.Abstract.Tile elements:
         f T ≠ [] and
         (f T) satisfies Connected and
         (T satisfies LeanWang.Abstract.TilesPlane if and only if (f T) satisfies Tiles) and
         ((f T) satisfies Tiles if and only if (f T) and (translations) satisfy RealTiles) and
         the length of (f T) as a real number ≤
           (the length of T as a real number + 4) ^
-            (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4))))
+            (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4)))
 
 Theorem TranslationTiling.Abstract.rigid_tiling_reduction:
   for every natural number d where 3 ≤ d:
     there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile d such that
       f is computable and
-      (for every list T of LeanWang.Abstract.Tile elements:
+      for every list T of LeanWang.Abstract.Tile elements:
         f T ≠ [] and
         (f T) satisfies Connected and
         (T satisfies LeanWang.Abstract.TilesPlane if and only if (f T) satisfies Tiles) and
@@ -165,12 +165,12 @@ Theorem TranslationTiling.Abstract.rigid_tiling_reduction:
         the length of (f T) as a real number ≤
           2 ^ (10 * (d + 1) ^ 2) *
             (the length of T as a real number + 4) ^
-              (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4))))
+              (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4)))
 
 Theorem TranslationTiling.Abstract.rigid_tiling_reduction_three:
   there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile 3 such that
     f is computable and
-    (for every list T of LeanWang.Abstract.Tile elements:
+    for every list T of LeanWang.Abstract.Tile elements:
       f T ≠ [] and
       (f T) satisfies Connected and
       (T satisfies LeanWang.Abstract.TilesPlane if and only if (f T) satisfies Tiles) and
@@ -179,4 +179,4 @@ Theorem TranslationTiling.Abstract.rigid_tiling_reduction_three:
       the length of (f T) as a real number ≤
         64000 *
           (the length of T as a real number + 4) ^
-            (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4))))
+            (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4)))

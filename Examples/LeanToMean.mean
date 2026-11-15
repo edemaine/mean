@@ -166,6 +166,64 @@ Real.log x
 ln x
 
 P and
+for every natural number n:
+  n satisfies R
+
+P or
+there is a natural number n such that
+  n satisfies R
+
+P and
+there is no natural number n such that
+  n satisfies R
+
+P and
+there is a unique natural number n such that
+  n satisfies R
+
+P if and only if for every natural number n:
+  n satisfies R
+
+P if and only if there is a natural number n such that
+  n satisfies R
+
+P and
+(for every natural number n:
+  n satisfies R) if and only if Q
+
+P or
+(there is a natural number n such that
+  n satisfies R) if and only if Q
+
+P and
+(for every natural number n:
+  n satisfies R) or
+Q
+
+P if and only if Q and
+for every natural number n:
+  n satisfies R
+
+P and
+(for every natural number n:
+  n satisfies R) and
+Q
+
+P and
+(for every natural number n:
+  n satisfies R) and
+Q
+
+for every natural number n:
+  P and
+  for every natural number m:
+    (n + m) satisfies R
+
+P and
+for almost every element x of A:
+  x satisfies R
+
+P and
 Q and
 R and
 S
@@ -226,8 +284,8 @@ P and
 Q
 
 P and
-(for every natural number n:
-  n = n and Q)
+for every natural number n:
+  n = n and Q
 
 P or
 (there is a natural number n such that
@@ -235,8 +293,8 @@ P or
 Q
 
 P or
-(there is a natural number n such that
-  n = n or Q)
+there is a natural number n such that
+  n = n or Q
 
 the transitive closure of R
 
@@ -655,8 +713,8 @@ there is a unique function f from ℕ to ℕ such that
 False
 
 False or
-(there is a unique natural number n such that
-  n = 0)
+there is a unique natural number n such that
+  n = 0
 
 (there is a unique natural number n such that
   n = 0) if and only if True
@@ -760,8 +818,8 @@ for every p ∈ P:
 True
 
 True or
-(for every p ∈ P:
-  p satisfies R)
+for every p ∈ P:
+  p satisfies R
 
 if (for every p ∈ P:
   p satisfies R) then
@@ -1601,8 +1659,8 @@ if P then
 (for every element x of A:
   x = x) if and only if P
 
-P if and only if (there is an element x of A such that
-  x = x)
+P if and only if there is an element x of A such that
+  x = x
 
 the function mapping a natural number n to
   2 * n
@@ -1933,8 +1991,8 @@ there is no integer x such that
 Q
 
 Q or
-(there is no element x of T such that
-  x satisfies P)
+there is no element x of T such that
+  x satisfies P
 
 if there is no element x of T such that
   x satisfies P then

@@ -214,6 +214,66 @@ run_elab do
           catch _ => pure true
         unless rejected do throwError "logarithm rendering changed its base, argument, or nesting"
 
+-- Final quantifiers can consume the remaining text; interior ones must stop.
+section
+variable (P Q : Prop) (R : Nat → Prop)
+/--
+info: P and
+for every natural number n:
+  n satisfies R
+-/
+#guard_msgs in
+#mean_term P ∧ ∀ n : Nat, R n
+/--
+info: P or
+there is a natural number n such that
+  n satisfies R
+-/
+#guard_msgs in
+#mean_term P ∨ ∃ n : Nat, R n
+/-- info: P and (if P then Q) -/
+#guard_msgs in
+#mean_term P ∧ (P → Q)
+#mean_term_compare P ∧ ∀ n : Nat, R n
+#mean_term_compare P ∨ ∃ n : Nat, R n
+#mean_term_compare P ∧ ¬ ∃ n : Nat, R n
+#mean_term_compare P ∧ ∃! n : Nat, R n
+#mean_term_compare P ↔ ∀ n : Nat, R n
+#mean_term_compare P ↔ ∃ n : Nat, R n
+#mean_term_compare (P ∧ ∀ n : Nat, R n) ↔ Q
+#mean_term_compare (P ∨ ∃ n : Nat, R n) ↔ Q
+#mean_term_compare (P ∧ ∀ n : Nat, R n) ∨ Q
+#mean_term_compare P ↔ Q ∧ ∀ n : Nat, R n
+#mean_term_compare P ∧ (∀ n : Nat, R n) ∧ Q
+#mean_term_compare P ∧ (let condition := ∀ n : Nat, R n; condition) ∧ Q
+#mean_term_compare ∀ n : Nat, P ∧ ∀ m : Nat, R (n + m)
+end
+section
+open MeasureTheory
+variable (A : Type u) [MeasureSpace A] (P : Prop) (R : A → Prop)
+#mean_term_compare P ∧ ∀ᵐ x : A, R x
+end
+
+-- Dropping an interior scope boundary changes a proposition even after dedenting.
+open Lean Meta Elab Term in
+run_elab do
+  let proposition := mkSort .zero
+  let predicateType ← elabType (← `(Nat → Prop))
+  withLocalDeclD `P proposition fun p => do
+    withLocalDeclD `Q proposition fun q => do
+      withLocalDeclD `R predicateType fun r => do
+        withLocalDeclD `n (mkConst ``Nat) fun n => do
+          let quantified ← mkForallFVars #[n] (mkApp r n)
+          let conjunction := mkApp2 (mkConst ``And) p quantified
+          let original := mkApp2 (mkConst ``Iff) conjunction q
+          let changed := "P and for every natural number n: n satisfies R if and only if Q"
+          let rejected ← withoutModifyingState do
+            try
+              Mean.RoundTrip.checkText original changed
+              pure false
+            catch _ => pure true
+          unless rejected do throwError "removed necessary quantifier boundary before equivalence"
+
 -- Break a whole connective chain together, preserving grouping and binder scope.
 section
 variable (P Q R S : Prop) (u v w : Nat)

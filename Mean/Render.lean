@@ -543,6 +543,14 @@ private partial def inlineLets (e : Expr) : Expr :=
   | .letE _ _ value body _ => inlineLets (body.instantiate1 value)
   | e => e
 
+/-- Implications share Lean's forall node, but their `if ... then` syntax
+still needs grouping at higher precedence even at the end of an expression. -/
+private def isImplication (e : Expr) : MetaM Bool := do
+  match e with
+  | .forallE _ ty body .default =>
+    return !body.hasLooseBVars && (← isProp ty) && (← isProp e)
+  | _ => return false
+
 private partial def subjectListSyntax (stx : Syntax) : Bool :=
   if stx.isOfKind choiceKind then stx.getArgs.any subjectListSyntax
   else match stx with
@@ -553,14 +561,17 @@ private partial def subjectListSyntax (stx : Syntax) : Bool :=
     | _ => false
 
 /-- Parentheses preserve binder scope, connective precedence, and associativity. -/
-private def groupOperand (e : Expr) (parent : Name) (left : Bool) (text : String) : MetaM String := do
+private def groupOperand (e : Expr) (parent : Name) (left : Bool) (text : String)
+    (atEnd := false) : MetaM String := do
   let e := inlineLets e
   let subjects ← if parent == ``And || parent == ``Or then do
     match Parser.runParserCategory (← getEnv) `term text with
     | .ok stx => pure (subjectListSyntax stx)
     | .error _ => pure false
   else pure false
-  let grouped := subjects || isQuantifier e || (negatedExists? e).isSome ||
+  let needsScope := (isQuantifier e || (negatedExists? e).isSome) &&
+    (!atEnd || (← isImplication e))
+  let grouped := subjects || needsScope ||
     (parent == ``And && e.isAppOfArity ``Or 2) ||
     e.isAppOfArity ``Iff 2 ||
     (left && e.isAppOfArity parent 2)
@@ -691,16 +702,17 @@ private partial def relationOperatorText (e : Expr) : MetaM String := do
 
 /-- Recognize supported logical structure without unfolding mathematical constants.
 Embedded implications stay inline; standalone implications introduce a block.
-Quantifiers retain their block layout in either context. -/
+Quantifiers retain their block layout in either context. `atEnd` permits an
+operand to extend its scope to the end of the enclosing text. -/
 partial def renderExpr (e : Expr) (sentenceEnd := false)
-    (inlineContext := false) : MetaM String := do
+    (inlineContext := false) (atEnd := true) : MetaM String := do
   let e := inlineLets e
   match e with
   | .lam n ty body bi =>
     functionText n ty body bi (fun body => renderExpr body sentenceEnd)
   | .forallE n ty body bi =>
-    if bi == .default && (← isProp ty) && !body.hasLooseBVars && (← isProp e) then
-      let premise ← renderExpr ty false true
+    if ← isImplication e then
+      let premise ← renderExpr ty false true false
       let premise := if (inlineLets ty).isForall then "(" ++ premise ++ ")" else premise
       let conclusion ← renderExpr body sentenceEnd inlineContext
       let conclusion := if (inlineLets body).isAppOfArity ``Iff 2 then
@@ -812,8 +824,9 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
       let clauses := connectiveClauses e op
       let texts ← clauses.mapIdxM fun i clause => do
         let last := i + 1 == clauses.length
-        let text ← renderExpr clause (last && sentenceEnd) true
-        groupOperand clause op (!last) text
+        let final := last && atEnd
+        let text ← renderExpr clause (last && sentenceEnd) true final
+        groupOperand clause op (!last) text final
       let flat := String.intercalate s!" {word} " texts
       let width := Lean.Std.Format.getWidth (← getOptions)
       let separator := if flat.contains '\n' || flat.length > width then s!" {word}\n" else s!" {word} "
@@ -821,8 +834,8 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
     if e.isAppOfArity ``Iff 2 then
       let op := e.getAppFn.constName!
       let args := e.getAppArgs
-      let left ← groupOperand args[0]! op true (← renderExpr args[0]! false true)
-      let right ← groupOperand args[1]! op false (← renderExpr args[1]! sentenceEnd true)
+      let left ← groupOperand args[0]! op true (← renderExpr args[0]! false true false)
+      let right ← groupOperand args[1]! op false (← renderExpr args[1]! sentenceEnd true atEnd) atEnd
       return ← sentenceTail s!"{left} if and only if {right}" sentenceEnd
     let negative := negatedExists? e
     let existential := negative.getD e

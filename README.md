@@ -1061,6 +1061,13 @@ Conjunction and disjunction chains stay inline when their rendered text is singl
 and fits `format.width` (120 by default). Otherwise, the renderer puts a newline after each
 logical `and` or `or` in the chain, aligning the clauses. Parentheses retain logical
 grouping and quantifier scope; subject lists keep their own `and` inline.
+
+A quantifier at the end of the enclosing expression needs no outer parentheses:
+`P and for every natural number n: R n` means `P ∧ ∀ n : Nat, R n`.
+The renderer retains parentheses when subsequent text belongs outside that scope,
+including a following conjunct or the other side of an equivalence. Dedenting
+alone does not close a quantifier's scope.
+
 Parenthesize a logical proposition used as one of the predicate arguments too.
 `P and Q and R satisfy r` applies `r` to three propositions; it does not introduce
 an outer logical conjunction.
