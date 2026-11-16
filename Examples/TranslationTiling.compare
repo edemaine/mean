@@ -68,8 +68,8 @@ def TranslationTiling.Abstract.Tiles : {d : ℕ} → Prototile d → Prop :=
 Definition:
   TranslationTiling.Abstract.Tiles is
     the function mapping an implicit natural number d and an element P of Prototile d to
-      there is a set T of (Point d) elements such that
-        for every element x of (Point d):
+      there is a set T of Point d elements such that
+        for every element x of Point d:
           there is exactly one t ∈ T such that
             x - t ∈ P.
 
@@ -190,9 +190,9 @@ Definition:
   TranslationTiling.Abstract.translationsAndReflections is
     the function mapping an implicit natural number d to
       the set of elements f of Motion d such that
-        there is t ∈ (translations) such that
-          there is an element p of (RealPoint d) such that
-            there is an element q of (RealPoint d) such that
+        there is t ∈ translations such that
+          there is an element p of RealPoint d such that
+            there is an element q of RealPoint d such that
               f = t * the reflection across (the perpendicular bisector of p and q).
 
 -- LEAN INPUT:
@@ -202,9 +202,9 @@ def TranslationTiling.Abstract.RealTiles : {d : ℕ} → Prototile d → Set (Mo
 -- MEAN OUTPUT:
 Definition:
   TranslationTiling.Abstract.RealTiles is
-    the function mapping an implicit natural number d and an element P of Prototile d and a set motions of (Motion d) elements to
+    the function mapping an implicit natural number d and an element P of Prototile d and a set motions of Motion d elements to
       there is a subset T of motions such that
-        for almost every element x of (RealPoint d):
+        for almost every element x of RealPoint d:
           there is exactly one f ∈ T such that
             x ∈ the image of (Solid P) under f.
 
@@ -269,7 +269,7 @@ Theorem TranslationTiling.Abstract.real_tiling_reduction:
         (f T) is a nonempty list and
         (f T) satisfies Connected and
         (T satisfies LeanWang.Abstract.TilesPlane if and only if (f T) satisfies Tiles) and
-        ((f T) satisfies Tiles if and only if (f T) and (translations) satisfy RealTiles) and
+        ((f T) satisfies Tiles if and only if (f T) and translations satisfy RealTiles) and
         the length of (f T) as a real number ≤
           (the length of T as a real number + 4) ^
             (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4)))

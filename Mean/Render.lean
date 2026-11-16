@@ -215,11 +215,14 @@ private def typeText (e : Expr) : MetaM String :=
 private def publicParameterName (n : Name) : Bool :=
   !n.isAnonymous && !n.hasMacroScopes && !n.isInaccessibleUserName
 
-private def atomText (e : Expr) (propertySubject := false) : MetaM String := do
+private def atomText (e : Expr) (propertySubject := false) (typeContext := false) : MetaM String := do
   let text ← propertyText e
   if e.isFVar || e.isConst || e.isLit then return text
   if let .ok stx := Parser.runParserCategory (← getEnv) `term text then
-    if groupedSyntax stx then return text
+    -- Hidden arguments can leave an application printing as a single name.
+    if stx.isIdent || groupedSyntax stx then return text
+    -- Noun descriptions and function endpoints accept full type applications.
+    if typeContext && stx.isOfKind ``Parser.Term.app then return text
     if let `(the set $_:term) := stx then return text
   -- Property phrases bind tightly enough to be adjective subjects, but not application arguments.
   if propertySubject then
@@ -234,7 +237,7 @@ private def atomText (e : Expr) (propertySubject := false) : MetaM String := do
 
 private def typeAtomText (e : Expr) : MetaM String :=
   withOptions (fun opts => opts.setBool `pp.piBinderNames true
-    |>.setBool `pp.piBinderNames.hygienic false) (atomText e)
+    |>.setBool `pp.piBinderNames.hygienic false) (atomText e (typeContext := true))
 
 private def indented (s : String) : String :=
   "  " ++ s.replace "\n" "\n  "

@@ -278,6 +278,36 @@ Definition:
 the set {1, 2}
 
 -- LEAN INPUT:
+∃ p ∈ ParenthesisExamples.points, p = origin
+-- MEAN OUTPUT:
+there is p ∈ ParenthesisExamples.points such that
+  p = origin
+
+-- LEAN INPUT:
+∀ (p : ParenthesisExamples.Point d), p = origin
+-- MEAN OUTPUT:
+for every element p of ParenthesisExamples.Point d:
+  p = origin
+
+-- LEAN INPUT:
+∃ (p : ParenthesisExamples.Point d), p = origin
+-- MEAN OUTPUT:
+there is an element p of ParenthesisExamples.Point d such that
+  p = origin
+
+-- LEAN INPUT:
+∀ᵐ (p : ParenthesisExamples.Point d) ∂μ, p = origin
+-- MEAN OUTPUT:
+for almost every element p of ParenthesisExamples.Point d with respect to μ:
+  p = origin
+
+-- LEAN INPUT:
+∃ (p : ParenthesisExamples.Point d × ℕ), p.1 = origin
+-- MEAN OUTPUT:
+there is an element p of (ParenthesisExamples.Point d × ℕ) such that
+  p.1 = origin
+
+-- LEAN INPUT:
 Real.log x
 -- MEAN OUTPUT:
 ln x
@@ -650,7 +680,7 @@ for every natural number n where 0 ≤ n:
 -- LEAN INPUT:
 ∀ (S : Finset ℕ), {0} ⊆ S → S = S
 -- MEAN OUTPUT:
-for every element S of (Finset ℕ) where {0} ⊆ S:
+for every element S of Finset ℕ where {0} ⊆ S:
   S = S
 
 -- LEAN INPUT:

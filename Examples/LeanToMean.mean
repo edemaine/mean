@@ -129,6 +129,21 @@ Definition:
 
 the set {1, 2}
 
+there is p ∈ ParenthesisExamples.points such that
+  p = origin
+
+for every element p of ParenthesisExamples.Point d:
+  p = origin
+
+there is an element p of ParenthesisExamples.Point d such that
+  p = origin
+
+for almost every element p of ParenthesisExamples.Point d with respect to μ:
+  p = origin
+
+there is an element p of (ParenthesisExamples.Point d × ℕ) such that
+  p.1 = origin
+
 ln x
 
 ln 2
@@ -302,7 +317,7 @@ for every set S of A elements:
 for every natural number n where 0 ≤ n:
   n = n
 
-for every element S of (Finset ℕ) where {0} ⊆ S:
+for every element S of Finset ℕ where {0} ⊆ S:
   S = S
 
 for every set S of (the type of indices in [0, @OfNat.ofNat Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))) elements where @LE.le

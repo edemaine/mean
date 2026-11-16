@@ -177,6 +177,47 @@ def integerSetLiteral : Set Int := {1, 2}
 #mean_compare integerSetLiteral
 #mean_term_compare ({1, 2} : Set Int)
 
+namespace ParenthesisExamples
+abbrev Point (d : Nat) := Fin d × Fin d
+def points {d : Nat} : Set (Point d) := Set.univ
+end ParenthesisExamples
+
+section
+variable (d : Nat) (origin : ParenthesisExamples.Point d)
+variable [MeasurableSpace (ParenthesisExamples.Point d)]
+variable (μ : MeasureTheory.Measure (ParenthesisExamples.Point d))
+/--
+info: there is p ∈ ParenthesisExamples.points such that
+  p = origin
+-/
+#guard_msgs in
+#mean_term ∃ p ∈ ParenthesisExamples.points (d := d), p = origin
+/--
+info: for every element p of ParenthesisExamples.Point d:
+  p = origin
+-/
+#guard_msgs in
+#mean_term ∀ p : ParenthesisExamples.Point d, p = origin
+/--
+info: there is an element p of ParenthesisExamples.Point d such that
+  p = origin
+-/
+#guard_msgs in
+#mean_term ∃ p : ParenthesisExamples.Point d, p = origin
+/--
+info: for almost every element p of ParenthesisExamples.Point d with respect to μ:
+  p = origin
+-/
+#guard_msgs in
+#mean_term ∀ᵐ p ∂μ, p = origin
+#mean_term_compare ∃ p ∈ ParenthesisExamples.points (d := d), p = origin
+#mean_term_compare ∀ p : ParenthesisExamples.Point d, p = origin
+#mean_term_compare ∃ p : ParenthesisExamples.Point d, p = origin
+#mean_term_compare ∀ᵐ p ∂μ, p = origin
+-- Compound types still retain their grouping.
+#mean_term_compare ∃ p : ParenthesisExamples.Point d × Nat, p.1 = origin
+end
+
 section
 variable (b x y : Real) (n : Nat)
 /-- info: ln (ln x) -/
