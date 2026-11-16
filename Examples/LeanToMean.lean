@@ -1676,7 +1676,7 @@ info: Definition:
 /--
 info: Definition:
   a list xs of TypeNounExamples.Token elements satisfies TypeNounExamples.emptyList if
-    xs = [].
+    xs is an empty list.
 -/
 #guard_msgs in
 #mean TypeNounExamples.emptyList
@@ -2018,13 +2018,72 @@ def emptyVertices {V : Type*} (_G : SimpleGraph V) : Prop := IsEmpty V
 
 section
 variable {T : Sort u} (P : Prop) (n : Nat)
+/-- info: T is a nonempty type -/
+#guard_msgs in
+#mean_term Nonempty T
+/-- info: T is an empty type -/
+#guard_msgs in
+#mean_term IsEmpty T
 #mean_term_compare Nonempty T
 #mean_term_compare IsEmpty T
+#mean_term_compare ¬ Nonempty T
+#mean_term_compare ¬ IsEmpty T
 #mean_term_compare Nonempty T ∧ P
 #mean_term_compare IsEmpty T → P
 #mean_term_compare Nonempty (Fin n)
 #mean_term_compare IsEmpty (Fin n)
 end
+
+section
+variable {A : Type u} (xs : List A) (f : Nat → List A) (n : Nat)
+/-- info: xs is a nonempty list -/
+#guard_msgs in
+#mean_term xs ≠ []
+/-- info: xs is an empty list -/
+#guard_msgs in
+#mean_term xs = []
+/-- info: xs is a nonempty list -/
+#guard_msgs in
+#mean_term ¬ xs = []
+/-- info: xs is not a nonempty list -/
+#guard_msgs in
+#mean_term ¬ xs ≠ []
+#mean_term_compare xs ≠ []
+#mean_term_compare xs = []
+#mean_term_compare ¬ xs = []
+#mean_term_compare ¬ xs ≠ []
+#mean_term_compare ¬ ¬ xs = []
+#mean_term_compare [] = xs
+#mean_term_compare [] ≠ xs
+#mean_term_compare f n ≠ []
+#mean_term_compare f n = []
+#mean_term_compare xs = [] ∨ f n ≠ []
+#mean_term_compare ∀ ys : List A, ys = [] ∨ ys ≠ []
+end
+
+section
+variable (xs : ListEmptinessExamples.Sequence Nat)
+#mean_term_compare xs = []
+#mean_term_compare xs ≠ []
+set_option pp.explicit true in
+#mean_term_compare xs ≠ []
+end
+
+-- Domain nouns must agree with the subject; short forms accept only types and lists.
+open Lean Elab Term in
+run_elab do
+  for text in ["Nat is an empty list", "Nat is a nonempty list",
+      "([1] : List Nat) is an empty type", "([1] : List Nat) is a nonempty type",
+      "true is empty", "(0 : Nat) is nonempty"] do
+    let .ok stx := Parser.runParserCategory (← getEnv) `term text
+      | throwError "could not parse emptiness phrase"
+    let rejected ← withoutModifyingState do
+      try
+        discard <| withoutErrToSorry <| elabTerm stx none
+        synthesizeSyntheticMVarsNoPostponing
+        pure false
+      catch _ => pure true
+    unless rejected do throwError "emptiness phrase accepted the wrong subject domain"
 
 -- Fixed and compound universes cannot be generalized to a Mean graph subject.
 def smallGraph {V : Type} (G : SimpleGraph V) : Prop :=

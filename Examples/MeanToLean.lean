@@ -1576,12 +1576,40 @@ example : (there is no complex number) = (¬ ∃ _x : Complex, True) := rfl
 example : (there is no boolean) = (¬ ∃ _x : Bool, True) := rfl
 
 -- Type inhabitation is preserved directly, including universes and precedence.
+example {T : Sort u} : (T is a nonempty type) = Nonempty T := rfl
+example {T : Sort u} : (T is an empty type) = IsEmpty T := rfl
+example {T : Sort u} : (T is not a nonempty type) = (¬ Nonempty T) := rfl
+example {T : Sort u} : (T is not an empty type) = (¬ IsEmpty T) := rfl
 example {T : Sort u} : (T is nonempty) = Nonempty T := rfl
 example {T : Sort u} : (T is empty) = IsEmpty T := rfl
 example {T : Sort u} (P : Prop) : (T is nonempty and P) = (Nonempty T ∧ P) := rfl
 example {T : Sort u} (P : Prop) : (if T is empty then P) = (IsEmpty T → P) := rfl
 example (n : Nat) : ((Fin n) is nonempty) = Nonempty (Fin n) := rfl
 example (n : Nat) : ((Fin n) is empty) = IsEmpty (Fin n) := rfl
+
+-- List adjectives preserve equality with nil, including negation and application subjects.
+section
+variable {A : Type u} (xs : List A) (f : Nat → List A) (n : Nat)
+example : (xs is a nonempty list) = (xs ≠ []) := rfl
+example : (xs is an empty list) = (xs = []) := rfl
+example : (xs is nonempty) = (xs ≠ []) := rfl
+example : (xs is empty) = (xs = []) := rfl
+example : (xs is not a nonempty list) = (¬ xs ≠ []) := rfl
+example : (xs is not an empty list) = (xs ≠ []) := rfl
+example : (xs is not nonempty) = (¬ xs ≠ []) := rfl
+example : (xs is not empty) = (xs ≠ []) := rfl
+example : (f n is a nonempty list) = (f n ≠ []) := rfl
+example : (f n is an empty list) = (f n = []) := rfl
+example : (xs is nonempty and f n is empty) = (xs ≠ [] ∧ f n = []) := rfl
+example : (for every list ys of A elements: ys is empty or ys is nonempty) =
+    (∀ ys : List A, ys = [] ∨ ys ≠ []) := rfl
+end
+
+namespace ListEmptinessExamples
+abbrev Sequence (A : Type u) := List A
+example {A : Type u} (xs : Sequence A) : (xs is an empty list) = (xs = []) := rfl
+example {A : Type u} (xs : Sequence A) : (xs is nonempty) = (xs ≠ []) := rfl
+end ListEmptinessExamples
 
 Definition:
   a simple graph G is hasVertices if G.V is nonempty.

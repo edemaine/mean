@@ -1799,7 +1799,7 @@ there is a unique natural number such that
 ∃! xs : List ℕ, xs = []
 -- MEAN OUTPUT:
 there is a unique list xs of natural numbers such that
-  xs = []
+  xs is an empty list
 
 -- LEAN INPUT:
 ∃! f : ℕ → ℕ, f 0 = 0
@@ -3188,7 +3188,7 @@ def TypeNounExamples.emptyList : List TypeNounExamples.Token → Prop :=
 -- MEAN OUTPUT:
 Definition:
   a list xs of TypeNounExamples.Token elements satisfies TypeNounExamples.emptyList if
-    xs = [].
+    xs is an empty list.
 
 -- LEAN INPUT:
 def TypeNounExamples.copyList : List TypeNounExamples.Token → List TypeNounExamples.Token :=
@@ -3294,7 +3294,7 @@ def BinderExamples.inhabitedCarrier : {V : Type u_1} → SimpleGraph V → Prop 
 -- MEAN OUTPUT:
 Definition:
   a simple graph = (V, E) satisfies BinderExamples.inhabitedCarrier if
-    V is nonempty.
+    V is a nonempty type.
 
 -- LEAN INPUT:
 def BinderExamples.defaultValue : {A : Type u} → [Inhabited A] → A :=
@@ -3481,7 +3481,7 @@ the function mapping an implicit element A of Type u and a function f from A to 
 ∃ (xs : List TypeNounExamples.Token), xs = []
 -- MEAN OUTPUT:
 there is a list xs of TypeNounExamples.Token elements such that
-  xs = []
+  xs is an empty list
 
 -- LEAN INPUT:
 ∃ (_xs : List TypeNounExamples.Token), True
@@ -3492,7 +3492,7 @@ there is a list of TypeNounExamples.Token elements
 ¬∃ (xs : List TypeNounExamples.Token), xs = []
 -- MEAN OUTPUT:
 there is no list xs of TypeNounExamples.Token elements such that
-  xs = []
+  xs is an empty list
 
 -- LEAN INPUT:
 ¬∃ (_xs : List TypeNounExamples.Token), True
@@ -3942,7 +3942,7 @@ def inhabitedVertices : {V : Type u_1} → SimpleGraph V → Prop :=
 -- MEAN OUTPUT:
 Definition:
   a simple graph _G = (V, E) satisfies inhabitedVertices if
-    V is nonempty.
+    V is a nonempty type.
 
 -- LEAN INPUT:
 def emptyVertices : {V : Type u_1} → SimpleGraph V → Prop :=
@@ -3950,38 +3950,119 @@ def emptyVertices : {V : Type u_1} → SimpleGraph V → Prop :=
 -- MEAN OUTPUT:
 Definition:
   a simple graph _G = (V, E) satisfies emptyVertices if
-    V is empty.
+    V is an empty type.
 
 -- LEAN INPUT:
 Nonempty T
 -- MEAN OUTPUT:
-T is nonempty
+T is a nonempty type
 
 -- LEAN INPUT:
 IsEmpty T
 -- MEAN OUTPUT:
-T is empty
+T is an empty type
+
+-- LEAN INPUT:
+¬Nonempty T
+-- MEAN OUTPUT:
+T is not a nonempty type
+
+-- LEAN INPUT:
+¬IsEmpty T
+-- MEAN OUTPUT:
+T is not an empty type
 
 -- LEAN INPUT:
 Nonempty T ∧ P
 -- MEAN OUTPUT:
-T is nonempty and P
+T is a nonempty type and P
 
 -- LEAN INPUT:
 IsEmpty T → P
 -- MEAN OUTPUT:
-if T is empty then
+if T is an empty type then
   P
 
 -- LEAN INPUT:
 Nonempty (Fin n)
 -- MEAN OUTPUT:
-(the type of indices in [0, n)) is nonempty
+(the type of indices in [0, n)) is a nonempty type
 
 -- LEAN INPUT:
 IsEmpty (Fin n)
 -- MEAN OUTPUT:
-(the type of indices in [0, n)) is empty
+(the type of indices in [0, n)) is an empty type
+
+-- LEAN INPUT:
+xs ≠ []
+-- MEAN OUTPUT:
+xs is a nonempty list
+
+-- LEAN INPUT:
+xs = []
+-- MEAN OUTPUT:
+xs is an empty list
+
+-- LEAN INPUT:
+¬xs = []
+-- MEAN OUTPUT:
+xs is a nonempty list
+
+-- LEAN INPUT:
+¬xs ≠ []
+-- MEAN OUTPUT:
+xs is not a nonempty list
+
+-- LEAN INPUT:
+¬¬xs = []
+-- MEAN OUTPUT:
+xs is not a nonempty list
+
+-- LEAN INPUT:
+[] = xs
+-- MEAN OUTPUT:
+[] = xs
+
+-- LEAN INPUT:
+[] ≠ xs
+-- MEAN OUTPUT:
+[] ≠ xs
+
+-- LEAN INPUT:
+f n ≠ []
+-- MEAN OUTPUT:
+(f n) is a nonempty list
+
+-- LEAN INPUT:
+f n = []
+-- MEAN OUTPUT:
+(f n) is an empty list
+
+-- LEAN INPUT:
+xs = [] ∨ f n ≠ []
+-- MEAN OUTPUT:
+xs is an empty list or (f n) is a nonempty list
+
+-- LEAN INPUT:
+∀ (ys : List A), ys = [] ∨ ys ≠ []
+-- MEAN OUTPUT:
+for every list ys of A elements:
+  ys is an empty list or ys is a nonempty list
+
+-- LEAN INPUT:
+xs = []
+-- MEAN OUTPUT:
+xs is an empty list
+
+-- LEAN INPUT:
+xs ≠ []
+-- MEAN OUTPUT:
+xs is a nonempty list
+
+-- LEAN INPUT:
+@Ne (ListEmptinessExamples.Sequence Nat) xs (@List.nil Nat)
+-- MEAN OUTPUT:
+@Ne (ListEmptinessExamples.Sequence Nat) xs (@List.nil Nat)
 
 -- LEAN INPUT:
 def smallGraph : {V : Type} → SimpleGraph V → Prop :=
@@ -4652,7 +4733,7 @@ the edge set of (G ⊔ H) = (the edge set of G) ∪ (the edge set of H)
 -- LEAN INPUT:
 Nonempty G.V
 -- MEAN OUTPUT:
-the vertex type of G is nonempty
+the vertex type of G is a nonempty type
 
 -- LEAN INPUT:
 G.edgeSet = ∅ ∧ H.edgeSet = ∅

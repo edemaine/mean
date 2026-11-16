@@ -109,7 +109,7 @@ Theorem TranslationTiling.Abstract.tiling_reduction:
     there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile d such that
       f is computable and
       for every list T of LeanWang.Abstract.Tile elements:
-        f T ≠ [] and
+        (f T) is a nonempty list and
         (f T) satisfies Connected and
         (T satisfies LeanWang.Abstract.TilesPlane if and only if (f T) satisfies Tiles) and
         the length of (f T) as a real number ≤
@@ -266,7 +266,7 @@ Theorem TranslationTiling.Abstract.real_tiling_reduction:
     there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile d such that
       f is computable and
       for every list T of LeanWang.Abstract.Tile elements:
-        f T ≠ [] and
+        (f T) is a nonempty list and
         (f T) satisfies Connected and
         (T satisfies LeanWang.Abstract.TilesPlane if and only if (f T) satisfies Tiles) and
         ((f T) satisfies Tiles if and only if (f T) and (translations) satisfy RealTiles) and
@@ -294,7 +294,7 @@ Theorem TranslationTiling.Abstract.rigid_tiling_reduction:
     there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile d such that
       f is computable and
       for every list T of LeanWang.Abstract.Tile elements:
-        f T ≠ [] and
+        (f T) is a nonempty list and
         (f T) satisfies Connected and
         (T satisfies LeanWang.Abstract.TilesPlane if and only if (f T) satisfies Tiles) and
         (for every superset motions of translations:
@@ -320,7 +320,7 @@ Theorem TranslationTiling.Abstract.rigid_tiling_reduction_three:
   there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile 3 such that
     f is computable and
     for every list T of LeanWang.Abstract.Tile elements:
-      f T ≠ [] and
+      (f T) is a nonempty list and
       (f T) satisfies Connected and
       (T satisfies LeanWang.Abstract.TilesPlane if and only if (f T) satisfies Tiles) and
       (for every superset motions of translations:

@@ -43,6 +43,10 @@ macro_rules
 declare_syntax_cat meanAdjective
 syntax "nonempty" : meanAdjective
 syntax "empty" : meanAdjective
+syntax "a" "nonempty" "type" : meanAdjective
+syntax "an" "empty" "type" : meanAdjective
+syntax "a" "nonempty" "list" : meanAdjective
+syntax "an" "empty" "list" : meanAdjective
 syntax "finite" : meanAdjective
 syntax "infinite" : meanAdjective
 syntax "countable" : meanAdjective
@@ -115,8 +119,8 @@ macro_rules
   | `(the length of $xs:term) => `(List.length $xs)
   | `(the set of all elements of $ty:term) => `((Set.univ : Set $ty))
   | `(the real Euclidean space of dimension $d:term) => `(EuclideanSpace Real (Fin $d))
-  | `(the type of bijective affine isometries from $a:term to $b:term over $k:term) =>
-      `(AffineIsometryEquiv $k $a $b)
+  | `(the type of bijective affine isometries from $source:term to $target:term over $k:term) =>
+      `(AffineIsometryEquiv $k $source $target)
   | `(the linear part of $f:term) => `(($f).linear)
   | `(the determinant of $f:term) => `(($f).det)
   | `(the perpendicular bisector of $p:term and $q:term) => `(AffineSubspace.perpBisector $p $q)
@@ -183,6 +187,31 @@ elab "computableOn%" t:term : term => do
     return result == Lean.mkSort .zero
   Lean.Meta.mkAppM (if isPredicate then ``ComputablePred else ``Computable) #[subject]
 
+/-- Bare emptiness adjectives infer the domain; explicit nouns check it.
+List forms preserve equality or inequality with nil directly. -/
+elab "emptinessOn%" adjective:meanAdjective "of" t:term : term => do
+  let (isNonempty, listExpected) : Bool × Option Bool ← match adjective with
+    | `(meanAdjective| nonempty) => pure (true, none)
+    | `(meanAdjective| empty) => pure (false, none)
+    | `(meanAdjective| a nonempty type) => pure (true, some false)
+    | `(meanAdjective| an empty type) => pure (false, some false)
+    | `(meanAdjective| a nonempty list) => pure (true, some true)
+    | `(meanAdjective| an empty list) => pure (false, some true)
+    | _ => Lean.throwErrorAt adjective "expected an emptiness adjective"
+  let subject ← Lean.Elab.Term.elabTerm t none
+  Lean.Elab.Term.synthesizeSyntheticMVarsNoPostponing
+  let ty ← Lean.Meta.whnf (← Lean.Meta.inferType subject)
+  if ty.isSort && listExpected != some true then
+    Lean.Meta.mkAppM (if isNonempty then ``Nonempty else ``IsEmpty) #[subject]
+  else if ty.isAppOfArity ``List 1 && listExpected != some false then
+    let nil ← Lean.Meta.mkAppOptM ``List.nil #[some ty.getAppArgs[0]!]
+    Lean.Meta.mkAppM (if isNonempty then ``Ne else ``Eq) #[subject, nil]
+  else
+    Lean.throwErrorAt t (match listExpected with
+      | some true => "expected a list"
+      | some false => "expected a type"
+      | none => "expected a type or list")
+
 macro_rules
   | `($subject:term satisfies $predicate:meanAdjective) =>
       `($subject is $predicate)
@@ -207,6 +236,12 @@ macro_rules
   | `($subject:term is not $adjective:meanAdjective) =>
       `(Not (adjectiveOn% $adjective of $subject))
   | `(adjectiveOn% computable of $subject:term) => `(computableOn% $subject)
+  | `(adjectiveOn% nonempty of $subject:term) => `(emptinessOn% nonempty of $subject)
+  | `(adjectiveOn% empty of $subject:term) => `(emptinessOn% empty of $subject)
+  | `(adjectiveOn% a nonempty type of $subject:term) => `(emptinessOn% a nonempty type of $subject)
+  | `(adjectiveOn% an empty type of $subject:term) => `(emptinessOn% an empty type of $subject)
+  | `(adjectiveOn% a nonempty list of $subject:term) => `(emptinessOn% a nonempty list of $subject)
+  | `(adjectiveOn% an empty list of $subject:term) => `(emptinessOn% an empty list of $subject)
   | `(adjectiveOn% $adjective:meanAdjective of $subject:term) =>
       `(adjectiveApply% (adjectivePredicate% $adjective) of $subject)
   | `(adjectivePredicate% nonempty) => `(Nonempty)

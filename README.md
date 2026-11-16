@@ -522,8 +522,9 @@ accept alternatives while the renderer chooses a consistent style—for example,
 more than definitional equality: `Nonempty (G.Path u v)` and
 `∃ p : G.Path u v, True` are logically equivalent but not definitionally equal.
 Checked equivalence rules are a future extension. The renderer preserves
-`Nonempty T` as `T is nonempty`, rather than rewriting it to an existential.
-Similarly, `IsEmpty T` renders as `T is empty`. These phrases describe types.
+`Nonempty T` as `T is a nonempty type`, rather than rewriting it to an existential.
+Similarly, `IsEmpty T` renders as `T is an empty type`. For lists, `xs ≠ []`
+and `xs = []` render as `xs is a nonempty list` and `xs is an empty list`.
 
 ## Try it
 
@@ -1030,7 +1031,7 @@ The renderer chooses the first form, including inside equalities, membership,
 and other Lean expressions. Complex owners use parentheses, such as
 `the edge set of (G ⊔ H)`; the possessive form currently takes an identifier.
 Property phrases bind above comparisons but below arithmetic and set operations:
-`the vertex type of G is nonempty` needs no parentheses, while a union renders as
+`the vertex type of G is a nonempty type` needs no parentheses, while a union renders as
 `(the edge set of G) ∪ (the edge set of H)`.
 
 | Property phrase | Lean expression |
@@ -1059,13 +1060,16 @@ Ordinary Lean output in before/after comparisons retains its original notation.
 `<term> is <adjective>` applies the corresponding Lean predicate.
 `<term> is not <adjective>` negates that application.
 Registered adjectives supply a Lean predicate through `adjectivePredicate%`;
-`computable` selects its predicate from the subject's codomain.
+emptiness selects its interpretation from the subject's domain, and `computable`
+selects its predicate from the subject's codomain.
 The renderer maintains an independent inverse mapping and checks each round trip.
 
 | Adjective | Lean predicate | Subject |
 | --- | --- | --- |
-| `nonempty` | `Nonempty` | Type |
-| `empty` | `IsEmpty` | Type |
+| `a nonempty type` | `Nonempty` | Type |
+| `an empty type` | `IsEmpty` | Type |
+| `a nonempty list` | `xs ≠ []` | List |
+| `an empty list` | `xs = []` | List |
 | `finite` | `Finite` | Type |
 | `infinite` | `Infinite` | Type |
 | `countable` | `Countable` | Type |
@@ -1077,6 +1081,10 @@ The renderer maintains an independent inverse mapping and checks each round trip
 | `computable` | `ComputablePred` | Predicate with values in `Prop` |
 
 For example, `f is injective and f is surjective` preserves both predicates.
+The short forms `is nonempty` and `is empty` remain accepted for types and lists;
+the renderer includes the noun. Explicit nouns check the subject's domain.
+List phrases preserve equality or inequality with `[]` directly, including
+negation; they do not replace it with an existential or a length comparison.
 `finite` asserts finiteness without supplying a `Fintype` enumeration. Set predicates
 such as `Set.Finite` are not yet overloaded onto this vocabulary.
 

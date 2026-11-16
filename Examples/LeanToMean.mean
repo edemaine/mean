@@ -863,7 +863,7 @@ there is a unique natural number such that
   False
 
 there is a unique list xs of natural numbers such that
-  xs = []
+  xs is an empty list
 
 there is a unique function f from ℕ to ℕ such that
   f 0 = 0
@@ -1574,7 +1574,7 @@ Definition:
 
 Definition:
   a list xs of TypeNounExamples.Token elements satisfies TypeNounExamples.emptyList if
-    xs = [].
+    xs is an empty list.
 
 Definition:
   TypeNounExamples.copyList is
@@ -1630,7 +1630,7 @@ Definition:
 
 Definition:
   a simple graph = (V, E) satisfies BinderExamples.inhabitedCarrier if
-    V is nonempty.
+    V is a nonempty type.
 
 Definition:
   BinderExamples.defaultValue is
@@ -1721,12 +1721,12 @@ the function mapping an implicit element A of Type u and a function f from A to 
   f
 
 there is a list xs of TypeNounExamples.Token elements such that
-  xs = []
+  xs is an empty list
 
 there is a list of TypeNounExamples.Token elements
 
 there is no list xs of TypeNounExamples.Token elements such that
-  xs = []
+  xs is an empty list
 
 there is no list of TypeNounExamples.Token elements
 
@@ -1943,24 +1943,57 @@ Definition:
 
 Definition:
   a simple graph _G = (V, E) satisfies inhabitedVertices if
-    V is nonempty.
+    V is a nonempty type.
 
 Definition:
   a simple graph _G = (V, E) satisfies emptyVertices if
-    V is empty.
+    V is an empty type.
 
-T is nonempty
+T is a nonempty type
 
-T is empty
+T is an empty type
 
-T is nonempty and P
+T is not a nonempty type
 
-if T is empty then
+T is not an empty type
+
+T is a nonempty type and P
+
+if T is an empty type then
   P
 
-(the type of indices in [0, n)) is nonempty
+(the type of indices in [0, n)) is a nonempty type
 
-(the type of indices in [0, n)) is empty
+(the type of indices in [0, n)) is an empty type
+
+xs is a nonempty list
+
+xs is an empty list
+
+xs is a nonempty list
+
+xs is not a nonempty list
+
+xs is not a nonempty list
+
+[] = xs
+
+[] ≠ xs
+
+(f n) is a nonempty list
+
+(f n) is an empty list
+
+xs is an empty list or (f n) is a nonempty list
+
+for every list ys of A elements:
+  ys is an empty list or ys is a nonempty list
+
+xs is an empty list
+
+xs is a nonempty list
+
+@Ne (ListEmptinessExamples.Sequence Nat) xs (@List.nil Nat)
 
 Definition:
   smallGraph is
@@ -2272,6 +2305,6 @@ the edge set of G satisfies Set.Nonempty
 
 the edge set of (G ⊔ H) = (the edge set of G) ∪ (the edge set of H)
 
-the vertex type of G is nonempty
+the vertex type of G is a nonempty type
 
 the edge set of G = (∅ : Set (Sym2 V)) and the edge set of H = (∅ : Set (Sym2 V))

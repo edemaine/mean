@@ -589,15 +589,31 @@ private structure PredicateView where
   phrase : String
   registered : Bool := false
 
+/-- Preserve the orientation of list comparisons: swapping equality's sides
+would require more than definitional equality. -/
+private def listEmptinessView? (e : Expr) : MetaM (Option PredicateView) := do
+  let (comparison, isNonempty) ←
+    if e.isAppOfArity ``Eq 3 then pure (e, false)
+    else if e.isAppOfArity ``Ne 3 then pure (e, true)
+    else if e.isAppOfArity ``Not 1 && e.getAppArgs[0]!.isAppOfArity ``Eq 3 then
+      pure (e.getAppArgs[0]!, true)
+    else return none
+  let args := comparison.getAppArgs
+  unless (← whnf args[0]!).isAppOfArity ``List 1 && args[2]!.isAppOfArity ``List.nil 1 do
+    return none
+  return some ⟨[args[1]!], if isNonempty then "a nonempty list" else "an empty list", true⟩
+
 /-- Registered adjectives use `is/are`; generic names use `satisfies/satisfy`.
 Subjects are the trailing explicit arguments, after implicit parameters. -/
 private def predicateView? (e : Expr) : MetaM (Option PredicateView) := do
+  let explicit := pp.explicit.get (← getOptions)
+  if !explicit then
+    if let some view ← listEmptinessView? e then return some view
   if e.isAppOfArity ``Not 1 then return none
   unless ← isProp e do return none
-  let explicit := pp.explicit.get (← getOptions)
   let vocabulary : List (Name × Nat × String) := [
-    (``Nonempty, 1, "nonempty"),
-    (``IsEmpty, 1, "empty"),
+    (``Nonempty, 1, "a nonempty type"),
+    (``IsEmpty, 1, "an empty type"),
     (``Finite, 1, "finite"),
     (``Infinite, 1, "infinite"),
     (``Countable, 1, "countable"),
@@ -918,12 +934,14 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
         if let some text ← renderSatisfying heading body then return text
         if body.isConstOf ``True then return ← sentenceTail heading sentenceEnd
         return s!"{heading} such that\n{indented (← renderExpr body sentenceEnd)}"
-    let negativePredicate := e.isAppOfArity ``Not 1
+    let directView ← predicateView? e
+    let negativePredicate := directView.isNone && e.isAppOfArity ``Not 1
     let positive := if negativePredicate then e.getAppArgs[0]! else e
     -- A negated quantifier without dedicated wording stays Lean. Do not turn
     -- its predicate argument into an adjective subject either.
     if negativePredicate && isQuantifier positive then return ← leafText e sentenceEnd
-    if let some view ← predicateView? positive then
+    let view ← if negativePredicate then predicateView? positive else pure directView
+    if let some view := view then
       let texts ← view.subjects.mapM fun subject => do
         let rendered ← renderExpr subject false true
         if (unsignedNumeral? subject).isSome && !(pp.explicit.get (← getOptions)) then
