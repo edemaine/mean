@@ -91,7 +91,7 @@ the type of functions from ℕ to ℤ
 -- LEAN INPUT:
 {Set.univ, ∅}
 -- MEAN OUTPUT:
-({the set of all elements of ℕ, ∅} : Set (Set ℕ))
+the set {the set of all elements of ℕ, ∅}
 
 -- LEAN INPUT:
 {1, 2}
@@ -163,7 +163,7 @@ there is a subset T of s such that
 -- LEAN INPUT:
 ∃! g : Motion, g ∈ {f, t} ∧ p ∈ (⇑g : Space → Space) '' s
 -- MEAN OUTPUT:
-there is exactly one g ∈ ({f, t} : Set Motion) such that
+there is exactly one g ∈ the set {f, t} such that
   p ∈ the image of s under g
 
 -- LEAN INPUT:
@@ -235,8 +235,47 @@ theorem finiteSetChoice :
   ∀ s ∈ {Set.univ, ∅}, s ∈ {Set.univ, ∅}
 -- MEAN OUTPUT:
 Theorem finiteSetChoice:
-  for every s ∈ ({the set of all elements of ℕ, ∅} : Set (Set ℕ)):
-    s ∈ ({the set of all elements of ℕ, ∅} : Set (Set ℕ))
+  for every s ∈ the set {the set of all elements of ℕ, ∅}:
+    s ∈ the set {the set of all elements of ℕ, ∅}
+
+-- LEAN INPUT:
+{s, t}
+-- MEAN OUTPUT:
+the set {s, t}
+
+-- LEAN INPUT:
+{s}
+-- MEAN OUTPUT:
+the set {s}
+
+-- LEAN INPUT:
+∅
+-- MEAN OUTPUT:
+the set ∅
+
+-- LEAN INPUT:
+∀ u ∈ {s, t}, u ⊆ s ∪ t
+-- MEAN OUTPUT:
+for every u ∈ the set {s, t}:
+  u ⊆ s ∪ t
+
+-- LEAN INPUT:
+{0, 1}
+-- MEAN OUTPUT:
+{0, 1}
+
+-- LEAN INPUT:
+def integerSetLiteral : Set ℤ :=
+  {1, 2}
+-- MEAN OUTPUT:
+Definition:
+  integerSetLiteral is
+    (the set {1, 2} : Set ℤ).
+
+-- LEAN INPUT:
+{1, 2}
+-- MEAN OUTPUT:
+the set {1, 2}
 
 -- LEAN INPUT:
 Real.log x
@@ -1673,7 +1712,7 @@ for every set S of integers where 0 ∈ S:
 ∃ (T : Set SetPhraseExamples.Point), T = ∅
 -- MEAN OUTPUT:
 there is a set T of SetPhraseExamples.Point elements such that
-  T = (∅ : Set SetPhraseExamples.Point)
+  T = the set ∅
 
 -- LEAN INPUT:
 ¬∃ (_S : Set ℕ), True
@@ -1684,7 +1723,7 @@ there is no set of natural numbers
 ∃! S : Set ℕ, S = ∅
 -- MEAN OUTPUT:
 there is a unique set S of natural numbers such that
-  S = (∅ : Set ℕ)
+  S = the set ∅
 
 -- LEAN INPUT:
 fun (f : Set ℕ → Set ℤ) => f
@@ -3917,7 +3956,7 @@ def edgeless : {V : Type u_1} → SimpleGraph V → Prop :=
 -- MEAN OUTPUT:
 Definition:
   a simple graph G = (V, E) satisfies edgeless if
-    the edge set of G = (∅ : Set (Sym2 V)).
+    the edge set of G = the set ∅.
 
 -- LEAN INPUT:
 def zero : ℕ → Prop :=
@@ -4738,4 +4777,4 @@ the vertex type of G is a nonempty type
 -- LEAN INPUT:
 G.edgeSet = ∅ ∧ H.edgeSet = ∅
 -- MEAN OUTPUT:
-the edge set of G = (∅ : Set (Sym2 V)) and the edge set of H = (∅ : Set (Sym2 V))
+the edge set of G = the set ∅ and the edge set of H = the set ∅

@@ -16,7 +16,7 @@ register_option mean.renderFunctions : Bool := {
 
 register_option mean.renderSetLiteralTypes : Bool := {
   defValue := true
-  descr := "Retain local type annotations on finite set literals in the Mean view"
+  descr := "Identify set literals as sets in the Mean view"
 }
 
 namespace Mean.Render
@@ -116,9 +116,7 @@ def delabTypedSetLiteral : Delab := do
   let ty ← inferType (← getExpr)
   guard <| ty.isAppOfArity ``Set 1
   let value ← withOptions (fun opts => opts.setBool `mean.renderSetLiteralTypes false) delab
-  let target ← withOptions (fun opts => opts.setBool `mean.renderProperties false
-    |>.setBool `mean.renderFunctions false) (withType delab)
-  `(($value : $target))
+  `(the set $value)
 
 -- These delaborators run only for the Mean view, leaving ordinary Lean output intact.
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
@@ -222,6 +220,7 @@ private def atomText (e : Expr) (propertySubject := false) : MetaM String := do
   if e.isFVar || e.isConst || e.isLit then return text
   if let .ok stx := Parser.runParserCategory (← getEnv) `term text then
     if groupedSyntax stx then return text
+    if let `(the set $_:term) := stx then return text
   -- Property phrases bind tightly enough to be adjective subjects, but not application arguments.
   if propertySubject then
     match Parser.runParserCategory (← getEnv) `term text with

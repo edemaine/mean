@@ -699,12 +699,13 @@ structures retain Lean syntax and pass the same round-trip checks.
 
 The November 12 update prompted these general rendering improvements:
 
-1. **Keep set-literal type annotations locally.** The motion-policy condition in
+1. **Identify set literals locally.** The motion-policy condition in
    `real_tiling_coRE_complete` needs the type of its finite set of sets. Compact
-   printing previously lost that information. Finite set literals now retain a
-   local type annotation, keeping the rest of the theorem compact. The checked
+   printing previously lost that information. Finite set literals now use
+   `the set {…}`, distinguishing `Set` from `Finset` while inferring the element
+   type from the surrounding statement. The checked
    explicit-argument fallback remains available. `finiteSetChoice` is a regression
-   example for the local annotations.
+   example for this distinction.
 2. **Normalize scalar cast targets and Euclidean coordinates.** In `Solid`, the
    target `(fun i => ℝ) i` is beta-reduced before recognizing scalar vocabulary,
    and coordinate access renders as `x i`, restoring
@@ -766,6 +767,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | List subject | `a list T of Tile elements`, `a list xs of natural numbers` |
 | Set subject | `a set S of Point elements`, `a set S of integers` |
 | Set comprehension | `the set of elements x of T such that <proposition>` |
+| Set literal | `the set {x, y}`, `the set ∅` |
 | Set image | `the image of S under f` |
 | Collection properties | `the length of xs`, `the set of all elements of T` |
 | Function subject | `a function f from A to B`, `a function f from A and B to C` |

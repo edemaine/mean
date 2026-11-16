@@ -41,7 +41,7 @@ the function mapping a natural number n to
 
 the type of functions from ℕ to ℤ
 
-({the set of all elements of ℕ, ∅} : Set (Set ℕ))
+the set {the set of all elements of ℕ, ∅}
 
 {1, 2}
 
@@ -71,7 +71,7 @@ there is a subset T of s such that
   for every x ∈ T:
     x ∈ s
 
-there is exactly one g ∈ ({f, t} : Set Motion) such that
+there is exactly one g ∈ the set {f, t} such that
   p ∈ the image of s under g
 
 the image of s under f
@@ -109,8 +109,25 @@ there is exactly one n ∈ s such that
   x i
 
 Theorem finiteSetChoice:
-  for every s ∈ ({the set of all elements of ℕ, ∅} : Set (Set ℕ)):
-    s ∈ ({the set of all elements of ℕ, ∅} : Set (Set ℕ))
+  for every s ∈ the set {the set of all elements of ℕ, ∅}:
+    s ∈ the set {the set of all elements of ℕ, ∅}
+
+the set {s, t}
+
+the set {s}
+
+the set ∅
+
+for every u ∈ the set {s, t}:
+  u ⊆ s ∪ t
+
+{0, 1}
+
+Definition:
+  integerSetLiteral is
+    (the set {1, 2} : Set ℤ).
+
+the set {1, 2}
 
 ln x
 
@@ -806,12 +823,12 @@ for every set S of integers where 0 ∈ S:
   0 ∈ S
 
 there is a set T of SetPhraseExamples.Point elements such that
-  T = (∅ : Set SetPhraseExamples.Point)
+  T = the set ∅
 
 there is no set of natural numbers
 
 there is a unique set S of natural numbers such that
-  S = (∅ : Set ℕ)
+  S = the set ∅
 
 the function mapping a function f from sets of natural numbers to sets of integers to
   f
@@ -1930,7 +1947,7 @@ Definition:
 
 Definition:
   a simple graph G = (V, E) satisfies edgeless if
-    the edge set of G = (∅ : Set (Sym2 V)).
+    the edge set of G = the set ∅.
 
 Definition:
   a natural number n satisfies zero if
@@ -2307,4 +2324,4 @@ the edge set of (G ⊔ H) = (the edge set of G) ∪ (the edge set of H)
 
 the vertex type of G is a nonempty type
 
-the edge set of G = (∅ : Set (Sym2 V)) and the edge set of H = (∅ : Set (Sym2 V))
+the edge set of G = the set ∅ and the edge set of H = the set ∅

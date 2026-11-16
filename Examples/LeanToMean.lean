@@ -154,10 +154,28 @@ run_elab do
             catch _ => pure true
           unless rejected do throwError "bounded unique existence changed meaning"
 
--- A finite set of sets needs its local type annotation in theorem output.
+-- A finite set of sets must retain its collection kind in theorem output.
 theorem finiteSetChoice (s : Set Nat) (h : s ∈ ({Set.univ, ∅} : Set (Set Nat))) :
     s ∈ ({Set.univ, ∅} : Set (Set Nat)) := h
 #mean_compare finiteSetChoice
+
+section
+variable (s t : Set Nat)
+/-- info: the set {s, t} -/
+#guard_msgs in
+#mean_term ({s, t} : Set (Set Nat))
+#mean_term_compare ({s, t} : Set (Set Nat))
+#mean_term_compare ({s} : Set (Set Nat))
+#mean_term_compare (∅ : Set (Set Nat))
+#mean_term_compare ∀ u ∈ ({s, t} : Set (Set Nat)), u ⊆ s ∪ t
+-- Finset literals retain their own collection kind.
+#mean_term_compare ({0, 1} : Finset Nat)
+end
+
+-- Standalone numeric literals still retain their element type when inference needs it.
+def integerSetLiteral : Set Int := {1, 2}
+#mean_compare integerSetLiteral
+#mean_term_compare ({1, 2} : Set Int)
 
 section
 variable (b x y : Real) (n : Nat)

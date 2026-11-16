@@ -243,7 +243,7 @@ theorem TranslationTiling.Abstract.real_tiling_coRE_complete :
 -- MEAN OUTPUT:
 Theorem TranslationTiling.Abstract.real_tiling_coRE_complete:
   for every natural number d where 3 ≤ d:
-    for every motions ∈ ({allMotions, translations, translationsAndRotations, translationsAndReflections} : Set (Set (Motion d))):
+    for every motions ∈ the set {allMotions, translations, translationsAndRotations, translationsAndReflections}:
       (the function mapping an element P of Prototile d to
         P satisfies Connected and (P and motions satisfy RealTiles)) satisfies LeanWang.Abstract.CoREComplete
 

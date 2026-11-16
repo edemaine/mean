@@ -108,6 +108,7 @@ def acrossWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "across "
 syntax:max "the " imageWord "of " term:arg ppSpace underWord term:arg : term
 syntax:max "the " lengthWord "of " term:arg : term
 syntax:max "the " "set " "of " "all " "elements " "of " term:arg : term
+syntax:max "the " "set " term:arg : term
 syntax:max "the " euclideanSpaceWords "of " dimensionWord term:arg : term
 syntax:max "the " "type " "of " isometryTypeWords "from " term:arg " to " term:arg ppSpace overWord term:arg : term
 syntax:max "the " linearPartWords "of " term:arg : term
@@ -118,6 +119,7 @@ macro_rules
   | `(the image of $s:term under $f:term) => `(Set.image $f $s)
   | `(the length of $xs:term) => `(List.length $xs)
   | `(the set of all elements of $ty:term) => `((Set.univ : Set $ty))
+  | `(the set $value:term) => `(($value : Set _))
   | `(the real Euclidean space of dimension $d:term) => `(EuclideanSpace Real (Fin $d))
   | `(the type of bijective affine isometries from $source:term to $target:term over $k:term) =>
       `(AffineIsometryEquiv $k $source $target)

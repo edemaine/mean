@@ -4,6 +4,12 @@ import Mathlib.MeasureTheory.Measure.Module
 namespace GeneralRenderingExamples
 example (A : Type u) (xs : List A) : (the length of xs) = xs.length := rfl
 example (A : Type u) : (the set of all elements of A) = (Set.univ : Set A) := rfl
+example (A : Type u) (x y : A) : (the set {x, y}) = ({x, y} : Set A) := rfl
+example (A : Type u) (x : A) : (the set {x}) = ({x} : Set A) := rfl
+example (A : Type u) : (the set ∅) = (∅ : Set A) := rfl
+example (s : Set Nat) :
+    (for every t ∈ the set {s, ∅}: t ⊆ s) =
+    (∀ t ∈ ({s, ∅} : Set (Set Nat)), t ⊆ s) := rfl
 abbrev Space := EuclideanSpace Real (Fin 3)
 abbrev Motion := Space ≃ᵃⁱ[Real] Space
 example (d : Nat) : (the real Euclidean space of dimension d) = EuclideanSpace Real (Fin d) := rfl
