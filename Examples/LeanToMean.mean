@@ -2,6 +2,32 @@
 -- Checked Mean output; see Examples/LeanToMean.compare for paired Lean/Mean comparisons.
 
 Definition:
+  answer is
+    the integer 42.
+
+Abbreviation:
+  a Count is
+    a natural number.
+
+Theorem answer_eq:
+  answer = 42
+
+Definition:
+  Nested.entry is
+    the integer 7.
+
+Definition:
+  «a» is
+    the integer 0.
+
+def step : (input : Nat) → Nat :=
+  Nat.succ
+
+Definition:
+  HeadingNameExamples.answer is
+    the integer 42.
+
+Definition:
   a natural number n satisfies PredicateWordingExamples.zero if
     (n = 0).
 

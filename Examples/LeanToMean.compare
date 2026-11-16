@@ -2,6 +2,60 @@
 -- Each comparison shows elaborated Lean input followed by its checked Mean output.
 
 -- LEAN INPUT:
+def answer : ℤ :=
+  42
+-- MEAN OUTPUT:
+Definition:
+  answer is
+    the integer 42.
+
+-- LEAN INPUT:
+abbrev Count : Type :=
+  ℕ
+-- MEAN OUTPUT:
+Abbreviation:
+  a Count is
+    a natural number.
+
+-- LEAN INPUT:
+theorem answer_eq :
+  answer = 42
+-- MEAN OUTPUT:
+Theorem answer_eq:
+  answer = 42
+
+-- LEAN INPUT:
+def Nested.entry : ℤ :=
+  7
+-- MEAN OUTPUT:
+Definition:
+  Nested.entry is
+    the integer 7.
+
+-- LEAN INPUT:
+def «a» : ℤ :=
+  0
+-- MEAN OUTPUT:
+Definition:
+  «a» is
+    the integer 0.
+
+-- LEAN INPUT:
+def step : ℕ → ℕ :=
+  Nat.succ
+-- MEAN OUTPUT:
+def step : (input : Nat) → Nat :=
+  Nat.succ
+
+-- LEAN INPUT:
+def HeadingNameExamples.answer : ℤ :=
+  42
+-- MEAN OUTPUT:
+Definition:
+  HeadingNameExamples.answer is
+    the integer 42.
+
+-- LEAN INPUT:
 def PredicateWordingExamples.zero : ℕ → Prop :=
   fun (n : ℕ) => n = 0
 -- MEAN OUTPUT:

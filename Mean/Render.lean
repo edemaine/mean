@@ -161,6 +161,13 @@ private def nameText (n : Name) : MetaM String := do
   | .error _ => pure ()
   return "«" ++ s ++ "»"
 
+/-- Declaration headings omit the current namespace, retaining nested namespaces
+and names outside this scope. Binder names use `nameText` directly. -/
+private def declarationNameText (n : Name) : MetaM String := do
+  let ns ← getCurrNamespace
+  let relative := if ns.isPrefixOf n && n != ns then n.replacePrefix ns .anonymous else n
+  nameText relative
+
 /-- Unexpanders for binder notation (such as set builders and `∃!`) need a
 native lambda to recognize their syntax. Protect those argument positions while
 allowing function phrases elsewhere, including deeper inside their bodies. -/
@@ -1036,7 +1043,7 @@ private def checkedRendering (preferred : TermElabM String)
 /-- Prefer predicate subjects; other values use named definitions. -/
 def renderDefinition (name : Name) (signatureType value : Expr) (abbreviation := false) : TermElabM String := do
   let value := declarationBinders signatureType value
-  let nameStr ← nameText name
+  let nameStr ← declarationNameText name
   let clause := if abbreviation then "Abbreviation" else "Definition"
   if (← whnf signatureType).isSort then
     let article := if ['a', 'e', 'i', 'o', 'u'].contains (nameStr.toLower.toList.headD ' ') then
@@ -1132,15 +1139,16 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
   Command.liftTermElabM do
   let n ← realizeGlobalConstNoOverloadWithInfo declaration
   let info ← getConstInfo n
+  let declarationName ← declarationNameText n
   withLevelNames info.levelParams do
     let context := if info.levelParams.isEmpty then "" else
       "-- Universe parameters: " ++ String.intercalate ", " (info.levelParams.map toString) ++ "\n"
     -- Module exports omit theorem proofs and may present them as axioms.
     if wasOriginallyTheorem (← getEnv) n then
-      let text := s!"Theorem {← nameText n}:\n{indented (← renderChecked info.type)}"
+      let text := s!"Theorem {declarationName}:\n{indented (← renderChecked info.type)}"
       RoundTrip.checkText info.type text `meanTheoremStatement
       if compare then
-        let before := s!"theorem {← nameText n} :\n{indented (← leanText info.type)}"
+        let before := s!"theorem {declarationName} :\n{indented (← leanText info.type)}"
         logInfo (comparisonText (context ++ before) (context ++ text))
       else logInfo s!"{context}{text}"
       return
@@ -1153,18 +1161,18 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
           if RoundTrip.isParameterNameFailure ex then
             -- Some aliases need a declaration type to retain public parameter names.
             let keyword := if abbreviation then "abbrev" else "def"
-            pure s!"{keyword} {← nameText n} : {← typeText d.type} :=
+            pure s!"{keyword} {declarationName} : {← typeText d.type} :=
 {indented (← leanText d.value)}"
           else
             renderDefinition n d.type d.value abbreviation
       if compare then
         let keyword := if abbreviation then "abbrev" else "def"
-        let before := s!"{keyword} {← nameText n} : {← leanText info.type} :=\n{indented (← leanText d.value)}"
+        let before := s!"{keyword} {declarationName} : {← leanText info.type} :=\n{indented (← leanText d.value)}"
         logInfo (comparisonText before text)
       else logInfo text
     | _ =>
       let text ← renderChecked info.type
-      let statementHeader := s!"{context}-- Statement of {n}\n"
+      let statementHeader := s!"{context}-- Statement of {declarationName}\n"
       if compare then
         logInfo (comparisonText s!"{statementHeader}{← leanText info.type}" text)
       else logInfo (statementHeader ++ text)

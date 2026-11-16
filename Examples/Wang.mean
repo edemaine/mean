@@ -4,43 +4,43 @@
 -- Upstream license: [Apache 2.0](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE)
 
 Abbreviation:
-  a LeanWang.Abstract.Direction is
+  a Direction is
     an index in [0, 4).
 
 Abbreviation:
-  LeanWang.Abstract.n is
+  n is
     (0 : Direction).
 
 Abbreviation:
-  LeanWang.Abstract.s is
+  s is
     (1 : Direction).
 
 Abbreviation:
-  LeanWang.Abstract.e is
+  e is
     (2 : Direction).
 
 Abbreviation:
-  LeanWang.Abstract.w is
+  w is
     (3 : Direction).
 
 Abbreviation:
-  a LeanWang.Abstract.Tile is
+  a Tile is
     a function from Direction to ℕ.
 
 Definition:
-  a list T of Tile elements satisfies LeanWang.Abstract.TilesPlane if
+  a list T of Tile elements satisfies TilesPlane if
     there is a function t from ℤ and ℤ to Tile such that
       for all integers x and y:
         t x y ∈ T and t x y e = t (x + 1) y w and t x y n = t x (y + 1) s.
 
 Definition:
-  LeanWang.Abstract.CoRE is
+  CoRE is
     the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
       (the function mapping an element x of α to
         x does not satisfy p) is recursively enumerable.
 
 Definition:
-  LeanWang.Abstract.CoREComplete is
+  CoREComplete is
     the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
       p satisfies CoRE and
       for every function q from ℕ to Prop satisfying CoRE:
@@ -49,8 +49,8 @@ Definition:
           for every natural number n:
             n satisfies q if and only if (r n) satisfies p.
 
-Theorem LeanWang.Abstract.coRE_complete:
+Theorem coRE_complete:
   TilesPlane satisfies CoREComplete
 
-Theorem LeanWang.Abstract.undecidable:
+Theorem undecidable:
   TilesPlane is not computable

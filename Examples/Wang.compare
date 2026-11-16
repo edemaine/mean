@@ -4,80 +4,80 @@
 -- Upstream license: [Apache 2.0](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE)
 
 -- LEAN INPUT:
-abbrev LeanWang.Abstract.Direction : Type :=
+abbrev Direction : Type :=
   Fin 4
 -- MEAN OUTPUT:
 Abbreviation:
-  a LeanWang.Abstract.Direction is
+  a Direction is
     an index in [0, 4).
 
 -- LEAN INPUT:
-abbrev LeanWang.Abstract.n : Direction :=
+abbrev n : Direction :=
   0
 -- MEAN OUTPUT:
 Abbreviation:
-  LeanWang.Abstract.n is
+  n is
     (0 : Direction).
 
 -- LEAN INPUT:
-abbrev LeanWang.Abstract.s : Direction :=
+abbrev s : Direction :=
   1
 -- MEAN OUTPUT:
 Abbreviation:
-  LeanWang.Abstract.s is
+  s is
     (1 : Direction).
 
 -- LEAN INPUT:
-abbrev LeanWang.Abstract.e : Direction :=
+abbrev e : Direction :=
   2
 -- MEAN OUTPUT:
 Abbreviation:
-  LeanWang.Abstract.e is
+  e is
     (2 : Direction).
 
 -- LEAN INPUT:
-abbrev LeanWang.Abstract.w : Direction :=
+abbrev w : Direction :=
   3
 -- MEAN OUTPUT:
 Abbreviation:
-  LeanWang.Abstract.w is
+  w is
     (3 : Direction).
 
 -- LEAN INPUT:
-abbrev LeanWang.Abstract.Tile : Type :=
+abbrev Tile : Type :=
   Direction → ℕ
 -- MEAN OUTPUT:
 Abbreviation:
-  a LeanWang.Abstract.Tile is
+  a Tile is
     a function from Direction to ℕ.
 
 -- LEAN INPUT:
-def LeanWang.Abstract.TilesPlane : List Tile → Prop :=
+def TilesPlane : List Tile → Prop :=
   fun (T : List Tile) => ∃ (t : ℤ → ℤ → Tile), ∀ (x y : ℤ), t x y ∈ T ∧ t x y e = t (x + 1) y w ∧ t x y n = t x (y + 1) s
 -- MEAN OUTPUT:
 Definition:
-  a list T of Tile elements satisfies LeanWang.Abstract.TilesPlane if
+  a list T of Tile elements satisfies TilesPlane if
     there is a function t from ℤ and ℤ to Tile such that
       for all integers x and y:
         t x y ∈ T and t x y e = t (x + 1) y w and t x y n = t x (y + 1) s.
 
 -- LEAN INPUT:
-def LeanWang.Abstract.CoRE : {α : Type u_1} → [Primcodable α] → (α → Prop) → Prop :=
+def CoRE : {α : Type u_1} → [Primcodable α] → (α → Prop) → Prop :=
   fun {α : Type u_1} [Primcodable α] (p : α → Prop) => REPred fun (x : α) => ¬p x
 -- MEAN OUTPUT:
 Definition:
-  LeanWang.Abstract.CoRE is
+  CoRE is
     the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
       (the function mapping an element x of α to
         x does not satisfy p) is recursively enumerable.
 
 -- LEAN INPUT:
-def LeanWang.Abstract.CoREComplete : {α : Type u_1} → [Primcodable α] → (α → Prop) → Prop :=
+def CoREComplete : {α : Type u_1} → [Primcodable α] → (α → Prop) → Prop :=
   fun {α : Type u_1} [Primcodable α] (p : α → Prop) =>
     CoRE p ∧ ∀ (q : ℕ → Prop), CoRE q → ∃ (r : ℕ → α), Computable r ∧ ∀ (n : ℕ), q n ↔ p (r n)
 -- MEAN OUTPUT:
 Definition:
-  LeanWang.Abstract.CoREComplete is
+  CoREComplete is
     the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
       p satisfies CoRE and
       for every function q from ℕ to Prop satisfying CoRE:
@@ -87,15 +87,15 @@ Definition:
             n satisfies q if and only if (r n) satisfies p.
 
 -- LEAN INPUT:
-theorem LeanWang.Abstract.coRE_complete :
+theorem coRE_complete :
   CoREComplete TilesPlane
 -- MEAN OUTPUT:
-Theorem LeanWang.Abstract.coRE_complete:
+Theorem coRE_complete:
   TilesPlane satisfies CoREComplete
 
 -- LEAN INPUT:
-theorem LeanWang.Abstract.undecidable :
+theorem undecidable :
   ¬ComputablePred TilesPlane
 -- MEAN OUTPUT:
-Theorem LeanWang.Abstract.undecidable:
+Theorem undecidable:
   TilesPlane is not computable

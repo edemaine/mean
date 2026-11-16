@@ -7,7 +7,7 @@
 -- Upstream license: the imported Wang example and adapted hardness interface retain [Apache 2.0](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE) in Wang.LICENSE.
 
 Definition:
-  LeanWang.Abstract.CoREHard is
+  CoREHard is
     the function mapping an implicit element α of Type u_1 and an instance of typeclass Primcodable α and a function p from α to Prop to
       for every function q from ℕ to Prop satisfying CoRE:
         there is a function r from ℕ to α such that
@@ -16,22 +16,22 @@ Definition:
             n satisfies q if and only if (r n) satisfies p.
 
 Abbreviation:
-  TranslationTiling.Abstract.Point is
+  Point is
     the function mapping a natural number d to
       the type of functions from indices in [0, d) to ℤ.
 
 Abbreviation:
-  TranslationTiling.Abstract.Prototile is
+  Prototile is
     the function mapping a natural number d to
       the type of lists of (Point d) elements.
 
 Definition:
-  TranslationTiling.Abstract.Adjacent is
+  Adjacent is
     (the function mapping an implicit natural number d and an element p of Point d and an element q of Point d to
       the sum over indices i in [0, d) of |p i - q i| = 1).
 
 Definition:
-  TranslationTiling.Abstract.Connected is
+  Connected is
     the function mapping an implicit natural number d and an element P of Prototile d to
       for every x ∈ P:
         for every y ∈ P:
@@ -40,24 +40,24 @@ Definition:
                 p ∈ P and q ∈ P and (p and q satisfy Adjacent)).
 
 Definition:
-  TranslationTiling.Abstract.Tiles is
+  Tiles is
     the function mapping an implicit natural number d and an element P of Prototile d to
       there is a set T of Point d elements such that
         for every element x of Point d:
           there is exactly one t ∈ T such that
             x - t ∈ P.
 
-Theorem TranslationTiling.Abstract.tiling_coRE_complete:
+Theorem tiling_coRE_complete:
   for every natural number d where 3 ≤ d:
     (the function mapping an element P of Prototile d to
       P satisfies Connected and P satisfies Tiles) satisfies LeanWang.Abstract.CoREComplete
 
-Theorem TranslationTiling.Abstract.tiling_undecidable:
+Theorem tiling_undecidable:
   for every natural number d where 3 ≤ d:
     (the function mapping an element P of Prototile d to
       P satisfies Connected and P satisfies Tiles) is not computable
 
-Theorem TranslationTiling.Abstract.tiling_reduction:
+Theorem tiling_reduction:
   for every natural number d where 3 ≤ d:
     there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile d such that
       f is computable and
@@ -70,12 +70,12 @@ Theorem TranslationTiling.Abstract.tiling_reduction:
             (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4)))
 
 Abbreviation:
-  TranslationTiling.Abstract.RealPoint is
+  RealPoint is
     the function mapping a natural number d to
       the real Euclidean space of dimension d.
 
 Definition:
-  TranslationTiling.Abstract.Solid is
+  Solid is
     (the function mapping an implicit natural number d and an element P of Prototile d to
       the set of elements x of RealPoint d such that
         there is p ∈ P such that
@@ -83,29 +83,29 @@ Definition:
             p i as a real number ≤ x i and x i ≤ p i as a real number + 1).
 
 Abbreviation:
-  TranslationTiling.Abstract.Motion is
+  Motion is
     the function mapping a natural number d to
       the type of bijective affine isometries from (RealPoint d) to (RealPoint d) over ℝ.
 
 Definition:
-  TranslationTiling.Abstract.allMotions is
+  allMotions is
     the function mapping an implicit natural number d to
       the set of all elements of (Motion d).
 
 Definition:
-  TranslationTiling.Abstract.translations is
+  translations is
     (the function mapping an implicit natural number d to
       the set of elements f of Motion d such that
         the linear part of f = 1).
 
 Definition:
-  TranslationTiling.Abstract.translationsAndRotations is
+  translationsAndRotations is
     (the function mapping an implicit natural number d to
       the set of elements f of Motion d such that
         the determinant of (the linear part of f) = 1).
 
 Definition:
-  TranslationTiling.Abstract.translationsAndReflections is
+  translationsAndReflections is
     the function mapping an implicit natural number d to
       the set of elements f of Motion d such that
         there is t ∈ translations such that
@@ -114,32 +114,32 @@ Definition:
               f = t * the reflection across (the perpendicular bisector of p and q).
 
 Definition:
-  TranslationTiling.Abstract.RealTiles is
+  RealTiles is
     the function mapping an implicit natural number d and an element P of Prototile d and a set motions of Motion d elements to
       there is a subset T of motions such that
         for almost every element x of RealPoint d:
           there is exactly one f ∈ T such that
             x ∈ the image of (Solid P) under f.
 
-Theorem TranslationTiling.Abstract.real_tiling_coRE_hard:
+Theorem real_tiling_coRE_hard:
   for every natural number d where 3 ≤ d:
     for every superset motions of translations:
       (the function mapping an element P of Prototile d to
         P satisfies Connected and (P and motions satisfy RealTiles)) satisfies LeanWang.Abstract.CoREHard
 
-Theorem TranslationTiling.Abstract.real_tiling_undecidable:
+Theorem real_tiling_undecidable:
   for every natural number d where 3 ≤ d:
     for every superset motions of translations:
       (the function mapping an element P of Prototile d to
         P satisfies Connected and (P and motions satisfy RealTiles)) is not computable
 
-Theorem TranslationTiling.Abstract.real_tiling_coRE_complete:
+Theorem real_tiling_coRE_complete:
   for every natural number d where 3 ≤ d:
     for every motions ∈ the set {allMotions, translations, translationsAndRotations, translationsAndReflections}:
       (the function mapping an element P of Prototile d to
         P satisfies Connected and (P and motions satisfy RealTiles)) satisfies LeanWang.Abstract.CoREComplete
 
-Theorem TranslationTiling.Abstract.real_tiling_reduction:
+Theorem real_tiling_reduction:
   for every natural number d where 3 ≤ d:
     there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile d such that
       f is computable and
@@ -152,7 +152,7 @@ Theorem TranslationTiling.Abstract.real_tiling_reduction:
           (the length of T as a real number + 4) ^
             (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4)))
 
-Theorem TranslationTiling.Abstract.rigid_tiling_reduction:
+Theorem rigid_tiling_reduction:
   for every natural number d where 3 ≤ d:
     there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile d such that
       f is computable and
@@ -167,7 +167,7 @@ Theorem TranslationTiling.Abstract.rigid_tiling_reduction:
             (the length of T as a real number + 4) ^
               (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4)))
 
-Theorem TranslationTiling.Abstract.rigid_tiling_reduction_three:
+Theorem rigid_tiling_reduction_three:
   there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile 3 such that
     f is computable and
     for every list T of LeanWang.Abstract.Tile elements:

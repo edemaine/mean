@@ -272,7 +272,7 @@ there is no index in [0, 0)
 The renderer prefers `into xs` for direct list-length and array-size bounds and
 range wording for other `Fin` bounds. It keeps user-defined aliases such as
 `Direction` intact. In Wang, its declaration renders as
-`Abbreviation: a LeanWang.Abstract.Direction is an index in [0, 4).`
+`Abbreviation: a Direction is an index in [0, 4).`
 
 Function domains separated by `and` are curried arguments. A product domain stays
 explicit: `a function f from (ℤ × ℤ) to Tile` means `(ℤ × ℤ) → Tile`.
@@ -621,6 +621,11 @@ The comparison's before view prints the elaborated expression, not the original
 source spelling. Rendering commands display text without adding declarations.
 The Lean input view preserves `abbrev` for abbreviations; the Mean output uses
 `Abbreviation:`. Both the defined value and this declaration kind are checked.
+Declaration headings omit the current namespace: inside `TranslationTiling.Abstract`,
+`Point` renders as `Point`. Nested names retain their relative path, and declarations
+outside the current namespace retain their qualification, even when their namespace
+is open. Both sides of a declaration comparison use this heading convention.
+
 Output is checked in its original namespace, import, variable, and universe
 context; it is not a standalone export file.
 

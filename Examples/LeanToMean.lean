@@ -1,6 +1,71 @@
 import Examples.MeanToLean
 import Mean
 
+namespace HeadingNameExamples
+def answer : Int := 42
+abbrev Count := Nat
+theorem answer_eq : answer = 42 := rfl
+def «a» : Int := 0
+def step : (input : Nat) → Nat := Nat.succ
+namespace Nested
+def entry : Int := 7
+end Nested
+
+/--
+info: Definition:
+  answer is
+    the integer 42.
+-/
+#guard_msgs in
+#mean answer
+/--
+info: Abbreviation:
+  a Count is
+    a natural number.
+-/
+#guard_msgs in
+#mean Count
+/--
+info: Theorem answer_eq:
+  answer = 42
+-/
+#guard_msgs in
+#mean answer_eq
+/--
+info: Definition:
+  Nested.entry is
+    the integer 7.
+-/
+#guard_msgs in
+#mean Nested.entry
+/--
+info: Definition:
+  «a» is
+    the integer 0.
+-/
+#guard_msgs in
+#mean «a»
+#mean_compare answer
+#mean_compare Count
+#mean_compare answer_eq
+#mean_compare Nested.entry
+#mean_compare «a»
+#mean_compare step
+end HeadingNameExamples
+
+-- Open namespaces shorten references, but foreign declaration headings retain their scope.
+namespace OtherHeadingExamples
+open HeadingNameExamples
+/--
+info: Definition:
+  HeadingNameExamples.answer is
+    the integer 42.
+-/
+#guard_msgs in
+#mean answer
+#mean_compare answer
+end OtherHeadingExamples
+
 #mean_compare PredicateWordingExamples.zero
 #mean_compare PredicateWordingExamples.less
 #mean_compare PredicateWordingExamples.nonzero
