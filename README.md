@@ -739,6 +739,29 @@ The November 12 update prompted these general rendering improvements:
    result. In particular, `Point d` describes the type of functions from indices
    in `[0, d)` to integers, preserving the explicit dimension parameter.
 
+## Real-algebraic complexity example
+
+[Examples/Canny.lean](Examples/Canny.lean) adapts the unified abstract from
+[lean-canny at commit 6b758a2](https://github.com/edemaine/lean-canny/blob/6b758a2abff2b2ef69d245dad37505f9fb790921/LeanCanny/Abstract.lean).
+It covers integer polynomial expressions, Boolean formulas and real solution
+sets, ETR and ∃∀ℝ, whole-space connectivity, and point reachability. The seven
+theorem statements include Canny's PSPACE bounds and the counting-hierarchy
+bounds attributed upstream to OpenAI. The source attribution and
+[Apache 2.0 license](Examples/Canny.LICENSE) are retained.
+
+This example imports `Examples.Wang` and runs under Mean's existing toolchain
+with `python test.py`. It does not depend on CSLib Frontier. Instead, an explicit
+`Background` namespace declares interfaces for binary encodings, polynomial-time
+reductions, PSPACE, and counting levels. Their intended meanings are documented;
+their machine semantics and encoding layouts are **not implemented or verified
+in this adaptation**. All seven theorem proofs are replaced by `sorry`, as in
+the tiling examples. This checks rendering of statements relative to those
+interfaces, not the upstream complexity proofs or equivalence with CSLib Frontier.
+
+[Canny.mean](Examples/Canny.mean) contains Mean output;
+[Canny.compare](Examples/Canny.compare) pairs its 21 checked renderings with Lean. The inductive syntax
+types retain native type signatures; their constructors appear in Canny.lean.
+
 ## Compositional syntax
 
 The grammar separates logical structure from mathematical vocabulary:

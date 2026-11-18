@@ -1,0 +1,118 @@
+-- Automatically generated from Examples/Canny.lean by python test.py --update.
+-- Checked Mean output; see Examples/Canny.compare for paired Lean/Mean comparisons.
+-- Upstream source: [LeanCanny/Abstract.lean](https://github.com/edemaine/lean-canny/blob/6b758a2abff2b2ef69d245dad37505f9fb790921/LeanCanny/Abstract.lean)
+-- Upstream license: [Apache 2.0](https://github.com/edemaine/lean-canny/blob/6b758a2abff2b2ef69d245dad37505f9fb790921/LICENSE)
+
+ℕ → Type
+
+Definition:
+  Term.eval is
+    the function : {n : ℕ} → (Fin n → ℝ) → Term n → ℝ mapping an implicit natural number n and a function x from indices in [0, n) to ℝ and an element x_1 of Term n to
+      Term.brecOn x_1 (Term.eval._f x).
+
+ℕ → Type
+
+Definition:
+  Formula.solutionSet is
+    the function : {n : ℕ} → Formula n → Set (Fin n → ℝ) mapping an implicit natural number n and an element x of Formula n to
+      Formula.brecOn x Formula.solutionSet._f.
+
+(n : ℕ) → Term n ↪ the type of lists of booleans
+
+(n : ℕ) → Formula n ↪ the type of lists of booleans
+
+Definition:
+  ETR is
+    ⋃ (n : ℕ),
+      the image of
+        (the set of elements p of Formula n such that
+            p.solutionSet satisfies Set.Nonempty)
+        under (encFormula n).
+
+Theorem etr_in_PSPACE:
+  ETR ∈ Background.PSPACE Background.encBits
+
+Theorem etr_in_CountingLevel:
+  ETR ∈ Background.CountingLevel 26 Background.encBits
+
+Definition:
+  ExistsReal is
+    the set of elements L of the type of sets of (the type of lists of booleans) elements such that
+      Background.encBits and Background.encBits and L and ETR satisfy Background.PolyTimeReducible.
+
+Theorem existsReal_subset_PSPACE:
+  ExistsReal ⊆ Background.PSPACE Background.encBits
+
+Theorem existsReal_subset_CountingLevel:
+  ExistsReal ⊆ Background.CountingLevel 26 Background.encBits
+
+Definition:
+  Formula.existsForallSolutionSet is
+    the function mapping an implicit natural number r and an implicit natural number s and an element p of Formula (r + s) to
+      the set of elements x of the type of indices in [0, r) → ℝ such that
+        for every function y from indices in [0, s) to ℝ:
+          (fun (i : the type of indices in [0, r + s)) => Fin.addCases x y i) ∈ p.solutionSet.
+
+Definition:
+  ExistsForallReal is
+    ⋃ (r : ℕ),
+      ⋃ (s : ℕ),
+        the image of
+          (the set of elements p of Formula (r + s) such that
+              p.existsForallSolutionSet satisfies Set.Nonempty)
+          under
+          (fun (p : Formula (r + s)) =>
+            (Background.encPair Background.encUnary Background.encBits :
+                ℕ × the type of lists of booleans → the type of lists of booleans)
+              (r, (encFormula (r + s) : Formula (r + s) → the type of lists of booleans) p)).
+
+Theorem existsForallReal_in_CountingLevel:
+  ExistsForallReal ∈ Background.CountingLevel 60 Background.encBits
+
+Definition:
+  ConnectedFormulas is
+    the function mapping a natural number n to
+      the set of elements p of Formula n such that
+        p.solutionSet satisfies IsPreconnected.
+
+Definition:
+  ConnectedLanguage is
+    ⋃ (n : ℕ),
+      the image of (ConnectedFormulas n) under
+        (fun (p : Formula n) =>
+          (Background.encPair Background.encUnary Background.encBits :
+              ℕ × the type of lists of booleans → the type of lists of booleans)
+            (n, (encFormula n : Formula n → the type of lists of booleans) p)).
+
+Theorem connectedLanguage_in_PSPACE:
+  ConnectedLanguage ∈ Background.PSPACE Background.encBits
+
+Definition:
+  ReachableEndpoints is
+    the function mapping an implicit natural number n and an element p of Formula n to
+      the set of elements x of Formula n × Formula n such that
+        match x with
+        | (p₁, p₂) =>
+          ∃ (x : the type of indices in [0, n) → ℝ) (y : the type of indices in [0, n) → ℝ),
+            p₁.solutionSet = the set {x} ∧
+              p₂.solutionSet = the set {y} ∧
+                ∃ (γ : Path x y),
+                  ∀ (t : unitInterval as Type), (γ : unitInterval as Type → the type of indices in [0, n) → ℝ) t ∈ p.solutionSet.
+
+Definition:
+  ReachableLanguage is
+    ⋃ (n : ℕ),
+      ⋃ (p : Formula n),
+        the image of (ReachableEndpoints p) under
+          (fun (x : Formula n × Formula n) =>
+            match x with
+            | (p₁, p₂) =>
+              (Background.encPair Background.encUnary (Background.encList Background.encBits) :
+                  ℕ × the type of lists of (the type of lists of booleans) elements → the type of lists of booleans)
+                (n,
+                  [(encFormula n : Formula n → the type of lists of booleans) p,
+                    (encFormula n : Formula n → the type of lists of booleans) p₁,
+                    (encFormula n : Formula n → the type of lists of booleans) p₂])).
+
+Theorem reachableLanguage_in_PSPACE:
+  ReachableLanguage ∈ Background.PSPACE Background.encBits

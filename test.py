@@ -14,6 +14,7 @@ EXAMPLES = (
     "Examples/LeanToMean.lean",
     "Examples/Wang.lean",
     "Examples/TranslationTiling.lean",
+    "Examples/Canny.lean",
 )
 
 

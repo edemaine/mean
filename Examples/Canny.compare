@@ -1,0 +1,227 @@
+-- Automatically generated from Examples/Canny.lean by python test.py --update.
+-- Each comparison shows elaborated Lean input followed by its checked Mean output.
+-- Upstream source: [LeanCanny/Abstract.lean](https://github.com/edemaine/lean-canny/blob/6b758a2abff2b2ef69d245dad37505f9fb790921/LeanCanny/Abstract.lean)
+-- Upstream license: [Apache 2.0](https://github.com/edemaine/lean-canny/blob/6b758a2abff2b2ef69d245dad37505f9fb790921/LICENSE)
+
+-- LEAN INPUT:
+-- Statement of Term
+ℕ → Type
+-- MEAN OUTPUT:
+ℕ → Type
+
+-- LEAN INPUT:
+def Term.eval : {n : ℕ} → (Fin n → ℝ) → Term n → ℝ :=
+  fun {n : ℕ} (x : Fin n → ℝ) (x_1 : Term n) => Term.brecOn x_1 (Term.eval._f x)
+-- MEAN OUTPUT:
+Definition:
+  Term.eval is
+    the function : {n : ℕ} → (Fin n → ℝ) → Term n → ℝ mapping an implicit natural number n and a function x from indices in [0, n) to ℝ and an element x_1 of Term n to
+      Term.brecOn x_1 (Term.eval._f x).
+
+-- LEAN INPUT:
+-- Statement of Formula
+ℕ → Type
+-- MEAN OUTPUT:
+ℕ → Type
+
+-- LEAN INPUT:
+def Formula.solutionSet : {n : ℕ} → Formula n → Set (Fin n → ℝ) :=
+  fun {n : ℕ} (x : Formula n) => Formula.brecOn x Formula.solutionSet._f
+-- MEAN OUTPUT:
+Definition:
+  Formula.solutionSet is
+    the function : {n : ℕ} → Formula n → Set (Fin n → ℝ) mapping an implicit natural number n and an element x of Formula n to
+      Formula.brecOn x Formula.solutionSet._f.
+
+-- LEAN INPUT:
+-- Statement of encTerm
+(n : ℕ) → Term n ↪ List Bool
+-- MEAN OUTPUT:
+(n : ℕ) → Term n ↪ the type of lists of booleans
+
+-- LEAN INPUT:
+-- Statement of encFormula
+(n : ℕ) → Formula n ↪ List Bool
+-- MEAN OUTPUT:
+(n : ℕ) → Formula n ↪ the type of lists of booleans
+
+-- LEAN INPUT:
+def ETR : Set (List Bool) :=
+  ⋃ (n : ℕ), (⇑(encFormula n) : Formula n → List Bool) '' {p : Formula n | p.solutionSet.Nonempty}
+-- MEAN OUTPUT:
+Definition:
+  ETR is
+    ⋃ (n : ℕ),
+      the image of
+        (the set of elements p of Formula n such that
+            p.solutionSet satisfies Set.Nonempty)
+        under (encFormula n).
+
+-- LEAN INPUT:
+theorem etr_in_PSPACE :
+  ETR ∈ Background.PSPACE Background.encBits
+-- MEAN OUTPUT:
+Theorem etr_in_PSPACE:
+  ETR ∈ Background.PSPACE Background.encBits
+
+-- LEAN INPUT:
+theorem etr_in_CountingLevel :
+  ETR ∈ Background.CountingLevel 26 Background.encBits
+-- MEAN OUTPUT:
+Theorem etr_in_CountingLevel:
+  ETR ∈ Background.CountingLevel 26 Background.encBits
+
+-- LEAN INPUT:
+def ExistsReal : Set (Set (List Bool)) :=
+  {L : Set (List Bool) | Background.PolyTimeReducible Background.encBits Background.encBits L ETR}
+-- MEAN OUTPUT:
+Definition:
+  ExistsReal is
+    the set of elements L of the type of sets of (the type of lists of booleans) elements such that
+      Background.encBits and Background.encBits and L and ETR satisfy Background.PolyTimeReducible.
+
+-- LEAN INPUT:
+theorem existsReal_subset_PSPACE :
+  ExistsReal ⊆ Background.PSPACE Background.encBits
+-- MEAN OUTPUT:
+Theorem existsReal_subset_PSPACE:
+  ExistsReal ⊆ Background.PSPACE Background.encBits
+
+-- LEAN INPUT:
+theorem existsReal_subset_CountingLevel :
+  ExistsReal ⊆ Background.CountingLevel 26 Background.encBits
+-- MEAN OUTPUT:
+Theorem existsReal_subset_CountingLevel:
+  ExistsReal ⊆ Background.CountingLevel 26 Background.encBits
+
+-- LEAN INPUT:
+def Formula.existsForallSolutionSet : {r s : ℕ} → Formula (r + s) → Set (Fin r → ℝ) :=
+  fun {r s : ℕ} (p : Formula (r + s)) =>
+    {x : Fin r → ℝ | ∀ (y : Fin s → ℝ), (fun (i : Fin (r + s)) => Fin.addCases x y i) ∈ p.solutionSet}
+-- MEAN OUTPUT:
+Definition:
+  Formula.existsForallSolutionSet is
+    the function mapping an implicit natural number r and an implicit natural number s and an element p of Formula (r + s) to
+      the set of elements x of the type of indices in [0, r) → ℝ such that
+        for every function y from indices in [0, s) to ℝ:
+          (fun (i : the type of indices in [0, r + s)) => Fin.addCases x y i) ∈ p.solutionSet.
+
+-- LEAN INPUT:
+def ExistsForallReal : Set (List Bool) :=
+  ⋃ (r : ℕ),
+    ⋃ (s : ℕ),
+      (fun (p : Formula (r + s)) =>
+          (Background.encPair Background.encUnary Background.encBits : ℕ × List Bool → List Bool)
+            (r, (encFormula (r + s) : Formula (r + s) → List Bool) p)) ''
+        {p : Formula (r + s) | p.existsForallSolutionSet.Nonempty}
+-- MEAN OUTPUT:
+Definition:
+  ExistsForallReal is
+    ⋃ (r : ℕ),
+      ⋃ (s : ℕ),
+        the image of
+          (the set of elements p of Formula (r + s) such that
+              p.existsForallSolutionSet satisfies Set.Nonempty)
+          under
+          (fun (p : Formula (r + s)) =>
+            (Background.encPair Background.encUnary Background.encBits :
+                ℕ × the type of lists of booleans → the type of lists of booleans)
+              (r, (encFormula (r + s) : Formula (r + s) → the type of lists of booleans) p)).
+
+-- LEAN INPUT:
+theorem existsForallReal_in_CountingLevel :
+  ExistsForallReal ∈ Background.CountingLevel 60 Background.encBits
+-- MEAN OUTPUT:
+Theorem existsForallReal_in_CountingLevel:
+  ExistsForallReal ∈ Background.CountingLevel 60 Background.encBits
+
+-- LEAN INPUT:
+def ConnectedFormulas : (n : ℕ) → Set (Formula n) :=
+  fun (n : ℕ) => {p : Formula n | IsPreconnected p.solutionSet}
+-- MEAN OUTPUT:
+Definition:
+  ConnectedFormulas is
+    the function mapping a natural number n to
+      the set of elements p of Formula n such that
+        p.solutionSet satisfies IsPreconnected.
+
+-- LEAN INPUT:
+def ConnectedLanguage : Set (List Bool) :=
+  ⋃ (n : ℕ),
+    (fun (p : Formula n) =>
+        (Background.encPair Background.encUnary Background.encBits : ℕ × List Bool → List Bool)
+          (n, (encFormula n : Formula n → List Bool) p)) ''
+      ConnectedFormulas n
+-- MEAN OUTPUT:
+Definition:
+  ConnectedLanguage is
+    ⋃ (n : ℕ),
+      the image of (ConnectedFormulas n) under
+        (fun (p : Formula n) =>
+          (Background.encPair Background.encUnary Background.encBits :
+              ℕ × the type of lists of booleans → the type of lists of booleans)
+            (n, (encFormula n : Formula n → the type of lists of booleans) p)).
+
+-- LEAN INPUT:
+theorem connectedLanguage_in_PSPACE :
+  ConnectedLanguage ∈ Background.PSPACE Background.encBits
+-- MEAN OUTPUT:
+Theorem connectedLanguage_in_PSPACE:
+  ConnectedLanguage ∈ Background.PSPACE Background.encBits
+
+-- LEAN INPUT:
+def ReachableEndpoints : {n : ℕ} → Formula n → Set (Formula n × Formula n) :=
+  fun {n : ℕ} (p : Formula n) =>
+    {(p₁, p₂) : Formula n × Formula n |
+      ∃ (x : Fin n → ℝ) (y : Fin n → ℝ),
+        p₁.solutionSet = {x} ∧
+          p₂.solutionSet = {y} ∧
+            ∃ (γ : Path x y), ∀ (t : (↑unitInterval : Type)), (γ : (↑unitInterval : Type) → Fin n → ℝ) t ∈ p.solutionSet}
+-- MEAN OUTPUT:
+Definition:
+  ReachableEndpoints is
+    the function mapping an implicit natural number n and an element p of Formula n to
+      the set of elements x of Formula n × Formula n such that
+        match x with
+        | (p₁, p₂) =>
+          ∃ (x : the type of indices in [0, n) → ℝ) (y : the type of indices in [0, n) → ℝ),
+            p₁.solutionSet = the set {x} ∧
+              p₂.solutionSet = the set {y} ∧
+                ∃ (γ : Path x y),
+                  ∀ (t : unitInterval as Type), (γ : unitInterval as Type → the type of indices in [0, n) → ℝ) t ∈ p.solutionSet.
+
+-- LEAN INPUT:
+def ReachableLanguage : Set (List Bool) :=
+  ⋃ (n : ℕ),
+    ⋃ (p : Formula n),
+      (fun (x : Formula n × Formula n) =>
+          match x with
+          | (p₁, p₂) =>
+            (Background.encPair Background.encUnary (Background.encList Background.encBits) :
+                ℕ × List (List Bool) → List Bool)
+              (n,
+                [(encFormula n : Formula n → List Bool) p, (encFormula n : Formula n → List Bool) p₁,
+                  (encFormula n : Formula n → List Bool) p₂])) ''
+        ReachableEndpoints p
+-- MEAN OUTPUT:
+Definition:
+  ReachableLanguage is
+    ⋃ (n : ℕ),
+      ⋃ (p : Formula n),
+        the image of (ReachableEndpoints p) under
+          (fun (x : Formula n × Formula n) =>
+            match x with
+            | (p₁, p₂) =>
+              (Background.encPair Background.encUnary (Background.encList Background.encBits) :
+                  ℕ × the type of lists of (the type of lists of booleans) elements → the type of lists of booleans)
+                (n,
+                  [(encFormula n : Formula n → the type of lists of booleans) p,
+                    (encFormula n : Formula n → the type of lists of booleans) p₁,
+                    (encFormula n : Formula n → the type of lists of booleans) p₂])).
+
+-- LEAN INPUT:
+theorem reachableLanguage_in_PSPACE :
+  ReachableLanguage ∈ Background.PSPACE Background.encBits
+-- MEAN OUTPUT:
+Theorem reachableLanguage_in_PSPACE:
+  ReachableLanguage ∈ Background.PSPACE Background.encBits
