@@ -261,4 +261,62 @@ def checkDefinition (originalName : Name) (text : String) : TermElabM Unit :=
     if (← whnf original.type).isSort then
       checkParameterNames original.value actualValue
 
+/-- Audit a complete single inductive declaration, including constructor order,
+parameters, indices, safety, universes, and public binder names. -/
+def checkInductive (originalName : Name) (text : String) : TermElabM Unit :=
+  withoutModifyingState do
+    let .inductInfo original ← getConstInfo originalName
+      | throwError "expected an inductive type"
+    if isStructure (← getEnv) originalName || isClass (← getEnv) originalName then
+      throwError "expected an ordinary inductive type, not a structure or class"
+    let stx ← parseText `command text
+    let `(command| Inductive $printedName:ident $binders:bracketedBinder* : $ty:term where $ctors:ctor*) := stx
+      | throwError "unsupported rendered inductive declaration"
+    let fresh ← mkFreshUserName `meanInductive
+    let ns ← getCurrNamespace
+    let actualName := ns ++ fresh
+    let declaredName := ns ++ printedName.getId
+    let renameSelf (stx : Syntax) : Syntax := stx.rewriteBottomUp fun node =>
+      if node.isIdent && (node.getId == printedName.getId || node.getId == declaredName ||
+          node.getId == (`_root_ ++ declaredName)) then mkIdent fresh else node
+    let ctors : Array (TSyntax ``Parser.Command.ctor) := ctors.map fun ctor => ⟨renameSelf ctor.raw⟩
+    let command ← `(command| Inductive $(mkIdent fresh) $binders* : $ty where $ctors:ctor*)
+    let openDecls ← getOpenDecls
+    liftCommandElabM do
+      Command.withScope (fun scope => { scope with
+          currNamespace := ns
+          openDecls := openDecls
+          levelNames := original.levelParams
+          isPublic := true }) do
+        Command.elabCommand command
+    let .inductInfo actual ← getConstInfo actualName
+      | throwError "Mean round-trip changed the declaration kind"
+    if isStructure (← getEnv) actualName || isClass (← getEnv) actualName then
+      throwError "Mean round-trip changed the declaration kind"
+    unless original.numParams == actual.numParams && original.numIndices == actual.numIndices &&
+        original.isUnsafe == actual.isUnsafe && original.isRec == actual.isRec &&
+        original.isReflexive == actual.isReflexive && original.ctors.length == actual.ctors.length &&
+        original.all.length == actual.all.length && original.numNested == actual.numNested &&
+        original.levelParams.length == actual.levelParams.length do
+      throwError "Mean round-trip changed the inductive signature"
+    let normalize (e : Expr) : Expr :=
+      (e.instantiateLevelParams actual.levelParams (original.levelParams.map Level.param)).replace fun e =>
+        match e with
+        | .const n levels => if n == actualName then some (.const originalName levels) else none
+        | _ => none
+    checkExpressions original.type (normalize actual.type) text
+    checkParameterNames original.type (normalize actual.type)
+    for (before, after) in original.ctors.zip actual.ctors do
+      -- Lean moves the temporary name's hygiene suffix after the constructor name.
+      unless before.eraseMacroScopes.replacePrefix originalName.eraseMacroScopes .anonymous ==
+          after.eraseMacroScopes.replacePrefix actualName.eraseMacroScopes .anonymous do
+        throwError "Mean round-trip changed constructor names or order"
+      let .ctorInfo before ← getConstInfo before | throwError "expected constructor"
+      let .ctorInfo after ← getConstInfo after | throwError "expected constructor"
+      if (after.type.find? (·.isConstOf originalName)).isSome then
+        throwError "Mean round-trip retained the old type instead of recursive self references"
+      checkExpressions before.type (normalize after.type) text
+      checkParameterNames before.type (normalize after.type)
+
+
 end Mean.RoundTrip

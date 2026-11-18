@@ -739,6 +739,24 @@ The November 12 update prompted these general rendering improvements:
    result. In particular, `Point d` describes the type of functions from indices
    in `[0, d)` to integers, preserving the explicit dimension parameter.
 
+## Inductive types
+
+`#mean` and `#mean_compare` display the complete constructor interface of safe,
+single, non-nested inductive types, including parameters and indices:
+
+```lean
+Inductive Tree (α : Type u) : Type u where
+  | leaf : α → Tree α
+  | branch : Tree α → Tree α → Tree α
+```
+
+`Inductive` accepts Lean's binder and constructor notation, with Mean type
+phrases available in signatures. Its round-trip check elaborates a temporary
+inductive declaration and compares the type and every constructor, preserving
+names, order, binder implicitness, universes, and the parameter/index split.
+Mutual, nested, and unsafe inductive declarations currently report an explicit
+unsupported-form error.
+
 ## Real-algebraic complexity example
 
 [Examples/Canny.lean](Examples/Canny.lean) adapts the unified abstract from
@@ -760,7 +778,7 @@ interfaces, not the upstream complexity proofs or equivalence with CSLib Frontie
 
 [Canny.mean](Examples/Canny.mean) contains Mean output;
 [Canny.compare](Examples/Canny.compare) pairs its 21 checked renderings with Lean. The inductive syntax
-types retain native type signatures; their constructors appear in Canny.lean.
+types include their constructor signatures in both views.
 
 ## Compositional syntax
 

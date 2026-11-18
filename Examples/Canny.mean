@@ -3,14 +3,24 @@
 -- Upstream source: [LeanCanny/Abstract.lean](https://github.com/edemaine/lean-canny/blob/6b758a2abff2b2ef69d245dad37505f9fb790921/LeanCanny/Abstract.lean)
 -- Upstream license: [Apache 2.0](https://github.com/edemaine/lean-canny/blob/6b758a2abff2b2ef69d245dad37505f9fb790921/LICENSE)
 
-ℕ → Type
+Inductive Term (n : ℕ) : Type where
+  | const : ℤ → Term n
+  | var : the type of indices in [0, n) → Term n
+  | add : Term n → Term n → Term n
+  | mul : Term n → Term n → Term n
 
 Definition:
   Term.eval is
     the function : {n : ℕ} → (Fin n → ℝ) → Term n → ℝ mapping an implicit natural number n and a function x from indices in [0, n) to ℝ and an element x_1 of Term n to
       Term.brecOn x_1 (Term.eval._f x).
 
-ℕ → Type
+Inductive Formula (n : ℕ) : Type where
+  | false : Formula n
+  | eqZero : Term n → Formula n
+  | ltZero : Term n → Formula n
+  | «not» : Formula n → Formula n
+  | «and» : Formula n → Formula n → Formula n
+  | «or» : Formula n → Formula n → Formula n
 
 Definition:
   Formula.solutionSet is

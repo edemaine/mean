@@ -1135,6 +1135,36 @@ private def showTerm (t : Syntax) (compare : Bool) : Command.CommandElabM Unit :
     logInfo (comparisonText (← leanText e) after)
   else logInfo after
 
+/-- Render the complete constructor interface of a single non-nested inductive. -/
+private def renderInductive (info : InductiveVal) (mean := true) : TermElabM String := do
+  unless info.all.length == 1 && info.numNested == 0 && !info.isUnsafe &&
+      !isStructure (← getEnv) info.name && !isClass (← getEnv) info.name do
+    throwError "Mean inductive rendering currently supports safe, single, non-nested inductive types"
+  let printType := if mean then typeText else leanText
+  forallBoundedTelescope info.type info.numParams fun params result => do
+    let mut header := s!"{if mean then "Inductive" else "inductive"} {← declarationNameText info.name}"
+    for param in params do
+      let decl ← param.fvarId!.getDecl
+      let name ← nameText decl.userName
+      let ty ← printType decl.type
+      let binder := match decl.binderInfo with
+        | .implicit => "{" ++ name ++ " : " ++ ty ++ "}"
+        | .strictImplicit => "⦃" ++ name ++ " : " ++ ty ++ "⦄"
+        | .instImplicit => "[" ++ name ++ " : " ++ ty ++ "]"
+        | .default => "(" ++ name ++ " : " ++ ty ++ ")"
+      header := header ++ " " ++ binder
+    header := header ++ s!" : {← printType result} where"
+    for ctorName in info.ctors do
+      let ctor ← getConstInfo ctorName
+      let mut ty := ctor.type
+      for param in params do
+        let .forallE _ _ body _ := ty | throwError "invalid constructor parameters"
+        ty := body.instantiate1 param
+      let name ← nameText (ctorName.replacePrefix info.name .anonymous)
+      header := header ++ "
+" ++ indented s!"| {name} : {← printType ty}"
+    return header
+
 private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.CommandElabM Unit :=
   Command.liftTermElabM do
   let n ← realizeGlobalConstNoOverloadWithInfo declaration
@@ -1153,6 +1183,12 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
       else logInfo s!"{context}{text}"
       return
     match info with
+    | .inductInfo i =>
+      let text ← checkedRendering (renderInductive i) (RoundTrip.checkInductive n) fun _ =>
+        withOptions (fun opts => opts.setBool `pp.explicit true) (renderInductive i)
+      if compare then
+        logInfo (comparisonText (context ++ (← renderInductive i false)) (context ++ text))
+      else logInfo (context ++ text)
     | .defnInfo d =>
       let abbreviation := d.hints.isAbbrev
       let text ← checkedRendering (renderDefinition n d.type d.value abbreviation)

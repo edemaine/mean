@@ -2462,3 +2462,37 @@ variable {V : Type*} (G H : SimpleGraph V) (u v : V)
 #mean_term_compare Nonempty G.V
 #mean_term_compare G.edgeSet = ∅ ∧ H.edgeSet = ∅
 end
+
+namespace InductiveExamples
+#mean_compare Tree
+#mean_compare Vector
+#mean_compare Empty
+#mean_compare «a»
+
+open Lean Elab Term in
+run_elab do
+  let before := (← getEnv).constants.toList.length
+  Mean.RoundTrip.checkInductive ``Tree
+    "Inductive changed (α : Type u) : Type u where
+ | leaf : α → changed α
+ | branch : changed α → changed α → changed α"
+  unless (← getEnv).constants.toList.length == before do
+    throwError "inductive checker leaked declarations"
+  for text in [
+      "Inductive changed (α : Type u) : Type u where
+ | leaf : α → changed α
+ | branch : Tree α → changed α → changed α",
+      "Inductive changed (α : Type u) : Type u where\n | leaf : Nat → changed α\n | branch : changed α → changed α → changed α",
+      "Inductive changed (α : Type u) : Type u where\n | leaf : α → changed α",
+      "Inductive changed (α : Type u) : Type u where\n | renamed : α → changed α\n | branch : changed α → changed α → changed α",
+      "Inductive changed (α : Type u) : Type u where\n | branch : changed α → changed α → changed α\n | leaf : α → changed α",
+      "Inductive changed : Type u → Type u where
+ | leaf : {α : Type u} → α → changed α
+ | branch : {α : Type u} → changed α → changed α → changed α",
+      "Inductive changed {α : Type u} : Type u where\n | leaf : α → changed α\n | branch : changed α → changed α → changed α"] do
+    let rejected ← try
+      Mean.RoundTrip.checkInductive ``Tree text
+      pure false
+    catch _ => pure true
+    unless rejected do throwError "inductive checker accepted a changed interface"
+end InductiveExamples

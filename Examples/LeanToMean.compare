@@ -4862,3 +4862,37 @@ the vertex type of G is a nonempty type
 G.edgeSet = ∅ ∧ H.edgeSet = ∅
 -- MEAN OUTPUT:
 the edge set of G = the set ∅ and the edge set of H = the set ∅
+
+-- LEAN INPUT:
+-- Universe parameters: u
+inductive Tree (α : Type u) : Type u where
+  | leaf : α → Tree α
+  | branch : Tree α → Tree α → Tree α
+-- MEAN OUTPUT:
+-- Universe parameters: u
+Inductive Tree (α : Type u) : Type u where
+  | leaf : α → Tree α
+  | branch : Tree α → Tree α → Tree α
+
+-- LEAN INPUT:
+-- Universe parameters: u
+inductive Vector (α : Type u) : ℕ → Type u where
+  | nil : Vector α 0
+  | cons : {n : ℕ} → α → Vector α n → Vector α (n + 1)
+-- MEAN OUTPUT:
+-- Universe parameters: u
+Inductive Vector (α : Type u) : ℕ → Type u where
+  | nil : Vector α 0
+  | cons : {n : ℕ} → α → Vector α n → Vector α (n + 1)
+
+-- LEAN INPUT:
+inductive Empty : Type where
+-- MEAN OUTPUT:
+Inductive Empty : Type where
+
+-- LEAN INPUT:
+inductive «a» : Type where
+  | «is» : «a»
+-- MEAN OUTPUT:
+Inductive «a» : Type where
+  | «is» : «a»

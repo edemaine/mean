@@ -2366,3 +2366,18 @@ the edge set of (G ⊔ H) = (the edge set of G) ∪ (the edge set of H)
 the vertex type of G is a nonempty type
 
 the edge set of G = the set ∅ and the edge set of H = the set ∅
+
+-- Universe parameters: u
+Inductive Tree (α : Type u) : Type u where
+  | leaf : α → Tree α
+  | branch : Tree α → Tree α → Tree α
+
+-- Universe parameters: u
+Inductive Vector (α : Type u) : ℕ → Type u where
+  | nil : Vector α 0
+  | cons : {n : ℕ} → α → Vector α n → Vector α (n + 1)
+
+Inductive Empty : Type where
+
+Inductive «a» : Type where
+  | «is» : «a»

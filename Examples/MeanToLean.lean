@@ -1667,3 +1667,18 @@ Definition:
   a simple graph G is hasNoEdgesPossessive if G's edge set = ∅.
 example {V : Type*} (G : SimpleGraph V) : hasNoEdges G = (G.edgeSet = ∅) := rfl
 example {V : Type*} (G : SimpleGraph V) : hasNoEdges G = hasNoEdgesPossessive G := rfl
+
+namespace InductiveExamples
+Inductive Tree (α : Type u) : Type u where
+  | leaf : α → Tree α
+  | branch : Tree α → Tree α → Tree α
+Inductive Vector (α : Type u) : Nat → Type u where
+  | nil : Vector α 0
+  | cons : {n : Nat} → α → Vector α n → Vector α (n + 1)
+Inductive Empty : Type where
+Inductive «a» : Type where
+  | «is» : «a»
+example : Tree.branch (Tree.leaf 0) (Tree.leaf 1) =
+    Tree.branch (Tree.leaf 0) (Tree.leaf 1) := rfl
+example : Vector.cons 1 Vector.nil = Vector.cons 1 Vector.nil := rfl
+end InductiveExamples

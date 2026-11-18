@@ -7,8 +7,7 @@ Upstream license: [Apache 2.0](https://github.com/edemaine/lean-canny/blob/6b758
 
 Adapted for Mean's Lean/mathlib 4.35.0. Binder names a, b are replaced
 by p, q (or p₁, p₂) because Mean reserves a. See Canny.mean and Canny.compare
-for checked renderings. Inductive types retain native signatures; consult the
-source below for their constructors.
+for checked renderings, including the constructors of the inductive syntax types.
 
 Changes from upstream: replace CSLib Frontier's generated encodings and
 machine-based complexity definitions with the explicitly declared Background

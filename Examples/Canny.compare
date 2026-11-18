@@ -4,10 +4,17 @@
 -- Upstream license: [Apache 2.0](https://github.com/edemaine/lean-canny/blob/6b758a2abff2b2ef69d245dad37505f9fb790921/LICENSE)
 
 -- LEAN INPUT:
--- Statement of Term
-ℕ → Type
+inductive Term (n : ℕ) : Type where
+  | const : ℤ → Term n
+  | var : Fin n → Term n
+  | add : Term n → Term n → Term n
+  | mul : Term n → Term n → Term n
 -- MEAN OUTPUT:
-ℕ → Type
+Inductive Term (n : ℕ) : Type where
+  | const : ℤ → Term n
+  | var : the type of indices in [0, n) → Term n
+  | add : Term n → Term n → Term n
+  | mul : Term n → Term n → Term n
 
 -- LEAN INPUT:
 def Term.eval : {n : ℕ} → (Fin n → ℝ) → Term n → ℝ :=
@@ -19,10 +26,21 @@ Definition:
       Term.brecOn x_1 (Term.eval._f x).
 
 -- LEAN INPUT:
--- Statement of Formula
-ℕ → Type
+inductive Formula (n : ℕ) : Type where
+  | false : Formula n
+  | eqZero : Term n → Formula n
+  | ltZero : Term n → Formula n
+  | «not» : Formula n → Formula n
+  | «and» : Formula n → Formula n → Formula n
+  | «or» : Formula n → Formula n → Formula n
 -- MEAN OUTPUT:
-ℕ → Type
+Inductive Formula (n : ℕ) : Type where
+  | false : Formula n
+  | eqZero : Term n → Formula n
+  | ltZero : Term n → Formula n
+  | «not» : Formula n → Formula n
+  | «and» : Formula n → Formula n → Formula n
+  | «or» : Formula n → Formula n → Formula n
 
 -- LEAN INPUT:
 def Formula.solutionSet : {n : ℕ} → Formula n → Set (Fin n → ℝ) :=

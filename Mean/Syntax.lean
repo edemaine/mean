@@ -22,6 +22,14 @@ abbrev SimpleGraph.V {α : Type*} (_ : SimpleGraph α) := α
 
 namespace Mean
 
+/-- Inductive declarations retain Lean's binder and constructor notation;
+constructor types may contain Mean type phrases. -/
+syntax "Inductive " ident bracketedBinder* " : " term " where" Lean.Parser.Command.ctor* : command
+macro_rules
+  | `(command| Inductive $name:ident $binders:bracketedBinder* : $ty:term where $ctors:ctor*) =>
+    `(command| inductive $name $binders* : $ty where $ctors*)
+
+
 /-! Logical connectives use Lean's usual precedence: `and` binds tighter than
 `or`; both associate to the right. `if and only if` has the precedence and
 nonassociativity of `↔`. An `if … then …` without `else` is implication.
