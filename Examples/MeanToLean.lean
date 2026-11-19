@@ -1612,6 +1612,8 @@ example : (there is no boolean) = (¬ ∃ _x : Bool, True) := rfl
 -- Type inhabitation is preserved directly, including universes and precedence.
 example {T : Sort u} : (T is a nonempty type) = Nonempty T := rfl
 example {T : Sort u} : (T is an empty type) = IsEmpty T := rfl
+example {T : Type u} (s : Set T) : (s is a nonempty set) = s.Nonempty := rfl
+example {T : Type u} (s : Set T) : (s is an empty set) = (s = ∅) := rfl
 example {T : Sort u} : (T is not a nonempty type) = (¬ Nonempty T) := rfl
 example {T : Sort u} : (T is not an empty type) = (¬ IsEmpty T) := rfl
 example {T : Sort u} : (T is nonempty) = Nonempty T := rfl

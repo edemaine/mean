@@ -876,12 +876,12 @@ for every set S of integers where 0 ∈ S:
   0 ∈ S
 
 there is a set T of SetPhraseExamples.Point elements such that
-  T = the set ∅
+  T is an empty set
 
 there is no set of natural numbers
 
 there is a unique set S of natural numbers such that
-  S = the set ∅
+  S is an empty set
 
 the function mapping a function f from sets of natural numbers to sets of integers to
   f
@@ -2012,7 +2012,7 @@ Definition:
 
 Definition:
   a simple graph G = (V, E) satisfies edgeless if
-    the edge set of G = the set ∅.
+    the edge set of G is an empty set.
 
 Definition:
   a natural number n satisfies zero if
@@ -2383,13 +2383,15 @@ the edge set of G ⊆ the edge set of H
 
 (the set of neighbors of u in G) ∩ (the set of neighbors of v in H)
 
-the edge set of G satisfies Set.Nonempty
+the edge set of G is a nonempty set
+
+the edge set of G is an empty set
 
 the edge set of (G ⊔ H) = (the edge set of G) ∪ (the edge set of H)
 
 the vertex type of G is a nonempty type
 
-the edge set of G = the set ∅ and the edge set of H = the set ∅
+the edge set of G is an empty set and the edge set of H is an empty set
 
 -- Universe parameters: u
 Inductive type Tree parameterized by an element α of Type u

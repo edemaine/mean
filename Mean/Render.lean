@@ -722,9 +722,9 @@ private structure PredicateView where
   phrase : String
   registered : Bool := false
 
-/-- Preserve the orientation of list comparisons: swapping equality's sides
+/-- Preserve the orientation of collection comparisons: swapping equality's sides
 would require more than definitional equality. -/
-private def listEmptinessView? (e : Expr) : MetaM (Option PredicateView) := do
+private def collectionEmptinessView? (e : Expr) : MetaM (Option PredicateView) := do
   let (comparison, isNonempty) ←
     if e.isAppOfArity ``Eq 3 then pure (e, false)
     else if e.isAppOfArity ``Ne 3 then pure (e, true)
@@ -732,6 +732,9 @@ private def listEmptinessView? (e : Expr) : MetaM (Option PredicateView) := do
       pure (e.getAppArgs[0]!, true)
     else return none
   let args := comparison.getAppArgs
+  if !isNonempty && args[2]!.isAppOfArity ``EmptyCollection.emptyCollection 2 &&
+      (← withReducible (whnf args[0]!)).isAppOfArity ``Set 1 then
+    return some ⟨[args[1]!], "an empty set", true⟩
   unless (← whnf args[0]!).isAppOfArity ``List 1 && args[2]!.isAppOfArity ``List.nil 1 do
     return none
   return some ⟨[args[1]!], if isNonempty then "a nonempty list" else "an empty list", true⟩
@@ -741,12 +744,13 @@ Subjects are the trailing explicit arguments, after implicit parameters. -/
 private def predicateView? (e : Expr) : MetaM (Option PredicateView) := do
   let explicit := pp.explicit.get (← getOptions)
   if !explicit then
-    if let some view ← listEmptinessView? e then return some view
+    if let some view ← collectionEmptinessView? e then return some view
   if e.isAppOfArity ``Not 1 then return none
   unless ← isProp e do return none
   let vocabulary : List (Name × Nat × String) := [
     (``Nonempty, 1, "a nonempty type"),
     (``IsEmpty, 1, "an empty type"),
+    (``Set.Nonempty, 2, "a nonempty set"),
     (``Finite, 1, "finite"),
     (``Infinite, 1, "infinite"),
     (``Countable, 1, "countable"),

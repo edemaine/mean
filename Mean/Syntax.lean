@@ -55,6 +55,8 @@ syntax "a" "nonempty" "type" : meanAdjective
 syntax "an" "empty" "type" : meanAdjective
 syntax "a" "nonempty" "list" : meanAdjective
 syntax "an" "empty" "list" : meanAdjective
+syntax "a" "nonempty" "set" : meanAdjective
+syntax "an" "empty" "set" : meanAdjective
 syntax "finite" : meanAdjective
 syntax "infinite" : meanAdjective
 syntax "countable" : meanAdjective
@@ -259,6 +261,8 @@ macro_rules
       `(adjectiveApply% (adjectivePredicate% $adjective) of $subject)
   | `(adjectivePredicate% nonempty) => `(Nonempty)
   | `(adjectivePredicate% empty) => `(IsEmpty)
+  | `(adjectivePredicate% a nonempty set) => `(Set.Nonempty)
+  | `(adjectivePredicate% an empty set) => `(fun (s : Set _) => s = ∅)
   | `(adjectivePredicate% finite) => `(Finite)
   | `(adjectivePredicate% infinite) => `(Infinite)
   | `(adjectivePredicate% countable) => `(Countable)

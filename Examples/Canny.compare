@@ -108,7 +108,7 @@ Definition:
     the union over natural numbers n of
         the image of
           (the set of elements p of Formula n such that
-              p.solutionSet satisfies Set.Nonempty)
+              p.solutionSet is a nonempty set)
           under (encFormula n).
 
 -- LEAN INPUT:
@@ -195,7 +195,7 @@ Definition:
     the union over natural numbers r and s of
         the image of
           (the set of elements p of Formula (r + s) such that
-              p.existsForallSolutionSet satisfies Set.Nonempty)
+              p.existsForallSolutionSet is a nonempty set)
           under
           (the function mapping an element p of Formula (r + s) to
               (Background.encPair Background.encUnary Background.encBits :

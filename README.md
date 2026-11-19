@@ -1199,6 +1199,8 @@ The renderer maintains an independent inverse mapping and checks each round trip
 | `an empty type` | `IsEmpty` | Type |
 | `a nonempty list` | `xs ≠ []` | List |
 | `an empty list` | `xs = []` | List |
+| `a nonempty set` | `Set.Nonempty` | Set |
+| `an empty set` | `S = ∅` | Set |
 | `finite` | `Finite` | Type |
 | `infinite` | `Infinite` | Type |
 | `countable` | `Countable` | Type |
