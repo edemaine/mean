@@ -1679,7 +1679,7 @@ some
 -- LEAN INPUT:
 {f : Nat → Nat | f 0 = 0}
 -- MEAN OUTPUT:
-the set of elements f of ℕ → ℕ such that
+the set of functions f from ℕ to ℕ such that
   f 0 = 0
 
 -- LEAN INPUT:
@@ -1753,7 +1753,7 @@ the type of sets of SetPhraseExamples.Point elements
 -- LEAN INPUT:
 Set (Nat → Bool)
 -- MEAN OUTPUT:
-the type of sets of (ℕ → Bool) elements
+the type of sets of functions from ℕ to Bool
 
 -- LEAN INPUT:
 Set (Set Nat)
@@ -2448,7 +2448,7 @@ the function mapping a function f from ℕ and indices in [0, 3) to ℤ to
 -- LEAN INPUT:
 fun (f : List (Nat → Nat) → List Nat) => f
 -- MEAN OUTPUT:
-the function mapping a function f from lists of (ℕ → ℕ) elements to lists of natural numbers to
+the function mapping a function f from lists of functions from ℕ to ℕ to lists of natural numbers to
   f
 
 -- LEAN INPUT:
@@ -2672,7 +2672,7 @@ the type of lists of (the type of lists of natural numbers) elements
 -- LEAN INPUT:
 List (Nat → Nat)
 -- MEAN OUTPUT:
-the type of lists of (ℕ → ℕ) elements
+the type of lists of functions from ℕ to ℕ
 
 -- LEAN INPUT:
 List Nat → Nat
@@ -3659,7 +3659,7 @@ the function mapping a list xs of natural numbers and an index i into xs to
 -- LEAN INPUT:
 fun (fs : List (Nat → Nat)) => fs.length
 -- MEAN OUTPUT:
-the function mapping a list fs of (ℕ → ℕ) elements to
+the function mapping a list fs of functions from ℕ to ℕ to
   the length of fs
 
 -- LEAN INPUT:

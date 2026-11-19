@@ -1487,7 +1487,7 @@ run_elab do
 /-- info: the type of lists of TypeNounExamples.Token elements -/
 #guard_msgs in
 #mean_term List TypeNounExamples.Token
-/-- info: the type of lists of (ℕ → ℕ) elements -/
+/-- info: the type of lists of functions from ℕ to ℕ -/
 #guard_msgs in
 #mean_term List (Nat → Nat)
 #mean_term_compare List TypeNounExamples.Token

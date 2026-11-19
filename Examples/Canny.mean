@@ -30,12 +30,12 @@ with constructors:
 
 Definition:
   Formula.solutionSet maps an implicit natural number n and an element t of Formula n
-    to a set of (the type of indices in [0, n) → ℝ) elements
+    to a set of functions from indices in [0, n) to ℝ
     by cases on t:
       false gives ∅;
-      eqZero t gives the set of elements x of the type of indices in [0, n) → ℝ such that
+      eqZero t gives the set of functions x from indices in [0, n) to ℝ such that
         t.eval x = 0;
-      ltZero t gives the set of elements x of the type of indices in [0, n) → ℝ such that
+      ltZero t gives the set of functions x from indices in [0, n) to ℝ such that
         t.eval x < 0;
       «not» p gives p.solutionSetᶜ;
       «and» p q gives p.solutionSet ∩ q.solutionSet;
@@ -73,7 +73,7 @@ Theorem existsReal_subset_CountingLevel:
 Definition:
   Formula.existsForallSolutionSet is
     the function mapping an implicit natural number r and an implicit natural number s and an element p of Formula (r + s) to
-      the set of elements x of the type of indices in [0, r) → ℝ such that
+      the set of functions x from indices in [0, r) to ℝ such that
         for every function y from indices in [0, s) to ℝ:
           (fun (i : the type of indices in [0, r + s)) => Fin.addCases x y i) ∈ p.solutionSet.
 

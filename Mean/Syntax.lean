@@ -407,11 +407,11 @@ def functionResult : Lean.Parser.Parser :=
 declare_syntax_cat meanFunctionSignature
 syntax "from" functionDomain ("and" functionDomain)* "to" functionResult : meanFunctionSignature
 
-/-- The signature owns its internal `and`s, even within a function parameter list.
-Its result parser restores the delimiter for the next parameter. -/
+/-- A nested signature owns its internal `and` and `to` separators.
+Its result parser restores the outer delimiters. -/
 def functionSignature : Lean.Parser.Parser :=
   Lean.Parser.adaptCacheableContext
-    (fun ctx => { ctx with forbiddenTks := ctx.forbiddenTks.filter (· != "and") })
+    (fun ctx => { ctx with forbiddenTks := ctx.forbiddenTks.filter (fun tk => tk != "and" && tk != "to") })
     (Lean.Parser.categoryParser `meanFunctionSignature 0)
 
 syntax "functionType%" functionSignature : term
@@ -504,12 +504,14 @@ macro_rules
 and using familiar scalar plurals. -/
 declare_syntax_cat meanListElements
 syntax meanScalarPlural : meanListElements
+syntax "functions " functionSignature : meanListElements
 syntax listElementType ppSpace "elements" : meanListElements
 syntax "listType%" meanListElements : term
 macro_rules
   | `(listType% $plural:meanScalarPlural) => do
       let domain ← `(meanScalarDomain| $plural:meanScalarPlural)
       `(List (scalarDomainType% $domain))
+  | `(listType% functions $signature:meanFunctionSignature) => `(List (functionType% $signature))
   | `(listType% $ty:term elements) => `(List $ty)
 
 syntax "setType%" meanListElements : term
@@ -517,6 +519,7 @@ macro_rules
   | `(setType% $plural:meanScalarPlural) => do
       let domain ← `(meanScalarDomain| $plural:meanScalarPlural)
       `(Set (scalarDomainType% $domain))
+  | `(setType% functions $signature:meanFunctionSignature) => `(Set (functionType% $signature))
   | `(setType% $ty:term elements) => `(Set $ty)
 
 /-! Index ranges are types, not real intervals or sets. The lower endpoint must
@@ -1059,10 +1062,20 @@ def setComprehensionType : Lean.Parser.Parser :=
   Lean.Parser.withForbidden "such" Lean.Parser.termParser
 syntax "the " "set " "of " "elements" (ppSpace ident)? " of " setComprehensionType
   " such " "that" ppIndent(ppLine term) : term
+def setComprehensionSignature : Lean.Parser.Parser :=
+  Lean.Parser.withForbidden "such" functionSignature
+syntax "the " "set " "of " "functions" (ppSpace ident)? setComprehensionSignature
+  " such " "that" ppIndent(ppLine term) : term
+
+private def setComprehension (name : Option Lean.Ident) (ty body : Lean.Term) : Lean.MacroM Lean.Term := do
+  let name ← parameterName name
+  `(Set.ofPred (fun ($name : $ty) => ($body : Prop)))
+
 macro_rules
-  | `(the set of elements $[$x:ident]? of $ty:term such that $body:term) => do
-      let x ← parameterName x
-      `(Set.ofPred (fun ($x : $ty) => ($body : Prop)))
+  | `(the set of elements $[$x:ident]? of $ty:term such that $body:term) =>
+      setComprehension x ty body
+  | `(the set of functions $[$x:ident]? $signature:meanFunctionSignature such that $body:term) => do
+      setComprehension x (← `(functionType% $signature)) body
 
 macro_rules
   | `(forallOver% $binding:meanQuantified => $body:term) => do

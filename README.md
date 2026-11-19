@@ -210,6 +210,8 @@ available. Bindings stay singular, even when their name is omitted:
 `a list of Point elements` is an anonymous binding phrase, not a type expression.
 These type phrases also work inside function signatures and compound types.
 The renderer preserves custom type names such as `Point` without pluralizing them.
+Collections of functions can use phrases such as
+`the type of sets of functions from indices in [0, n) to ℝ`.
 
 Set phrases work in function and predicate subjects, universal quantifiers, and
 positive, negative, and unique existential witnesses:
@@ -234,6 +236,8 @@ the set of elements x of RealPoint such that
 
 This is Lean's `{x : RealPoint | …}` (`Set.ofPred`). The name is optional when
 the condition does not use it, as in `the set of elements of ℕ such that True`.
+For a set of functions, write
+`the set of functions f from indices in [0, n) to ℝ such that …`.
 The renderer translates the condition recursively, including quantifiers and
 logical connectives, even when the set occurs inside otherwise ordinary Lean
 syntax. Parentheses group a comprehension used as an operand or argument.

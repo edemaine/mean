@@ -417,9 +417,39 @@ def delabSum : Delab := do
     let s ← if args[3]!.isConst || args[3]!.isFVar then pure s else `(($s))
     `(the sum over $i:ident in $s of $body)
 
-private def collectionElementsText (ty : Expr) : MetaM String := do
+/-- Only explicit, nondependent arrows admit the simple from/to description.
+Inspect the type expression without unfolding user-defined aliases. -/
+private partial def functionTypeParts? (ty : Expr) : Option (List Expr × Expr) := do
+  let .forallE name domain result .default := ty.consumeMData | none
+  if result.hasLooseBVars || publicParameterName name then none
+  else if result.consumeMData.isForall then
+    let (domains, codomain) ← functionTypeParts? result
+    some (domain :: domains, codomain)
+  else some ([domain], result)
+
+mutual
+
+private partial def collectionElementsText (ty : Expr) : MetaM String := do
   if let some (_, plural) := scalarNouns? ty then return plural
+  if let some signature ← functionSignatureText? ty then return s!"functions {signature}"
   return s!"{← typeAtomText ty} elements"
+
+/-- Function signatures already establish a type context, so descriptions need
+neither a `the type of` introducer nor an extra grouping layer. -/
+private partial def functionEndpointText (ty : Expr) (result := false) : MetaM String := do
+  if let some domain ← indexDomainText? ty then return s!"indices {domain}"
+  if ty.isAppOfArity ``List 1 then
+    return s!"lists of {← collectionElementsText ty.getAppArgs[0]!}"
+  if ty.isAppOfArity ``Set 1 then
+    return s!"sets of {← collectionElementsText ty.getAppArgs[0]!}"
+  if result then subjectTypeText ty else typeAtomText ty
+
+private partial def functionSignatureText? (ty : Expr) : MetaM (Option String) := do
+  let some (domains, codomain) := functionTypeParts? ty | return none
+  let domains ← domains.mapM (fun domain => functionEndpointText domain)
+  return some s!"from {String.intercalate " and " domains} to {← functionEndpointText codomain true}"
+
+end
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app.List, delab app.Set]
@@ -435,37 +465,17 @@ def delabCollections : Delab := do
     let noun : TSyntax `meanScalarPlural := ⟨noun⟩
     if isSet then `(the type of sets of $noun:meanScalarPlural)
     else `(the type of lists of $noun:meanScalarPlural)
+  else if let some signature ← functionSignatureText? ty then
+    let .ok stx := Parser.runParserCategory (← getEnv) `meanFunctionSignature signature | failure
+    let signature : TSyntax `meanFunctionSignature := ⟨stx⟩
+    if isSet then `(the type of sets of functions $signature:meanFunctionSignature)
+    else `(the type of lists of functions $signature:meanFunctionSignature)
   else
     let item ← withAppArg delab
     let item ← if ty.isConst || ty.isFVar || ty.isLit then pure item
       else `(($item))
     if isSet then `(the type of sets of $item:term elements)
     else `(the type of lists of $item:term elements)
-
-/-- Only explicit, nondependent arrows admit the simple from/to description.
-Inspect the type expression without unfolding user-defined aliases. -/
-private partial def functionTypeParts? (ty : Expr) : Option (List Expr × Expr) := do
-  let .forallE name domain result .default := ty.consumeMData | none
-  if result.hasLooseBVars || publicParameterName name then none
-  else if result.consumeMData.isForall then
-    let (domains, codomain) ← functionTypeParts? result
-    some (domain :: domains, codomain)
-  else some ([domain], result)
-
-/-- Function signatures already establish a type context, so descriptions need
-neither a `the type of` introducer nor an extra grouping layer. -/
-private def functionEndpointText (ty : Expr) (result := false) : MetaM String := do
-  if let some domain ← indexDomainText? ty then return s!"indices {domain}"
-  if ty.isAppOfArity ``List 1 then
-    return s!"lists of {← collectionElementsText ty.getAppArgs[0]!}"
-  if ty.isAppOfArity ``Set 1 then
-    return s!"sets of {← collectionElementsText ty.getAppArgs[0]!}"
-  if result then subjectTypeText ty else typeAtomText ty
-
-private def functionSignatureText? (ty : Expr) : MetaM (Option String) := do
-  let some (domains, codomain) := functionTypeParts? ty | return none
-  let domains ← domains.mapM (fun domain => functionEndpointText domain)
-  return some s!"from {String.intercalate " and " domains} to {← functionEndpointText codomain true}"
 
 /-- One inverse noun vocabulary serves parameters and witnesses. Context controls
 only the places where their grammar needs different type grouping or articles. -/
@@ -908,7 +918,10 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
         let body := predicate.beta #[x]
         let used := (inlineLets body).containsFVar x.fvarId!
         let suffix ← if used then pure s!" {← nameText n}" else pure ""
-        return s!"the set of elements{suffix} of {← subjectTypeText ty} such that\n{indented (← renderExpr body sentenceEnd)}"
+        let description ← if let some signature ← functionSignatureText? ty then
+          pure s!"functions{suffix} {signature}"
+        else pure s!"elements{suffix} of {← subjectTypeText ty}"
+        return s!"the set of {description} such that\n{indented (← renderExpr body sentenceEnd)}"
     if e.isAppOfArity ``And 2 || e.isAppOfArity ``Or 2 then
       let op := e.getAppFn.constName!
       let word := if op == ``And then "and" else "or"

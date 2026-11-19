@@ -810,7 +810,7 @@ some
   (the set of elements n of ℕ such that
       n > 0)
 
-the set of elements f of ℕ → ℕ such that
+the set of functions f from ℕ to ℕ such that
   f 0 = 0
 
 the set of elements x of A such that
@@ -847,7 +847,7 @@ the type of sets of natural numbers
 
 the type of sets of SetPhraseExamples.Point elements
 
-the type of sets of (ℕ → Bool) elements
+the type of sets of functions from ℕ to Bool
 
 the type of sets of (the type of sets of natural numbers) elements
 
@@ -1188,7 +1188,7 @@ the function mapping a function f from indices in [0, 3) to lists of natural num
 the function mapping a function f from ℕ and indices in [0, 3) to ℤ to
   f
 
-the function mapping a function f from lists of (ℕ → ℕ) elements to lists of natural numbers to
+the function mapping a function f from lists of functions from ℕ to ℕ to lists of natural numbers to
   f
 
 the function mapping a function f from (ℕ → ℕ) to indices in [0, 3) to
@@ -1289,7 +1289,7 @@ the type of lists of (the type of indices in [0, n)) elements
 
 the type of lists of (the type of lists of natural numbers) elements
 
-the type of lists of (ℕ → ℕ) elements
+the type of lists of functions from ℕ to ℕ
 
 the type of functions from lists of natural numbers to ℕ
 
@@ -1757,7 +1757,7 @@ the function mapping an instance inst of typeclass Inhabited Nat to
 the function mapping a list xs of natural numbers and an index i into xs to
   xs[i]
 
-the function mapping a list fs of (ℕ → ℕ) elements to
+the function mapping a list fs of functions from ℕ to ℕ to
   the length of fs
 
 the function mapping a function f from (ℕ × ℕ) to ℕ to

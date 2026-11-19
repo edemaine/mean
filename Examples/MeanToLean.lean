@@ -362,6 +362,8 @@ example (n : Nat) : (n ∈ (the set of elements m of Nat such that m > 0)) =
     (n ∈ {m : Nat | m > 0}) := rfl
 example : (the set of elements f of (Nat → Nat) such that f 0 = 0) =
     {f : Nat → Nat | f 0 = 0} := rfl
+example : (the set of functions f from natural numbers to ℕ such that f 0 = 0) =
+    {f : Nat → Nat | f 0 = 0} := rfl
 
 end SetComprehensionExamples
 
@@ -376,6 +378,8 @@ example : reflexive = (fun S : Set Point => S = S) := rfl
 example : (the type of sets of natural numbers) = Set Nat := rfl
 example (A : Type u) : (the type of sets of A elements) = Set A := rfl
 example : (the type of sets of (Nat → Bool) elements) = Set (Nat → Bool) := rfl
+example : (the function mapping a set S of functions from indices in [0, 3) to ℝ to S) =
+    (fun S : Set (Fin 3 → ℝ) => S) := rfl
 example : (the function mapping a set S of natural numbers to S) =
     (fun S : Set Nat => S) := rfl
 example : (the function mapping an implicit set S of integers to S) =
