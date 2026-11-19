@@ -11,9 +11,13 @@ with constructors:
   mul from two elements of Term n.
 
 Definition:
-  Term.eval is
-    the function : {n : ℕ} → (Fin n → ℝ) → Term n → ℝ mapping an implicit natural number n and a function x from indices in [0, n) to ℝ and an element x_1 of Term n to
-      Term.brecOn x_1 (Term.eval._f x).
+  Term.eval maps an implicit natural number n and a function x from indices in [0, n) to ℝ and an element t of Term n
+    to a real number
+    by cases on t:
+      const z gives z;
+      var i gives x i;
+      add p q gives p.eval x + q.eval x;
+      mul p q gives p.eval x * q.eval x.
 
 Inductive type Formula parameterized by a natural number n
 with constructors:
@@ -25,9 +29,17 @@ with constructors:
   «or» from two elements of Formula n.
 
 Definition:
-  Formula.solutionSet is
-    the function : {n : ℕ} → Formula n → Set (Fin n → ℝ) mapping an implicit natural number n and an element x of Formula n to
-      Formula.brecOn x Formula.solutionSet._f.
+  Formula.solutionSet maps an implicit natural number n and an element t of Formula n
+    to a set of (the type of indices in [0, n) → ℝ) elements
+    by cases on t:
+      false gives ∅;
+      eqZero t gives the set of elements x of the type of indices in [0, n) → ℝ such that
+        t.eval x = 0;
+      ltZero t gives the set of elements x of the type of indices in [0, n) → ℝ such that
+        t.eval x < 0;
+      «not» p gives p.solutionSetᶜ;
+      «and» p q gives p.solutionSet ∩ q.solutionSet;
+      «or» p q gives p.solutionSet ∪ q.solutionSet.
 
 (n : ℕ) → Term n ↪ the type of lists of booleans
 

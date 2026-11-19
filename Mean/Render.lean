@@ -308,6 +308,8 @@ def delabLpCoordinate : Delab := do
   let coordinate ← withNaryArg 3 delab
   `($point $coordinate)
 
+private def compactCaseBody : Name := `mean.compactCaseBody
+
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app]
 def delabValueCoercion : Delab := do
@@ -317,8 +319,9 @@ def delabValueCoercion : Delab := do
   let .const name _ := e.getAppFn | failure
   let some info ← Meta.getCoeFnInfo? name | failure
   guard <| info.type == .coe && e.getAppNumArgs == info.numArgs
-  let ty := (← inferType e).headBeta
   let value ← withNaryArg info.coercee delab
+  if (← getOptions).getBool compactCaseBody false then return value
+  let ty := (← inferType e).headBeta
   if let some (singular, _) := scalarNouns? ty then
     let .ok noun := Parser.runParserCategory (← getEnv) `meanScalar singular | failure
     let noun : TSyntax `meanScalar := ⟨noun⟩
@@ -327,6 +330,38 @@ def delabValueCoercion : Delab := do
   else
     let target ← withType delab
     `($value as $target)
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+/-- Try dot notation for a case body method whose receiver is its last argument.
+Lean's default printer only tries generalized fields on the first explicit argument. -/
+@[delab app]
+def delabCaseMethod : Delab := do
+  guard <| (← getOptions).getBool compactCaseBody false
+  guard <| !(pp.explicit.get (← getOptions))
+  let e ← getExpr
+  let .const name _ := e.getAppFn | failure
+  let .str typeName field := privateToUserName name | failure
+  guard <| !typeName.isAnonymous && !hasPPNoDotAttribute (← getEnv) name
+  let count := e.getAppNumArgs
+  guard <| count > 1
+  let receiver := count - 1
+  let object := e.getArg! receiver
+  guard <| object.isFVar && (← inferType object).getAppFn.isConstOf typeName
+  let explicitArgs ← forallBoundedTelescope (← inferType e.getAppFn) count fun params _ => do
+    guard <| params.size == count
+    let mut explicitArgs := #[]
+    for i in [:count] do
+      let param ← params[i]!.fvarId!.getDecl
+      if i == receiver then
+        guard <| param.binderInfo.isExplicit && param.type.getAppFn.isConstOf typeName
+      else if param.binderInfo.isExplicit then
+        guard <| !param.type.getAppFn.isConstOf typeName
+        explicitArgs := explicitArgs.push i
+    return explicitArgs
+  guard <| !explicitArgs.isEmpty
+  let obj ← withNaryArg receiver delab
+  let head ← `($obj.$(mkIdent (.mkSimple field)))
+  return Syntax.mkApp head (← explicitArgs.mapM fun i => withNaryArg i delab)
 
 /-- Preserve type aliases; specialize only an explicit `Fin` application. -/
 private def indexDomainText? (ty : Expr) : MetaM (Option String) := do
@@ -1040,6 +1075,124 @@ private def checkedRendering (preferred : TermElabM String)
     return text
   return text
 
+private structure CaseRendering where
+  english : String
+  native : String
+
+/-- Keep public argument names; give an anonymous final scrutinee a useful name. -/
+private partial def withCaseArguments (ty : Expr) (args : Array Expr)
+    (k : Array Expr → Expr → TermElabM α) : TermElabM α := do
+  match ty with
+  | .forallE n domain body bi =>
+    let suggestion := if !body.isForall && !publicParameterName n then `t else n
+    let name ← freshName suggestion
+    withLocalDecl name bi domain fun x => withCaseArguments (body.instantiate1 x) (args.push x) k
+  | _ => k args ty
+
+/-- Recover one flat constructor case per equation. The printed declaration is
+still audited in full; equations are not used as a substitute for that audit. -/
+private def caseDefinitionText? (name : Name) (signature : Expr) (abbreviation compact : Bool) :
+    TermElabM (Option CaseRendering) := withoutModifyingState do
+  try
+    let some eqns ← getEqnsFor? name | return none
+    if eqns.size < 2 then return none
+    withCaseArguments signature #[] fun args result => do
+      if args.isEmpty then return none
+      let discr := args.back!
+      let domain ← whnf (← inferType discr)
+      let .const induct _ := domain.getAppFn | return none
+      let .inductInfo info ← getConstInfo induct | return none
+      if eqns.size != info.ctors.length then return none
+      let sharedArgs := args.pop
+      let mut seen : List Name := []
+      let mut englishCases : List String := []
+      let mut nativeCases : List String := []
+      for (eqn, position) in eqns.toList.zipIdx do
+        let eqInfo ← getConstInfo eqn
+        let mut ty := eqInfo.type.instantiateLevelParams eqInfo.levelParams
+          ((← getConstInfo name).levelParams.map Level.param)
+        for arg in sharedArgs do
+          let .forallE _ expected body _ := ty | throwError "equation prefix mismatch"
+          unless ← isDefEq expected (← inferType arg) do throwError "equation prefix type mismatch"
+          ty := body.instantiate1 arg
+        let (english, native, ctor) ← forallTelescope ty fun fields equality => do
+          unless equality.isAppOfArity ``Eq 3 do throwError "expected an equation"
+          let lhs := equality.getAppArgs[1]!
+          let rhs := equality.getAppArgs[2]!
+          unless lhs.isAppOfArity name args.size do throwError "equation application mismatch"
+          unless lhs.getAppArgs.pop == sharedArgs do throwError "equation arguments mismatch"
+          -- Equation patterns may use numeric literals or reducible notation.
+          let pattern ← (← whnf lhs.getAppArgs.back!).toCtorIfLit
+          let .const ctor _ := pattern.getAppFn | throwError "expected constructor pattern"
+          let .ctorInfo ctorInfo ← getConstInfo ctor | throwError "expected constructor"
+          unless ctorInfo.induct == induct do throwError "wrong constructor family"
+          let patternArgs := pattern.getAppArgs.extract ctorInfo.numParams pattern.getAppNumArgs
+          unless patternArgs == fields && (patternArgs.all Expr.isFVar) do
+            throwError "only flat constructor patterns are supported"
+          -- Implicit constructor fields need richer pattern syntax.
+          forallTelescope ctorInfo.type fun ctorArgs _ => do
+            for field in ctorArgs.extract ctorInfo.numParams ctorArgs.size do
+              unless (← field.fvarId!.getDecl).binderInfo == .default do
+                throwError "implicit constructor pattern fields are unsupported"
+          let ctorText ← nameText (ctor.replacePrefix induct .anonymous)
+          let fieldTexts ← fields.toList.mapM (fun field => leanText field)
+          let patternText := String.intercalate " " (ctorText :: fieldTexts)
+          let last := position + 1 == eqns.size
+          let rhsText ← withOptions (fun opts =>
+              if compact then opts.setBool `pp.fieldNotation true
+                |>.setBool compactCaseBody true |>.setBool `mean.renderSetLiteralTypes false
+              else opts.setBool `pp.fieldNotation false) do
+            renderExpr rhs last
+          let english := s!"{patternText} gives {rhsText}{if last then "." else ";"}"
+          let native := s!"| .{patternText} => {← leanText rhs}"
+          return (english, native, ctor)
+        if seen.contains ctor then return none
+        seen := ctor :: seen
+        englishCases := englishCases ++ [english]
+        nativeCases := nativeCases ++ [native]
+      let subjects ← args.toList.mapM fun arg => do
+        let decl ← arg.fvarId!.getDecl
+        subjectText decl.type (some decl.userName) decl.binderInfo
+      let nameStr ← declarationNameText name
+      let discrText ← leanText discr
+      let clause := if abbreviation then "Abbreviation" else "Definition"
+      let english := s!"{clause}:
+  {nameStr} maps {String.intercalate " and " subjects}
+    to {← witnessText result none}
+    by cases on {discrText}:
+{indented (indented (indented (String.intercalate "
+" englishCases)))}"
+      let mut binders : List String := []
+      for arg in args do
+        let decl ← arg.fvarId!.getDecl
+        let n ← nameText decl.userName
+        let ty ← leanText decl.type
+        let binder := match decl.binderInfo with
+          | .default => "(" ++ n ++ " : " ++ ty ++ ")"
+          | .implicit => "{" ++ n ++ " : " ++ ty ++ "}"
+          | .strictImplicit => "⦃" ++ n ++ " : " ++ ty ++ "⦄"
+          | .instImplicit => "[" ++ n ++ " : " ++ ty ++ "]"
+        binders := binders ++ [binder]
+      let keyword := if abbreviation then "abbrev" else "def"
+      let native := s!"{keyword} {nameStr} {String.intercalate " " binders} : {← leanText result} :=
+  match {discrText} with
+{indented (indented (String.intercalate "
+" nativeCases))}"
+      return some { english, native }
+  catch _ => return none
+
+/-- The result type can supply coercions and literal types in a case body.
+Retain the explicit rendering when that context is insufficient. -/
+private def checkedCaseDefinition? (name : Name) (signature : Expr) (abbreviation : Bool) :
+    TermElabM (Option CaseRendering) := do
+  for compact in [true, false] do
+    if let some text ← caseDefinitionText? name signature abbreviation compact then
+      try
+        RoundTrip.checkDefinition name text.english
+        return some text
+      catch _ => pure ()
+  return none
+
 /-- Prefer predicate subjects; other values use named definitions. -/
 def renderDefinition (name : Name) (signatureType value : Expr) (abbreviation := false) : TermElabM String := do
   let value := declarationBinders signatureType value
@@ -1125,6 +1278,23 @@ def renderChecked (e : Expr) : TermElabM String :=
 private def comparisonText (before after : String) : String :=
   s!"\n-- LEAN INPUT:\n{before}\n-- MEAN OUTPUT:\n{after}"
 
+private def sourceSlice (map : FileMap) (start stop : String.Pos.Raw) : String :=
+  (String.Pos.Raw.extract map.source start stop).replace "\r\n" "\n"
+
+/-- Source ranges from the active module refer to this exact compilation input.
+Imported declarations use an explicitly labelled reconstruction. -/
+private def sourceDeclarationText? (name : Name) : TermElabM (Option String) := do
+  if (← getEnv).getModuleIdxFor? name |>.isSome then return none
+  let some ranges ← findDeclarationRanges? name | return none
+  let map ← getFileMap
+  return some (sourceSlice map (map.ofPosition ranges.range.pos)
+    (map.ofPosition ranges.range.endPos))
+
+private def declarationInputText (name : Name) (reconstructed : String) : TermElabM String := do
+  if let some source ← sourceDeclarationText? name then return source
+  return "-- Reconstructed declaration; original source is unavailable in this module.
+" ++ reconstructed
+
 private def showTerm (t : Syntax) (compare : Bool) : Command.CommandElabM Unit :=
   Command.runTermElabM fun _ => do
   let e ← elabTerm t none
@@ -1132,7 +1302,12 @@ private def showTerm (t : Syntax) (compare : Bool) : Command.CommandElabM Unit :
   let e ← instantiateMVars e
   let after ← renderChecked e
   if compare then
-    logInfo (comparisonText (← leanText e) after)
+    let map ← getFileMap
+    let before ← match t.getPos?, t.getTailPos? with
+      | some start, some stop => pure (sourceSlice map start stop)
+      | _, _ => do pure ("-- Reconstructed expression; original source is unavailable." ++
+          "\n" ++ (← leanText e))
+    logInfo (comparisonText before after)
   else logInfo after
 
 /-- Render the complete constructor interface of a single non-nested inductive. -/
@@ -1238,7 +1413,7 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
       RoundTrip.checkText info.type text `meanTheoremStatement
       if compare then
         let before := s!"theorem {declarationName} :\n{indented (← leanText info.type)}"
-        logInfo (comparisonText (context ++ before) (context ++ text))
+        logInfo (comparisonText (← declarationInputText n (context ++ before)) (context ++ text))
       else logInfo s!"{context}{text}"
       return
     match info with
@@ -1246,30 +1421,36 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
       let text ← checkedRendering (renderInductiveEnglish i) (RoundTrip.checkInductive n) fun _ =>
         withOptions (fun opts => opts.setBool `pp.explicit true) (renderInductiveSignature i)
       if compare then
-        logInfo (comparisonText (context ++ (← renderInductiveSignature i false)) (context ++ text))
+        logInfo (comparisonText (← declarationInputText n (context ++ (← renderInductiveSignature i false))) (context ++ text))
       else logInfo (context ++ text)
     | .defnInfo d =>
       let abbreviation := d.hints.isAbbrev
-      let text ← checkedRendering (renderDefinition n d.type d.value abbreviation)
+      let recovered ← checkedCaseDefinition? n d.type abbreviation
+      let text ← match recovered with
+      | some recovered => pure recovered.english
+      | none =>
+        checkedRendering (renderDefinition n d.type d.value abbreviation)
           (RoundTrip.checkDefinition n) fun ex =>
-        withOptions (fun opts => opts.setBool `pp.explicit true) do
-          if RoundTrip.isParameterNameFailure ex then
-            -- Some aliases need a declaration type to retain public parameter names.
-            let keyword := if abbreviation then "abbrev" else "def"
-            pure s!"{keyword} {declarationName} : {← typeText d.type} :=
+            withOptions (fun opts => opts.setBool `pp.explicit true) do
+              if RoundTrip.isParameterNameFailure ex then
+                -- Some aliases need a declaration type to retain public parameter names.
+                let keyword := if abbreviation then "abbrev" else "def"
+                pure s!"{keyword} {declarationName} : {← typeText d.type} :=
 {indented (← leanText d.value)}"
-          else
-            renderDefinition n d.type d.value abbreviation
+              else
+                renderDefinition n d.type d.value abbreviation
       if compare then
         let keyword := if abbreviation then "abbrev" else "def"
-        let before := s!"{keyword} {declarationName} : {← leanText info.type} :=\n{indented (← leanText d.value)}"
-        logInfo (comparisonText before text)
+        let before ← match recovered with
+          | some recovered => pure recovered.native
+          | none => do pure s!"{keyword} {declarationName} : {← leanText info.type} :=\n{indented (← leanText d.value)}"
+        logInfo (comparisonText (← declarationInputText n before) text)
       else logInfo text
     | _ =>
       let text ← renderChecked info.type
       let statementHeader := s!"{context}-- Statement of {declarationName}\n"
       if compare then
-        logInfo (comparisonText s!"{statementHeader}{← leanText info.type}" text)
+        logInfo (comparisonText (← declarationInputText n s!"{statementHeader}{← leanText info.type}") text)
       else logInfo (statementHeader ++ text)
 
 elab "#mean_term " t:term : command => showTerm t false

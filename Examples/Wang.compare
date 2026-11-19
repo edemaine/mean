@@ -1,59 +1,63 @@
 -- Automatically generated from Examples/Wang.lean by python test.py --update.
--- Each comparison shows elaborated Lean input followed by its checked Mean output.
+-- Each comparison shows Lean source (or a labelled reconstruction) followed by checked Mean output.
 -- Upstream source: [LeanWang/Abstract.lean](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LeanWang/Abstract.lean)
 -- Upstream license: [Apache 2.0](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE)
 
 -- LEAN INPUT:
-abbrev Direction : Type :=
-  Fin 4
+abbrev Direction := Fin 4
 -- MEAN OUTPUT:
 Abbreviation:
   a Direction is
     an index in [0, 4).
 
 -- LEAN INPUT:
-abbrev n : Direction :=
-  0
+abbrev n : Direction := 0
 -- MEAN OUTPUT:
 Abbreviation:
   n is
     (0 : Direction).
 
 -- LEAN INPUT:
-abbrev s : Direction :=
-  1
+abbrev s : Direction := 1
 -- MEAN OUTPUT:
 Abbreviation:
   s is
     (1 : Direction).
 
 -- LEAN INPUT:
-abbrev e : Direction :=
-  2
+abbrev e : Direction := 2
 -- MEAN OUTPUT:
 Abbreviation:
   e is
     (2 : Direction).
 
 -- LEAN INPUT:
-abbrev w : Direction :=
-  3
+abbrev w : Direction := 3
 -- MEAN OUTPUT:
 Abbreviation:
   w is
     (3 : Direction).
 
 -- LEAN INPUT:
-abbrev Tile : Type :=
-  Direction → ℕ
+abbrev Tile := Direction → ℕ
 -- MEAN OUTPUT:
 Abbreviation:
   a Tile is
     a function from Direction to ℕ.
 
 -- LEAN INPUT:
-def TilesPlane : List Tile → Prop :=
-  fun (T : List Tile) => ∃ (t : ℤ → ℤ → Tile), ∀ (x y : ℤ), t x y ∈ T ∧ t x y e = t (x + 1) y w ∧ t x y n = t x (y + 1) s
+/--
+A finite collection of Wang tiles tiles the plane if translated copies cover
+the integer grid with equal colors on touching edges.
+Here `List Tile` represents the collection using a list rather than a set
+so that algorithms can process it easily; duplicates are harmless.
+The value `t x y` is the Wang tile placed at cell `(x, y)`.
+-/
+def TilesPlane (T : List Tile) : Prop :=
+  ∃ t : ℤ → ℤ → Tile, ∀ x y,
+    t x y ∈ T ∧
+    t x y e = t (x + 1) y w ∧
+    t x y n = t x (y + 1) s
 -- MEAN OUTPUT:
 Definition:
   a list T of Tile elements satisfies TilesPlane if
@@ -62,8 +66,14 @@ Definition:
         t x y ∈ T and t x y e = t (x + 1) y w and t x y n = t x (y + 1) s.
 
 -- LEAN INPUT:
-def CoRE : {α : Type u_1} → [Primcodable α] → (α → Prop) → Prop :=
-  fun {α : Type u_1} [Primcodable α] (p : α → Prop) => REPred fun (x : α) => ¬p x
+/--
+A problem is co-RE if an algorithm halts exactly on its no-instances,
+which is equivalent to saying that the complement of the problem is RE
+(an algorithm halts exactly on its yes-instances).
+Mathlib's `REPred` defines RE.
+-/
+def CoRE {α : Type*} [Primcodable α] (p : α → Prop) : Prop :=
+  REPred (fun x => ¬ p x)
 -- MEAN OUTPUT:
 Definition:
   CoRE is
@@ -72,9 +82,16 @@ Definition:
         x does not satisfy p) is recursively enumerable.
 
 -- LEAN INPUT:
-def CoREComplete : {α : Type u_1} → [Primcodable α] → (α → Prop) → Prop :=
-  fun {α : Type u_1} [Primcodable α] (p : α → Prop) =>
-    CoRE p ∧ ∀ (q : ℕ → Prop), CoRE q → ∃ (r : ℕ → α), Computable r ∧ ∀ (n : ℕ), q n ↔ p (r n)
+/--
+A problem is co-RE-complete if it is co-RE and every co-RE problem reduces to
+it by a total computable map preserving answers. Natural numbers encode source
+inputs; `Computable r` means an always-halting algorithm computes `r`, and
+`q n ↔ p (r n)` says that the map preserves yes- and no-answers.
+-/
+def CoREComplete {α : Type*} [Primcodable α] (p : α → Prop) : Prop :=
+  CoRE p ∧
+  ∀ q : ℕ → Prop, CoRE q →
+    ∃ r : ℕ → α, Computable r ∧ ∀ n, q n ↔ p (r n)
 -- MEAN OUTPUT:
 Definition:
   CoREComplete is
@@ -87,15 +104,22 @@ Definition:
             n satisfies q if and only if (r n) satisfies p.
 
 -- LEAN INPUT:
-theorem coRE_complete :
-  CoREComplete TilesPlane
+/--
+Main theorem: Wang tiling is co-RE-complete. In particular, there is an
+algorithm that halts exactly when the given Wang tiles do not tile the plane.
+-/
+theorem coRE_complete : CoREComplete TilesPlane := sorry
 -- MEAN OUTPUT:
 Theorem coRE_complete:
   TilesPlane satisfies CoREComplete
 
 -- LEAN INPUT:
-theorem undecidable :
-  ¬ComputablePred TilesPlane
+/--
+Main corollary: Wang tiling is undecidable, i.e., no always-halting algorithm
+correctly decides whether a given finite collection of Wang tiles
+tiles the plane. Mathlib's `ComputablePred` defines decidability.
+-/
+theorem undecidable : ¬ ComputablePred TilesPlane := sorry
 -- MEAN OUTPUT:
 Theorem undecidable:
   TilesPlane is not computable

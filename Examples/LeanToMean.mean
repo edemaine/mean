@@ -2425,3 +2425,45 @@ with constructors:
 Inductive type WithInstance parameterized by a type A and an instance inst of typeclass Inhabited A
 with constructors:
   choose.
+
+Definition:
+  nativeTwice maps a natural number t
+    to a natural number
+    by cases on t:
+      zero gives 0;
+      succ n gives (nativeTwice n + 2).
+
+Definition:
+  nativeFlip maps a boolean b
+    to a boolean
+    by cases on b:
+      false gives true;
+      true gives false.
+
+Definition:
+  twice maps a natural number n
+    to a natural number
+    by cases on n:
+      zero gives 0;
+      succ k gives (twice k + 2).
+
+Definition:
+  flip maps a boolean b
+    to a boolean
+    by cases on b:
+      false gives true;
+      true gives false.
+
+Abbreviation:
+  bitValue maps a boolean b
+    to a natural number
+    by cases on b:
+      false gives 0;
+      true gives (1).
+
+Definition:
+  choosePair maps a boolean b
+    to an element of (ℕ × ℕ)
+    by cases on b:
+      false gives (0, 0);
+      true gives (1, 1).

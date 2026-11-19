@@ -1,10 +1,12 @@
 -- Automatically generated from Examples/Canny.lean by python test.py --update.
--- Each comparison shows elaborated Lean input followed by its checked Mean output.
+-- Each comparison shows Lean source (or a labelled reconstruction) followed by checked Mean output.
 -- Upstream source: [LeanCanny/Abstract.lean](https://github.com/edemaine/lean-canny/blob/6b758a2abff2b2ef69d245dad37505f9fb790921/LeanCanny/Abstract.lean)
 -- Upstream license: [Apache 2.0](https://github.com/edemaine/lean-canny/blob/6b758a2abff2b2ef69d245dad37505f9fb790921/LICENSE)
 
 -- LEAN INPUT:
-inductive Term (n : ℕ) : Type where
+/-- Integer polynomial expressions use constants, variables, addition, and
+multiplication. In dimension `n`, variables are the indices `Fin n`. -/
+inductive Term (n : ℕ) where
   | const : ℤ → Term n
   | var : Fin n → Term n
   | add : Term n → Term n → Term n
@@ -18,22 +20,34 @@ with constructors:
   mul from two elements of Term n.
 
 -- LEAN INPUT:
-def Term.eval : {n : ℕ} → (Fin n → ℝ) → Term n → ℝ :=
-  fun {n : ℕ} (x : Fin n → ℝ) (x_1 : Term n) => Term.brecOn x_1 (Term.eval._f x)
+/-- Evaluate an integer polynomial expression at a real assignment `x`. -/
+def Term.eval {n : ℕ} (x : Fin n → ℝ) : Term n → ℝ
+  | .const z => z
+  | .var i => x i
+  | .add p q => p.eval x + q.eval x
+  | .mul p q => p.eval x * q.eval x
 -- MEAN OUTPUT:
 Definition:
-  Term.eval is
-    the function : {n : ℕ} → (Fin n → ℝ) → Term n → ℝ mapping an implicit natural number n and a function x from indices in [0, n) to ℝ and an element x_1 of Term n to
-      Term.brecOn x_1 (Term.eval._f x).
+  Term.eval maps an implicit natural number n and a function x from indices in [0, n) to ℝ and an element t of Term n
+    to a real number
+    by cases on t:
+      const z gives z;
+      var i gives x i;
+      add p q gives p.eval x + q.eval x;
+      mul p q gives p.eval x * q.eval x.
 
 -- LEAN INPUT:
-inductive Formula (n : ℕ) : Type where
+/-- A Boolean formula compares polynomial expressions with zero, using equality
+or strict inequality, and combines these assertions by negation, conjunction,
+and disjunction. ETR existentially quantifies all occurring variables;
+connectivity treats them as coordinates of the described space. -/
+inductive Formula (n : ℕ) where
   | false : Formula n
   | eqZero : Term n → Formula n
   | ltZero : Term n → Formula n
-  | «not» : Formula n → Formula n
-  | «and» : Formula n → Formula n → Formula n
-  | «or» : Formula n → Formula n → Formula n
+  | not : Formula n → Formula n
+  | and : Formula n → Formula n → Formula n
+  | or : Formula n → Formula n → Formula n
 -- MEAN OUTPUT:
 Inductive type Formula parameterized by a natural number n
 with constructors:
@@ -45,29 +59,45 @@ with constructors:
   «or» from two elements of Formula n.
 
 -- LEAN INPUT:
-def Formula.solutionSet : {n : ℕ} → Formula n → Set (Fin n → ℝ) :=
-  fun {n : ℕ} (x : Formula n) => Formula.brecOn x Formula.solutionSet._f
+/-- A formula describes a solution set in `ℝⁿ`, represented by `Fin n → ℝ`.
+Negation, conjunction, and disjunction give complement, intersection, and union. -/
+def Formula.solutionSet {n : ℕ} : Formula n → Set (Fin n → ℝ)
+  | .false => ∅
+  | .eqZero t => {x | t.eval x = 0}
+  | .ltZero t => {x | t.eval x < 0}
+  | .not p => p.solutionSetᶜ
+  | .and p q => p.solutionSet ∩ q.solutionSet
+  | .or p q => p.solutionSet ∪ q.solutionSet
 -- MEAN OUTPUT:
 Definition:
-  Formula.solutionSet is
-    the function : {n : ℕ} → Formula n → Set (Fin n → ℝ) mapping an implicit natural number n and an element x of Formula n to
-      Formula.brecOn x Formula.solutionSet._f.
+  Formula.solutionSet maps an implicit natural number n and an element t of Formula n
+    to a set of (the type of indices in [0, n) → ℝ) elements
+    by cases on t:
+      false gives ∅;
+      eqZero t gives the set of elements x of the type of indices in [0, n) → ℝ such that
+        t.eval x = 0;
+      ltZero t gives the set of elements x of the type of indices in [0, n) → ℝ such that
+        t.eval x < 0;
+      «not» p gives p.solutionSetᶜ;
+      «and» p q gives p.solutionSet ∩ q.solutionSet;
+      «or» p q gives p.solutionSet ∪ q.solutionSet.
 
 -- LEAN INPUT:
--- Statement of encTerm
-(n : ℕ) → Term n ↪ List Bool
+/-- Intended: flat constructor stream, with binary integers and unary Fin indices. -/
+axiom encTerm (n : ℕ) : Term n ↪ List Bool
 -- MEAN OUTPUT:
 (n : ℕ) → Term n ↪ the type of lists of booleans
 
 -- LEAN INPUT:
--- Statement of encFormula
-(n : ℕ) → Formula n ↪ List Bool
+/-- Intended: the corresponding formula stream reusing encTerm. -/
+axiom encFormula (n : ℕ) : Formula n ↪ List Bool
 -- MEAN OUTPUT:
 (n : ℕ) → Formula n ↪ the type of lists of booleans
 
 -- LEAN INPUT:
+/-- ETR consists of the encodings of real-satisfiable formulas. -/
 def ETR : Set (List Bool) :=
-  ⋃ (n : ℕ), (⇑(encFormula n) : Formula n → List Bool) '' {p : Formula n | p.solutionSet.Nonempty}
+  ⋃ n, {p : Formula n | p.solutionSet.Nonempty}.image (encFormula n)
 -- MEAN OUTPUT:
 Definition:
   ETR is
@@ -78,22 +108,31 @@ Definition:
         under (encFormula n).
 
 -- LEAN INPUT:
-theorem etr_in_PSPACE :
-  ETR ∈ Background.PSPACE Background.encBits
+/-- Theorem (Canny, 1988): existential real satisfiability is decidable in deterministic
+polynomial space, including rejection of malformed binary inputs. -/
+theorem etr_in_PSPACE : ETR ∈ Background.PSPACE Background.encBits :=
+  sorry
 -- MEAN OUTPUT:
 Theorem etr_in_PSPACE:
   ETR ∈ Background.PSPACE Background.encBits
 
 -- LEAN INPUT:
+/-- Theorem (OpenAI, 2026): ETR belongs to the fixed counting level C₂₆P,
+with the same encoded language used in the PSPACE theorem above. -/
 theorem etr_in_CountingLevel :
-  ETR ∈ Background.CountingLevel 26 Background.encBits
+    ETR ∈ Background.CountingLevel 26 Background.encBits :=
+  sorry
 -- MEAN OUTPUT:
 Theorem etr_in_CountingLevel:
   ETR ∈ Background.CountingLevel 26 Background.encBits
 
 -- LEAN INPUT:
+/-- The class ∃ℝ consists of binary languages reducible to ETR in polynomial time.
+A reduction is a polynomial-time algorithm on all input strings that preserves
+yes/no answers; the background library's `PolyTimeReducible` includes its time bound. -/
 def ExistsReal : Set (Set (List Bool)) :=
-  {L : Set (List Bool) | Background.PolyTimeReducible Background.encBits Background.encBits L ETR}
+  {L | Background.PolyTimeReducible Background.encBits
+    Background.encBits L ETR}
 -- MEAN OUTPUT:
 Definition:
   ExistsReal is
@@ -101,23 +140,32 @@ Definition:
       Background.encBits and Background.encBits and L and ETR satisfy Background.PolyTimeReducible.
 
 -- LEAN INPUT:
+/-- Corollary (Canny, 1988): every problem in ∃ℝ is decidable in deterministic
+polynomial space. -/
 theorem existsReal_subset_PSPACE :
-  ExistsReal ⊆ Background.PSPACE Background.encBits
+    ExistsReal ⊆ Background.PSPACE Background.encBits :=
+  sorry
 -- MEAN OUTPUT:
 Theorem existsReal_subset_PSPACE:
   ExistsReal ⊆ Background.PSPACE Background.encBits
 
 -- LEAN INPUT:
+/-- Corollary (OpenAI, 2026): every problem in ∃ℝ belongs to that same fixed
+counting level. -/
 theorem existsReal_subset_CountingLevel :
-  ExistsReal ⊆ Background.CountingLevel 26 Background.encBits
+    ExistsReal ⊆ Background.CountingLevel 26 Background.encBits :=
+  sorry
 -- MEAN OUTPUT:
 Theorem existsReal_subset_CountingLevel:
   ExistsReal ⊆ Background.CountingLevel 26 Background.encBits
 
 -- LEAN INPUT:
-def Formula.existsForallSolutionSet : {r s : ℕ} → Formula (r + s) → Set (Fin r → ℝ) :=
-  fun {r s : ℕ} (p : Formula (r + s)) =>
-    {x : Fin r → ℝ | ∀ (y : Fin s → ℝ), (fun (i : Fin (r + s)) => Fin.addCases x y i) ∈ p.solutionSet}
+/-- The ∃∀ℝ solution set contains the existential assignments `x` of length `r`
+for which every universal assignment `y` of length `s` satisfies `p`.
+`Fin.addCases` concatenates the tuples, with the existential coordinates first.
+Either block may be empty; nonemptiness of this set expresses ∃∀ℝ truth. -/
+def Formula.existsForallSolutionSet {r s : ℕ} (p : Formula (r + s)) : Set (Fin r → ℝ) :=
+  {x | ∀ y : Fin s → ℝ, Fin.addCases x y ∈ p.solutionSet}
 -- MEAN OUTPUT:
 Definition:
   Formula.existsForallSolutionSet is
@@ -127,13 +175,14 @@ Definition:
           (fun (i : the type of indices in [0, r + s)) => Fin.addCases x y i) ∈ p.solutionSet.
 
 -- LEAN INPUT:
+/-- The language ∃∀ℝ consists of true existential-universal real sentences.
+It uses the same formula encoding as ETR and records the unary existential block
+length. The union allows all finite block sizes; unused coordinates do not affect
+truth. Every other word is rejected. -/
 def ExistsForallReal : Set (List Bool) :=
-  ⋃ (r : ℕ),
-    ⋃ (s : ℕ),
-      (fun (p : Formula (r + s)) =>
-          (Background.encPair Background.encUnary Background.encBits : ℕ × List Bool → List Bool)
-            (r, (encFormula (r + s) : Formula (r + s) → List Bool) p)) ''
-        {p : Formula (r + s) | p.existsForallSolutionSet.Nonempty}
+  ⋃ r, ⋃ s, {p : Formula (r + s) | p.existsForallSolutionSet.Nonempty}.image (fun p =>
+    Background.encPair Background.encUnary Background.encBits
+      (r, encFormula (r + s) p))
 -- MEAN OUTPUT:
 Definition:
   ExistsForallReal is
@@ -149,15 +198,21 @@ Definition:
               (r, (encFormula (r + s) : Formula (r + s) → the type of lists of booleans) p)).
 
 -- LEAN INPUT:
+/-- Theorem (OpenAI, 2026): ∃∀ℝ belongs to CH.
+This formalization supplies the fixed level C₆₀P, independent of variable counts,
+polynomial degrees, and coefficient magnitudes. -/
 theorem existsForallReal_in_CountingLevel :
-  ExistsForallReal ∈ Background.CountingLevel 60 Background.encBits
+    ExistsForallReal ∈ Background.CountingLevel 60 Background.encBits :=
+  sorry
 -- MEAN OUTPUT:
 Theorem existsForallReal_in_CountingLevel:
   ExistsForallReal ∈ Background.CountingLevel 60 Background.encBits
 
 -- LEAN INPUT:
-def ConnectedFormulas : (n : ℕ) → Set (Formula n) :=
-  fun (n : ℕ) => {p : Formula n | IsPreconnected p.solutionSet}
+/-- Connected formulas describe connected solution sets in `ℝⁿ`, allowing the
+empty set (Mathlib's root-level `IsPreconnected`). -/
+def ConnectedFormulas (n : ℕ) : Set (Formula n) :=
+  {p | _root_.IsPreconnected p.solutionSet}
 -- MEAN OUTPUT:
 Definition:
   ConnectedFormulas is
@@ -166,12 +221,11 @@ Definition:
         p.solutionSet satisfies IsPreconnected.
 
 -- LEAN INPUT:
+/-- Whole-space connectivity applies the input encoding to connected formulas. -/
 def ConnectedLanguage : Set (List Bool) :=
-  ⋃ (n : ℕ),
-    (fun (p : Formula n) =>
-        (Background.encPair Background.encUnary Background.encBits : ℕ × List Bool → List Bool)
-          (n, (encFormula n : Formula n → List Bool) p)) ''
-      ConnectedFormulas n
+  ⋃ n, (ConnectedFormulas n).image (fun p =>
+    Background.encPair Background.encUnary Background.encBits
+      (n, encFormula n p))
 -- MEAN OUTPUT:
 Definition:
   ConnectedLanguage is
@@ -183,20 +237,23 @@ Definition:
             (n, (encFormula n : Formula n → the type of lists of booleans) p)).
 
 -- LEAN INPUT:
+/-- Theorem (Canny, 1988): connectivity of an integer semialgebraic set is in PSPACE,
+including singular and unbounded sets and accepting the empty set. -/
 theorem connectedLanguage_in_PSPACE :
-  ConnectedLanguage ∈ Background.PSPACE Background.encBits
+    ConnectedLanguage ∈ Background.PSPACE Background.encBits :=
+  sorry
 -- MEAN OUTPUT:
 Theorem connectedLanguage_in_PSPACE:
   ConnectedLanguage ∈ Background.PSPACE Background.encBits
 
 -- LEAN INPUT:
-def ReachableEndpoints : {n : ℕ} → Formula n → Set (Formula n × Formula n) :=
-  fun {n : ℕ} (p : Formula n) =>
-    {(p₁, p₂) : Formula n × Formula n |
-      ∃ (x : Fin n → ℝ) (y : Fin n → ℝ),
-        p₁.solutionSet = {x} ∧
-          p₂.solutionSet = {y} ∧
-            ∃ (γ : Path x y), ∀ (t : (↑unitInterval : Type)), (γ : (↑unitInterval : Type) → Fin n → ℝ) t ∈ p.solutionSet}
+/-- Reachable endpoint pairs describe two unique points joined by a continuous
+path inside the solution set of `p`. Mathlib's root-level `Path x y` is a
+continuous map from `[0,1]` with endpoints `x` and `y`. The endpoints may be
+irrational; each endpoint formula must have a singleton solution set. -/
+def ReachableEndpoints {n : ℕ} (p : Formula n) : Set (Formula n × Formula n) :=
+  {(p₁, p₂) | ∃ x y, p₁.solutionSet = {x} ∧ p₂.solutionSet = {y} ∧
+    ∃ γ : _root_.Path x y, ∀ t, γ t ∈ p.solutionSet}
 -- MEAN OUTPUT:
 Definition:
   ReachableEndpoints is
@@ -211,18 +268,12 @@ Definition:
                   ∀ (t : unitInterval as Type), (γ : unitInterval as Type → the type of indices in [0, n) → ℝ) t ∈ p.solutionSet.
 
 -- LEAN INPUT:
+/-- Reachability applies the input encoding to reachable endpoint pairs. -/
 def ReachableLanguage : Set (List Bool) :=
-  ⋃ (n : ℕ),
-    ⋃ (p : Formula n),
-      (fun (x : Formula n × Formula n) =>
-          match x with
-          | (p₁, p₂) =>
-            (Background.encPair Background.encUnary (Background.encList Background.encBits) :
-                ℕ × List (List Bool) → List Bool)
-              (n,
-                [(encFormula n : Formula n → List Bool) p, (encFormula n : Formula n → List Bool) p₁,
-                  (encFormula n : Formula n → List Bool) p₂])) ''
-        ReachableEndpoints p
+  ⋃ n, ⋃ p : Formula n, (ReachableEndpoints p).image (fun (p₁, p₂) =>
+    Background.encPair Background.encUnary
+      (Background.encList Background.encBits)
+      (n, [encFormula n p, encFormula n p₁, encFormula n p₂]))
 -- MEAN OUTPUT:
 Definition:
   ReachableLanguage is
@@ -240,8 +291,11 @@ Definition:
                     (encFormula n : Formula n → the type of lists of booleans) p₂])).
 
 -- LEAN INPUT:
+/-- Theorem (Canny, 1988): path connectivity between two formula-described points
+in an integer semialgebraic set is in PSPACE, including endpoint validation. -/
 theorem reachableLanguage_in_PSPACE :
-  ReachableLanguage ∈ Background.PSPACE Background.encBits
+    ReachableLanguage ∈ Background.PSPACE Background.encBits :=
+  sorry
 -- MEAN OUTPUT:
 Theorem reachableLanguage_in_PSPACE:
   ReachableLanguage ∈ Background.PSPACE Background.encBits

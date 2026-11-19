@@ -1722,3 +1722,30 @@ with constructors:
 example : Hidden.wrap 1 = Hidden.wrap 1 := rfl
 example : WithInstance.choose (A := Nat) = WithInstance.choose (A := Nat) := rfl
 end EnglishInductiveExamples
+
+namespace CaseDefinitionExamples
+Definition:
+  twice maps a natural number n to a natural number
+  by cases on n:
+    zero gives 0;
+    succ k gives (twice k + 2).
+Definition:
+  flip maps a boolean b to a boolean by cases on b:
+    false gives true;
+    true gives false.
+Abbreviation:
+  bitValue maps a boolean b to a natural number by cases on b:
+    false gives 0;
+    true gives (1).
+example : twice (n := 3) = 6 := rfl
+example : flip false = true := rfl
+example : bitValue true = 1 := rfl
+end CaseDefinitionExamples
+
+namespace CaseDefinitionExamples
+Definition:
+  choosePair maps a boolean b to an element of Nat × Nat by cases on b:
+    false gives (0, 0);
+    true gives (1, 1).
+example : choosePair true = (1, 1) := rfl
+end CaseDefinitionExamples

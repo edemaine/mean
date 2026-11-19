@@ -1,61 +1,55 @@
 -- Automatically generated from Examples/LeanToMean.lean by python test.py --update.
--- Each comparison shows elaborated Lean input followed by its checked Mean output.
+-- Each comparison shows Lean source (or a labelled reconstruction) followed by checked Mean output.
 
 -- LEAN INPUT:
-def answer : ℤ :=
-  42
+def answer : Int := 42
 -- MEAN OUTPUT:
 Definition:
   answer is
     the integer 42.
 
 -- LEAN INPUT:
-abbrev Count : Type :=
-  ℕ
+abbrev Count := Nat
 -- MEAN OUTPUT:
 Abbreviation:
   a Count is
     a natural number.
 
 -- LEAN INPUT:
-theorem answer_eq :
-  answer = 42
+theorem answer_eq : answer = 42 := rfl
 -- MEAN OUTPUT:
 Theorem answer_eq:
   answer = 42
 
 -- LEAN INPUT:
-def Nested.entry : ℤ :=
-  7
+def entry : Int := 7
 -- MEAN OUTPUT:
 Definition:
   Nested.entry is
     the integer 7.
 
 -- LEAN INPUT:
-def «a» : ℤ :=
-  0
+def «a» : Int := 0
 -- MEAN OUTPUT:
 Definition:
   «a» is
     the integer 0.
 
 -- LEAN INPUT:
-def step : ℕ → ℕ :=
-  Nat.succ
+def step : (input : Nat) → Nat := Nat.succ
 -- MEAN OUTPUT:
 def step : (input : Nat) → Nat :=
   Nat.succ
 
 -- LEAN INPUT:
-def HeadingNameExamples.answer : ℤ :=
-  42
+def answer : Int := 42
 -- MEAN OUTPUT:
 Definition:
   HeadingNameExamples.answer is
     the integer 42.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def PredicateWordingExamples.zero : ℕ → Prop :=
   fun (n : ℕ) => n = 0
 -- MEAN OUTPUT:
@@ -64,6 +58,7 @@ Definition:
     (n = 0).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def PredicateWordingExamples.less : ℕ → ℕ → Prop :=
   fun (x y : ℕ) => x < y
 -- MEAN OUTPUT:
@@ -72,6 +67,7 @@ Definition:
     x < y.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev PredicateWordingExamples.nonzero : ℕ → Prop :=
   fun (n : ℕ) => n ≠ 0
 -- MEAN OUTPUT:
@@ -80,6 +76,7 @@ Abbreviation:
     (n ≠ 0).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev PredicateWordingExamples.same : ℕ → ℕ → Prop :=
   fun (x y : ℕ) => x = y
 -- MEAN OUTPUT:
@@ -88,6 +85,7 @@ Abbreviation:
     x = y.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def PredicateWordingExamples.atEnd : (n : ℕ) → Fin (n + 1) → Prop :=
   fun (n : ℕ) (i : Fin (n + 1)) => (↑i : ℕ) = n
 -- MEAN OUTPUT:
@@ -111,59 +109,59 @@ x.ofLp i
 x i
 
 -- LEAN INPUT:
-(↑(p i) : (fun (x : Fin d) => ℝ) i)
+((p i : Int) : (fun (_ : Fin d) => Real) i)
 -- MEAN OUTPUT:
 p i as a real number
 
 -- LEAN INPUT:
-EuclideanSpace ℝ (Fin d)
+EuclideanSpace Real (Fin d)
 -- MEAN OUTPUT:
 the real Euclidean space of dimension d
 
 -- LEAN INPUT:
-EuclideanSpace ℂ (Fin d)
+EuclideanSpace Complex (Fin d)
 -- MEAN OUTPUT:
 EuclideanSpace ℂ (the type of indices in [0, d))
 
 -- LEAN INPUT:
-fun (n : ℕ) => Fin n → ℤ
+fun n : Nat => Fin n → Int
 -- MEAN OUTPUT:
 the function mapping a natural number n to
   the type of functions from indices in [0, n) to ℤ
 
 -- LEAN INPUT:
-fun (n : ℕ) => Fin (n + 1)
+fun n : Nat => Fin (n + 1)
 -- MEAN OUTPUT:
 the function mapping a natural number n to
   the type of indices in [0, n + 1)
 
 -- LEAN INPUT:
-ℕ → ℤ
+(Nat → Int)
 -- MEAN OUTPUT:
 the type of functions from ℕ to ℤ
 
 -- LEAN INPUT:
-{Set.univ, ∅}
+({Set.univ, ∅} : Set (Set Nat))
 -- MEAN OUTPUT:
 the set {the set of all elements of ℕ, ∅}
 
 -- LEAN INPUT:
-{1, 2}
+({1, 2} : Finset Nat)
 -- MEAN OUTPUT:
 {1, 2}
 
 -- LEAN INPUT:
-[1, 2, 3].length
+([1, 2, 3] : List Nat).length
 -- MEAN OUTPUT:
 the length of ([1, 2, 3])
 
 -- LEAN INPUT:
-Set.univ
+(Set.univ : Set Nat)
 -- MEAN OUTPUT:
 the set of all elements of ℕ
 
 -- LEAN INPUT:
-Space ≃ᵃⁱ[ℝ] Space
+(Space ≃ᵃⁱ[Real] Space)
 -- MEAN OUTPUT:
 the type of bijective affine isometries from Space to Space over ℝ
 
@@ -173,12 +171,12 @@ f.linear
 the linear part of f
 
 -- LEAN INPUT:
-(LinearEquiv.det : (Space ≃ₗ[ℝ] Space) → ℝˣ) f.linear
+f.linear.det
 -- MEAN OUTPUT:
 the determinant of (the linear part of f)
 
 -- LEAN INPUT:
-(LinearMap.det : (Space →ₗ[ℝ] Space) → ℝ) L
+L.det
 -- MEAN OUTPUT:
 the determinant of L
 
@@ -203,7 +201,7 @@ t * EuclideanGeometry.reflection (AffineSubspace.perpBisector p q)
 t * the reflection across (the perpendicular bisector of p and q)
 
 -- LEAN INPUT:
-(⇑f : Space → Space) '' s
+f '' s
 -- MEAN OUTPUT:
 the image of s under f
 
@@ -215,7 +213,7 @@ there is a subset T of s such that
     x ∈ s
 
 -- LEAN INPUT:
-∃! g : Motion, g ∈ {f, t} ∧ p ∈ (⇑g : Space → Space) '' s
+∃! g ∈ ({f, t} : Set Motion), p ∈ g '' s
 -- MEAN OUTPUT:
 there is exactly one g ∈ the set {f, t} such that
   p ∈ the image of s under g
@@ -231,23 +229,23 @@ the image of s under f
 there is x ∈ s satisfying P
 
 -- LEAN INPUT:
-∃! x : A, x ∈ s ∧ P x
+∃! x, x ∈ s ∧ P x
 -- MEAN OUTPUT:
 there is exactly one x ∈ s satisfying P
 
 -- LEAN INPUT:
-¬∃ x ∈ s, P x
+¬ ∃ x ∈ s, P x
 -- MEAN OUTPUT:
 there is no x ∈ s satisfying P
 
 -- LEAN INPUT:
-∃ (x : A), z ∈ s ∧ P x
+∃ x : A, z ∈ s ∧ P x
 -- MEAN OUTPUT:
 there is an element x of A such that
   z ∈ s and x satisfies P
 
 -- LEAN INPUT:
-(∃! x : A, x ∈ s ∧ P x) ∧ True
+(∃! x, x ∈ s ∧ P x) ∧ True
 -- MEAN OUTPUT:
 (there is exactly one x ∈ s satisfying P) and True
 
@@ -264,7 +262,7 @@ there is n ∈ xs such that
   n = 0
 
 -- LEAN INPUT:
-∃! n : ℤ, n ∈ s ∧ n = 0
+∃! n, n ∈ s ∧ n = 0
 -- MEAN OUTPUT:
 there is exactly one n ∈ s such that
   n = 0
@@ -285,78 +283,77 @@ x.ofLp i
   x i
 
 -- LEAN INPUT:
-theorem finiteSetChoice :
-  ∀ s ∈ {Set.univ, ∅}, s ∈ {Set.univ, ∅}
+theorem finiteSetChoice (s : Set Nat) (h : s ∈ ({Set.univ, ∅} : Set (Set Nat))) :
+    s ∈ ({Set.univ, ∅} : Set (Set Nat)) := h
 -- MEAN OUTPUT:
 Theorem finiteSetChoice:
   for every s ∈ the set {the set of all elements of ℕ, ∅}:
     s ∈ the set {the set of all elements of ℕ, ∅}
 
 -- LEAN INPUT:
-{s, t}
+({s, t} : Set (Set Nat))
 -- MEAN OUTPUT:
 the set {s, t}
 
 -- LEAN INPUT:
-{s}
+({s} : Set (Set Nat))
 -- MEAN OUTPUT:
 the set {s}
 
 -- LEAN INPUT:
-∅
+(∅ : Set (Set Nat))
 -- MEAN OUTPUT:
 the set ∅
 
 -- LEAN INPUT:
-∀ u ∈ {s, t}, u ⊆ s ∪ t
+∀ u ∈ ({s, t} : Set (Set Nat)), u ⊆ s ∪ t
 -- MEAN OUTPUT:
 for every u ∈ the set {s, t}:
   u ⊆ s ∪ t
 
 -- LEAN INPUT:
-{0, 1}
+({0, 1} : Finset Nat)
 -- MEAN OUTPUT:
 {0, 1}
 
 -- LEAN INPUT:
-def integerSetLiteral : Set ℤ :=
-  {1, 2}
+def integerSetLiteral : Set Int := {1, 2}
 -- MEAN OUTPUT:
 Definition:
   integerSetLiteral is
     (the set {1, 2} : Set ℤ).
 
 -- LEAN INPUT:
-{1, 2}
+({1, 2} : Set Int)
 -- MEAN OUTPUT:
 the set {1, 2}
 
 -- LEAN INPUT:
-∃ p ∈ ParenthesisExamples.points, p = origin
+∃ p ∈ ParenthesisExamples.points (d := d), p = origin
 -- MEAN OUTPUT:
 there is p ∈ ParenthesisExamples.points such that
   p = origin
 
 -- LEAN INPUT:
-∀ (p : ParenthesisExamples.Point d), p = origin
+∀ p : ParenthesisExamples.Point d, p = origin
 -- MEAN OUTPUT:
 for every element p of ParenthesisExamples.Point d:
   p = origin
 
 -- LEAN INPUT:
-∃ (p : ParenthesisExamples.Point d), p = origin
+∃ p : ParenthesisExamples.Point d, p = origin
 -- MEAN OUTPUT:
 there is an element p of ParenthesisExamples.Point d such that
   p = origin
 
 -- LEAN INPUT:
-∀ᵐ (p : ParenthesisExamples.Point d) ∂μ, p = origin
+∀ᵐ p ∂μ, p = origin
 -- MEAN OUTPUT:
 for almost every element p of ParenthesisExamples.Point d with respect to μ:
   p = origin
 
 -- LEAN INPUT:
-∃ (p : ParenthesisExamples.Point d × ℕ), p.1 = origin
+∃ p : ParenthesisExamples.Point d × Nat, p.1 = origin
 -- MEAN OUTPUT:
 there is an element p of (ParenthesisExamples.Point d × ℕ) such that
   p.1 = origin
@@ -397,7 +394,7 @@ x * Real.log y + Real.log x
 x * ln y + ln x
 
 -- LEAN INPUT:
-fun (z : ℝ) => Real.log (Real.log z)
+fun z : Real => Real.log (Real.log z)
 -- MEAN OUTPUT:
 the function mapping a real number z to
   ln (ln z)
@@ -438,7 +435,7 @@ x * Real.logb 2 y
 x * log base 2 of y
 
 -- LEAN INPUT:
-2 ^ Real.logb 2 x
+(2 : Real) ^ Real.logb 2 x
 -- MEAN OUTPUT:
 2 ^ log base 2 of x
 
@@ -448,12 +445,12 @@ Real.logb 2 x ≤ 3 ∧ x > 0
 log base 2 of x ≤ 3 and x > 0
 
 -- LEAN INPUT:
-Real.logb 2 ((↑n : ℝ) + 4)
+Real.logb 2 ((n : Real) + 4)
 -- MEAN OUTPUT:
 log base 2 of (n as a real number + 4)
 
 -- LEAN INPUT:
-fun (z : ℝ) => Real.logb 2 (Real.logb 2 z)
+fun z : Real => Real.logb 2 (Real.logb 2 z)
 -- MEAN OUTPUT:
 the function mapping a real number z to
   log base 2 of (log base 2 of z)
@@ -479,46 +476,46 @@ ln x
 ln x
 
 -- LEAN INPUT:
-∃ (n : ℕ), P n
+∃ n : Nat, P n
 -- MEAN OUTPUT:
 there is a natural number n satisfying P
 
 -- LEAN INPUT:
-∃ (n : ℕ), P n ∧ Q n
+∃ n : Nat, P n ∧ Q n
 -- MEAN OUTPUT:
 there is a natural number n satisfying P such that
   n satisfies Q
 
 -- LEAN INPUT:
-∃ (n : ℕ), P n ∧ True
+∃ n : Nat, P n ∧ True
 -- MEAN OUTPUT:
 there is a natural number n satisfying P such that
   True
 
 -- LEAN INPUT:
-∃! n : ℕ, P n
+∃! n : Nat, P n
 -- MEAN OUTPUT:
 there is a unique natural number n satisfying P
 
 -- LEAN INPUT:
-∃! n : ℕ, P n ∧ Q n
+∃! n : Nat, P n ∧ Q n
 -- MEAN OUTPUT:
 there is a unique natural number n satisfying P such that
   n satisfies Q
 
 -- LEAN INPUT:
-∃! n : ℕ, P n ∧ True
+∃! n : Nat, P n ∧ True
 -- MEAN OUTPUT:
 there is a unique natural number n satisfying P such that
   True
 
 -- LEAN INPUT:
-¬∃ (n : ℕ), P n
+¬ ∃ n : Nat, P n
 -- MEAN OUTPUT:
 there is no natural number n satisfying P
 
 -- LEAN INPUT:
-¬∃ (n : ℕ), P n ∧ Q n
+¬ ∃ n : Nat, P n ∧ Q n
 -- MEAN OUTPUT:
 there is no natural number n satisfying P such that
   n satisfies Q
@@ -535,12 +532,12 @@ there is n ∈ s satisfying P such that
   n satisfies Q
 
 -- LEAN INPUT:
-∃! n : ℕ, n ∈ s ∧ P n
+∃! n : Nat, n ∈ s ∧ P n
 -- MEAN OUTPUT:
 there is exactly one n ∈ s satisfying P
 
 -- LEAN INPUT:
-¬∃ n ∈ s, P n
+¬ ∃ n ∈ s, P n
 -- MEAN OUTPUT:
 there is no n ∈ s satisfying P
 
@@ -550,37 +547,37 @@ there is no n ∈ s satisfying P
 there is a subset T of s satisfying F
 
 -- LEAN INPUT:
-∃ (n : ℕ), (P n ∧ Q n) ∧ n = n
+∃ n : Nat, (P n ∧ Q n) ∧ n = n
 -- MEAN OUTPUT:
 there is a natural number n such that
   (n satisfies P and n satisfies Q) and n = n
 
 -- LEAN INPUT:
-∃ (n : ℕ), P 0 ∧ Q n
+∃ n : Nat, P 0 ∧ Q n
 -- MEAN OUTPUT:
 there is a natural number n such that
   0 satisfies P and n satisfies Q
 
 -- LEAN INPUT:
-∃ (f : ℕ → ℕ), Function.Injective f
+∃ f : Nat → Nat, Function.Injective f
 -- MEAN OUTPUT:
 there is a function f from ℕ to ℕ such that
   f is injective
 
 -- LEAN INPUT:
-∀ (q : ℕ → Prop), P q → q 0
+∀ q : Nat → Prop, P q → q 0
 -- MEAN OUTPUT:
 for every function q from ℕ to Prop satisfying P:
   0 satisfies q
 
 -- LEAN INPUT:
-∀ (n : ℕ), R n → n = n
+∀ n : Nat, R n → n = n
 -- MEAN OUTPUT:
 for every natural number n satisfying R:
   n = n
 
 -- LEAN INPUT:
-∀ (xs : List ℕ), L xs → xs = xs
+∀ xs : List Nat, L xs → xs = xs
 -- MEAN OUTPUT:
 for every list xs of natural numbers satisfying L:
   xs = xs
@@ -592,65 +589,65 @@ for every n ∈ s satisfying R:
   n = n
 
 -- LEAN INPUT:
-∀ (T : Set ℕ), s ⊆ T → S T → T = T
+∀ T : Set Nat, s ⊆ T → S T → T = T
 -- MEAN OUTPUT:
 for every superset T of s satisfying S:
   T = T
 
 -- LEAN INPUT:
-∀ (x y : ℕ), B x y → x = x
+∀ x y : Nat, B x y → x = x
 -- MEAN OUTPUT:
 for all natural numbers x and y satisfying B:
   x = x
 
 -- LEAN INPUT:
-∀ (x y : ℕ), B y x → x = x
+∀ x y : Nat, B y x → x = x
 -- MEAN OUTPUT:
 for all natural numbers x and y where y and x satisfy B:
   x = x
 
 -- LEAN INPUT:
-∀ (x y : ℕ), R x → x = y
+∀ x y : Nat, R x → x = y
 -- MEAN OUTPUT:
 for all natural numbers x and y where x satisfies R:
   x = y
 
 -- LEAN INPUT:
-∀ (n : ℕ), R 0 → n = n
+∀ n : Nat, R 0 → n = n
 -- MEAN OUTPUT:
 for every natural number n where 0 satisfies R:
   n = n
 
 -- LEAN INPUT:
-∀ (q : ℕ → Prop), (∃! n : ℕ, q n) → q 0
+∀ q : Nat → Prop, (∃! n, q n) → q 0
 -- MEAN OUTPUT:
 for every function q from ℕ to Prop where (there is a unique natural number n satisfying q):
   0 satisfies q
 
 -- LEAN INPUT:
-∀ (n : ℕ) (h : R n), h = h
+∀ (n : Nat) (h : R n), h = h
 -- MEAN OUTPUT:
 for every natural number n:
   for every proof h that (R n):
     h = h
 
 -- LEAN INPUT:
-∀ (n : ℕ), R n → Q n → n = n
+∀ n : Nat, R n → Q n → n = n
 -- MEAN OUTPUT:
 for every natural number n satisfying R:
   if n satisfies Q then
     n = n
 
 -- LEAN INPUT:
-∀ (f : ℕ → ℕ), Function.Injective f → f 0 = f 0
+∀ f : Nat → Nat, Function.Injective f → f 0 = f 0
 -- MEAN OUTPUT:
 for every function f from ℕ to ℕ where f is injective:
   f 0 = f 0
 
 -- LEAN INPUT:
-fun [inst : Inhabited ℕ] =>
-  let first := inst;
-  fun [Inhabited ℕ] => ∀ (n : ℕ), PredicateExamples.classified n → n = n
+fun [Inhabited Nat] =>
+  let first := inferInstanceAs (Inhabited Nat)
+  fun [Inhabited Nat] => ∀ n : Nat, @PredicateExamples.classified first n → n = n
 -- MEAN OUTPUT:
 the function mapping an instance inst of typeclass Inhabited Nat to
   the function mapping an instance of typeclass Inhabited Nat to
@@ -658,61 +655,61 @@ the function mapping an instance inst of typeclass Inhabited Nat to
       @Eq Nat n n
 
 -- LEAN INPUT:
-∀ᵐ (q : ℕ → Prop) ∂μ, P q → q 0
+∀ᵐ q ∂μ, P q → q 0
 -- MEAN OUTPUT:
 for almost every function q from ℕ to Prop satisfying P with respect to μ:
   0 satisfies q
 
 -- LEAN INPUT:
-∀ᵐ (f : ℕ → ℕ) ∂μ, Function.Injective f → f 0 = f 0
+∀ᵐ f ∂μ, Function.Injective f → f 0 = f 0
 -- MEAN OUTPUT:
 for almost every function f from ℕ to ℕ with respect to μ where f is injective:
   f 0 = f 0
 
 -- LEAN INPUT:
-∀ (S : Set A), s ⊆ S → R S
+∀ S : Set A, s ⊆ S → R S
 -- MEAN OUTPUT:
 for every superset S of s:
   S satisfies R
 
 -- LEAN INPUT:
-∀ (S : Set A), s.Subset S → R S
+∀ S : Set A, Set.Subset s S → R S
 -- MEAN OUTPUT:
 for every superset S of s:
   S satisfies R
 
 -- LEAN INPUT:
-∀ (S : Set A), s ⊆ S → R S
+∀ S : Set A, s ≤ S → R S
 -- MEAN OUTPUT:
 for every superset S of s:
   S satisfies R
 
 -- LEAN INPUT:
-∀ (S : Set A), s ⊆ S → Q S → R S
+∀ S : Set A, s ⊆ S → Q S → R S
 -- MEAN OUTPUT:
 for every superset S of s satisfying Q:
   S satisfies R
 
 -- LEAN INPUT:
-∀ (S : Set A), s ∪ t ⊆ S → R S
+∀ S : Set A, s ∪ t ⊆ S → R S
 -- MEAN OUTPUT:
 for every superset S of s ∪ t:
   S satisfies R
 
 -- LEAN INPUT:
-∀ S ⊆ s, R S
+∀ S : Set A, S ⊆ s → R S
 -- MEAN OUTPUT:
 for every set S of A elements where S ⊆ s:
   S satisfies R
 
 -- LEAN INPUT:
-∀ (S : Set A), s ⊆ t → R S
+∀ S : Set A, s ⊆ t → R S
 -- MEAN OUTPUT:
 for every set S of A elements where s ⊆ t:
   S satisfies R
 
 -- LEAN INPUT:
-∀ (S : Set A), s ⊆ S → ∀ (T : Set A), S ⊆ T → R T
+∀ S : Set A, s ⊆ S → ∀ T : Set A, S ⊆ T → R T
 -- MEAN OUTPUT:
 for every superset S of s:
   for every superset T of S:
@@ -726,19 +723,19 @@ for every set S of A elements:
     h = h
 
 -- LEAN INPUT:
-∀ (n : ℕ), 0 ≤ n → n = n
+∀ n : Nat, 0 ≤ n → n = n
 -- MEAN OUTPUT:
 for every natural number n where 0 ≤ n:
   n = n
 
 -- LEAN INPUT:
-∀ (S : Finset ℕ), {0} ⊆ S → S = S
+∀ S : Finset Nat, {0} ⊆ S → S = S
 -- MEAN OUTPUT:
 for every element S of Finset ℕ where {0} ⊆ S:
   S = S
 
 -- LEAN INPUT:
-∀ (S : Set (Fin 3)), allIndices ⊆ S → True
+∀ S : Set (Fin 3), @allIndices 2 ⊆ S → True
 -- MEAN OUTPUT:
 for every set S of (the type of indices in [0, @OfNat.ofNat Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))) elements where @LE.le
   (the type of
@@ -762,58 +759,58 @@ for every set S of (the type of indices in [0, @OfNat.ofNat Nat (nat_lit 3) (ins
   True
 
 -- LEAN INPUT:
-∀ (S : Set A), s.Subset S → R S
+∀ S : Set A, Set.Subset s S → R S
 -- MEAN OUTPUT:
 for every superset S of s:
   S satisfies R
 
 -- LEAN INPUT:
-P ∧ ∀ (n : ℕ), R n
+P ∧ ∀ n : Nat, R n
 -- MEAN OUTPUT:
 P and
 for every natural number n:
   n satisfies R
 
 -- LEAN INPUT:
-P ∨ ∃ (n : ℕ), R n
+P ∨ ∃ n : Nat, R n
 -- MEAN OUTPUT:
 P or there is a natural number n satisfying R
 
 -- LEAN INPUT:
-P ∧ ¬∃ (n : ℕ), R n
+P ∧ ¬ ∃ n : Nat, R n
 -- MEAN OUTPUT:
 P and there is no natural number n satisfying R
 
 -- LEAN INPUT:
-P ∧ ∃! n : ℕ, R n
+P ∧ ∃! n : Nat, R n
 -- MEAN OUTPUT:
 P and there is a unique natural number n satisfying R
 
 -- LEAN INPUT:
-P ↔ ∀ (n : ℕ), R n
+P ↔ ∀ n : Nat, R n
 -- MEAN OUTPUT:
 P if and only if for every natural number n:
   n satisfies R
 
 -- LEAN INPUT:
-P ↔ ∃ (n : ℕ), R n
+P ↔ ∃ n : Nat, R n
 -- MEAN OUTPUT:
 P if and only if there is a natural number n satisfying R
 
 -- LEAN INPUT:
-(P ∧ ∀ (n : ℕ), R n) ↔ Q
+(P ∧ ∀ n : Nat, R n) ↔ Q
 -- MEAN OUTPUT:
 P and
 (for every natural number n:
   n satisfies R) if and only if Q
 
 -- LEAN INPUT:
-(P ∨ ∃ (n : ℕ), R n) ↔ Q
+(P ∨ ∃ n : Nat, R n) ↔ Q
 -- MEAN OUTPUT:
 P or (there is a natural number n satisfying R) if and only if Q
 
 -- LEAN INPUT:
-(P ∧ ∀ (n : ℕ), R n) ∨ Q
+(P ∧ ∀ n : Nat, R n) ∨ Q
 -- MEAN OUTPUT:
 P and
 (for every natural number n:
@@ -821,14 +818,14 @@ P and
 Q
 
 -- LEAN INPUT:
-P ↔ Q ∧ ∀ (n : ℕ), R n
+P ↔ Q ∧ ∀ n : Nat, R n
 -- MEAN OUTPUT:
 P if and only if Q and
 for every natural number n:
   n satisfies R
 
 -- LEAN INPUT:
-P ∧ (∀ (n : ℕ), R n) ∧ Q
+P ∧ (∀ n : Nat, R n) ∧ Q
 -- MEAN OUTPUT:
 P and
 (for every natural number n:
@@ -836,10 +833,7 @@ P and
 Q
 
 -- LEAN INPUT:
-P ∧
-  (let condition := ∀ (n : ℕ), R n;
-    condition) ∧
-    Q
+P ∧ (let condition := ∀ n : Nat, R n; condition) ∧ Q
 -- MEAN OUTPUT:
 P and
 (for every natural number n:
@@ -847,7 +841,7 @@ P and
 Q
 
 -- LEAN INPUT:
-∀ (n : ℕ), P ∧ ∀ (m : ℕ), R (n + m)
+∀ n : Nat, P ∧ ∀ m : Nat, R (n + m)
 -- MEAN OUTPUT:
 for every natural number n:
   P and
@@ -855,7 +849,7 @@ for every natural number n:
     (n + m) satisfies R
 
 -- LEAN INPUT:
-P ∧ ∀ᵐ (x : A), R x
+P ∧ ∀ᵐ x : A, R x
 -- MEAN OUTPUT:
 P and
 for almost every element x of A:
@@ -883,7 +877,7 @@ P and
 S
 
 -- LEAN INPUT:
-P ∧ Q ∧ R ∧ S ∨ Q
+(P ∧ Q ∧ R ∧ S) ∨ Q
 -- MEAN OUTPUT:
 P and
 Q and
@@ -904,10 +898,7 @@ P and
 (u and v and w satisfy BinaryPredicateExamples.ternary)
 
 -- LEAN INPUT:
-P ∧
-  (let condition := Q ∧ R;
-    condition) ∧
-    S
+P ∧ (let condition := Q ∧ R; condition) ∧ S
 -- MEAN OUTPUT:
 P and
 (Q and R) and
@@ -929,14 +920,14 @@ P
 S
 
 -- LEAN INPUT:
-P ∨ Q ∧ R ∨ S
+P ∨ (Q ∧ R) ∨ S
 -- MEAN OUTPUT:
 P or
 Q and R or
 S
 
 -- LEAN INPUT:
-P ∨ Q ∧ R ∧ S ∨ Q
+P ∨ (Q ∧ R ∧ S) ∨ Q
 -- MEAN OUTPUT:
 P or
 Q and R and S or
@@ -955,17 +946,14 @@ P or
 (u and v and w satisfy BinaryPredicateExamples.ternary)
 
 -- LEAN INPUT:
-P ∨
-  (let condition := Q ∨ R;
-    condition) ∨
-    S
+P ∨ (let condition := Q ∨ R; condition) ∨ S
 -- MEAN OUTPUT:
 P or
 (Q or R) or
 S
 
 -- LEAN INPUT:
-P ∧ (∀ (n : ℕ), n = n) ∧ Q
+P ∧ (∀ n : Nat, n = n) ∧ Q
 -- MEAN OUTPUT:
 P and
 (for every natural number n:
@@ -973,14 +961,14 @@ P and
 Q
 
 -- LEAN INPUT:
-P ∧ ∀ (n : ℕ), n = n ∧ Q
+P ∧ ∀ n : Nat, n = n ∧ Q
 -- MEAN OUTPUT:
 P and
 for every natural number n:
   n = n and Q
 
 -- LEAN INPUT:
-P ∨ (∃ (n : ℕ), n = n) ∨ Q
+P ∨ (∃ n : Nat, n = n) ∨ Q
 -- MEAN OUTPUT:
 P or
 (there is a natural number n such that
@@ -988,7 +976,7 @@ P or
 Q
 
 -- LEAN INPUT:
-P ∨ ∃ (n : ℕ), n = n ∨ Q
+P ∨ ∃ n : Nat, n = n ∨ Q
 -- MEAN OUTPUT:
 P or
 there is a natural number n such that
@@ -1040,22 +1028,22 @@ Relation.EqvGen R x y
 x is related to y by the equivalence closure of R
 
 -- LEAN INPUT:
-¬Relation.TransGen R x y
+¬ Relation.TransGen R x y
 -- MEAN OUTPUT:
 x is not related to y by the transitive closure of R
 
 -- LEAN INPUT:
-¬Relation.ReflGen R x y
+¬ Relation.ReflGen R x y
 -- MEAN OUTPUT:
 x is not related to y by the reflexive closure of R
 
 -- LEAN INPUT:
-¬Relation.SymmGen R x y
+¬ Relation.SymmGen R x y
 -- MEAN OUTPUT:
 x is not related to y by the symmetric closure of R
 
 -- LEAN INPUT:
-¬Relation.EqvGen R x y
+¬ Relation.EqvGen R x y
 -- MEAN OUTPUT:
 x is not related to y by the equivalence closure of R
 
@@ -1070,7 +1058,7 @@ Relation.ReflGen R x y ∧ P
 x is related to y by the reflexive closure of R and P
 
 -- LEAN INPUT:
-P ∨ ¬Relation.EqvGen R x y
+P ∨ ¬ Relation.EqvGen R x y
 -- MEAN OUTPUT:
 P or x is not related to y by the equivalence closure of R
 
@@ -1085,7 +1073,7 @@ Relation.Comp R S x y
 x is related to y by the composition of R followed by S
 
 -- LEAN INPUT:
-¬Relation.Comp R S x y
+¬ Relation.Comp R S x y
 -- MEAN OUTPUT:
 x is not related to y by the composition of R followed by S
 
@@ -1110,7 +1098,7 @@ Relation.TransGen (Relation.Comp R S) x y
 x is related to y by the transitive closure of (the composition of R followed by S)
 
 -- LEAN INPUT:
-some fun (u v : A) => Relation.Comp R S u v
+some (fun u v : A => Relation.Comp R S u v)
 -- MEAN OUTPUT:
 some
   (the function mapping an element u of A and an element v of A to
@@ -1122,20 +1110,20 @@ Relation.Comp R S x z
 x is related to z by the composition of R followed by S
 
 -- LEAN INPUT:
-∃ (y : B), R x y ∧ S y z
+∃ y : B, R x y ∧ S y z
 -- MEAN OUTPUT:
 there is an element y of B such that
   (x and y satisfy R) and (y and z satisfy S)
 
 -- LEAN INPUT:
-Relation.SymmGen (fun (x y : ℕ) => x < y) 0 1
+Relation.SymmGen (fun x y : Nat => x < y) 0 1
 -- MEAN OUTPUT:
 (0) is related to (1) by the symmetric closure of
   (the function mapping a natural number x and a natural number y to
       x < y)
 
 -- LEAN INPUT:
-Relation.Comp (fun (x y : ℕ) => x + 1 = y) (fun (x y : ℕ) => x < y) 0 2
+Relation.Comp (fun x y : Nat => x + 1 = y) (fun x y : Nat => x < y) 0 2
 -- MEAN OUTPUT:
 (0) is related to (2) by the composition of
   (the function mapping a natural number x and a natural number y to
@@ -1145,7 +1133,7 @@ followed by
       x < y)
 
 -- LEAN INPUT:
-Relation.TransGen (Relation.Comp (fun (x y : ℕ) => x + 1 = y) fun (x y : ℕ) => x < y)
+Relation.TransGen (Relation.Comp (fun x y : Nat => x + 1 = y) (fun x y : Nat => x < y))
 -- MEAN OUTPUT:
 the transitive closure of
   (the composition of
@@ -1161,7 +1149,7 @@ Relation.ReflTransGen R x y
 x is related to y by the reflexive transitive closure of R
 
 -- LEAN INPUT:
-¬Relation.ReflTransGen R x y
+¬ Relation.ReflTransGen R x y
 -- MEAN OUTPUT:
 x is not related to y by the reflexive transitive closure of R
 
@@ -1181,7 +1169,7 @@ Relation.ReflTransGen R x y ∧ P
 x is related to y by the reflexive transitive closure of R and P
 
 -- LEAN INPUT:
-P ∨ ¬Relation.ReflTransGen R x y
+P ∨ ¬ Relation.ReflTransGen R x y
 -- MEAN OUTPUT:
 P or x is not related to y by the reflexive transitive closure of R
 
@@ -1203,27 +1191,27 @@ x is related to y by the reflexive transitive closure of R and
 y is related to z by the reflexive transitive closure of R
 
 -- LEAN INPUT:
-∀ (t : A), Relation.ReflTransGen R x t
+∀ t : A, Relation.ReflTransGen R x t
 -- MEAN OUTPUT:
 for every element t of A:
   x is related to t by the reflexive transitive closure of R
 
 -- LEAN INPUT:
-some fun (u v : A) => Relation.ReflTransGen R u v
+some (fun u v : A => Relation.ReflTransGen R u v)
 -- MEAN OUTPUT:
 some
   (the function mapping an element u of A and an element v of A to
       u is related to v by the reflexive transitive closure of R)
 
 -- LEAN INPUT:
-Relation.ReflTransGen (fun (x y : ℕ) => x + 1 = y) 0 3
+Relation.ReflTransGen (fun x y : Nat => x + 1 = y) 0 3
 -- MEAN OUTPUT:
 (0) is related to (3) by the reflexive transitive closure of
   (the function mapping a natural number x and a natural number y to
       x + 1 = y)
 
 -- LEAN INPUT:
-Relation.ReflTransGen (fun (x y : ℕ) => x < y) 0 3
+Relation.ReflTransGen (fun x y : Nat => x < y) 0 3
 -- MEAN OUTPUT:
 (0) is related to (3) by the reflexive transitive closure of
   (the function mapping a natural number x and a natural number y to
@@ -1235,7 +1223,7 @@ Adjacent u v
 u and v satisfy Adjacent
 
 -- LEAN INPUT:
-¬Adjacent u v
+¬ Adjacent u v
 -- MEAN OUTPUT:
 u and v do not satisfy Adjacent
 
@@ -1250,7 +1238,7 @@ same u v
 u and v satisfy same
 
 -- LEAN INPUT:
-dependent u 0
+dependent u (0 : Fin (u + 1))
 -- MEAN OUTPUT:
 u and 0 satisfy dependent
 
@@ -1275,12 +1263,12 @@ Adjacent u v ∧ Adjacent v w
 (u and v satisfy Adjacent) and (v and w satisfy Adjacent)
 
 -- LEAN INPUT:
-Adjacent u v ∧ P ∨ Q
+(Adjacent u v ∧ P) ∨ Q
 -- MEAN OUTPUT:
 (u and v satisfy Adjacent) and P or Q
 
 -- LEAN INPUT:
-P ∨ ¬Adjacent u v
+P ∨ ¬ Adjacent u v
 -- MEAN OUTPUT:
 P or (u and v do not satisfy Adjacent)
 
@@ -1290,7 +1278,7 @@ Adjacent u v ↔ P
 u and v satisfy Adjacent if and only if P
 
 -- LEAN INPUT:
-Adjacent u v → ¬Adjacent v u
+Adjacent u v → ¬ Adjacent v u
 -- MEAN OUTPUT:
 if u and v satisfy Adjacent then
   v and u do not satisfy Adjacent
@@ -1306,7 +1294,7 @@ ternary u v w
 u and v and w satisfy ternary
 
 -- LEAN INPUT:
-¬ternary u v w
+¬ ternary u v w
 -- MEAN OUTPUT:
 u and v and w do not satisfy ternary
 
@@ -1336,7 +1324,7 @@ ternary u v w ∧ P
 (u and v and w satisfy ternary) and P
 
 -- LEAN INPUT:
-P ∨ ¬ternary u v w
+P ∨ ¬ ternary u v w
 -- MEAN OUTPUT:
 P or (u and v and w do not satisfy ternary)
 
@@ -1391,6 +1379,7 @@ r x y
 x and y satisfy r
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def CustomCoercionExamples.wrap : ℕ → CustomCoercionExamples.Foo :=
   fun (n : ℕ) => (↑n : CustomCoercionExamples.Foo)
 -- MEAN OUTPUT:
@@ -1400,247 +1389,248 @@ Definition:
       n as CustomCoercionExamples.Foo.
 
 -- LEAN INPUT:
-(↑n : Foo)
+(n : Foo)
 -- MEAN OUTPUT:
 n as Foo
 
 -- LEAN INPUT:
-(↑(n + 1) : Foo)
+((n + 1 : Nat) : Foo)
 -- MEAN OUTPUT:
 (n + 1) as Foo
 
 -- LEAN INPUT:
-(↑(↑n : Foo) : Bar)
+((n : Foo) : Bar)
 -- MEAN OUTPUT:
 n as Foo as Bar
 
 -- LEAN INPUT:
-some (↑n : Foo)
+some (n : Foo)
 -- MEAN OUTPUT:
 some (n as Foo)
 
 -- LEAN INPUT:
-(↑n : Foo) = (↑n : Foo)
+(n : Foo) = (n : Foo)
 -- MEAN OUTPUT:
 n as Foo = n as Foo
 
 -- LEAN INPUT:
-(↑x : Box A)
+(x : Box A)
 -- MEAN OUTPUT:
 x as Box A
 
 -- LEAN INPUT:
-(↑fun (n : ℕ) => n + 1 : Box (ℕ → ℕ))
+((fun n : Nat => n + 1) : Box (Nat → Nat))
 -- MEAN OUTPUT:
 (the function mapping a natural number n_1 to
       n_1 + 1) as
   Box (ℕ → ℕ)
 
 -- LEAN INPUT:
-Coe.coe x
+(x : B)
 -- MEAN OUTPUT:
 Coe.coe x
 
 -- LEAN INPUT:
-∀ᵐ (x : A) ∂μ + ν, p x → q x
+∀ᵐ x ∂(μ + ν), p x → q x
 -- MEAN OUTPUT:
 for almost every element x of A satisfying p with respect to (μ + ν):
   x satisfies q
 
 -- LEAN INPUT:
-∀ᵐ (x : A) ∂μ, p x → q x → x = x
+∀ᵐ x ∂μ, p x → q x → x = x
 -- MEAN OUTPUT:
 for almost every element x of A satisfying p with respect to μ:
   if x satisfies q then
     x = x
 
 -- LEAN INPUT:
-∀ᵐ (x : A) ∂μ, p x → ∀ᵐ (y : A) ∂ν, q y → x = y
+∀ᵐ x ∂μ, p x → ∀ᵐ y ∂ν, q y → x = y
 -- MEAN OUTPUT:
 for almost every element x of A satisfying p with respect to μ:
   for almost every element y of A satisfying q with respect to ν:
     x = y
 
 -- LEAN INPUT:
-∀ᵐ (x : A) ∂μ, ∀ (h : p x), h = h
+∀ᵐ x ∂μ, ∀ h : p x, h = h
 -- MEAN OUTPUT:
 for almost every element x of A with respect to μ:
   for every proof h that (p x):
     h = h
 
 -- LEAN INPUT:
-(True ∧ ∀ᵐ (x : A) ∂μ, p x → q x) ↔ False
+(True ∧ (∀ᵐ x ∂μ, p x → q x)) ↔ False
 -- MEAN OUTPUT:
 True and
 (for almost every element x of A satisfying p with respect to μ:
   x satisfies q) if and only if False
 
 -- LEAN INPUT:
-∀ᵐ (x : A) ∂μ, p y → q x
+∀ᵐ x ∂μ, p y → q x
 -- MEAN OUTPUT:
 for almost every element x of A with respect to μ where y satisfies p:
   x satisfies q
 
 -- LEAN INPUT:
-∀ᵐ (x : A) ∂μ, p x
+∀ᵐ x ∂μ, p x
 -- MEAN OUTPUT:
 for almost every element x of A with respect to μ:
   x satisfies p
 
 -- LEAN INPUT:
-∀ᵐ (x : A) ∂μ + ν, p x
+∀ᵐ x ∂(μ + ν), p x
 -- MEAN OUTPUT:
 for almost every element x of A with respect to (μ + ν):
   x satisfies p
 
 -- LEAN INPUT:
-∀ᵐ (x : A) ∂μ, p x → q x
+∀ᵐ x ∂μ, p x → q x
 -- MEAN OUTPUT:
 for almost every element x of A satisfying p with respect to μ:
   x satisfies q
 
 -- LEAN INPUT:
-∀ᵐ (x : A) ∂μ, ∀ᵐ (y : A) ∂ν, p x ∧ q y
+∀ᵐ x ∂μ, ∀ᵐ y ∂ν, p x ∧ q y
 -- MEAN OUTPUT:
 for almost every element x of A with respect to μ:
   for almost every element y_1 of A with respect to ν:
     x satisfies p and y_1 satisfies q
 
 -- LEAN INPUT:
-(∀ᵐ (x : A) ∂μ, p x) ∧ True
+(∀ᵐ x ∂μ, p x) ∧ True
 -- MEAN OUTPUT:
 (for almost every element x of A with respect to μ:
   x satisfies p) and
 True
 
 -- LEAN INPUT:
-(∀ᵐ (x : A) ∂μ, p x) → False
+(∀ᵐ x ∂μ, p x) → False
 -- MEAN OUTPUT:
 if for almost every element x of A with respect to μ:
   x satisfies p then
   False
 
 -- LEAN INPUT:
-¬∀ᵐ (x : A) ∂μ, p x
+¬ ∀ᵐ x ∂μ, p x
 -- MEAN OUTPUT:
 ¬∀ᵐ (x : A) ∂μ, p x
 
 -- LEAN INPUT:
-∀ (x : A), (∀ᵐ (y : A) ∂μ, p y) → p x
+∀ x : A, (∀ᵐ y ∂μ, p y) → p x
 -- MEAN OUTPUT:
 for every element x of A where (for almost every element y_1 of A with respect to μ:
   y_1 satisfies p):
   x satisfies p
 
 -- LEAN INPUT:
-∀ᵐ (_x : A) ∂μ, True
+∀ᵐ _x ∂μ, True
 -- MEAN OUTPUT:
 for almost every element of A with respect to μ:
   True
 
 -- LEAN INPUT:
-∀ᵐ (x : A) ∂μ, ∃! y : A, x = y
+∀ᵐ x ∂μ, ∃! y : A, x = y
 -- MEAN OUTPUT:
 for almost every element x of A with respect to μ:
   there is a unique element y_1 of A such that
     x = y_1
 
 -- LEAN INPUT:
-∀ᶠ (x : A) in F, p x
+∀ᶠ x in F, p x
 -- MEAN OUTPUT:
 ∀ᶠ (x : A) in F, p x
 
 -- LEAN INPUT:
-∀ᵐ (x : A), p x
+∀ᵐ x, p x
 -- MEAN OUTPUT:
 for almost every element x of A:
   x satisfies p
 
 -- LEAN INPUT:
-∀ᵐ (x : A) ∂μ, p x
+∀ᵐ x ∂μ, p x
 -- MEAN OUTPUT:
 for almost every element x of A with respect to μ:
   x satisfies p
 
 -- LEAN INPUT:
-∀ᵐ (x : A), p x → x = x
+∀ᵐ x, p x → x = x
 -- MEAN OUTPUT:
 for almost every element x of A satisfying p:
   x = x
 
 -- LEAN INPUT:
-∀ᵐ (x : A), ∃! y : A, x = y
+∀ᵐ x, ∃! y : A, x = y
 -- MEAN OUTPUT:
 for almost every element x of A:
   there is a unique element y of A such that
     x = y
 
 -- LEAN INPUT:
-(↑(p i) : ℝ)
+(p i : Real)
 -- MEAN OUTPUT:
 p i as a real number
 
 -- LEAN INPUT:
-(↑z : ℝ)
+(z : Real)
 -- MEAN OUTPUT:
 z as a real number
 
 -- LEAN INPUT:
-(↑n : ℤ)
+(n : Int)
 -- MEAN OUTPUT:
 n as an integer
 
 -- LEAN INPUT:
-(↑q : ℝ)
+(q : Real)
 -- MEAN OUTPUT:
 q as a real number
 
 -- LEAN INPUT:
-(↑x : ℂ)
+(x : Complex)
 -- MEAN OUTPUT:
 x as a complex number
 
 -- LEAN INPUT:
-(↑i : ℕ)
+(i : Nat)
 -- MEAN OUTPUT:
 i as a natural number
 
 -- LEAN INPUT:
-(↑(z + 1) : ℝ)
+((z + 1 : Int) : Real)
 -- MEAN OUTPUT:
 (z + 1) as a real number
 
 -- LEAN INPUT:
-(↑(n - m) : ℤ)
+((n - m : Nat) : Int)
 -- MEAN OUTPUT:
 (n - m) as an integer
 
 -- LEAN INPUT:
-(↑(-z) : ℝ)
+((-z : Int) : Real)
 -- MEAN OUTPUT:
 -z as a real number
 
 -- LEAN INPUT:
-(↑(↑n : ℤ) : ℝ)
+((n : Int) : Real)
 -- MEAN OUTPUT:
 n as an integer as a real number
 
 -- LEAN INPUT:
-(↑z : ℝ) + 1
+(z : Real) + 1
 -- MEAN OUTPUT:
 z as a real number + 1
 
 -- LEAN INPUT:
-(↑z : ℝ) ≤ 1
+(z : Real) ≤ 1
 -- MEAN OUTPUT:
 z as a real number ≤ 1
 
 -- LEAN INPUT:
-some (↑z : ℝ)
+some (z : Real)
 -- MEAN OUTPUT:
 some (z as a real number)
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def SetComprehensionExamples.zeros : Set ℕ :=
   {n : ℕ | n = 0}
 -- MEAN OUTPUT:
@@ -1650,44 +1640,44 @@ Definition:
       n = 0).
 
 -- LEAN INPUT:
-{n : ℕ | n > 0 ∧ n < 3}
+{n : Nat | n > 0 ∧ n < 3}
 -- MEAN OUTPUT:
 the set of elements n of ℕ such that
   n > 0 and n < 3
 
 -- LEAN INPUT:
-{_n : ℕ | True}
+{_n : Nat | True}
 -- MEAN OUTPUT:
 the set of elements of ℕ such that
   True
 
 -- LEAN INPUT:
-{_n : ℕ | False}
+{_n : Nat | False}
 -- MEAN OUTPUT:
 the set of elements of ℕ such that
   False
 
 -- LEAN INPUT:
-{«a» : ℕ | «a» = 0}
+{«a» : Nat | «a» = 0}
 -- MEAN OUTPUT:
 the set of elements «a» of ℕ such that
   «a» = 0
 
 -- LEAN INPUT:
-{S : Set ℕ | 0 ∈ S}
+{S : Set Nat | 0 ∈ S}
 -- MEAN OUTPUT:
 the set of elements S of the type of sets of natural numbers such that
   0 ∈ S
 
 -- LEAN INPUT:
-some {n : ℕ | n > 0}
+some {n : Nat | n > 0}
 -- MEAN OUTPUT:
 some
   (the set of elements n of ℕ such that
       n > 0)
 
 -- LEAN INPUT:
-{f : ℕ → ℕ | f 0 = 0}
+{f : Nat → Nat | f 0 = 0}
 -- MEAN OUTPUT:
 the set of elements f of ℕ → ℕ such that
   f 0 = 0
@@ -1705,34 +1695,35 @@ the set of elements x of A such that
   x satisfies p
 
 -- LEAN INPUT:
-n ∈ {m : ℕ | m > 0}
+n ∈ {m : Nat | m > 0}
 -- MEAN OUTPUT:
 n ∈
   the set of elements m of ℕ such that
       m > 0
 
 -- LEAN INPUT:
-{n : ℕ | n > 0} ∪ S
+{n : Nat | n > 0} ∪ S
 -- MEAN OUTPUT:
 (the set of elements n_1 of ℕ such that
       n_1 > 0) ∪
   S
 
 -- LEAN INPUT:
-{n : ℕ | n > 0} = S
+{n : Nat | n > 0} = S
 -- MEAN OUTPUT:
 (the set of elements n_1 of ℕ such that
       n_1 > 0) =
   S
 
 -- LEAN INPUT:
-({n : ℕ | n > 0}, n)
+({n : Nat | n > 0}, n)
 -- MEAN OUTPUT:
 (the set of elements n_1 of ℕ such that
       n_1 > 0,
   n)
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev SetPhraseExamples.Family : Type :=
   Set SetPhraseExamples.Point
 -- MEAN OUTPUT:
@@ -1741,6 +1732,7 @@ Abbreviation:
     a set of SetPhraseExamples.Point elements.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def SetPhraseExamples.reflexive : Set SetPhraseExamples.Point → Prop :=
   fun (S : Set SetPhraseExamples.Point) => S = S
 -- MEAN OUTPUT:
@@ -1749,7 +1741,7 @@ Definition:
     S = S.
 
 -- LEAN INPUT:
-Set ℕ
+Set Nat
 -- MEAN OUTPUT:
 the type of sets of natural numbers
 
@@ -1759,23 +1751,23 @@ Set SetPhraseExamples.Point
 the type of sets of SetPhraseExamples.Point elements
 
 -- LEAN INPUT:
-Set (ℕ → Bool)
+Set (Nat → Bool)
 -- MEAN OUTPUT:
 the type of sets of (ℕ → Bool) elements
 
 -- LEAN INPUT:
-Set (Set ℕ)
+Set (Set Nat)
 -- MEAN OUTPUT:
 the type of sets of (the type of sets of natural numbers) elements
 
 -- LEAN INPUT:
-fun (S : Set ℕ) => S
+fun (S : Set Nat) => S
 -- MEAN OUTPUT:
 the function mapping a set S of natural numbers to
   S
 
 -- LEAN INPUT:
-fun {S : Set ℤ} => S
+fun {S : Set Int} => S
 -- MEAN OUTPUT:
 the function mapping an implicit set S of integers to
   S
@@ -1787,42 +1779,42 @@ the function mapping a strictly implicit set S of booleans to
   S
 
 -- LEAN INPUT:
-∀ (S : Set ℤ), 0 ∈ S → 0 ∈ S
+∀ S : Set Int, 0 ∈ S → 0 ∈ S
 -- MEAN OUTPUT:
 for every set S of integers where 0 ∈ S:
   0 ∈ S
 
 -- LEAN INPUT:
-∃ (T : Set SetPhraseExamples.Point), T = ∅
+∃ T : Set SetPhraseExamples.Point, T = ∅
 -- MEAN OUTPUT:
 there is a set T of SetPhraseExamples.Point elements such that
   T = the set ∅
 
 -- LEAN INPUT:
-¬∃ (_S : Set ℕ), True
+¬ ∃ _S : Set Nat, True
 -- MEAN OUTPUT:
 there is no set of natural numbers
 
 -- LEAN INPUT:
-∃! S : Set ℕ, S = ∅
+∃! S : Set Nat, S = ∅
 -- MEAN OUTPUT:
 there is a unique set S of natural numbers such that
   S = the set ∅
 
 -- LEAN INPUT:
-fun (f : Set ℕ → Set ℤ) => f
+fun (f : Set Nat → Set Int) => f
 -- MEAN OUTPUT:
 the function mapping a function f from sets of natural numbers to sets of integers to
   f
 
 -- LEAN INPUT:
-fun (f : List ℕ → Set ℕ → Bool) => f
+fun (f : List Nat → Set Nat → Bool) => f
 -- MEAN OUTPUT:
 the function mapping a function f from lists of natural numbers and sets of natural numbers to Bool to
   f
 
 -- LEAN INPUT:
-fun (S : Finset ℕ) => S
+fun (S : Finset Nat) => S
 -- MEAN OUTPUT:
 the function mapping an element S of Finset ℕ to
   S
@@ -1850,12 +1842,12 @@ id P
 id P
 
 -- LEAN INPUT:
-⨅ (i : ℕ), p i
+⨅ i : Nat, p i
 -- MEAN OUTPUT:
 ⨅ (i : ℕ), p i
 
 -- LEAN INPUT:
-⨆ (i : ℕ), p i
+⨆ i : Nat, p i
 -- MEAN OUTPUT:
 ⨆ (i : ℕ), p i
 
@@ -1870,12 +1862,12 @@ sSup S
 sSup S
 
 -- LEAN INPUT:
-(↑r : Prop)
+(r : Prop)
 -- MEAN OUTPUT:
 r as Prop
 
 -- LEAN INPUT:
-Classical.choice ⋯
+Classical.choice (show Nonempty Prop from ⟨P⟩)
 -- MEAN OUTPUT:
 Classical.choice
   (have this := Nonempty.intro P;
@@ -1902,7 +1894,7 @@ if P then Q else True
 if P then Q else True
 
 -- LEAN INPUT:
-∃! n : ℕ, n = 0
+∃! n : Nat, n = 0
 -- MEAN OUTPUT:
 there is a unique natural number n such that
   n = 0
@@ -1913,65 +1905,65 @@ there is a unique natural number n such that
 there is a unique index in [0, 1)
 
 -- LEAN INPUT:
-∃! _n : ℕ, False
+∃! _n : Nat, False
 -- MEAN OUTPUT:
 there is a unique natural number such that
   False
 
 -- LEAN INPUT:
-∃! xs : List ℕ, xs = []
+∃! xs : List Nat, xs = []
 -- MEAN OUTPUT:
 there is a unique list xs of natural numbers such that
   xs is an empty list
 
 -- LEAN INPUT:
-∃! f : ℕ → ℕ, f 0 = 0
+∃! f : Nat → Nat, f 0 = 0
 -- MEAN OUTPUT:
 there is a unique function f from ℕ to ℕ such that
   f 0 = 0
 
 -- LEAN INPUT:
-(∃! n : ℕ, n = 0) ∧ False
+(∃! n : Nat, n = 0) ∧ False
 -- MEAN OUTPUT:
 (there is a unique natural number n such that
   n = 0) and
 False
 
 -- LEAN INPUT:
-False ∨ ∃! n : ℕ, n = 0
+False ∨ (∃! n : Nat, n = 0)
 -- MEAN OUTPUT:
 False or
 there is a unique natural number n such that
   n = 0
 
 -- LEAN INPUT:
-(∃! n : ℕ, n = 0) ↔ True
+(∃! n : Nat, n = 0) ↔ True
 -- MEAN OUTPUT:
 (there is a unique natural number n such that
   n = 0) if and only if True
 
 -- LEAN INPUT:
-(∃! _n : ℕ, True) → False
+(∃! _n : Nat, True) → False
 -- MEAN OUTPUT:
 if there is a unique natural number then
   False
 
 -- LEAN INPUT:
-(∃! n : ℕ, n = 0) → False
+(∃! n : Nat, n = 0) → False
 -- MEAN OUTPUT:
 if there is a unique natural number n such that
   n = 0 then
   False
 
 -- LEAN INPUT:
-∀ (n : ℕ), (∃! m : ℕ, m = n) → n = n
+∀ n : Nat, (∃! m : Nat, m = n) → n = n
 -- MEAN OUTPUT:
 for every natural number n where (there is a unique natural number m such that
   m = n):
   n = n
 
 -- LEAN INPUT:
-¬∃! n : ℕ, n = 0
+¬ ∃! n : Nat, n = 0
 -- MEAN OUTPUT:
 ¬∃! n : ℕ, n = 0
 
@@ -1986,14 +1978,15 @@ ExistsUnique P
 there is a unique element witness of Point satisfying P
 
 -- LEAN INPUT:
-Relation.ReflTransGen (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q
+Relation.ReflTransGen
+  (fun («a» b : Point) => «a» ∈ P ∧ b ∈ P ∧ Adjacent «a» b) p q
 -- MEAN OUTPUT:
 p is related to q by the reflexive transitive closure of
   (the function mapping an element «a» of Point and an element b of Point to
       «a» ∈ P and b ∈ P and («a» and b satisfy Adjacent))
 
 -- LEAN INPUT:
-List.map (fun (n : ℕ) => n + 1) [1, 2]
+List.map (fun n : Nat => n + 1) [1, 2]
 -- MEAN OUTPUT:
 List.map
   (the function mapping a natural number n to
@@ -2001,21 +1994,21 @@ List.map
   [1, 2]
 
 -- LEAN INPUT:
-some fun (n : ℕ) => n + 1
+some (fun n : Nat => n + 1)
 -- MEAN OUTPUT:
 some
   (the function mapping a natural number n to
       n + 1)
 
 -- LEAN INPUT:
-some fun (_n : ℕ) => 0
+some (fun _n : Nat => (0 : Int))
 -- MEAN OUTPUT:
 some
   (the function mapping a natural number _n to
       0)
 
 -- LEAN INPUT:
-(some fun (n : ℕ) => n + 1, some fun (b : Bool) => b)
+(some (fun n : Nat => n + 1), some (fun b : Bool => b))
 -- MEAN OUTPUT:
 (some
     (the function mapping a natural number n to
@@ -2025,37 +2018,35 @@ some
         b))
 
 -- LEAN INPUT:
-some fun (n : ℕ) (i : Fin n) => i
+some (fun (n : Nat) (i : Fin n) => i)
 -- MEAN OUTPUT:
 some
   (the function mapping a natural number n and an index i in [0, n) to
       i)
 
 -- LEAN INPUT:
-some fun {n : ℕ} => n
+(some (fun {n : Nat} => n) : Option ({_n : Nat} → Nat))
 -- MEAN OUTPUT:
 some
   (the function mapping an implicit natural number n to
       n)
 
 -- LEAN INPUT:
-some fun ⦃n : ℕ⦄ => n
+(some (fun ⦃n : Nat⦄ => n) : Option (⦃_n : Nat⦄ → Nat))
 -- MEAN OUTPUT:
 some
   (the function mapping a strictly implicit natural number n to
       n)
 
 -- LEAN INPUT:
-some fun [Inhabited ℕ] => default
+some (fun [inst : Inhabited Nat] => @default Nat inst)
 -- MEAN OUTPUT:
 some
   (the function mapping an instance inst of typeclass Inhabited ℕ to
       default)
 
 -- LEAN INPUT:
-some
-  (let f := fun (n : ℕ) => n + 1;
-  f)
+some (let f := fun n : Nat => n + 1; f)
 -- MEAN OUTPUT:
 some
   (let f :=
@@ -2064,23 +2055,23 @@ some
   f)
 
 -- LEAN INPUT:
-{ n : ℕ // n > 0 ∧ n < 3 }
+Subtype (fun n : Nat => n > 0 ∧ n < 3)
 -- MEAN OUTPUT:
 { n : ℕ // n > 0 ∧ n < 3 }
 
 -- LEAN INPUT:
-{n : ℕ | n > 0 ∧ n < 3}
+{n : Nat | n > 0 ∧ n < 3}
 -- MEAN OUTPUT:
 the set of elements n of ℕ such that
   n > 0 and n < 3
 
 -- LEAN INPUT:
-some (∃! n : ℕ, n = 0)
+some (∃! n : Nat, n = 0)
 -- MEAN OUTPUT:
 some (∃! n : ℕ, n = 0)
 
 -- LEAN INPUT:
-(some fun (n : ℕ) => n + 1, n)
+(some (fun n : Nat => n + 1), n)
 -- MEAN OUTPUT:
 (some
     (the function mapping a natural number n_1 to
@@ -2088,13 +2079,13 @@ some (∃! n : ℕ, n = 0)
   n)
 
 -- LEAN INPUT:
-∀ p ∈ P, p ∈ P
+∀ p : Point, p ∈ P → p ∈ P
 -- MEAN OUTPUT:
 for every p ∈ P:
   p ∈ P
 
 -- LEAN INPUT:
-∀ p ∈ P, ∀ q ∈ P, p = q → q = p
+∀ p : Point, p ∈ P → ∀ q : Point, q ∈ P → p = q → q = p
 -- MEAN OUTPUT:
 for every p ∈ P:
   for every q ∈ P where p = q:
@@ -2127,7 +2118,7 @@ for every p ∈ P:
 True
 
 -- LEAN INPUT:
-True ∨ ∀ p ∈ P, R p
+True ∨ (∀ p ∈ P, R p)
 -- MEAN OUTPUT:
 True or
 for every p ∈ P:
@@ -2141,13 +2132,13 @@ if (for every p ∈ P:
   True
 
 -- LEAN INPUT:
-∀ (p : A), z ∈ P → p = p
+∀ p : A, z ∈ P → p = p
 -- MEAN OUTPUT:
 for every element p of A where z ∈ P:
   p = p
 
 -- LEAN INPUT:
-∀ (p : A) (h : p ∈ P), h = h
+∀ p : A, ∀ h : p ∈ P, h = h
 -- MEAN OUTPUT:
 for every element p of A:
   for every proof h that (p ∈ P):
@@ -2166,83 +2157,84 @@ for every n ∈ s:
   n ∈ s
 
 -- LEAN INPUT:
-∀ n ∈ domain, n = n
+∀ n : Nat, @Membership.mem Nat Domain naturalMembership domain n → n = n
 -- MEAN OUTPUT:
 for every n ∈ domain:
   n = n
 
 -- LEAN INPUT:
-∀ z ∈ domain, z = z
+∀ z : Int, @Membership.mem Int Domain integerMembership domain z → z = z
 -- MEAN OUTPUT:
 for every integer z where @Membership.mem Int Domain integerMembership domain z:
   @Eq Int z z
 
 -- LEAN INPUT:
-∃ n ∈ domain, n = n
+∃ n : Nat, @Membership.mem Nat Domain naturalMembership domain n ∧ n = n
 -- MEAN OUTPUT:
 there is n ∈ domain such that
   n = n
 
 -- LEAN INPUT:
-∃! z : ℤ, z ∈ domain ∧ z = z
+∃! z : Int, @Membership.mem Int Domain integerMembership domain z ∧ z = z
 -- MEAN OUTPUT:
 there is a unique integer z such that
   @Membership.mem Int Domain integerMembership domain z and @Eq Int z z
 
 -- LEAN INPUT:
-∀ (n m : ℕ), n ≤ m → n ≤ m
+∀ n m : Nat, n ≤ m → n ≤ m
 -- MEAN OUTPUT:
 for all natural numbers n and m where n ≤ m:
   n ≤ m
 
 -- LEAN INPUT:
-∀ (i : Fin xs.length), xs[i] > 0 → xs[i] ≥ 1
+∀ i : Fin xs.length, xs[i] > 0 → xs[i] ≥ 1
 -- MEAN OUTPUT:
 for every index i into xs where xs[i] > 0:
   xs[i] ≥ 1
 
 -- LEAN INPUT:
-∀ (f : ℕ → ℕ), f 0 = 0 → f 0 ≤ 1
+∀ f : Nat → Nat, f 0 = 0 → f 0 ≤ 1
 -- MEAN OUTPUT:
 for every function f from ℕ to ℕ where f 0 = 0:
   f 0 ≤ 1
 
 -- LEAN INPUT:
-∀ (n : ℕ), (∀ (m : ℕ), n ≤ m) → n = 0
+∀ n : Nat, (∀ m : Nat, n ≤ m) → n = 0
 -- MEAN OUTPUT:
 for every natural number n where (for every natural number m:
   n ≤ m):
   n = 0
 
 -- LEAN INPUT:
-∀ (n : ℕ), (∃ (m : ℕ), n = m) → n = n
+∀ n : Nat, (∃ m : Nat, n = m) → n = n
 -- MEAN OUTPUT:
 for every natural number n where (there is a natural number m such that
   n = m):
   n = n
 
 -- LEAN INPUT:
-∀ (n : ℕ), (P n ↔ Q n) → P n → Q n
+∀ n : Nat, (P n ↔ Q n) → P n → Q n
 -- MEAN OUTPUT:
 for every natural number n where n satisfies P if and only if n satisfies Q:
   if n satisfies P then
     n satisfies Q
 
 -- LEAN INPUT:
-∀ (n : ℕ) (h : n > 0), h = h
+∀ n : Nat, ∀ h : n > 0, h = h
 -- MEAN OUTPUT:
 for every natural number n:
   for every proof h that (n > 0):
     h = h
 
 -- LEAN INPUT:
-∀ (n : ℕ) (h : P n), h = h → h = h
+∀ n : Nat, ∀ h : P n, h = h → h = h
 -- MEAN OUTPUT:
 for every natural number n:
   for every proof h that (P n) where h = h:
     h = h
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def PredicateExamples.adjacent : PredicateExamples.Point → PredicateExamples.Point → Prop :=
   fun («a» b : PredicateExamples.Point) => ∑ i : Fin 3, |«a» i - b i| = 1
 -- MEAN OUTPUT:
@@ -2251,6 +2243,7 @@ Definition:
     (the sum over indices i in [0, 3) of |«a» i - b i| = 1).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def PredicateExamples.ordered : ℕ → ℕ → ℕ → Prop :=
   fun (x y z : ℕ) => x ≤ y ∧ y ≤ z
 -- MEAN OUTPUT:
@@ -2259,6 +2252,7 @@ Definition:
     x ≤ y and y ≤ z.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev PredicateExamples.equalIntegers : ℤ → ℤ → Prop :=
   fun (x y : ℤ) => x = y
 -- MEAN OUTPUT:
@@ -2267,6 +2261,7 @@ Abbreviation:
     x = y.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def PredicateExamples.sameIndex : Fin 3 → Fin 3 → Prop :=
   fun (i j : Fin 3) => i = j
 -- MEAN OUTPUT:
@@ -2275,6 +2270,7 @@ Definition:
     i = j.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def PredicateExamples.below : (n : ℕ) → Fin n → Prop :=
   fun (n : ℕ) (i : Fin n) => (↑i : ℕ) < n
 -- MEAN OUTPUT:
@@ -2283,6 +2279,7 @@ Definition:
     i as a natural number < n.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def PredicateExamples.reflexivePair : (T : Type) → T → Prop :=
   fun (T : Type) (x : T) => x = x
 -- MEAN OUTPUT:
@@ -2291,6 +2288,7 @@ Definition:
     x = x.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def PredicateExamples.positivePair : (n : ℕ) → n > 0 → Prop :=
   fun (n : ℕ) (h : n > 0) => n ≥ 1 ∧ h = h
 -- MEAN OUTPUT:
@@ -2299,6 +2297,7 @@ Definition:
     n ≥ 1 and h = h.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def PredicateExamples.ignoresSecond : ℕ → ℕ → Prop :=
   fun (x y : ℕ) => x = x
 -- MEAN OUTPUT:
@@ -2307,6 +2306,7 @@ Definition:
     x = x.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def PredicateExamples.mixed : (ℕ → ℕ → ℕ) → Bool → Prop :=
   fun (f : ℕ → ℕ → ℕ) (b : Bool) => f 0 0 = 0 ∧ b = true
 -- MEAN OUTPUT:
@@ -2315,7 +2315,7 @@ Definition:
     f 0 0 = 0 and b = true.
 
 -- LEAN INPUT:
-fun («a» b : Fin 3 → ℤ) => ∑ i : Fin 3, |«a» i - b i| = 1
+fun («a» b : Fin 3 → Int) => (∑ i : Fin 3, |«a» i - b i|) = 1
 -- MEAN OUTPUT:
 the function mapping a function «a» from indices in [0, 3) to ℤ and a function b from indices in [0, 3) to ℤ to
   the sum over indices i in [0, 3) of |«a» i - b i| = 1
@@ -2326,22 +2326,22 @@ the function mapping a function «a» from indices in [0, 3) to ℤ and a functi
 the sum over indices i in [0, 3) of f i + 1
 
 -- LEAN INPUT:
-∑ i : Fin 3, f i + 1
+(∑ i : Fin 3, f i) + 1
 -- MEAN OUTPUT:
 (the sum over indices i in [0, 3) of f i) + 1
 
 -- LEAN INPUT:
-2 * ∑ i : Fin 3, f i
+2 * (∑ i : Fin 3, f i)
 -- MEAN OUTPUT:
 2 * (the sum over indices i in [0, 3) of f i)
 
 -- LEAN INPUT:
-∑ i : Fin 3, f i = 1 ∧ True
+(∑ i : Fin 3, f i) = 1 ∧ True
 -- MEAN OUTPUT:
 the sum over indices i in [0, 3) of f i = 1 and True
 
 -- LEAN INPUT:
-∑ i : Fin 0, (↑i : ℕ)
+∑ i : Fin 0, i.val
 -- MEAN OUTPUT:
 the sum over indices i in [0, 0) of i as a natural number
 
@@ -2381,23 +2381,24 @@ the sum over indices i in [0, 3) of the sum over indices j in [0, 3) of f i + f 
 the sum over i in s of the sum over j in (Finset.range i) of i + j
 
 -- LEAN INPUT:
-∑ h : Fin 2 → Bool, if h 0 = true then 1 else 0
+∑ h : Fin 2 → Bool, if h 0 then 1 else 0
 -- MEAN OUTPUT:
 the sum over elements h of (the type of indices in [0, 2) → Bool) of if h 0 = true then 1 else 0
 
 -- LEAN INPUT:
-fun (i : ℕ) => ∑ i : Fin 3, f i + i
+fun (i : Nat) => (∑ i : Fin 3, f i) + i
 -- MEAN OUTPUT:
 the function mapping a natural number i to
   (the sum over indices i in [0, 3) of f i) + i
 
 -- LEAN INPUT:
-fun (f : Fin 3 → ℤ) => ∑ i : Fin 3, f i < 0
+fun (f : Fin 3 → Int) => (∑ i : Fin 3, f i) < 0
 -- MEAN OUTPUT:
 the function mapping a function f_1 from indices in [0, 3) to ℤ to
   the sum over indices i in [0, 3) of f_1 i < 0
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev FunctionEndpointExamples.Point : Type :=
   Fin 3 → ℤ
 -- MEAN OUTPUT:
@@ -2406,6 +2407,7 @@ Abbreviation:
     a function from indices in [0, 3) to ℤ.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev FunctionEndpointExamples.Reindexer : Type :=
   Fin 3 → Fin 4
 -- MEAN OUTPUT:
@@ -2414,6 +2416,7 @@ Abbreviation:
     a function from indices in [0, 3) to indices in [0, 4).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def FunctionEndpointExamples.Consumer : Type :=
   List ℕ → ℤ
 -- MEAN OUTPUT:
@@ -2422,6 +2425,7 @@ Definition:
     a function from lists of natural numbers to ℤ.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev FunctionEndpointExamples.Curried : Type :=
   ℕ → Fin 3 → ℤ
 -- MEAN OUTPUT:
@@ -2430,37 +2434,37 @@ Abbreviation:
     a function from ℕ and indices in [0, 3) to ℤ.
 
 -- LEAN INPUT:
-fun (f : Fin 3 → List ℕ) (b : Bool) => (f 0, b)
+fun (f : Fin 3 → List Nat) (b : Bool) => (f 0, b)
 -- MEAN OUTPUT:
 the function mapping a function f from indices in [0, 3) to lists of natural numbers and a boolean b to
   (f 0, b)
 
 -- LEAN INPUT:
-fun (f : ℕ → Fin 3 → ℤ) => f
+fun (f : Nat → Fin 3 → Int) => f
 -- MEAN OUTPUT:
 the function mapping a function f from ℕ and indices in [0, 3) to ℤ to
   f
 
 -- LEAN INPUT:
-fun (f : List (ℕ → ℕ) → List ℕ) => f
+fun (f : List (Nat → Nat) → List Nat) => f
 -- MEAN OUTPUT:
 the function mapping a function f from lists of (ℕ → ℕ) elements to lists of natural numbers to
   f
 
 -- LEAN INPUT:
-fun (f : (ℕ → ℕ) → Fin 3) => f
+fun (f : (Nat → Nat) → Fin 3) => f
 -- MEAN OUTPUT:
 the function mapping a function f from (ℕ → ℕ) to indices in [0, 3) to
   f
 
 -- LEAN INPUT:
-fun (f : Fin xs.length → ℤ) => f
+fun (f : Fin xs.length → Int) => f
 -- MEAN OUTPUT:
 the function mapping a function f from indices into xs to ℤ to
   f
 
 -- LEAN INPUT:
-fun (f : ℕ → Fin ys.size) => f
+fun (f : Nat → Fin ys.size) => f
 -- MEAN OUTPUT:
 the function mapping a function f from ℕ to indices into ys to
   f
@@ -2472,11 +2476,12 @@ the function mapping a function f from lists of A elements to Prop to
   f
 
 -- LEAN INPUT:
-∃ (_f : Fin xs.length → ℕ), True
+∃ _f : Fin xs.length → Nat, True
 -- MEAN OUTPUT:
 there is a function from indices into xs to ℕ
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev TypeDeclarationExamples.Point : Type :=
   Fin 3 → ℤ
 -- MEAN OUTPUT:
@@ -2485,6 +2490,7 @@ Abbreviation:
     a function from indices in [0, 3) to ℤ.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev TypeDeclarationExamples.Prototile : Type :=
   List TypeDeclarationExamples.Point
 -- MEAN OUTPUT:
@@ -2493,6 +2499,7 @@ Abbreviation:
     a list of TypeDeclarationExamples.Point elements.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def TypeDeclarationExamples.PrototileDef : Type :=
   List TypeDeclarationExamples.Point
 -- MEAN OUTPUT:
@@ -2501,6 +2508,7 @@ Definition:
     a list of TypeDeclarationExamples.Point elements.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev TypeDeclarationExamples.Direction : Type :=
   Fin 4
 -- MEAN OUTPUT:
@@ -2509,6 +2517,7 @@ Abbreviation:
     an index in [0, 4).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def TypeDeclarationExamples.Index : Type :=
   Fin 4
 -- MEAN OUTPUT:
@@ -2517,6 +2526,7 @@ Definition:
     an index in [0, 4).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev TypeDeclarationExamples.Integer : Type :=
   ℤ
 -- MEAN OUTPUT:
@@ -2525,6 +2535,7 @@ Abbreviation:
     an integer.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def TypeDeclarationExamples.Boolean : Type :=
   Bool
 -- MEAN OUTPUT:
@@ -2533,6 +2544,7 @@ Definition:
     a boolean.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev TypeDeclarationExamples.Map : Type :=
   ℕ → ℕ
 -- MEAN OUTPUT:
@@ -2541,6 +2553,7 @@ Abbreviation:
     a function from ℕ to ℕ.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev TypeDeclarationExamples.Coordinate : Type :=
   Fin 3
 -- MEAN OUTPUT:
@@ -2549,6 +2562,7 @@ Abbreviation:
     an index in [0, 3).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def TypeDeclarationExamples.Trivial : Prop :=
   True
 -- MEAN OUTPUT:
@@ -2557,6 +2571,7 @@ Definition:
     a proof that True.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev TypeDeclarationExamples.Instance : Type :=
   Inhabited ℕ
 -- MEAN OUTPUT:
@@ -2565,6 +2580,7 @@ Abbreviation:
     an instance of typeclass Inhabited ℕ.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev TypeDeclarationExamples.Universe : Type 1 :=
   Type
 -- MEAN OUTPUT:
@@ -2573,6 +2589,7 @@ Abbreviation:
     an element of (Type).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def TypeDeclarationExamples.ViaUniverse : TypeDeclarationExamples.Universe :=
   ℕ
 -- MEAN OUTPUT:
@@ -2581,6 +2598,7 @@ Definition:
     a natural number.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev TypeDeclarationExamples.NamedArrow : Type :=
   ℕ → ℕ
 -- MEAN OUTPUT:
@@ -2589,6 +2607,7 @@ Abbreviation:
     an element of ((input : ℕ) → ℕ).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev TypeDeclarationExamples.ImplicitArrow : Type :=
   {n : ℕ} → Fin n
 -- MEAN OUTPUT:
@@ -2597,6 +2616,7 @@ Abbreviation:
     an element of ({n : ℕ} → the type of indices in [0, n)).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev TypeDeclarationExamples.Position : List ℕ → Type :=
   fun (xs : List ℕ) => Fin xs.length
 -- MEAN OUTPUT:
@@ -2606,6 +2626,7 @@ Abbreviation:
       the type of indices in [0, the length of xs).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev TypeDeclarationExamples.Route : {V : Type u} → SimpleGraph V → V → V → Type u :=
   fun {V : Type u} (G : SimpleGraph V) (u v : V) => G.Path u v
 -- MEAN OUTPUT:
@@ -2615,6 +2636,7 @@ Abbreviation:
       G.Path u v.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev ListTypeExamples.Naturals : Type :=
   List ℕ
 -- MEAN OUTPUT:
@@ -2643,32 +2665,33 @@ List (Fin n)
 the type of lists of (the type of indices in [0, n)) elements
 
 -- LEAN INPUT:
-List (List ℕ)
+List (List Nat)
 -- MEAN OUTPUT:
 the type of lists of (the type of lists of natural numbers) elements
 
 -- LEAN INPUT:
-List (ℕ → ℕ)
+List (Nat → Nat)
 -- MEAN OUTPUT:
 the type of lists of (ℕ → ℕ) elements
 
 -- LEAN INPUT:
-List ℕ → ℕ
+List Nat → Nat
 -- MEAN OUTPUT:
 the type of functions from lists of natural numbers to ℕ
 
 -- LEAN INPUT:
-ℕ × List ℤ
+Nat × List Int
 -- MEAN OUTPUT:
 ℕ × the type of lists of integers
 
 -- LEAN INPUT:
-fun (f : List ℕ → ℕ) => f []
+fun (f : List Nat → Nat) => f []
 -- MEAN OUTPUT:
 the function mapping a function f from lists of natural numbers to ℕ to
   f []
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev IndexExamples.Four : Type :=
   Fin 4
 -- MEAN OUTPUT:
@@ -2677,6 +2700,7 @@ Abbreviation:
     an index in [0, 4).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def IndexExamples.value : (n : ℕ) → Fin n → ℕ :=
   fun (n : ℕ) (i : Fin n) => (↑i : ℕ)
 -- MEAN OUTPUT:
@@ -2686,6 +2710,7 @@ Definition:
       i as a natural number.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def IndexExamples.lookup : (xs : List ℕ) → Fin xs.length → ℕ :=
   fun (xs : List ℕ) (i : Fin xs.length) => xs[i]
 -- MEAN OUTPUT:
@@ -2695,6 +2720,7 @@ Definition:
       xs[i].
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def IndexExamples.arrayLookup : (xs : Array ℕ) → Fin xs.size → ℕ :=
   fun (xs : Array ℕ) (i : Fin xs.size) => xs[i]
 -- MEAN OUTPUT:
@@ -2704,6 +2730,7 @@ Definition:
       xs[i].
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def IndexExamples.implicitValue : (n : ℕ) → {i : Fin n} → ℕ :=
   fun (n : ℕ) {i : Fin n} => (↑i : ℕ)
 -- MEAN OUTPUT:
@@ -2713,6 +2740,7 @@ Definition:
       i as a natural number.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def IndexExamples.strictValue : (n : ℕ) → ⦃i : Fin n⦄ → ℕ :=
   fun (n : ℕ) ⦃i : Fin n⦄ => (↑i : ℕ)
 -- MEAN OUTPUT:
@@ -2722,6 +2750,7 @@ Definition:
       i as a natural number.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def IndexExamples.first : Fin 4 → Prop :=
   fun (i : Fin 4) => (↑i : ℕ) = 0
 -- MEAN OUTPUT:
@@ -2755,25 +2784,25 @@ Fin 4
 the type of indices in [0, 4)
 
 -- LEAN INPUT:
-fun (i : Fin n) => (↑i : ℕ)
+fun (i : Fin n) => i.val
 -- MEAN OUTPUT:
 the function mapping an index i in [0, n) to
   i as a natural number
 
 -- LEAN INPUT:
-fun {i : Fin n} => (↑i : ℕ)
+fun {i : Fin n} => i.val
 -- MEAN OUTPUT:
 the function mapping an implicit index i in [0, n) to
   i as a natural number
 
 -- LEAN INPUT:
-fun ⦃i : Fin n⦄ => (↑i : ℕ)
+fun ⦃i : Fin n⦄ => i.val
 -- MEAN OUTPUT:
 the function mapping a strictly implicit index i in [0, n) to
   i as a natural number
 
 -- LEAN INPUT:
-fun (i : Fin (n + m)) => (↑i : ℕ)
+fun (i : Fin (n + m)) => i.val
 -- MEAN OUTPUT:
 the function mapping an index i in [0, n + m) to
   i as a natural number
@@ -2797,7 +2826,7 @@ the function mapping a strictly implicit index i into ys to
   ys[i]
 
 -- LEAN INPUT:
-fun (i : Fin (xs ++ xs).length) => (↑i : ℕ)
+fun (i : Fin (xs ++ xs).length) => i.val
 -- MEAN OUTPUT:
 the function mapping an index i into (xs ++ xs) to
   i as a natural number
@@ -2809,35 +2838,35 @@ the function mapping an element _i of IndexExamples.Four to
   true
 
 -- LEAN INPUT:
-∀ (i : Fin n), (↑i : ℕ) < n
+∀ i : Fin n, i.val < n
 -- MEAN OUTPUT:
 for every index i in [0, n):
   i as a natural number < n
 
 -- LEAN INPUT:
-∀ (i : Fin xs.length), xs[i] = xs[i]
+∀ i : Fin xs.length, xs[i] = xs[i]
 -- MEAN OUTPUT:
 for every index i into xs:
   xs[i] = xs[i]
 
 -- LEAN INPUT:
-∃ (i : Fin ys.size), ys[i] = 3
+∃ i : Fin ys.size, ys[i] = 3
 -- MEAN OUTPUT:
 there is an index i into ys such that
   ys[i] = 3
 
 -- LEAN INPUT:
-∃ (_i : Fin n), True
+∃ _i : Fin n, True
 -- MEAN OUTPUT:
 there is an index in [0, n)
 
 -- LEAN INPUT:
-¬∃ (_i : Fin 0), True
+¬ ∃ _i : Fin 0, True
 -- MEAN OUTPUT:
 there is no index in [0, 0)
 
 -- LEAN INPUT:
-∀ (i j : Fin n), i = j ∨ i ≠ j
+∀ i j : Fin n, i = j ∨ i ≠ j
 -- MEAN OUTPUT:
 for all i and j in (the type of indices in [0, n)):
   i = j or i ≠ j
@@ -2849,29 +2878,30 @@ the function mapping a list xs_1 of (the type of indices in [0, n)) elements to
   xs_1
 
 -- LEAN INPUT:
-fun (xs : List ℚ) => xs
+fun (xs : List Rat) => xs
 -- MEAN OUTPUT:
 the function mapping a list xs of rational numbers to
   xs
 
 -- LEAN INPUT:
-fun {xs : List ℝ} => xs
+fun {xs : List Real} => xs
 -- MEAN OUTPUT:
 the function mapping an implicit list xs of real numbers to
   xs
 
 -- LEAN INPUT:
-fun ⦃xs : List ℂ⦄ => xs
+fun ⦃xs : List Complex⦄ => xs
 -- MEAN OUTPUT:
 the function mapping a strictly implicit list xs of complex numbers to
   xs
 
 -- LEAN INPUT:
-∃ (_xs : List Bool), True
+∃ _xs : List Bool, True
 -- MEAN OUTPUT:
 there is a list of booleans
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.double : ℕ → ℕ :=
   fun (n : ℕ) => 2 * n
 -- MEAN OUTPUT:
@@ -2881,6 +2911,7 @@ Definition:
       2 * n.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.answer : ℤ :=
   42
 -- MEAN OUTPUT:
@@ -2889,6 +2920,7 @@ Definition:
     the integer 42.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.naturalAnswer : ℕ :=
   42
 -- MEAN OUTPUT:
@@ -2897,6 +2929,7 @@ Definition:
     the natural number 42.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.negativeAnswer : ℤ :=
   -42
 -- MEAN OUTPUT:
@@ -2905,6 +2938,7 @@ Definition:
     the integer -42.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.rationalAnswer : ℚ :=
   42
 -- MEAN OUTPUT:
@@ -2913,6 +2947,7 @@ Definition:
     the rational number 42.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.realAnswer : ℝ :=
   42
 -- MEAN OUTPUT:
@@ -2921,6 +2956,7 @@ Definition:
     the real number 42.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.complexAnswer : ℂ :=
   42
 -- MEAN OUTPUT:
@@ -2929,6 +2965,7 @@ Definition:
     the complex number 42.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.booleanAnswer : Bool :=
   true
 -- MEAN OUTPUT:
@@ -2937,6 +2974,7 @@ Definition:
     the boolean true.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.decimalAnswer : ℚ :=
   1.5
 -- MEAN OUTPUT:
@@ -2945,6 +2983,7 @@ Definition:
     the rational number 1.5.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.negativeDecimalAnswer : ℚ :=
   -1.5
 -- MEAN OUTPUT:
@@ -2953,6 +2992,7 @@ Definition:
     the rational number -1.5.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.exponentAnswer : ℝ :=
   42e2
 -- MEAN OUTPUT:
@@ -2961,6 +3001,7 @@ Definition:
     the real number 42e2.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.underscoreAnswer : ℤ :=
   1000
 -- MEAN OUTPUT:
@@ -2969,6 +3010,7 @@ Definition:
     the integer 1000.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.hexAnswer : ℤ :=
   42
 -- MEAN OUTPUT:
@@ -2977,6 +3019,7 @@ Definition:
     the integer 42.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.computedAnswer : ℤ :=
   2 + 3
 -- MEAN OUTPUT:
@@ -2985,6 +3028,7 @@ Definition:
     (2 + 3 : ℤ).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.add : ℕ → ℕ → ℕ :=
   fun (n m : ℕ) => n + m
 -- MEAN OUTPUT:
@@ -2994,6 +3038,7 @@ Definition:
       n + m.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.integerDouble : ℤ → ℤ :=
   fun (n : ℤ) => 2 * n
 -- MEAN OUTPUT:
@@ -3003,6 +3048,7 @@ Definition:
       2 * n.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.rationalDouble : ℚ → ℚ :=
   fun (x : ℚ) => 2 * x
 -- MEAN OUTPUT:
@@ -3012,6 +3058,7 @@ Definition:
       2 * x.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.realDouble : ℝ → ℝ :=
   fun (x : ℝ) => 2 * x
 -- MEAN OUTPUT:
@@ -3021,6 +3068,7 @@ Definition:
       2 * x.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.complexDouble : ℂ → ℂ :=
   fun (z : ℂ) => 2 * z
 -- MEAN OUTPUT:
@@ -3030,6 +3078,7 @@ Definition:
       2 * z.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.booleanIdentity : Bool → Bool :=
   fun (b : Bool) => b
 -- MEAN OUTPUT:
@@ -3039,6 +3088,7 @@ Definition:
       b.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.indexValue : (n : ℕ) → Fin n → ℕ :=
   fun (n : ℕ) (i : Fin n) => (↑i : ℕ)
 -- MEAN OUTPUT:
@@ -3048,6 +3098,7 @@ Definition:
       i as a natural number.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.zeroInteger : ℕ → ℤ :=
   fun (_n : ℕ) => 0
 -- MEAN OUTPUT:
@@ -3057,6 +3108,7 @@ Definition:
       (0).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.identityOnT : {T : Sort u} → T → T :=
   fun {T : Sort u} (x : T) => x
 -- MEAN OUTPUT:
@@ -3066,6 +3118,7 @@ Definition:
       x.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.shifted : ℕ → ℕ → ℕ :=
   fun (offset n : ℕ) => n + offset
 -- MEAN OUTPUT:
@@ -3075,6 +3128,7 @@ Definition:
       n + offset.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.mixedSum : ℕ → ℤ → ℤ :=
   fun (n : ℕ) (z : ℤ) => (↑n : ℤ) + z
 -- MEAN OUTPUT:
@@ -3084,6 +3138,7 @@ Definition:
       n as an integer + z.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.sumThree : ℕ → ℕ → ℕ → ℕ :=
   fun (x y z : ℕ) => x + y + z
 -- MEAN OUTPUT:
@@ -3093,6 +3148,7 @@ Definition:
       x + y + z.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.constantInteger : ℕ → Bool → ℤ :=
   fun (_n : ℕ) (_b : Bool) => 0
 -- MEAN OUTPUT:
@@ -3102,6 +3158,7 @@ Definition:
       (0).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.implicitAdd : ℕ → {m : ℕ} → ℕ :=
   fun (n : ℕ) {m : ℕ} => n + m
 -- MEAN OUTPUT:
@@ -3111,6 +3168,7 @@ Definition:
       n + m.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.implicitIndex : {n : ℕ} → Fin n → ℕ :=
   fun {n : ℕ} (i : Fin n) => (↑i : ℕ)
 -- MEAN OUTPUT:
@@ -3120,6 +3178,7 @@ Definition:
       i as a natural number.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.implicitIntegerNext : {x : ℤ} → ℤ :=
   fun {x : ℤ} => x + 1
 -- MEAN OUTPUT:
@@ -3129,6 +3188,7 @@ Definition:
       x + 1).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.implicitConstant : ℕ → {_m : ℕ} → ℤ :=
   fun (_n : ℕ) {_m : ℕ} => 0
 -- MEAN OUTPUT:
@@ -3138,6 +3198,7 @@ Definition:
       (0).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.implicitIdentityOnT : {T : Sort u} → {x : T} → T :=
   fun {T : Sort u} {x : T} => x
 -- MEAN OUTPUT:
@@ -3147,6 +3208,7 @@ Definition:
       x.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.strictIndex : ⦃n : ℕ⦄ → Fin n → ℕ :=
   fun ⦃n : ℕ⦄ (i : Fin n) => (↑i : ℕ)
 -- MEAN OUTPUT:
@@ -3156,6 +3218,7 @@ Definition:
       i as a natural number.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.strictConstant : ⦃n : ℕ⦄ → Fin n → ℤ :=
   fun ⦃n : ℕ⦄ (_i : Fin n) => 0
 -- MEAN OUTPUT:
@@ -3165,6 +3228,7 @@ Definition:
       (0).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.strictAdd : ℕ → ⦃m : ℕ⦄ → ℕ :=
   fun (n : ℕ) ⦃m : ℕ⦄ => n + m
 -- MEAN OUTPUT:
@@ -3174,6 +3238,7 @@ Definition:
       n + m.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.strictIdentity : ⦃T : Type⦄ → T → T :=
   fun ⦃T : Type⦄ (x : T) => x
 -- MEAN OUTPUT:
@@ -3183,6 +3248,7 @@ Definition:
       x.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ProofExamples.identity : ∀ (P : Prop), P → P :=
   fun (P : Prop) (h : P) => h
 -- MEAN OUTPUT:
@@ -3192,6 +3258,7 @@ Definition:
       h.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ProofExamples.implicitIdentity : ∀ (P : Prop) {h : P}, P :=
   fun (P : Prop) {h : P} => h
 -- MEAN OUTPUT:
@@ -3201,6 +3268,7 @@ Definition:
       h.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ProofExamples.strictIdentity : ∀ (P : Prop) ⦃h : P⦄, h = h → P :=
   fun (P : Prop) ⦃h : P⦄ (_eq : h = h) => h
 -- MEAN OUTPUT:
@@ -3210,6 +3278,7 @@ Definition:
       h.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ProofExamples.reflexive : True → Prop :=
   fun (h : True) => h = h
 -- MEAN OUTPUT:
@@ -3218,6 +3287,7 @@ Definition:
     h = h.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ProofExamples.zero : True → ℤ :=
   fun (_h : True) => 0
 -- MEAN OUTPUT:
@@ -3227,6 +3297,7 @@ Definition:
       (0).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev AbbreviationExamples.Natural : Type :=
   ℕ
 -- MEAN OUTPUT:
@@ -3235,6 +3306,7 @@ Abbreviation:
     a natural number.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev AbbreviationExamples.answer : ℤ :=
   42
 -- MEAN OUTPUT:
@@ -3243,6 +3315,7 @@ Abbreviation:
     the integer 42.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev AbbreviationExamples.zero : ℕ → Prop :=
   fun (n : ℕ) => n = 0
 -- MEAN OUTPUT:
@@ -3251,6 +3324,7 @@ Abbreviation:
     (n = 0).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev AbbreviationExamples.double : ℕ → ℕ :=
   fun (n : ℕ) => 2 * n
 -- MEAN OUTPUT:
@@ -3260,6 +3334,7 @@ Abbreviation:
       2 * n.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev AbbreviationExamples.zeroInteger : ℕ → ℤ :=
   fun (_n : ℕ) => 0
 -- MEAN OUTPUT:
@@ -3269,6 +3344,7 @@ Abbreviation:
       (0).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev AbbreviationExamples.pathLinked : {Vertex : Type u_1} → SimpleGraph Vertex → Prop :=
   fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => ∀ (u v : G.V), ∃ (existentialWitness : G.Path u v), True
 -- MEAN OUTPUT:
@@ -3278,6 +3354,7 @@ Abbreviation:
       there is a path in G from u to v.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 abbrev AbbreviationExamples.inhabitedValue : [inst : Inhabited ℕ] → ℕ :=
   fun [Inhabited ℕ] => default
 -- MEAN OUTPUT:
@@ -3287,6 +3364,7 @@ Abbreviation:
       default.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def ValueExamples.graphEdges : {V : Type u_1} → SimpleGraph V → Set (Sym2 V) :=
   fun {V : Type u_1} (G : SimpleGraph V) =>
     have E := G.edgeSet;
@@ -3298,6 +3376,7 @@ Definition:
       the edge set of G.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def TypeNounExamples.indexReflexive : Fin 3 → Prop :=
   fun (i : Fin 3) => i = i
 -- MEAN OUTPUT:
@@ -3306,6 +3385,7 @@ Definition:
     i = i.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def TypeNounExamples.emptyList : List TypeNounExamples.Token → Prop :=
   fun (xs : List TypeNounExamples.Token) => xs = []
 -- MEAN OUTPUT:
@@ -3314,6 +3394,7 @@ Definition:
     xs is an empty list.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def TypeNounExamples.copyList : List TypeNounExamples.Token → List TypeNounExamples.Token :=
   fun (xs : List TypeNounExamples.Token) => xs
 -- MEAN OUTPUT:
@@ -3323,6 +3404,7 @@ Definition:
       xs.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def TypeNounExamples.polymorphicCopy : {A : Type u} → List A → List A :=
   fun {A : Type u} (xs : List A) => xs
 -- MEAN OUTPUT:
@@ -3332,6 +3414,7 @@ Definition:
       xs.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def TypeNounExamples.implicitLength : {xs : List TypeNounExamples.Token} → ℕ → ℕ :=
   fun {xs : List TypeNounExamples.Token} (n : ℕ) => xs.length + n
 -- MEAN OUTPUT:
@@ -3341,6 +3424,7 @@ Definition:
       the length of xs + n.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def TypeNounExamples.strictLength : ⦃xs : List TypeNounExamples.Token⦄ → ℕ → ℕ :=
   fun ⦃xs : List TypeNounExamples.Token⦄ (n : ℕ) => xs.length + n
 -- MEAN OUTPUT:
@@ -3350,6 +3434,7 @@ Definition:
       the length of xs + n.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def TypeNounExamples.diagonal : (ℕ → ℕ → ℕ) → ℕ → ℕ :=
   fun (f : ℕ → ℕ → ℕ) (n : ℕ) => f n n
 -- MEAN OUTPUT:
@@ -3359,6 +3444,7 @@ Definition:
       f n n.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def TypeNounExamples.diagonalZero : (ℕ → ℕ → ℕ) → Prop :=
   fun (f : ℕ → ℕ → ℕ) => f 0 0 = 0
 -- MEAN OUTPUT:
@@ -3367,6 +3453,7 @@ Definition:
     (f 0 0 = 0).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def TypeNounExamples.implicitApply : {f : ℕ → ℕ} → ℕ → ℕ :=
   fun {f : ℕ → ℕ} (n : ℕ) => f n
 -- MEAN OUTPUT:
@@ -3376,6 +3463,7 @@ Definition:
       f n.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def TypeNounExamples.strictApply : ⦃f : ℕ → ℕ⦄ → ℕ → ℕ :=
   fun ⦃f : ℕ → ℕ⦄ (n : ℕ) => f n
 -- MEAN OUTPUT:
@@ -3385,6 +3473,7 @@ Definition:
       f n.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def BinderExamples.anonymousNatural : ℕ → Bool :=
   fun (_anonymousParameter : ℕ) => true
 -- MEAN OUTPUT:
@@ -3394,6 +3483,7 @@ Definition:
       true.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def BinderExamples.constantPredicate : ℕ → Prop :=
   fun (_anonymousParameter : ℕ) => True
 -- MEAN OUTPUT:
@@ -3402,6 +3492,7 @@ Definition:
     True.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def BinderExamples.constantGraph : {Vertex : Type u_1} → SimpleGraph Vertex → Prop :=
   fun {Vertex : Type u_1} (_anonymousParameter : SimpleGraph Vertex) => True
 -- MEAN OUTPUT:
@@ -3410,6 +3501,7 @@ Definition:
     True.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def BinderExamples.inhabitedCarrier : {V : Type u_1} → SimpleGraph V → Prop :=
   fun {V : Type u_1} (_anonymousParameter : SimpleGraph V) =>
     have E := _anonymousParameter.edgeSet;
@@ -3420,6 +3512,7 @@ Definition:
     V is a nonempty type.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def BinderExamples.defaultValue : {A : Type u} → [Inhabited A] → A :=
   fun {A : Type u} [Inhabited A] => default
 -- MEAN OUTPUT:
@@ -3429,6 +3522,7 @@ Definition:
       default.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def BinderExamples.chosenValue : {A : Type u} → [inst : Inhabited A] → A :=
   fun {A : Type u} [Inhabited A] => default
 -- MEAN OUTPUT:
@@ -3438,6 +3532,7 @@ Definition:
       default.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def BinderExamples.namedUnused : ℕ → Bool :=
   fun (n : ℕ) =>
     have x := n;
@@ -3449,6 +3544,7 @@ Definition:
       true.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def BinderExamples.namedImplicit : {ignored : ℕ} → ℕ → ℕ :=
   fun {ignored : ℕ} (n : ℕ) =>
     have x := ignored;
@@ -3460,6 +3556,7 @@ Definition:
       n.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def BinderExamples.namedStrict : ⦃ignored : ℕ⦄ → ℕ → ℕ :=
   fun ⦃ignored : ℕ⦄ (n : ℕ) =>
     have x := ignored;
@@ -3471,6 +3568,7 @@ Definition:
       n.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def BinderExamples.differentNames : ℕ → ℕ :=
   fun (n : ℕ) => n
 -- MEAN OUTPUT:
@@ -3480,6 +3578,7 @@ Definition:
       input.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def BinderExamples.aliasWithName : ℕ → ℕ :=
   Nat.succ
 -- MEAN OUTPUT:
@@ -3487,6 +3586,7 @@ def BinderExamples.aliasWithName : (input : Nat) → Nat :=
   Nat.succ
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def BinderExamples.namedCallback : (ℕ → ℕ) → ℕ :=
   fun (f : ℕ → ℕ) => f 0
 -- MEAN OUTPUT:
@@ -3496,27 +3596,25 @@ Definition:
       f 0).
 
 -- LEAN INPUT:
-fun (x : ℕ) => true
+fun (_ : Nat) => true
 -- MEAN OUTPUT:
 the function mapping a natural number to
   true
 
 -- LEAN INPUT:
-fun (_n : ℕ) => true
+fun (_n : Nat) => true
 -- MEAN OUTPUT:
 the function mapping a natural number _n to
   true
 
 -- LEAN INPUT:
-fun [Inhabited ℕ] => true
+fun [Inhabited Nat] => true
 -- MEAN OUTPUT:
 the function mapping an instance of typeclass Inhabited ℕ to
   true
 
 -- LEAN INPUT:
-fun [inst : Inhabited ℕ] =>
-  let x := inst;
-  true
+fun [inst : Inhabited Nat] => let _ := inst; true
 -- MEAN OUTPUT:
 the function mapping an instance inst of typeclass Inhabited ℕ to
   true
@@ -3528,62 +3626,62 @@ the function mapping an instance of typeclass Fact True to
   true
 
 -- LEAN INPUT:
-∃ (_inst : Inhabited ℕ), True
+∃ _inst : Inhabited Nat, True
 -- MEAN OUTPUT:
 there is an instance of typeclass Inhabited ℕ
 
 -- LEAN INPUT:
-∃ (inst : Inhabited ℕ), default = 7
+∃ inst : Inhabited Nat, inst.default = 7
 -- MEAN OUTPUT:
 there is an instance inst of typeclass Inhabited ℕ such that
   default = 7
 
 -- LEAN INPUT:
-¬∃ (_inst : Inhabited ℕ), True
+¬ ∃ _inst : Inhabited Nat, True
 -- MEAN OUTPUT:
 there is no instance of typeclass Inhabited ℕ
 
 -- LEAN INPUT:
-fun [inst : Inhabited ℕ] =>
-  let first := inst;
-  fun [Inhabited ℕ] => default
+fun [Inhabited Nat] =>
+  let first := inferInstanceAs (Inhabited Nat)
+  fun [Inhabited Nat] => @default Nat first
 -- MEAN OUTPUT:
 the function mapping an instance inst of typeclass Inhabited Nat to
   the function mapping an instance of typeclass Inhabited Nat to
     @default Nat inst
 
 -- LEAN INPUT:
-fun (xs : List ℕ) (i : Fin xs.length) => xs[i]
+fun (xs : List Nat) (i : Fin xs.length) => xs[i]
 -- MEAN OUTPUT:
 the function mapping a list xs of natural numbers and an index i into xs to
   xs[i]
 
 -- LEAN INPUT:
-fun (fs : List (ℕ → ℕ)) => fs.length
+fun (fs : List (Nat → Nat)) => fs.length
 -- MEAN OUTPUT:
 the function mapping a list fs of (ℕ → ℕ) elements to
   the length of fs
 
 -- LEAN INPUT:
-fun (f : ℕ × ℕ → ℕ) => f (0, 0)
+fun (f : Nat × Nat → Nat) => f (0, 0)
 -- MEAN OUTPUT:
 the function mapping a function f from (ℕ × ℕ) to ℕ to
   f (0, 0)
 
 -- LEAN INPUT:
-fun (f : (ℕ → ℕ) → ℕ) => f Nat.succ
+fun (f : (Nat → Nat) → Nat) => f Nat.succ
 -- MEAN OUTPUT:
 the function mapping a function f from (ℕ → ℕ) to ℕ to
   f Nat.succ
 
 -- LEAN INPUT:
-fun (_f : (n : ℕ) → Fin n) => true
+fun (_f : (n : Nat) → Fin n) => true
 -- MEAN OUTPUT:
 the function mapping an element _f of (n : ℕ) → the type of indices in [0, n) to
   true
 
 -- LEAN INPUT:
-fun (_f : {n : ℕ} → Fin n) => true
+fun (_f : {n : Nat} → Fin n) => true
 -- MEAN OUTPUT:
 the function mapping an element _f of {n : ℕ} → the type of indices in [0, n) to
   true
@@ -3601,51 +3699,51 @@ the function mapping an implicit element A of Type u and a function f from A to 
   f
 
 -- LEAN INPUT:
-∃ (xs : List TypeNounExamples.Token), xs = []
+∃ xs : List TypeNounExamples.Token, xs = []
 -- MEAN OUTPUT:
 there is a list xs of TypeNounExamples.Token elements such that
   xs is an empty list
 
 -- LEAN INPUT:
-∃ (_xs : List TypeNounExamples.Token), True
+∃ _xs : List TypeNounExamples.Token, True
 -- MEAN OUTPUT:
 there is a list of TypeNounExamples.Token elements
 
 -- LEAN INPUT:
-¬∃ (xs : List TypeNounExamples.Token), xs = []
+¬ ∃ xs : List TypeNounExamples.Token, xs = []
 -- MEAN OUTPUT:
 there is no list xs of TypeNounExamples.Token elements such that
   xs is an empty list
 
 -- LEAN INPUT:
-¬∃ (_xs : List TypeNounExamples.Token), True
+¬ ∃ _xs : List TypeNounExamples.Token, True
 -- MEAN OUTPUT:
 there is no list of TypeNounExamples.Token elements
 
 -- LEAN INPUT:
-∃ (f : ℤ → ℤ → TypeNounExamples.Token), f = f
+∃ f : Int → Int → TypeNounExamples.Token, f = f
 -- MEAN OUTPUT:
 there is a function f from ℤ and ℤ to TypeNounExamples.Token such that
   f = f
 
 -- LEAN INPUT:
-∃ (_f : ℕ → ℕ), True
+∃ _f : Nat → Nat, True
 -- MEAN OUTPUT:
 there is a function from ℕ to ℕ
 
 -- LEAN INPUT:
-¬∃ (f : ℕ → ℕ), f 0 = 0
+¬ ∃ f : Nat → Nat, f 0 = 0
 -- MEAN OUTPUT:
 there is no function f from ℕ to ℕ such that
   f 0 = 0
 
 -- LEAN INPUT:
-¬∃ (_f : ℕ → ℕ), True
+¬ ∃ _f : Nat → Nat, True
 -- MEAN OUTPUT:
 there is no function from ℕ to ℕ
 
 -- LEAN INPUT:
-∀ (q : ℕ → Prop), q 0 → ∃ (r : ℕ → ℕ), ∀ (n : ℕ), q n ↔ q (r n)
+∀ q : Nat → Prop, q 0 → ∃ r : Nat → Nat, ∀ n : Nat, q n ↔ q (r n)
 -- MEAN OUTPUT:
 for every function q from ℕ to Prop where 0 satisfies q:
   there is a function r from ℕ to ℕ such that
@@ -3653,26 +3751,26 @@ for every function q from ℕ to Prop where 0 satisfies q:
       n satisfies q if and only if (r n) satisfies q
 
 -- LEAN INPUT:
-∀ (f : ℕ → ℕ → ℕ), f 0 0 = 0
+∀ f : Nat → Nat → Nat, f 0 0 = 0
 -- MEAN OUTPUT:
 for every function f from ℕ and ℕ to ℕ:
   f 0 0 = 0
 
 -- LEAN INPUT:
-∀ (xs : List ℕ) (i : Fin xs.length), xs[i] = xs[i]
+∀ xs : List Nat, ∀ i : Fin xs.length, xs[i] = xs[i]
 -- MEAN OUTPUT:
 for every list xs of natural numbers:
   for every index i into xs:
     xs[i] = xs[i]
 
 -- LEAN INPUT:
-∀ (f : (n : ℕ) → Fin n), f 1 = f 1
+∀ f : (n : Nat) → Fin n, f 1 = f 1
 -- MEAN OUTPUT:
 for every element f of ((n : ℕ) → the type of indices in [0, n)):
   f 1 = f 1
 
 -- LEAN INPUT:
-∀ (f : {n : ℕ} → Fin n), f = f
+∀ f : {n : Nat} → Fin n, f (n := 1) = f (n := 1)
 -- MEAN OUTPUT:
 for every element f of ({n : Nat} → the type of indices in [0, n)):
   @Eq (the type of indices in [0, @OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
@@ -3680,43 +3778,43 @@ for every element f of ({n : Nat} → the type of indices in [0, n)):
     (@f (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
 
 -- LEAN INPUT:
-∀ (x : TypeNounExamples.Token), x = x
+∀ x : TypeNounExamples.Token, x = x
 -- MEAN OUTPUT:
 for every element x of TypeNounExamples.Token:
   x = x
 
 -- LEAN INPUT:
-∀ (f : TypeNounExamples.Endomap), f = f
+∀ f : TypeNounExamples.Endomap, f = f
 -- MEAN OUTPUT:
 for every element f of TypeNounExamples.Endomap:
   f = f
 
 -- LEAN INPUT:
-∀ (inst : Inhabited ℕ), default = 0
+∀ inst : Inhabited Nat, inst.default = 0
 -- MEAN OUTPUT:
 for every instance inst of typeclass Inhabited ℕ:
   default = 0
 
 -- LEAN INPUT:
-∀ (P : Prop), P ↔ P
+∀ P : Prop, P ↔ P
 -- MEAN OUTPUT:
 for every element P of (Prop):
   P if and only if P
 
 -- LEAN INPUT:
-∀ (p : G.Path u v), p = p
+∀ p : G.Path u v, p = p
 -- MEAN OUTPUT:
 for every path p in G from u to v:
   p = p
 
 -- LEAN INPUT:
-∀ (x : A), x = x
+∀ x : A, x = x
 -- MEAN OUTPUT:
 for every element x of A:
   x = x
 
 -- LEAN INPUT:
-∀ (h : P), h = h
+∀ h : P, h = h
 -- MEAN OUTPUT:
 for every proof h that P:
   h = h
@@ -3767,12 +3865,12 @@ P ↔ Q ∨ R
 P if and only if Q or R
 
 -- LEAN INPUT:
-P → Q ↔ R
+(P → Q) ↔ R
 -- MEAN OUTPUT:
 (if P then Q) if and only if R
 
 -- LEAN INPUT:
-P ↔ Q → R
+P ↔ (Q → R)
 -- MEAN OUTPUT:
 P if and only if (if Q then R)
 
@@ -3789,106 +3887,102 @@ if P if and only if Q then
   R
 
 -- LEAN INPUT:
-P →
-  let S := Q;
-  S ↔ R
+P → (let S := Q; S ↔ R)
 -- MEAN OUTPUT:
 if P then
   (Q if and only if R)
 
 -- LEAN INPUT:
-(let S := P;
-  S ↔ Q) ∧
-  R
+(let S := P; S ↔ Q) ∧ R
 -- MEAN OUTPUT:
 (P if and only if Q) and R
 
 -- LEAN INPUT:
-(∀ (x : A), x = x) ↔ P
+(∀ x : A, x = x) ↔ P
 -- MEAN OUTPUT:
 (for every element x of A:
   x = x) if and only if P
 
 -- LEAN INPUT:
-P ↔ ∃ (x : A), x = x
+P ↔ (∃ x : A, x = x)
 -- MEAN OUTPUT:
 P if and only if there is an element x of A such that
   x = x
 
 -- LEAN INPUT:
-fun (n : ℕ) => 2 * n
+fun n : Nat => 2 * n
 -- MEAN OUTPUT:
 the function mapping a natural number n to
   2 * n
 
 -- LEAN INPUT:
-fun (n : ℕ) (i : Fin n) => (↑i : ℕ)
+fun n : Nat => fun i : Fin n => i.val
 -- MEAN OUTPUT:
 the function mapping a natural number n and an index i in [0, n) to
   i as a natural number
 
 -- LEAN INPUT:
-fun («a» «graph» : ℕ) => «a» + «graph»
+fun «a» : Nat => fun «graph» : Nat => «a» + «graph»
 -- MEAN OUTPUT:
 the function mapping a natural number «a» and a natural number «graph» to
   «a» + «graph»
 
 -- LEAN INPUT:
-fun (_n _n_1 : ℕ) => _n_1
+fun _n : Nat => fun _n : Nat => _n
 -- MEAN OUTPUT:
 the function mapping a natural number _n and a natural number _n_1 to
   _n_1
 
 -- LEAN INPUT:
-fun (n : ℕ) {m : ℕ} => n + m
+fun n : Nat => fun {m : Nat} => n + m
 -- MEAN OUTPUT:
 the function mapping a natural number n and an implicit natural number m to
   n + m
 
 -- LEAN INPUT:
-fun {n : ℕ} (i : Fin n) => (↑i : ℕ)
+fun {n : Nat} (i : Fin n) => i.val
 -- MEAN OUTPUT:
 the function mapping an implicit natural number n and an index i in [0, n) to
   i as a natural number
 
 -- LEAN INPUT:
-fun {n : ℕ} (m : ℕ) {k : ℕ} => n + m + k
+fun {n : Nat} (m : Nat) {k : Nat} => n + m + k
 -- MEAN OUTPUT:
 the function mapping an implicit natural number n and a natural number m and an implicit natural number k to
   n + m + k
 
 -- LEAN INPUT:
-fun (n : ℕ) ⦃m : ℕ⦄ => n + m
+fun n : Nat => fun ⦃m : Nat⦄ => n + m
 -- MEAN OUTPUT:
 the function mapping a natural number n and a strictly implicit natural number m to
   n + m
 
 -- LEAN INPUT:
-fun ⦃n : ℕ⦄ (m : ℕ) {k : ℕ} => n + m + k
+fun ⦃n : Nat⦄ (m : Nat) {k : Nat} => n + m + k
 -- MEAN OUTPUT:
 the function mapping a strictly implicit natural number n and a natural number m and an implicit natural number k to
   n + m + k
 
 -- LEAN INPUT:
-fun (n : ℕ) [Inhabited ℕ] => n + default
+fun (n : Nat) [inst : Inhabited Nat] => n + @default Nat inst
 -- MEAN OUTPUT:
 the function mapping a natural number n and an instance inst of typeclass Inhabited ℕ to
   n + default
 
 -- LEAN INPUT:
-fun (_n : ℕ) => 0
+fun _n : Nat => (0 : Int)
 -- MEAN OUTPUT:
 the function mapping a natural number _n to
   0
 
 -- LEAN INPUT:
-fun (x : T) => x
+fun x : T => x
 -- MEAN OUTPUT:
 the function mapping an element x of T to
   x
 
 -- LEAN INPUT:
-fun (_x y : T) => y
+fun (_x : T) (y : T) => y
 -- MEAN OUTPUT:
 the function mapping an element _x of T and an element y of T to
   y
@@ -3906,7 +4000,7 @@ the function mapping a strictly implicit element _x of T and an element y of T t
   y
 
 -- LEAN INPUT:
-fun (h : True ∧ True) (_b : Bool) => h
+fun (h : True and True) (_b : Bool) => h
 -- MEAN OUTPUT:
 the function mapping a proof h that True ∧ True and a boolean _b to
   h
@@ -3924,51 +4018,51 @@ the function mapping a proof h that P and a strictly implicit proof _eq that h =
   h
 
 -- LEAN INPUT:
-∃ (_ : P), True
+∃ _h : P, True
 -- MEAN OUTPUT:
 there is a proof that P
 
 -- LEAN INPUT:
-∃ (h : P), h = h
+∃ h : P, h = h
 -- MEAN OUTPUT:
 there is a proof h that P such that
   h = h
 
 -- LEAN INPUT:
-¬∃ (_ : P), True
+¬ ∃ _h : P, True
 -- MEAN OUTPUT:
 there is no proof that P
 
 -- LEAN INPUT:
-¬∃ (h : P), h = h
+¬ ∃ h : P, h = h
 -- MEAN OUTPUT:
 there is no proof h that P such that
   h = h
 
 -- LEAN INPUT:
-∃ (_ : P), False
+∃ _h : P, False
 -- MEAN OUTPUT:
 there is a proof that P such that
   False
 
 -- LEAN INPUT:
-∃ (_ : P ∧ Q), True
+∃ _h : P ∧ Q, True
 -- MEAN OUTPUT:
 there is a proof that (P ∧ Q)
 
 -- LEAN INPUT:
-∃ (h : n > 0), h = h
+∃ h : n > 0, h = h
 -- MEAN OUTPUT:
 there is a proof h that (n > 0) such that
   h = h
 
 -- LEAN INPUT:
-(∃ (_ : P), True) ∧ Q
+(∃ _h : P, True) ∧ Q
 -- MEAN OUTPUT:
 (there is a proof that P) and Q
 
 -- LEAN INPUT:
-(¬∃ (_ : P), True) → Q
+(¬ ∃ _h : P, True) → Q
 -- MEAN OUTPUT:
 if there is no proof that P then
   Q
@@ -3980,8 +4074,8 @@ the function mapping an element P of Prop to
   P
 
 -- LEAN INPUT:
-theorem ordinaryNatTrans3 :
-  ∀ (x y z w : ℕ), x = y ∧ z = y ∧ z = w → x = w
+theorem ordinaryNatTrans3 (x y z w : Nat) (h : x = y ∧ z = y ∧ z = w) : x = w := by
+  exact h.1.trans (h.2.1.symm.trans h.2.2)
 -- MEAN OUTPUT:
 Theorem ordinaryNatTrans3:
   for all natural numbers x and y:
@@ -3989,6 +4083,7 @@ Theorem ordinaryNatTrans3:
       x = w
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 theorem TheoremExamples.zeroExists :
   ∃ (n : ℕ), n = 0
 -- MEAN OUTPUT:
@@ -3997,6 +4092,7 @@ Theorem TheoremExamples.zeroExists:
     n = 0
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 -- Universe parameters: u_1
 theorem TheoremExamples.edgeSubsetSelf :
   ∀ {V : Type u_1} (G : SimpleGraph V), G.edgeSet ⊆ G.edgeSet
@@ -4006,6 +4102,7 @@ Theorem TheoremExamples.edgeSubsetSelf:
   ∀ {V : Type u_1} (G : SimpleGraph V), the edge set of G ⊆ the edge set of G
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 theorem TheoremExamples.natAddZero :
   ∀ (n : ℕ), n + 0 = n
 -- MEAN OUTPUT:
@@ -4014,8 +4111,8 @@ Theorem TheoremExamples.natAddZero:
     n + 0 = n
 
 -- LEAN INPUT:
-def ordinaryPreconnected : {V : Type u_1} → SimpleGraph V → Prop :=
-  fun {V : Type u_1} (G : SimpleGraph V) => ∀ (u v : V), ∃ (_p : G.Path u v), True
+def ordinaryPreconnected {V : Type*} (G : SimpleGraph V) : Prop :=
+  ∀ u v : V, ∃ _p : G.Path u v, True
 -- MEAN OUTPUT:
 Definition:
   a simple graph G = (V, E) satisfies ordinaryPreconnected if
@@ -4023,6 +4120,7 @@ Definition:
       there is a path in G from u to v.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def zeroLengthLinked : {Vertex : Type u_1} → SimpleGraph Vertex → Prop :=
   fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => ∀ (u v : G.V), ∃ (p : G.Path u v), (↑p : G.Walk u v).length = 0
 -- MEAN OUTPUT:
@@ -4033,6 +4131,7 @@ Definition:
         ((p as G.Walk u v).length = 0).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def edgeless : {V : Type u_1} → SimpleGraph V → Prop :=
   fun {V : Type u_1} (G : SimpleGraph V) =>
     have E := G.edgeSet;
@@ -4043,6 +4142,7 @@ Definition:
     the edge set of G = the set ∅.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def zero : ℕ → Prop :=
   fun (n : ℕ) => n = 0
 -- MEAN OUTPUT:
@@ -4051,6 +4151,7 @@ Definition:
     (n = 0).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def boundsPairSums : ℕ → Prop :=
   fun (n : ℕ) => ∀ (x y : ℕ), x + y ≤ n
 -- MEAN OUTPUT:
@@ -4060,16 +4161,14 @@ Definition:
       x + y ≤ n.
 
 -- LEAN INPUT:
-def inhabitedVertices : {V : Type u_1} → SimpleGraph V → Prop :=
-  fun {V : Type u_1} (_G : SimpleGraph V) => Nonempty V
+def inhabitedVertices {V : Type*} (_G : SimpleGraph V) : Prop := Nonempty V
 -- MEAN OUTPUT:
 Definition:
   a simple graph _G = (V, E) satisfies inhabitedVertices if
     V is a nonempty type.
 
 -- LEAN INPUT:
-def emptyVertices : {V : Type u_1} → SimpleGraph V → Prop :=
-  fun {V : Type u_1} (_G : SimpleGraph V) => IsEmpty V
+def emptyVertices {V : Type*} (_G : SimpleGraph V) : Prop := IsEmpty V
 -- MEAN OUTPUT:
 Definition:
   a simple graph _G = (V, E) satisfies emptyVertices if
@@ -4086,12 +4185,12 @@ IsEmpty T
 T is an empty type
 
 -- LEAN INPUT:
-¬Nonempty T
+¬ Nonempty T
 -- MEAN OUTPUT:
 T is not a nonempty type
 
 -- LEAN INPUT:
-¬IsEmpty T
+¬ IsEmpty T
 -- MEAN OUTPUT:
 T is not an empty type
 
@@ -4127,17 +4226,17 @@ xs = []
 xs is an empty list
 
 -- LEAN INPUT:
-¬xs = []
+¬ xs = []
 -- MEAN OUTPUT:
 xs is a nonempty list
 
 -- LEAN INPUT:
-¬xs ≠ []
+¬ xs ≠ []
 -- MEAN OUTPUT:
 xs is not a nonempty list
 
 -- LEAN INPUT:
-¬¬xs = []
+¬ ¬ xs = []
 -- MEAN OUTPUT:
 xs is not a nonempty list
 
@@ -4167,7 +4266,7 @@ xs = [] ∨ f n ≠ []
 xs is an empty list or (f n) is a nonempty list
 
 -- LEAN INPUT:
-∀ (ys : List A), ys = [] ∨ ys ≠ []
+∀ ys : List A, ys = [] ∨ ys ≠ []
 -- MEAN OUTPUT:
 for every list ys of A elements:
   ys is an empty list or ys is a nonempty list
@@ -4183,13 +4282,13 @@ xs ≠ []
 xs is a nonempty list
 
 -- LEAN INPUT:
-@Ne (ListEmptinessExamples.Sequence Nat) xs (@List.nil Nat)
+xs ≠ []
 -- MEAN OUTPUT:
 @Ne (ListEmptinessExamples.Sequence Nat) xs (@List.nil Nat)
 
 -- LEAN INPUT:
-def smallGraph : {V : Type} → SimpleGraph V → Prop :=
-  fun {V : Type} (G : SimpleGraph V) => ∀ (u v : V), ∃ (_p : G.Path u v), True
+def smallGraph {V : Type} (G : SimpleGraph V) : Prop :=
+  ∀ u v : V, ∃ _p : G.Path u v, True
 -- MEAN OUTPUT:
 Definition:
   smallGraph is
@@ -4198,8 +4297,8 @@ Definition:
         there is a path in G from u to v.
 
 -- LEAN INPUT:
-def compoundGraph : {V : Type (max u v)} → SimpleGraph V → Prop :=
-  fun {V : Type (max u v)} (G : SimpleGraph V) => ∀ (x y : V), ∃ (_p : G.Path x y), True
+def compoundGraph.{u, v} {V : Type (max u v)} (G : SimpleGraph V) : Prop :=
+  ∀ x y : V, ∃ _p : G.Path x y, True
 -- MEAN OUTPUT:
 Definition:
   compoundGraph is
@@ -4208,57 +4307,56 @@ Definition:
         there is a path in G from x to y.
 
 -- LEAN INPUT:
-def truthy : Bool → Prop :=
-  fun (b : Bool) => b = true
+def truthy (b : Bool) : Prop := b = true
 -- MEAN OUTPUT:
 Definition:
   a boolean b satisfies truthy if
     b = true.
 
 -- LEAN INPUT:
-∃ (n : ℕ) (m : ℕ), m = n + 1
+∃ n : Nat, ∃ m : Nat, m = n + 1
 -- MEAN OUTPUT:
 there is a natural number n such that
   there is a natural number m such that
     m = n + 1
 
 -- LEAN INPUT:
-∃ (_n : ℕ), True
+∃ _n : Nat, True
 -- MEAN OUTPUT:
 there is a natural number
 
 -- LEAN INPUT:
-∃ (x : Bool), x = true
+∃ x : Bool, x = true
 -- MEAN OUTPUT:
 there is a boolean x such that
   x = true
 
 -- LEAN INPUT:
-∃ (_x : Bool), True
+∃ _x : Bool, True
 -- MEAN OUTPUT:
 there is a boolean
 
 -- LEAN INPUT:
-∃ (_n : ℕ), False
+∃ _n : Nat, False
 -- MEAN OUTPUT:
 there is a natural number such that
   False
 
 -- LEAN INPUT:
-∃ (p : G.Path u v), (↑p : G.Walk u v).length = 0
+∃ p : G.Path u v, p.val.length = 0
 -- MEAN OUTPUT:
 there is a path p in G from u to v such that
   (p as G.Walk u v).length = 0
 
 -- LEAN INPUT:
-def withAssumption : (n : ℕ) → n > 0 → Prop :=
-  fun (n : ℕ) (h : n > 0) => n ≥ 1 ∧ h = h
+def withAssumption (n : Nat) (h : n > 0) : Prop := n ≥ 1 ∧ h = h
 -- MEAN OUTPUT:
 Definition:
   a natural number n and a proof h that n > 0 satisfy withAssumption if
     n ≥ 1 and h = h.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 -- Universe parameters: u_1
 theorem preconnected_iff_mathlib_preconnected :
   ∀ {V : Type u_1} (G : SimpleGraph V), preconnected G ↔ G.Preconnected
@@ -4268,34 +4366,34 @@ Theorem preconnected_iff_mathlib_preconnected:
   ∀ {V : Type u_1} (G : SimpleGraph V), preconnected G ↔ G.Preconnected
 
 -- LEAN INPUT:
-∀ («a» «graph» : ℕ), ∃ («path» : ℕ), «path» = «a» + «graph»
+∀ («a» : Nat) («graph» : Nat), ∃ «path» : Nat, «path» = «a» + «graph»
 -- MEAN OUTPUT:
 for all natural numbers «a» and «graph»:
   there is a natural number «path» such that
     «path» = «a» + «graph»
 
 -- LEAN INPUT:
-∃ (_n : ℕ) (_n : ℕ), _n = 0
+∃ _n : Nat, ∃ _n : Nat, _n = 0
 -- MEAN OUTPUT:
 there is a natural number such that
   there is a natural number _n_1 such that
     _n_1 = 0
 
 -- LEAN INPUT:
-∀ (n : ℕ) (i : Fin n), (↑i : ℕ) < n
+∀ n : Nat, ∀ i : Fin n, i.val < n
 -- MEAN OUTPUT:
 for every natural number n:
   for every index i in [0, n):
     i as a natural number < n
 
 -- LEAN INPUT:
-∀ (n m : ℕ), n = m → m = n
+∀ n m : Nat, (n = m → m = n)
 -- MEAN OUTPUT:
 for all natural numbers n and m where n = m:
   m = n
 
 -- LEAN INPUT:
-∀ (n m : ℕ), n = m ∧ m = n ∨ n ≠ m
+∀ n m : Nat, (n = m ∧ m = n) ∨ n ≠ m
 -- MEAN OUTPUT:
 for all natural numbers n and m:
   n = m and m = n or n ≠ m
@@ -4306,7 +4404,7 @@ for all natural numbers n and m:
 (P or Q) and R
 
 -- LEAN INPUT:
-P ∨ Q ∧ R
+P ∨ (Q ∧ R)
 -- MEAN OUTPUT:
 P or Q and R
 
@@ -4339,20 +4437,21 @@ P ∧ (Q → R)
 P and (if Q then R)
 
 -- LEAN INPUT:
-(∃ (n : ℕ), n = 0) ∧ P
+(∃ n : Nat, n = 0) ∧ P
 -- MEAN OUTPUT:
 (there is a natural number n such that
   n = 0) and
 P
 
 -- LEAN INPUT:
-P → ∃ (n : ℕ), n = 0 ∧ Q
+P → ∃ n : Nat, n = 0 ∧ Q
 -- MEAN OUTPUT:
 if P then
   there is a natural number n such that
     n = 0 and Q
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def zeroOrPositive : ℕ → Prop :=
   fun (n : ℕ) => n = 0 ∨ (n ≠ 0 → n > 0)
 -- MEAN OUTPUT:
@@ -4361,154 +4460,151 @@ Definition:
     n = 0 or (if n ≠ 0 then (n > 0)).
 
 -- LEAN INPUT:
-def intZero : ℤ → Prop :=
-  fun (x : ℤ) => x = 0
+def intZero (x : Int) : Prop := x = 0
 -- MEAN OUTPUT:
 Definition:
   an integer x satisfies intZero if
     (x = 0).
 
 -- LEAN INPUT:
-∃ (x : ℤ), x = 0
+∃ x : Int, x = 0
 -- MEAN OUTPUT:
 there is an integer x such that
   x = 0
 
 -- LEAN INPUT:
-∃ (_x : ℤ), True
+∃ _x : Int, True
 -- MEAN OUTPUT:
 there is an integer
 
 -- LEAN INPUT:
-def ratZero : ℚ → Prop :=
-  fun (x : ℚ) => x = 0
+def ratZero (x : Rat) : Prop := x = 0
 -- MEAN OUTPUT:
 Definition:
   a rational number x satisfies ratZero if
     (x = 0).
 
 -- LEAN INPUT:
-∃ (x : ℚ), x = 0
+∃ x : Rat, x = 0
 -- MEAN OUTPUT:
 there is a rational number x such that
   x = 0
 
 -- LEAN INPUT:
-∃ (_x : ℚ), True
+∃ _x : Rat, True
 -- MEAN OUTPUT:
 there is a rational number
 
 -- LEAN INPUT:
-def realZero : ℝ → Prop :=
-  fun (x : ℝ) => x = 0
+def realZero (x : Real) : Prop := x = 0
 -- MEAN OUTPUT:
 Definition:
   a real number x satisfies realZero if
     (x = 0).
 
 -- LEAN INPUT:
-∃ (x : ℝ), x = 0
+∃ x : Real, x = 0
 -- MEAN OUTPUT:
 there is a real number x such that
   x = 0
 
 -- LEAN INPUT:
-∃ (_x : ℝ), True
+∃ _x : Real, True
 -- MEAN OUTPUT:
 there is a real number
 
 -- LEAN INPUT:
-def complexZero : ℂ → Prop :=
-  fun (x : ℂ) => x = 0
+def complexZero (x : Complex) : Prop := x = 0
 -- MEAN OUTPUT:
 Definition:
   a complex number x satisfies complexZero if
     (x = 0).
 
 -- LEAN INPUT:
-∃ (x : ℂ), x = 0
+∃ x : Complex, x = 0
 -- MEAN OUTPUT:
 there is a complex number x such that
   x = 0
 
 -- LEAN INPUT:
-∃ (_x : ℂ), True
+∃ _x : Complex, True
 -- MEAN OUTPUT:
 there is a complex number
 
 -- LEAN INPUT:
-∀ (x : ℕ), x = x
+∀ x : Nat, x = x
 -- MEAN OUTPUT:
 for every natural number x:
   x = x
 
 -- LEAN INPUT:
-∀ (x y : ℕ), x = y
+∀ x y : Nat, x = y
 -- MEAN OUTPUT:
 for all natural numbers x and y:
   x = y
 
 -- LEAN INPUT:
-∀ (x : ℤ), x = x
+∀ x : Int, x = x
 -- MEAN OUTPUT:
 for every integer x:
   x = x
 
 -- LEAN INPUT:
-∀ (x y : ℤ), x = y
+∀ x y : Int, x = y
 -- MEAN OUTPUT:
 for all integers x and y:
   x = y
 
 -- LEAN INPUT:
-∀ (x : ℚ), x = x
+∀ x : Rat, x = x
 -- MEAN OUTPUT:
 for every rational number x:
   x = x
 
 -- LEAN INPUT:
-∀ (x y : ℚ), x = y
+∀ x y : Rat, x = y
 -- MEAN OUTPUT:
 for all rational numbers x and y:
   x = y
 
 -- LEAN INPUT:
-∀ (x : ℝ), x = x
+∀ x : Real, x = x
 -- MEAN OUTPUT:
 for every real number x:
   x = x
 
 -- LEAN INPUT:
-∀ (x y : ℝ), x = y
+∀ x y : Real, x = y
 -- MEAN OUTPUT:
 for all real numbers x and y:
   x = y
 
 -- LEAN INPUT:
-∀ (x : ℂ), x = x
+∀ x : Complex, x = x
 -- MEAN OUTPUT:
 for every complex number x:
   x = x
 
 -- LEAN INPUT:
-∀ (x y : ℂ), x = y
+∀ x y : Complex, x = y
 -- MEAN OUTPUT:
 for all complex numbers x and y:
   x = y
 
 -- LEAN INPUT:
-∀ (x : Bool), x = x
+∀ x : Bool, x = x
 -- MEAN OUTPUT:
 for every boolean x:
   x = x
 
 -- LEAN INPUT:
-∀ (x y : Bool), x = y
+∀ x y : Bool, x = y
 -- MEAN OUTPUT:
 for all booleans x and y:
   x = y
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def hasNoSmallerSquare : ℝ → Prop :=
   fun (x : ℝ) => ¬∃ (y : ℝ), y * y < x
 -- MEAN OUTPUT:
@@ -4518,63 +4614,63 @@ Definition:
       y * y < x.
 
 -- LEAN INPUT:
-¬∃ (x : ℝ), x * x < 0
+¬ ∃ x : Real, x * x < 0
 -- MEAN OUTPUT:
 there is no real number x such that
   x * x < 0
 
 -- LEAN INPUT:
-¬∃ (_x : ℤ), True
+¬ ∃ _x : Int, True
 -- MEAN OUTPUT:
 there is no integer
 
 -- LEAN INPUT:
-¬∃ (_x : Empty), True
+¬ ∃ _x : Empty, True
 -- MEAN OUTPUT:
 there is no element of Empty
 
 -- LEAN INPUT:
-∃ (_x : Empty), False
+∃ _x : Empty, False
 -- MEAN OUTPUT:
 there is an element of Empty such that
   False
 
 -- LEAN INPUT:
-¬∃ (_x : ℤ), False
+¬ ∃ _x : Int, False
 -- MEAN OUTPUT:
 there is no integer such that
   False
 
 -- LEAN INPUT:
-¬∃ (x : ℤ), ¬∃ (y : ℤ), x = y
+¬ ∃ x : Int, ¬ ∃ y : Int, x = y
 -- MEAN OUTPUT:
 there is no integer x such that
   there is no integer y such that
     x = y
 
 -- LEAN INPUT:
-(¬∃ (x : T), P x) ∧ Q
+(¬ ∃ x : T, P x) ∧ Q
 -- MEAN OUTPUT:
 (there is no element x of T satisfying P) and Q
 
 -- LEAN INPUT:
-Q ∨ ¬∃ (x : T), P x
+Q ∨ (¬ ∃ x : T, P x)
 -- MEAN OUTPUT:
 Q or there is no element x of T satisfying P
 
 -- LEAN INPUT:
-(¬∃ (x : T), P x) → Q
+(¬ ∃ x : T, P x) → Q
 -- MEAN OUTPUT:
 if there is no element x of T satisfying P then
   Q
 
 -- LEAN INPUT:
-¬∃ (_p : G.Path u v), True
+¬ ∃ _p : G.Path u v, True
 -- MEAN OUTPUT:
 there is no path in G from u to v
 
 -- LEAN INPUT:
-¬∃ (p : G.Path u v), (↑p : G.Walk u v).length = 0
+¬ ∃ p : G.Path u v, p.val.length = 0
 -- MEAN OUTPUT:
 there is no path p in G from u to v such that
   (p as G.Walk u v).length = 0
@@ -4585,7 +4681,7 @@ PredicateExamples.FooPred n
 n satisfies PredicateExamples.FooPred
 
 -- LEAN INPUT:
-¬PredicateExamples.FooPred n
+¬ PredicateExamples.FooPred n
 -- MEAN OUTPUT:
 n does not satisfy PredicateExamples.FooPred
 
@@ -4610,22 +4706,22 @@ p n
 n satisfies p
 
 -- LEAN INPUT:
-¬p n
+¬ p n
 -- MEAN OUTPUT:
 n does not satisfy p
 
 -- LEAN INPUT:
-¬¬p n
+¬ ¬ p n
 -- MEAN OUTPUT:
 ¬¬p n
 
 -- LEAN INPUT:
-p n ∧ ¬p (n + 1)
+p n ∧ ¬ p (n + 1)
 -- MEAN OUTPUT:
 n satisfies p and (n + 1) does not satisfy p
 
 -- LEAN INPUT:
-(p n ↔ ¬p n) → p n
+(p n ↔ ¬ p n) → p n
 -- MEAN OUTPUT:
 if n satisfies p if and only if n does not satisfy p then
   n satisfies p
@@ -4636,12 +4732,12 @@ r (P ∧ Q)
 (P and Q) satisfies r
 
 -- LEAN INPUT:
-¬r (P ↔ Q)
+¬ r (P ↔ Q)
 -- MEAN OUTPUT:
 (P if and only if Q) does not satisfy r
 
 -- LEAN INPUT:
-¬(P ∧ Q)
+¬ (P ∧ Q)
 -- MEAN OUTPUT:
 ¬(P ∧ Q)
 
@@ -4651,7 +4747,7 @@ REPred p
 p is recursively enumerable
 
 -- LEAN INPUT:
-¬REPred p
+¬ REPred p
 -- MEAN OUTPUT:
 p is not recursively enumerable
 
@@ -4661,7 +4757,7 @@ Computable f
 f is computable
 
 -- LEAN INPUT:
-¬Computable f
+¬ Computable f
 -- MEAN OUTPUT:
 f is not computable
 
@@ -4671,42 +4767,42 @@ ComputablePred p
 p is computable
 
 -- LEAN INPUT:
-¬ComputablePred p
+¬ ComputablePred p
 -- MEAN OUTPUT:
 p is not computable
 
 -- LEAN INPUT:
-REPred fun (n : ℕ) => ¬p n
+REPred (fun n : Nat => ¬ p n)
 -- MEAN OUTPUT:
 (the function mapping a natural number n_1 to
   n_1 does not satisfy p) is recursively enumerable
 
 -- LEAN INPUT:
-ComputablePred fun (n : ℕ) => ¬p n
+ComputablePred (fun n : Nat => ¬ p n)
 -- MEAN OUTPUT:
 (the function mapping a natural number n_1 to
   n_1 does not satisfy p) is computable
 
 -- LEAN INPUT:
-Computable fun (n : ℕ) => n + 1
+Computable (fun n : Nat => n + 1)
 -- MEAN OUTPUT:
 (the function mapping a natural number n_1 to
   n_1 + 1) is computable
 
 -- LEAN INPUT:
-Function.Injective fun (n : ℕ) => n + 1
+Function.Injective (fun n : Nat => n + 1)
 -- MEAN OUTPUT:
 (the function mapping a natural number n_1 to
   n_1 + 1) is injective
 
 -- LEAN INPUT:
-¬Function.Injective fun (n : ℕ) => n + 1
+¬ Function.Injective (fun n : Nat => n + 1)
 -- MEAN OUTPUT:
 (the function mapping a natural number n_1 to
   n_1 + 1) is not injective
 
 -- LEAN INPUT:
-¬Finite ℕ
+¬ Finite Nat
 -- MEAN OUTPUT:
 ℕ is not finite
 
@@ -4716,7 +4812,7 @@ p x
 x satisfies p
 
 -- LEAN INPUT:
-¬p x
+¬ p x
 -- MEAN OUTPUT:
 x does not satisfy p
 
@@ -4726,18 +4822,18 @@ PredicateExamples.accepts x
 x satisfies PredicateExamples.accepts
 
 -- LEAN INPUT:
-fun [inst : Inhabited ℕ] =>
-  let first := inst;
-  fun [Inhabited ℕ] => PredicateExamples.classified 7
+fun [Inhabited Nat] =>
+  let first := inferInstanceAs (Inhabited Nat)
+  fun [Inhabited Nat] => @PredicateExamples.classified first 7
 -- MEAN OUTPUT:
 the function mapping an instance inst of typeclass Inhabited Nat to
   the function mapping an instance of typeclass Inhabited Nat to
     (@OfNat.ofNat Nat (nat_lit 7) (instOfNatNat (nat_lit 7))) satisfies (@PredicateExamples.classified inst)
 
 -- LEAN INPUT:
-fun [inst : Primcodable ℕ] =>
-  let first := inst;
-  fun [Primcodable ℕ] (p : ℕ → Prop) => ¬REPred p
+fun [Primcodable Nat] =>
+  let first := inferInstanceAs (Primcodable Nat)
+  fun [Primcodable Nat] (p : Nat → Prop) => ¬ @REPred Nat first p
 -- MEAN OUTPUT:
 the function mapping an instance inst of typeclass Primcodable Nat to
   the function mapping an instance of typeclass Primcodable Nat and a function p from Nat to Prop to
@@ -4785,12 +4881,13 @@ if T is finite then
   T is countable
 
 -- LEAN INPUT:
-Function.Injective fun (x : ℕ) => x + 1
+Function.Injective (fun x : Nat => x + 1)
 -- MEAN OUTPUT:
 (the function mapping a natural number x to
   x + 1) is injective
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 def oneToOne : (ℕ → ℕ) → Prop :=
   fun (f : ℕ → ℕ) => Function.Injective f
 -- MEAN OUTPUT:
@@ -4844,7 +4941,7 @@ G.neighborSet u ∩ H.neighborSet v
 (the set of neighbors of u in G) ∩ (the set of neighbors of v in H)
 
 -- LEAN INPUT:
-G.edgeSet.Nonempty
+Set.Nonempty G.edgeSet
 -- MEAN OUTPUT:
 the edge set of G satisfies Set.Nonempty
 
@@ -4864,6 +4961,7 @@ G.edgeSet = ∅ ∧ H.edgeSet = ∅
 the edge set of G = the set ∅ and the edge set of H = the set ∅
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 -- Universe parameters: u
 inductive Tree (α : Type u) : Type u where
   | leaf : α → Tree α
@@ -4877,6 +4975,7 @@ with constructors:
   branch from two elements of Tree α.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 -- Universe parameters: u
 inductive Vector (α : Type u) : ℕ → Type u where
   | nil : Vector α 0
@@ -4891,12 +4990,14 @@ with constructors:
   cons from an implicit natural number n and an element of α and an element of Vector α n to Vector α (n + 1).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 inductive Empty : Type where
 -- MEAN OUTPUT:
 Inductive type Empty
 with constructors: .
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 inductive «a» : Type where
   | «is» : «a»
 -- MEAN OUTPUT:
@@ -4905,6 +5006,7 @@ with constructors:
   «is».
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 inductive Term (n : ℕ) : Type where
   | const : ℤ → Term n
   | var : Fin n → Term n
@@ -4919,6 +5021,7 @@ with constructors:
   mul from two elements of Term n.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 inductive Color : Type where
   | red : Color
   | green : Color
@@ -4931,6 +5034,7 @@ with constructors:
   blue.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 inductive Vector (A : Type) : ℕ → Type where
   | nil : Vector A 0
   | cons : {n : ℕ} → A → Vector A n → Vector A (n + 1)
@@ -4942,6 +5046,7 @@ with constructors:
   cons from an implicit natural number n and an element x of A and an element xs of Vector A n to Vector A (n + 1).
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 -- Universe parameters: u
 inductive Tree (A : Type u) : Type u where
   | leaf : A → Tree A
@@ -4955,12 +5060,14 @@ with constructors:
   branch from two elements of Tree A.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 inductive Empty : Type where
 -- MEAN OUTPUT:
 Inductive type Empty
 with constructors: .
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 inductive Hidden {A : Type} : Type where
   | wrap : A → Hidden
 -- MEAN OUTPUT:
@@ -4969,9 +5076,91 @@ with constructors:
   wrap from an element value of A.
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
 inductive WithInstance (A : Type) [inst : Inhabited A] : Type where
   | choose : WithInstance A
 -- MEAN OUTPUT:
 Inductive type WithInstance parameterized by a type A and an instance inst of typeclass Inhabited A
 with constructors:
   choose.
+
+-- LEAN INPUT:
+def nativeTwice : Nat → Nat
+  | 0 => 0
+  | n+1 => nativeTwice n + 2
+-- MEAN OUTPUT:
+Definition:
+  nativeTwice maps a natural number t
+    to a natural number
+    by cases on t:
+      zero gives 0;
+      succ n gives (nativeTwice n + 2).
+
+-- LEAN INPUT:
+def nativeFlip (b : Bool) : Bool :=
+  match b with
+  | false => true
+  | true => false
+-- MEAN OUTPUT:
+Definition:
+  nativeFlip maps a boolean b
+    to a boolean
+    by cases on b:
+      false gives true;
+      true gives false.
+
+-- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
+def twice (n : ℕ) : ℕ :=
+  match n with
+    | .zero => 0
+    | .succ k => twice k + 2
+-- MEAN OUTPUT:
+Definition:
+  twice maps a natural number n
+    to a natural number
+    by cases on n:
+      zero gives 0;
+      succ k gives (twice k + 2).
+
+-- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
+def flip (b : Bool) : Bool :=
+  match b with
+    | .false => true
+    | .true => false
+-- MEAN OUTPUT:
+Definition:
+  flip maps a boolean b
+    to a boolean
+    by cases on b:
+      false gives true;
+      true gives false.
+
+-- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
+abbrev bitValue (b : Bool) : ℕ :=
+  match b with
+    | .false => 0
+    | .true => 1
+-- MEAN OUTPUT:
+Abbreviation:
+  bitValue maps a boolean b
+    to a natural number
+    by cases on b:
+      false gives 0;
+      true gives (1).
+
+-- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
+def choosePair (b : Bool) : ℕ × ℕ :=
+  match b with
+    | .false => (0, 0)
+    | .true => (1, 1)
+-- MEAN OUTPUT:
+Definition:
+  choosePair maps a boolean b
+    to an element of (ℕ × ℕ)
+    by cases on b:
+      false gives (0, 0);
+      true gives (1, 1).

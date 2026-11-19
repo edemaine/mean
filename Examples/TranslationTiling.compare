@@ -1,5 +1,5 @@
 -- Automatically generated from Examples/TranslationTiling.lean by python test.py --update.
--- Each comparison shows elaborated Lean input followed by its checked Mean output.
+-- Each comparison shows Lean source (or a labelled reconstruction) followed by checked Mean output.
 -- Upstream source: [TranslationTiling/Abstract.lean](https://github.com/edemaine/translation-tiling-paper/blob/79b39abcd4f6bd070610657d1c2ef187b3e2bd1a/lean/TranslationTiling/Abstract.lean)
 -- Upstream license: no project-wide license is declared in the pinned TranslationTiling repository.
 -- Upstream source: [LeanWang/Abstract.lean](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LeanWang/Abstract.lean)
@@ -7,9 +7,10 @@
 -- Upstream license: the imported Wang example and adapted hardness interface retain [Apache 2.0](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE) in Wang.LICENSE.
 
 -- LEAN INPUT:
-def CoREHard : {α : Type u_1} → [Primcodable α] → (α → Prop) → Prop :=
-  fun {α : Type u_1} [Primcodable α] (p : α → Prop) =>
-    ∀ (q : ℕ → Prop), CoRE q → ∃ (r : ℕ → α), Computable r ∧ ∀ (n : ℕ), q n ↔ p (r n)
+/-- Every co-RE predicate on natural numbers computably many-one reduces to p. -/
+def CoREHard {α : Type*} [Primcodable α] (p : α → Prop) : Prop :=
+  ∀ q : ℕ → Prop, CoRE q →
+    ∃ r : ℕ → α, Computable r ∧ ∀ n, q n ↔ p (r n)
 -- MEAN OUTPUT:
 Definition:
   CoREHard is
@@ -21,8 +22,8 @@ Definition:
             n satisfies q if and only if (r n) satisfies p.
 
 -- LEAN INPUT:
-abbrev Point : ℕ → Type :=
-  fun (d : ℕ) => Fin d → ℤ
+/-- A point of `ℤ^d`. -/
+abbrev Point (d : ℕ) := Fin d → ℤ
 -- MEAN OUTPUT:
 Abbreviation:
   Point is
@@ -30,8 +31,9 @@ Abbreviation:
       the type of functions from indices in [0, d) to ℤ.
 
 -- LEAN INPUT:
-abbrev Prototile : ℕ → Type :=
-  fun (d : ℕ) => List (Point d)
+/-- A prototile: a finite set of points of `ℤ^d`, given as a list for
+algorithmic processing. Duplicates do not change connectivity or tilability. -/
+abbrev Prototile (d : ℕ) := List (Point d)
 -- MEAN OUTPUT:
 Abbreviation:
   Prototile is
@@ -39,8 +41,9 @@ Abbreviation:
       the type of lists of (Point d) elements.
 
 -- LEAN INPUT:
-def Adjacent : {d : ℕ} → Point d → Point d → Prop :=
-  fun {d : ℕ} (p q : Point d) => ∑ i : Fin d, |p i - q i| = 1
+/-- Two points are adjacent when their `ℓ¹` distance is one. -/
+def Adjacent {d : ℕ} (p q : Point d) : Prop :=
+  ∑ i, |p i - q i| = 1
 -- MEAN OUTPUT:
 Definition:
   Adjacent is
@@ -48,9 +51,10 @@ Definition:
       the sum over indices i in [0, d) of |p i - q i| = 1).
 
 -- LEAN INPUT:
-def Connected : {d : ℕ} → Prototile d → Prop :=
-  fun {d : ℕ} (P : Prototile d) =>
-    ∀ x ∈ P, ∀ y ∈ P, Relation.ReflTransGen (fun (p q : Point d) => p ∈ P ∧ q ∈ P ∧ Adjacent p q) x y
+/-- `P` is (facet-)connected: any two of its points are joined by a path of
+adjacent points inside `P`. -/
+def Connected {d : ℕ} (P : Prototile d) : Prop :=
+  ∀ x ∈ P, ∀ y ∈ P, Relation.ReflTransGen (fun p q => p ∈ P ∧ q ∈ P ∧ Adjacent p q) x y
 -- MEAN OUTPUT:
 Definition:
   Connected is
@@ -62,8 +66,11 @@ Definition:
                 p ∈ P and q ∈ P and (p and q satisfy Adjacent)).
 
 -- LEAN INPUT:
-def Tiles : {d : ℕ} → Prototile d → Prop :=
-  fun {d : ℕ} (P : Prototile d) => ∃ (T : Set (Point d)), ∀ (x : Point d), ∃! t : Point d, t ∈ T ∧ x - t ∈ P
+/-- `P` tiles `ℤ^d`: for some set `T` of translations, every point `x` lies in
+exactly one translate `t + P` with `t ∈ T`, i.e., for exactly one `t ∈ T`
+we have `x - t ∈ P`. -/
+def Tiles {d : ℕ} (P : Prototile d) : Prop :=
+  ∃ T : Set (Point d), ∀ x : Point d, ∃! t ∈ T, x - t ∈ P
 -- MEAN OUTPUT:
 Definition:
   Tiles is
@@ -74,8 +81,11 @@ Definition:
             x - t ∈ P.
 
 -- LEAN INPUT:
-theorem tiling_coRE_complete :
-  ∀ (d : ℕ), 3 ≤ d → LeanWang.Abstract.CoREComplete fun (P : Prototile d) => Connected P ∧ Tiles P
+/-- **Main theorem.** For each fixed `d ≥ 3`, deciding whether a connected
+prototile in `ℤ^d` tiles space is co-RE-complete: the non-tilers are recursively
+enumerable, and every co-RE problem many-one reduces (computably) to it. -/
+theorem tiling_coRE_complete (d : ℕ) (hd : 3 ≤ d) :
+  LeanWang.Abstract.CoREComplete fun P : Prototile d => Connected P ∧ Tiles P := sorry
 -- MEAN OUTPUT:
 Theorem tiling_coRE_complete:
   for every natural number d where 3 ≤ d:
@@ -83,8 +93,11 @@ Theorem tiling_coRE_complete:
       P satisfies Connected and P satisfies Tiles) satisfies LeanWang.Abstract.CoREComplete
 
 -- LEAN INPUT:
-theorem tiling_undecidable :
-  ∀ (d : ℕ), 3 ≤ d → ¬ComputablePred fun (P : Prototile d) => Connected P ∧ Tiles P
+/-- **Corollary.** For each fixed `d ≥ 3`, no algorithm decides whether a
+connected prototile in `ℤ^d` tiles space.
+(Relies only on Mathlib's computable predicate, no LeanWang.) -/
+theorem tiling_undecidable (d : ℕ) (hd : 3 ≤ d) :
+  ¬ ComputablePred fun P : Prototile d => Connected P ∧ Tiles P := sorry
 -- MEAN OUTPUT:
 Theorem tiling_undecidable:
   for every natural number d where 3 ≤ d:
@@ -92,17 +105,15 @@ Theorem tiling_undecidable:
       P satisfies Connected and P satisfies Tiles) is not computable
 
 -- LEAN INPUT:
-theorem tiling_reduction :
-  ∀ (d : ℕ),
-    3 ≤ d →
-      ∃ (f : List LeanWang.Abstract.Tile → Prototile d),
-        Computable f ∧
-          ∀ (T : List LeanWang.Abstract.Tile),
-            f T ≠ [] ∧
-              Connected (f T) ∧
-                (LeanWang.Abstract.TilesPlane T ↔ Tiles (f T)) ∧
-                  (↑(List.length (f T)) : ℝ) ≤
-                    ((↑T.length : ℝ) + 4) ^ (10 ^ 61 * Real.logb 2 (Real.logb 2 ((↑T.length : ℝ) + 4)))
+/-- **Theorem.** For each fixed `d ≥ 3`, a computable reduction maps Wang tiling
+to translational tiling by a nonempty connected polycube with the stated cube
+bound.  List lengths count the input tiles and output cubes; `Real.logb 2` is
+the base-two logarithm. Thus the bound is `(n + 4)^(10^61 * lg lg (n + 4))`. -/
+theorem tiling_reduction (d : ℕ) (hd : 3 ≤ d) :
+  ∃ f : (List LeanWang.Abstract.Tile) → Prototile d, Computable f ∧
+    ∀ T, f T ≠ [] ∧ Connected (f T) ∧ (LeanWang.Abstract.TilesPlane T ↔ Tiles (f T)) ∧
+      ((f T).length : ℝ) ≤ ((T.length : ℝ) + 4) ^
+        (10 ^ 61 * Real.logb 2 (Real.logb 2 ((T.length : ℝ) + 4))) := sorry
 -- MEAN OUTPUT:
 Theorem tiling_reduction:
   for every natural number d where 3 ≤ d:
@@ -117,8 +128,9 @@ Theorem tiling_reduction:
             (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4)))
 
 -- LEAN INPUT:
-abbrev RealPoint : ℕ → Type :=
-  fun (d : ℕ) => EuclideanSpace ℝ (Fin d)
+/-- A point of Euclidean `ℝ^d`: `d` real coordinates with the usual Euclidean
+norm. A coordinate is written `x i` for `i : Fin d`, like our `Point` above. -/
+abbrev RealPoint (d : ℕ) := EuclideanSpace ℝ (Fin d)
 -- MEAN OUTPUT:
 Abbreviation:
   RealPoint is
@@ -126,12 +138,9 @@ Abbreviation:
       the real Euclidean space of dimension d.
 
 -- LEAN INPUT:
-def Solid : {d : ℕ} → Prototile d → Set (RealPoint d) :=
-  fun {d : ℕ} (P : Prototile d) =>
-    {x : RealPoint d |
-      ∃ p ∈ P,
-        ∀ (i : Fin d),
-          (↑(p i) : (fun (x : Fin d) => ℝ) i) ≤ x.ofLp i ∧ x.ofLp i ≤ (↑(p i) : (fun (x : Fin d) => ℝ) i) + 1}
+/-- The solid body of a prototile: the union of the unit cubes `p + [0, 1]^d`, `p ∈ P`. -/
+def Solid {d : ℕ} (P : Prototile d) : Set (RealPoint d) :=
+  {x | ∃ p ∈ P, ∀ i, p i ≤ x i ∧ x i ≤ p i + 1}
 -- MEAN OUTPUT:
 Definition:
   Solid is
@@ -142,8 +151,12 @@ Definition:
             p i as a real number ≤ x i and x i ≤ p i as a real number + 1).
 
 -- LEAN INPUT:
-abbrev Motion : ℕ → Type :=
-  fun (d : ℕ) => RealPoint d ≃ᵃⁱ[ℝ] RealPoint d
+/-- A Euclidean motion: an affine isometry of `ℝ^d`, including arbitrary real
+rotations and translations and optionally a reflection. The notation
+`RealPoint d ≃ᵃⁱ[ℝ] RealPoint d` means Mathlib's `AffineIsometryEquiv` over the
+scalar field `ℝ`: `≃` denotes a bijection, `ᵃ` means affine, and `ⁱ` means
+isometric (distance-preserving). -/
+abbrev Motion (d : ℕ) := RealPoint d ≃ᵃⁱ[ℝ] RealPoint d
 -- MEAN OUTPUT:
 Abbreviation:
   Motion is
@@ -151,8 +164,9 @@ Abbreviation:
       the type of bijective affine isometries from (RealPoint d) to (RealPoint d) over ℝ.
 
 -- LEAN INPUT:
-def allMotions : {d : ℕ} → Set (Motion d) :=
-  fun {d : ℕ} => Set.univ
+/-- All Euclidean motions, allowing translations, rotations, and reflections.
+`Set.univ` gives the whole set of Euclidean motions. -/
+def allMotions {d : ℕ} : Set (Motion d) := Set.univ
 -- MEAN OUTPUT:
 Definition:
   allMotions is
@@ -160,8 +174,10 @@ Definition:
       the set of all elements of (Motion d).
 
 -- LEAN INPUT:
-def translations : {d : ℕ} → Set (Motion d) :=
-  fun {d : ℕ} => {f : Motion d | f.linear = 1}
+/-- Translations: the Euclidean motions whose linear part is the identity.
+`f.linear` extracts the invertible linear part, ignoring the translation;
+`1` denotes the identity linear map. -/
+def translations {d : ℕ} : Set (Motion d) := {f | f.linear = 1}
 -- MEAN OUTPUT:
 Definition:
   translations is
@@ -170,8 +186,9 @@ Definition:
         the linear part of f = 1).
 
 -- LEAN INPUT:
-def translationsAndRotations : {d : ℕ} → Set (Motion d) :=
-  fun {d : ℕ} => {f : Motion d | (LinearEquiv.det : (RealPoint d ≃ₗ[ℝ] RealPoint d) → ℝˣ) f.linear = 1}
+/-- Translations and arbitrary real rotations: the linear part has determinant
+`1`. `f.linear.det` computes the determinant of the invertible linear part. -/
+def translationsAndRotations {d : ℕ} : Set (Motion d) := {f | f.linear.det = 1}
 -- MEAN OUTPUT:
 Definition:
   translationsAndRotations is
@@ -180,11 +197,16 @@ Definition:
         the determinant of (the linear part of f) = 1).
 
 -- LEAN INPUT:
-def translationsAndReflections : {d : ℕ} → Set (Motion d) :=
-  fun {d : ℕ} =>
-    {f : Motion d |
-      ∃ t ∈ translations,
-        ∃ (p : RealPoint d) (q : RealPoint d), f = t * EuclideanGeometry.reflection (AffineSubspace.perpBisector p q)}
+/-- Translations optionally composed with reflection through a hyperplane.
+Mathlib's `AffineSubspace.perpBisector p q` is the set of points equidistant
+from `p` and `q`; for distinct points, this is their perpendicular-bisector
+hyperplane. `EuclideanGeometry.reflection` reflects in that affine subspace,
+returning a Euclidean motion. Multiplication `t * r` applies `r` then `t`.
+For `p = q`, the bisector is the whole space and its reflection is the identity,
+so translations alone are included too. -/
+def translationsAndReflections {d : ℕ} : Set (Motion d) :=
+  {f | ∃ t ∈ translations, ∃ p q : RealPoint d,
+    f = t * EuclideanGeometry.reflection (AffineSubspace.perpBisector p q)}
 -- MEAN OUTPUT:
 Definition:
   translationsAndReflections is
@@ -196,9 +218,14 @@ Definition:
               f = t * the reflection across (the perpendicular bisector of p and q).
 
 -- LEAN INPUT:
-def RealTiles : {d : ℕ} → Prototile d → Set (Motion d) → Prop :=
-  fun {d : ℕ} (P : Prototile d) (motions : Set (Motion d)) =>
-    ∃ T ⊆ motions, ∀ᵐ (x : RealPoint d), ∃! f : Motion d, f ∈ T ∧ x ∈ (⇑f : RealPoint d → RealPoint d) '' Solid P
+/-- The solid body of `P` tiles `ℝ^d` using motions from the given set, with
+almost-everywhere unique coverage. `T ⊆ motions` requires every placed copy
+to use a permitted motion; `∃! f ∈ T` means exactly one motion in `T` covers `x`.
+The image notation `f '' Solid P` means `{f x | x ∈ Solid P}`,
+the solid after applying `f`. -/
+def RealTiles {d : ℕ} (P : Prototile d) (motions : Set (Motion d)) : Prop :=
+  ∃ T ⊆ motions, ∀ᵐ x ∂MeasureTheory.volume,
+    ∃! f ∈ T, x ∈ f '' Solid P
 -- MEAN OUTPUT:
 Definition:
   RealTiles is
@@ -209,11 +236,12 @@ Definition:
             x ∈ the image of (Solid P) under f.
 
 -- LEAN INPUT:
-theorem real_tiling_coRE_hard :
-  ∀ (d : ℕ),
-    3 ≤ d →
-      ∀ (motions : Set (Motion d)),
-        translations ⊆ motions → LeanWang.Abstract.CoREHard fun (P : Prototile d) => Connected P ∧ RealTiles P motions
+/-- **Theorem.** For each fixed `d ≥ 3`, it is co-RE-hard to decide whether
+a connected prototile tiles `ℝ^d` for any set of Euclidean motions
+containing all translations. -/
+theorem real_tiling_coRE_hard (d : ℕ) (hd : 3 ≤ d)
+  (motions : Set (Motion d)) (hm : translations ⊆ motions) :
+    LeanWang.Abstract.CoREHard fun P : Prototile d => Connected P ∧ RealTiles P motions := sorry
 -- MEAN OUTPUT:
 Theorem real_tiling_coRE_hard:
   for every natural number d where 3 ≤ d:
@@ -222,11 +250,12 @@ Theorem real_tiling_coRE_hard:
         P satisfies Connected and (P and motions satisfy RealTiles)) satisfies LeanWang.Abstract.CoREHard
 
 -- LEAN INPUT:
-theorem real_tiling_undecidable :
-  ∀ (d : ℕ),
-    3 ≤ d →
-      ∀ (motions : Set (Motion d)),
-        translations ⊆ motions → ¬ComputablePred fun (P : Prototile d) => Connected P ∧ RealTiles P motions
+/-- **Corollary.** For each fixed `d ≥ 3`, no algorithm decides tilability of
+a connected prototile in `ℝ^d` for any set of Euclidean motions
+containing all translations. -/
+theorem real_tiling_undecidable (d : ℕ) (hd : 3 ≤ d)
+  (motions : Set (Motion d)) (hm : translations ⊆ motions) :
+    ¬ ComputablePred fun P : Prototile d => Connected P ∧ RealTiles P motions := sorry
 -- MEAN OUTPUT:
 Theorem real_tiling_undecidable:
   for every natural number d where 3 ≤ d:
@@ -235,11 +264,14 @@ Theorem real_tiling_undecidable:
         P satisfies Connected and (P and motions satisfy RealTiles)) is not computable
 
 -- LEAN INPUT:
-theorem real_tiling_coRE_complete :
-  ∀ (d : ℕ),
-    3 ≤ d →
-      ∀ motions ∈ {allMotions, translations, translationsAndRotations, translationsAndReflections},
-        LeanWang.Abstract.CoREComplete fun (P : Prototile d) => Connected P ∧ RealTiles P motions
+/-- **Theorem.** For each fixed `d ≥ 3`, the tiling problem is co-RE-complete
+for translations, and optionally rotations and optionally reflections,
+of a single connected prototile. -/
+theorem real_tiling_coRE_complete (d : ℕ) (hd : 3 ≤ d)
+  (motions : Set (Motion d))
+  (hm : motions ∈ ({allMotions, translations, translationsAndRotations,
+                    translationsAndReflections} : Set _)) :
+    LeanWang.Abstract.CoREComplete fun P : Prototile d => Connected P ∧ RealTiles P motions := sorry
 -- MEAN OUTPUT:
 Theorem real_tiling_coRE_complete:
   for every natural number d where 3 ≤ d:
@@ -248,18 +280,18 @@ Theorem real_tiling_coRE_complete:
         P satisfies Connected and (P and motions satisfy RealTiles)) satisfies LeanWang.Abstract.CoREComplete
 
 -- LEAN INPUT:
-theorem real_tiling_reduction :
-  ∀ (d : ℕ),
-    3 ≤ d →
-      ∃ (f : List LeanWang.Abstract.Tile → Prototile d),
-        Computable f ∧
-          ∀ (T : List LeanWang.Abstract.Tile),
-            f T ≠ [] ∧
-              Connected (f T) ∧
-                (LeanWang.Abstract.TilesPlane T ↔ Tiles (f T)) ∧
-                  (Tiles (f T) ↔ RealTiles (f T) translations) ∧
-                    (↑(List.length (f T)) : ℝ) ≤
-                      ((↑T.length : ℝ) + 4) ^ (10 ^ 61 * Real.logb 2 (Real.logb 2 ((↑T.length : ℝ) + 4)))
+/-- **Theorem.** For each fixed `d ≥ 3`, a computable reduction with the same
+cube bound as the ℤ^d case (tiling_reduction) works for arbitrary real
+translations of the output polycube. The same output tiles `ℤ^d` exactly when
+the solid tiles `ℝ^d` by translations. For `n` input Wang tiles, the cube bound
+is `(n + 4)^(10^61 * lg lg (n + 4))`. -/
+theorem real_tiling_reduction (d : ℕ) (hd : 3 ≤ d) :
+  ∃ f : (List LeanWang.Abstract.Tile) → Prototile d, Computable f ∧
+    ∀ T, f T ≠ [] ∧ Connected (f T) ∧
+      (LeanWang.Abstract.TilesPlane T ↔ Tiles (f T)) ∧
+      (Tiles (f T) ↔ RealTiles (f T) translations) ∧
+      ((f T).length : ℝ) ≤ ((T.length : ℝ) + 4) ^
+        (10 ^ 61 * Real.logb 2 (Real.logb 2 ((T.length : ℝ) + 4))) := sorry
 -- MEAN OUTPUT:
 Theorem real_tiling_reduction:
   for every natural number d where 3 ≤ d:
@@ -275,19 +307,18 @@ Theorem real_tiling_reduction:
             (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4)))
 
 -- LEAN INPUT:
-theorem rigid_tiling_reduction :
-  ∀ (d : ℕ),
-    3 ≤ d →
-      ∃ (f : List LeanWang.Abstract.Tile → Prototile d),
-        Computable f ∧
-          ∀ (T : List LeanWang.Abstract.Tile),
-            f T ≠ [] ∧
-              Connected (f T) ∧
-                (LeanWang.Abstract.TilesPlane T ↔ Tiles (f T)) ∧
-                  (∀ (motions : Set (Motion d)), translations ⊆ motions → (Tiles (f T) ↔ RealTiles (f T) motions)) ∧
-                    (↑(List.length (f T)) : ℝ) ≤
-                      2 ^ (10 * (d + 1) ^ 2) *
-                        ((↑T.length : ℝ) + 4) ^ (10 ^ 61 * Real.logb 2 (Real.logb 2 ((↑T.length : ℝ) + 4)))
+/-- **Theorem.** For each fixed `d ≥ 3`, a computable reduction from Wang tiling
+produces a nonempty connected polycube with equivalent tilability under lattice
+translations and any set of Euclidean motions containing all translations.
+Its cube bound is `2^(10 * (d + 1)^2) * (n + 4)^(10^61 * lg lg (n + 4))`. -/
+theorem rigid_tiling_reduction (d : ℕ) (hd : 3 ≤ d) :
+  ∃ f : (List LeanWang.Abstract.Tile) → Prototile d, Computable f ∧
+    ∀ T, f T ≠ [] ∧ Connected (f T) ∧
+      (LeanWang.Abstract.TilesPlane T ↔ Tiles (f T)) ∧
+      (∀ motions : Set (Motion d), translations ⊆ motions →
+        (Tiles (f T) ↔ RealTiles (f T) motions)) ∧
+      ((f T).length : ℝ) ≤ (2 : ℝ) ^ (10 * (d + 1) ^ 2) * (((T.length : ℝ) + 4) ^
+        (10 ^ 61 * Real.logb 2 (Real.logb 2 ((T.length : ℝ) + 4)))) := sorry
 -- MEAN OUTPUT:
 Theorem rigid_tiling_reduction:
   for every natural number d where 3 ≤ d:
@@ -305,16 +336,16 @@ Theorem rigid_tiling_reduction:
               (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4)))
 
 -- LEAN INPUT:
+/-- **Corollary.** In 3D, the same equivalences hold with the sharper
+cube bound `64000 * (n + 4)^(10^61 * lg lg (n + 4))`. -/
 theorem rigid_tiling_reduction_three :
-  ∃ (f : List LeanWang.Abstract.Tile → Prototile 3),
-    Computable f ∧
-      ∀ (T : List LeanWang.Abstract.Tile),
-        f T ≠ [] ∧
-          Connected (f T) ∧
-            (LeanWang.Abstract.TilesPlane T ↔ Tiles (f T)) ∧
-              (∀ (motions : Set (Motion 3)), translations ⊆ motions → (Tiles (f T) ↔ RealTiles (f T) motions)) ∧
-                (↑(List.length (f T)) : ℝ) ≤
-                  64000 * ((↑T.length : ℝ) + 4) ^ (10 ^ 61 * Real.logb 2 (Real.logb 2 ((↑T.length : ℝ) + 4)))
+  ∃ f : (List LeanWang.Abstract.Tile) → Prototile 3, Computable f ∧
+    ∀ T, f T ≠ [] ∧ Connected (f T) ∧
+      (LeanWang.Abstract.TilesPlane T ↔ Tiles (f T)) ∧
+      (∀ motions : Set (Motion 3), translations ⊆ motions →
+        (Tiles (f T) ↔ RealTiles (f T) motions)) ∧
+      ((f T).length : ℝ) ≤ 64000 * (((T.length : ℝ) + 4) ^
+        (10 ^ 61 * Real.logb 2 (Real.logb 2 ((T.length : ℝ) + 4)))) := sorry
 -- MEAN OUTPUT:
 Theorem rigid_tiling_reduction_three:
   there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile 3 such that

@@ -617,14 +617,18 @@ there is a natural number n such that
 | `#mean_term_compare expression` | Ordinary Lean and Mean for an expression |
 | `#print name` | Lean's own display of the definition |
 
-The comparison's before view prints the elaborated expression, not the original
-source spelling. Rendering commands display text without adding declarations.
+The comparison's input view preserves the original expression or declaration
+source from the active module, including its notation, formatting, and comments.
+Imported declarations whose source is unavailable in the active module use an
+explicitly labelled reconstruction. Line endings are normalized for snapshots.
+Rendering commands display text without adding declarations.
 The Lean input view preserves `abbrev` for abbreviations; the Mean output uses
 `Abbreviation:`. Both the defined value and this declaration kind are checked.
 Declaration headings omit the current namespace: inside `TranslationTiling.Abstract`,
 `Point` renders as `Point`. Nested names retain their relative path, and declarations
 outside the current namespace retain their qualification, even when their namespace
-is open. Both sides of a declaration comparison use this heading convention.
+is open. Reconstructed input headings use the same convention; original source
+keeps its original spelling.
 
 Output is checked in its original namespace, import, variable, and universe
 context; it is not a standalone export file.
@@ -738,6 +742,31 @@ The November 12 update prompted these general rendering improvements:
    and `Motion` use `the function mapping …` with a type description as the
    result. In particular, `Point d` describes the type of functions from indices
    in `[0, d)` to integers, preserving the explicit dimension parameter.
+
+## Definitions by cases
+
+Simple constructor-pattern functions can be written and rendered by cases:
+
+```lean
+Definition:
+  twice maps a natural number n to a natural number
+  by cases on n:
+    zero gives 0;
+    succ k gives (twice k + 2).
+```
+
+The inputs after `maps` reuse function-subject binding syntax. The noun phrase
+after `to` specifies the result type. Patterns bind the constructor's fields.
+Semicolons separate cases and a period ends the definition. `Abbreviation:` is
+also supported. The renderer recovers flat, exhaustive constructor cases on
+the last function argument from Lean's equation theorems, including structural
+recursion. It tries dot notation and leaves casts implicit when Lean can infer
+them. The audit checks the printed definition's type, value, public argument
+names, and declaration metadata. Unsupported patterns retain the ordinary
+checked rendering.
+
+For example, Canny's `Term.eval` and `Formula.solutionSet` expose their defining
+cases instead of Lean's generated `brecOn` recursors and helper definitions.
 
 ## Inductive types
 

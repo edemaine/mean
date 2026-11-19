@@ -68,6 +68,7 @@ private structure DeclarationView where
   value : Term
   abbreviation : Bool
   graphSubject : Bool := false
+  caseDefinition : Bool := false
   rename : Ident → TermElabM (TSyntax `command)
 
 private def isGraphSubject (subject : TSyntax `meanSubject) : Bool :=
@@ -78,6 +79,42 @@ private def isGraphSubject (subject : TSyntax `meanSubject) : Bool :=
 
 private def declarationView (stx : Syntax) : TermElabM DeclarationView := do
   match stx with
+  | `(command| Definition: $decl:ident maps $first:meanSubject $[and $rest:meanSubject]*
+      to $result:meanWitness by cases on $discriminant:term : $clauses:meanFunctionCase;* .)
+  | `(command| Abbreviation: $decl:ident maps $first:meanSubject $[and $rest:meanSubject]*
+      to $result:meanWitness by cases on $discriminant:term : $clauses:meanFunctionCase;* .) =>
+    let abbreviation := stx[0].getAtomVal == "Abbreviation"
+    return {
+      value := (← `(caseValue% $first $[and $rest]* to $result
+        by cases on $discriminant:term : $clauses:meanFunctionCase;*))
+      abbreviation
+      caseDefinition := true
+      rename := fun name => do
+        let ns ← getCurrNamespace
+        let full := if (`_root_).isPrefixOf decl.getId then
+          decl.getId.replacePrefix `_root_ .anonymous
+        else ns ++ decl.getId
+        let method := decl.getId.getString!
+        let freshMethod := name.getId.getString!
+        let self := mkIdent (name.getId.replacePrefix `_root_ .anonymous)
+        -- Lean resolves recursive field notation in the temporary method's namespace.
+        let renamed := stx.rewriteBottomUp fun node =>
+          if node.isIdent then
+            let id := node.getId
+            if id == decl.getId || id == full || id == (`_root_ ++ full) then self.raw
+            else if let .str receiver field := id then
+              if !receiver.isAnonymous && field == method then
+                (mkIdentFrom node (.str receiver freshMethod)).raw
+              else node
+            else node
+          else if node.isOfKind ``Parser.Term.proj && node[2].isIdent &&
+              node[2].getId == Name.mkSimple method then
+            node.setArg 2 (mkIdentFrom node[2] (.mkSimple freshMethod)).raw
+          else node
+        -- The declaration may be root-qualified, but Lean resolves recursive
+        -- applications as local references without the `_root_` prefix.
+        return ⟨renamed.setArg 2 name.raw⟩
+    }
   | `(command| Definition: a $_:ident is $description:meanWitness .) =>
     return {
       value := (← `(anonymousType% $description))
@@ -231,12 +268,20 @@ def checkDefinition (originalName : Name) (text : String) : TermElabM Unit :=
     let .defnInfo original ← getConstInfo originalName
       | throwError "Mean declaration checker expects a definition or abbreviation"
     let stx ← parseText `command text
-    let fresh ← mkFreshUserName `meanRoundTrip
-    let renamed ← (← declarationView stx).rename (mkIdent fresh)
+    let view ← declarationView stx
     let currNamespace ← getCurrNamespace
+    let (fresh, actualName) ← if view.caseDefinition then
+      -- Field resolution uses plain name components, so put the fresh ID inside
+      -- the final component instead of using a macro scope on the method name.
+      let method := Name.mkSimple s!"meanRoundTrip_{← mkFreshId}"
+      let actual := (privateToUserName originalName).getPrefix ++ method
+      pure (`_root_ ++ actual, actual)
+    else do
+      let fresh ← mkFreshUserName `meanRoundTrip
+      pure (fresh, currNamespace ++ fresh)
+    let renamed ← view.rename (mkIdent fresh)
     let openDecls ← getOpenDecls
     let levelNames := original.levelParams
-    let actualName := currNamespace ++ fresh
     liftCommandElabM do
       -- Module declarations default to private; keep the temporary name predictable.
       Command.withScope (fun scope =>

@@ -2537,3 +2537,42 @@ run_elab do
       "Inductive type Split with constructors: red. blue."] do
     if let .ok _ := Parser.runParserCategory (← getEnv) `command text then
       throwError "accepted an incorrectly terminated constructor list"
+
+namespace CaseDefinitionExamples
+-- Keep unusual source spacing in the input view.
+def nativeTwice : Nat → Nat
+  | 0 => 0
+  | n+1 => nativeTwice n + 2
+
+def nativeFlip (b : Bool) : Bool :=
+  match b with
+  | false => true
+  | true => false
+
+#mean_compare nativeTwice
+#mean_compare nativeFlip
+#mean_compare twice
+#mean_compare flip
+#mean_compare bitValue
+
+open Lean Elab Term in
+run_elab do
+  let count := (← getEnv).constants.toList.length
+  let text := "Definition: changed maps a natural number n to a natural number by cases on n: zero gives 0; succ k gives (changed k + 2)."
+  Mean.RoundTrip.checkDefinition ``nativeTwice text
+  Mean.RoundTrip.checkDefinition ``bitValue
+    "Abbreviation: changed maps a boolean b to a natural number by cases on b: false gives 0; true gives (1)."
+  unless (← getEnv).constants.toList.length == count do
+    throwError "case declaration audit leaked declarations"
+  for invalid in [text.replace "+ 2" "+ 3", text.replace "succ k" "zero k",
+      text.replace "zero gives 0;" "", text.replace "number n" "number m"] do
+    let rejected ← try
+      Mean.RoundTrip.checkDefinition ``nativeTwice invalid
+      pure false
+    catch _ => pure true
+    unless rejected do throwError "case declaration audit accepted a changed definition"
+end CaseDefinitionExamples
+
+namespace CaseDefinitionExamples
+#mean_compare choosePair
+end CaseDefinitionExamples

@@ -67,7 +67,7 @@ def example_outputs(source: str) -> tuple[dict[str, str], int]:
         + attribution
         + "".join(renderings),
         ".compare": header
-        + "-- Each comparison shows elaborated Lean input followed by its checked Mean output.\n"
+        + "-- Each comparison shows Lean source (or a labelled reconstruction) followed by checked Mean output.\n"
         + attribution
         + "".join(comparisons),
     }, len(messages)

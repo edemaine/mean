@@ -1243,6 +1243,56 @@ def ignoreUnusedEdgeSet : Lean.Linter.IgnoreFunction := fun binder stack _ =>
         binder.getRange? == es.raw.getRange?
     | _ => false
 
+/-! Case-based definitions preserve the full function signature. -/
+def caseDiscriminant : Lean.Parser.Parser := quantifiedCondition
+def caseReturnWitness : Lean.Parser.Parser :=
+  Lean.Parser.withForbidden "by" (Lean.Parser.categoryParser `meanWitness 0)
+declare_syntax_cat meanFunctionCase
+syntax ident ident* "gives" constructorResult : meanFunctionCase
+syntax "Definition" ":" ident "maps" functionSubject ("and" functionSubject)*
+  "to" caseReturnWitness "by" "cases" "on" caseDiscriminant ":"
+  ppIndent(ppLine sepBy1(meanFunctionCase, ";")) "." : command
+syntax "Abbreviation" ":" ident "maps" functionSubject ("and" functionSubject)*
+  "to" caseReturnWitness "by" "cases" "on" caseDiscriminant ":"
+  ppIndent(ppLine sepBy1(meanFunctionCase, ";")) "." : command
+syntax "caseValue%" functionSubject ("and" functionSubject)*
+  "to" caseReturnWitness "by" "cases" "on" caseDiscriminant ":"
+  sepBy1(meanFunctionCase, ";") : term
+
+private def caseBody (discriminant : Lean.Term) (clauses : Array (Lean.TSyntax `meanFunctionCase)) :
+    Lean.MacroM Lean.Term := do
+  let mut alts : Array (Lean.TSyntax ``Lean.Parser.Term.matchAlt) := #[]
+  for clause in clauses do
+    let `(meanFunctionCase| $ctor:ident $args:ident* gives $body:term) := clause
+      | Lean.Macro.throwUnsupported
+    let args : Array Lean.Term := args.map (fun arg => ⟨arg.raw⟩)
+    alts := alts.push ⟨(← `(Lean.Parser.Term.matchAltExpr| | .$ctor:ident $args* => $body)).raw⟩
+  `(match $discriminant:term with $alts:matchAlt*)
+
+private def caseDefinition (name : Lean.Ident) (subjects : Array (Lean.TSyntax `meanSubject))
+    (result : Lean.TSyntax `meanWitness) (discriminant : Lean.Term)
+    (clauses : Array (Lean.TSyntax `meanFunctionCase)) (abbreviation : Bool) :
+    Lean.MacroM (Lean.TSyntax `command) := do
+  let binders ← subjects.foldlM (fun acc subject => return acc ++ (← inductiveBinders subject)) #[]
+  let body ← caseBody discriminant clauses
+  if abbreviation then
+    `(command| abbrev $name $binders:bracketedBinder* : anonymousType% $result := $body)
+  else
+    `(command| def $name $binders:bracketedBinder* : anonymousType% $result := $body)
+
+macro_rules
+  | `(command| Definition: $name:ident maps $first:meanSubject $[and $rest:meanSubject]*
+      to $result:meanWitness by cases on $discriminant:term : $clauses:meanFunctionCase;* .) =>
+    caseDefinition name (#[first] ++ rest) result discriminant clauses.getElems false
+  | `(command| Abbreviation: $name:ident maps $first:meanSubject $[and $rest:meanSubject]*
+      to $result:meanWitness by cases on $discriminant:term : $clauses:meanFunctionCase;* .) =>
+    caseDefinition name (#[first] ++ rest) result discriminant clauses.getElems true
+  | `(caseValue% $first:meanSubject $[and $rest:meanSubject]* to $result:meanWitness
+      by cases on $discriminant:term : $clauses:meanFunctionCase;*) => do
+    let body ← caseBody discriminant clauses.getElems
+    `(functionOver% $first $[and $rest]* => (($body : anonymousType% $result)))
+
+
 end Mean
 
 export Mean (ln)
