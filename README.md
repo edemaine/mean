@@ -454,6 +454,8 @@ Axiom encode:
 ```
 
 Mean checks the complete axiom declaration, including its universe order and named arguments.
+Use `with implicit type parameter α:` or `with implicit type parameters α and β:`
+to introduce type parameters that Lean infers.
 Universe parameters can be declared with `Axiom name.{u, v}:`. Lean's
 `unsafe` modifier is also supported.
 

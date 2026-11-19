@@ -793,7 +793,7 @@ syntax "Inductive" "family" ident
   "with" "constructors" ":" ppIndent(ppLine sepBy(meanConstructorClause, ";")) "." : command
 
 /-- Extract typed binders through the existing function-subject extension hook. -/
-private partial def inductiveBinders (subject : Lean.TSyntax `meanSubject) :
+private partial def subjectBinders (subject : Lean.TSyntax `meanSubject) :
     Lean.MacroM (Array (Lean.TSyntax ``Lean.Parser.Term.bracketedBinder)) := do
   let mut expanded ← `(functionOn% $subject => True)
   for _ in [:100] do
@@ -810,6 +810,25 @@ private partial def inductiveBinders (subject : Lean.TSyntax `meanSubject) :
     expanded := ⟨next⟩
   Lean.Macro.throwErrorAt subject "subject expansion did not terminate"
 
+def signatureSubject : Lean.Parser.Parser :=
+  Lean.Parser.withAntiquot (Lean.Parser.mkAntiquot "meanSubject" `meanSubject (isPseudoKind := true))
+    (Lean.Parser.withForbiddens #["and", ":"] (Lean.Parser.categoryParser `meanSubject 0))
+
+syntax "with" signatureSubject (" and " signatureSubject)* ":" ppLine term : term
+def parameterWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "parameter "
+def parametersWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "parameters "
+syntax "with" "implicit" "type" parameterWord ident ":" ppLine term : term
+syntax "with" "implicit" "type" parametersWord ident (" and " ident)+ ":" ppLine term : term
+macro_rules
+  | `(with $first:meanSubject $[and $rest:meanSubject]* : $body:term) => do
+      let binders ← (#[first] ++ rest).foldlM
+        (fun acc subject => return acc ++ (← subjectBinders subject)) #[]
+      `(∀ $binders:bracketedBinder*, $body)
+  | `(with implicit type parameter $name:ident : $body:term) =>
+      `(∀ {$name:ident : Type}, $body)
+  | `(with implicit type parameters $first:ident $[and $rest:ident]* : $body:term) =>
+      `(∀ {$first:ident $rest:ident* : Type}, $body)
+
 private def inductiveBinderNames (binders : Array (Lean.TSyntax ``Lean.Parser.Term.bracketedBinder)) :
     Array (Lean.TSyntax `term) :=
   binders.flatMap fun binder =>
@@ -821,8 +840,8 @@ private def inductiveBinderNames (binders : Array (Lean.TSyntax ``Lean.Parser.Te
 private def englishInductive (name : Lean.Ident) (parameters idxs : Array (Lean.TSyntax `meanSubject))
     (sort : Option Lean.Term) (clauses : Array (Lean.TSyntax `meanConstructorClause)) :
     Lean.MacroM (Lean.TSyntax `command) := do
-  let parameters ← parameters.foldlM (fun acc subject => return acc ++ (← inductiveBinders subject)) #[]
-  let idxs ← idxs.foldlM (fun acc subject => return acc ++ (← inductiveBinders subject)) #[]
+  let parameters ← parameters.foldlM (fun acc subject => return acc ++ (← subjectBinders subject)) #[]
+  let idxs ← idxs.foldlM (fun acc subject => return acc ++ (← subjectBinders subject)) #[]
   let mut result ← match sort with
     | some sort => pure sort
     | none => `(Type)
@@ -839,10 +858,10 @@ private def englishInductive (name : Lean.Ident) (parameters idxs : Array (Lean.
     if let some inputs := inputs then
       let binders ← match inputs with
         | `(meanConstructorInputs| $first:meanSubject $[and $rest:meanSubject]*) =>
-          (#[first] ++ rest).foldlM (fun acc subject => return acc ++ (← inductiveBinders subject)) #[]
+          (#[first] ++ rest).foldlM (fun acc subject => return acc ++ (← subjectBinders subject)) #[]
         | `(meanConstructorInputs| two elements of $domain:term) => do
           let subject ← `(meanSubject| an element of $domain)
-          pure ((← inductiveBinders subject) ++ (← inductiveBinders subject))
+          pure ((← subjectBinders subject) ++ (← subjectBinders subject))
         | _ => Lean.Macro.throwUnsupported
       ty ← `(∀ $binders:bracketedBinder*, $ty)
     ctorSyntax := ctorSyntax.push (← `(Lean.Parser.Command.ctor| | $ctor:ident : $ty))
@@ -1353,7 +1372,7 @@ private def caseDefinition (name : Lean.Ident) (subjects : Array (Lean.TSyntax `
     (result : Lean.TSyntax `meanWitness) (discriminant : Lean.Term)
     (clauses : Array (Lean.TSyntax `meanFunctionCase)) (abbreviation : Bool) :
     Lean.MacroM (Lean.TSyntax `command) := do
-  let binders ← subjects.foldlM (fun acc subject => return acc ++ (← inductiveBinders subject)) #[]
+  let binders ← subjects.foldlM (fun acc subject => return acc ++ (← subjectBinders subject)) #[]
   let body ← caseBody discriminant clauses
   if abbreviation then
     `(command| abbrev $name $binders:bracketedBinder* : anonymousType% $result := $body)

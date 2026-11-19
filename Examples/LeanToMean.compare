@@ -4149,7 +4149,9 @@ axiom TheoremExamples.selectFirst.{u, v} :
   {α : Type u} → {β : Type v} → α → β → α
 -- MEAN OUTPUT:
 Axiom TheoremExamples.selectFirst.{u, v}:
-  {α : Type u} → {β : Type v} → (x : α) → β → α
+  with an implicit element α of Type u and an implicit element β of Type v:
+    for every element x of α:
+      we have a function from β to α
 
 -- LEAN INPUT:
 -- Reconstructed declaration; original source is unavailable in this module.

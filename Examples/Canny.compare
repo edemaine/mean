@@ -100,18 +100,16 @@ Axiom encUnary:
 axiom encPair {α β : Type} : (α ↪ List Bool) → (β ↪ List Bool) → (α × β ↪ List Bool)
 -- MEAN OUTPUT:
 Axiom encPair:
-  {α β : Type} →
-    (an injective function from α to lists of booleans) →
-      (an injective function from β to lists of booleans) → (an injective function from (α × β) to lists of booleans)
+  with implicit type parameters α and β:
+    we have a function from (an injective function from α to lists of booleans) and (an injective function from β to lists of booleans) to an injective function from (α × β) to lists of booleans
 
 -- LEAN INPUT:
 /-- Intended: the upstream framed list encoding. -/
 axiom encList {α : Type} : (α ↪ List Bool) → (List α ↪ List Bool)
 -- MEAN OUTPUT:
 Axiom encList:
-  {α : Type} →
-    (an injective function from α to lists of booleans) →
-      (an injective function from lists of α elements to lists of booleans)
+  with implicit type parameter α:
+    we have a function from (an injective function from α to lists of booleans) to an injective function from lists of α elements to lists of booleans
 
 -- LEAN INPUT:
 /-- Binary words encode themselves. -/
@@ -126,8 +124,8 @@ Abbreviation:
 axiom PSPACE {α : Type} : (α ↪ List Bool) → Set (Set α)
 -- MEAN OUTPUT:
 Axiom PSPACE:
-  {α : Type} →
-    (an injective function from α to lists of booleans) → the type of sets of (the type of sets of α elements) elements
+  with implicit type parameter α:
+    we have a function from (an injective function from α to lists of booleans) to sets of (the type of sets of α elements) elements
 
 -- LEAN INPUT:
 /-- Intended: C₀P is P; each successor is strict-majority polynomial time
@@ -145,10 +143,8 @@ axiom PolyTimeReducible {α β : Type} :
   (α ↪ List Bool) → (β ↪ List Bool) → Set α → Set β → Prop
 -- MEAN OUTPUT:
 Axiom PolyTimeReducible:
-  {α β : Type} →
-    (an injective function from α to lists of booleans) →
-      (an injective function from β to lists of booleans) →
-        the type of sets of α elements → the type of sets of β elements → Prop
+  with implicit type parameters α and β:
+    we have a function from (an injective function from α to lists of booleans) and (an injective function from β to lists of booleans) and sets of α elements and sets of β elements to Prop
 
 -- LEAN INPUT:
 /-- Intended: flat constructor stream, with binary integers and unary Fin indices. -/

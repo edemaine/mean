@@ -1257,6 +1257,10 @@ example : (for every natural number n:
 Axiom selectFirst.{u, v}:
   {α : Type u} → {β : Type v} → (x : α) → β → α
 
+example : (with implicit type parameters α and β:
+    we have a function from lists of α elements to lists of β elements) =
+    ({α β : Type} → List α → List β) := rfl
+
 unsafe Axiom unsafeNumber: ℕ
 
 example : ∀ x y z w : Nat, x = y ∧ z = y ∧ z = w → x = w := natTrans3

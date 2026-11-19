@@ -45,22 +45,20 @@ Axiom encUnary:
   we have an injective function from ℕ to lists of booleans
 
 Axiom encPair:
-  {α β : Type} →
-    (an injective function from α to lists of booleans) →
-      (an injective function from β to lists of booleans) → (an injective function from (α × β) to lists of booleans)
+  with implicit type parameters α and β:
+    we have a function from (an injective function from α to lists of booleans) and (an injective function from β to lists of booleans) to an injective function from (α × β) to lists of booleans
 
 Axiom encList:
-  {α : Type} →
-    (an injective function from α to lists of booleans) →
-      (an injective function from lists of α elements to lists of booleans)
+  with implicit type parameter α:
+    we have a function from (an injective function from α to lists of booleans) to an injective function from lists of α elements to lists of booleans
 
 Abbreviation:
   encBits is
     Function.Embedding.refl (the type of lists of booleans).
 
 Axiom PSPACE:
-  {α : Type} →
-    (an injective function from α to lists of booleans) → the type of sets of (the type of sets of α elements) elements
+  with implicit type parameter α:
+    we have a function from (an injective function from α to lists of booleans) to sets of (the type of sets of α elements) elements
 
 Axiom CountingLevel:
   ℕ →
@@ -68,10 +66,8 @@ Axiom CountingLevel:
       (an injective function from α to lists of booleans) → the type of sets of (the type of sets of α elements) elements
 
 Axiom PolyTimeReducible:
-  {α β : Type} →
-    (an injective function from α to lists of booleans) →
-      (an injective function from β to lists of booleans) →
-        the type of sets of α elements → the type of sets of β elements → Prop
+  with implicit type parameters α and β:
+    we have a function from (an injective function from α to lists of booleans) and (an injective function from β to lists of booleans) and sets of α elements and sets of β elements to Prop
 
 Axiom encTerm:
   for every natural number n:

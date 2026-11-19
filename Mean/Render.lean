@@ -583,9 +583,12 @@ private def bindingDescription (ty : Expr) (name : Option String)
     return (if ty.isConstOf ``Int then "an" else "a", noun ++ suffix)
   return ("an", s!"element{suffix} of {← typeText}")
 
-private def subjectText (ty : Expr) (n : Option Name) (bi : BinderInfo) : MetaM String := do
+private def subjectText (ty : Expr) (n : Option Name) (bi : BinderInfo)
+    (describeType := false) : MetaM String := do
   let name ← n.mapM nameText
-  let (article, noun) ← bindingDescription ty name true (bi == .instImplicit)
+  let (article, noun) ← if describeType && ty == mkSort (.succ .zero) then
+    pure ("a", "type" ++ (name.map (" " ++ ·)).getD "")
+  else bindingDescription ty name true (bi == .instImplicit)
   let article := match bi with
     | .implicit => "an implicit"
     | .strictImplicit => "a strictly implicit"
@@ -1370,6 +1373,31 @@ def renderDefinition (name : Name) (signatureType value : Expr) (abbreviation :=
   {nameStr} is
 {indented (indented typedValue)}"
 
+/-- Introduce the leading implicit parameters before describing an axiom's result. -/
+private partial def renderAxiomType (ty : Expr) (axiomData : Bool) : MetaM String := do
+  let (subjects, text) ← go ty
+  if subjects.isEmpty then return text
+  let names := subjects.filterMap Prod.snd
+  let description := if names.length == subjects.length then
+    let noun := if names.length == 1 then "parameter" else "parameters"
+    s!"implicit type {noun} {String.intercalate " and " names}"
+  else String.intercalate " and " (subjects.map Prod.fst)
+  return s!"with {description}:\n{indented text}"
+where
+  go (ty : Expr) : MetaM (List (String × Option String) × String) := do
+    if let .forallE suggested domain body bi := ty.consumeMData then
+      if bi != .default then
+        let name ← freshName suggested
+        return ← withLocalDecl name bi domain fun x => do
+          let (subjects, text) ← go (body.instantiate1 x)
+          let keepName := publicParameterName suggested || body.hasLooseBVars
+          let subject ← subjectText domain (if keepName then some name else none) bi (describeType := true)
+          let typeParameter ← if keepName && bi == .implicit && domain == mkSort (.succ .zero) then
+            some <$> nameText name
+          else pure none
+          return ((subject, typeParameter) :: subjects, text)
+    return ([], ← renderExpr ty (axiomData := axiomData))
+
 /-- Return text only after checking its meaning. -/
 def renderChecked (e : Expr) : TermElabM String :=
   checkedRendering (renderExpr e) (RoundTrip.checkText e) fun _ =>
@@ -1446,12 +1474,7 @@ private def renderInductiveSignature (info : InductiveVal) (mean := true) : Term
 private def inductiveSubjectText (x : Expr) (keepName := true) : MetaM String := do
   let decl ← x.fvarId!.getDecl
   let name := if keepName then some decl.userName else none
-  if decl.type == mkSort (.succ .zero) && decl.binderInfo == .default then
-    let suffix ← match name with
-      | some name => do pure (" " ++ (← nameText name))
-      | none => pure ""
-    return "a type" ++ suffix
-  subjectText decl.type name decl.binderInfo
+  subjectText decl.type name decl.binderInfo (describeType := decl.binderInfo == .default)
 
 private def renderInductiveEnglish (info : InductiveVal) : TermElabM String := do
   -- Check coverage before attempting the English form.
@@ -1527,7 +1550,7 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
       let header := s!"{safety}Axiom {declarationName}{levels}:"
       let axiomData := !(← isProp ax.type)
       let text ← checkedRendering
-        (do pure s!"{header}\n{indented (← renderExpr ax.type (axiomData := axiomData))}")
+        (do pure s!"{header}\n{indented (← renderAxiomType ax.type axiomData)}")
         (RoundTrip.checkAxiom n) fun _ =>
           withOptions (fun opts => opts.setBool `pp.explicit true) do
             pure s!"{header}\n{indented (← typeText ax.type)}"
