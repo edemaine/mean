@@ -5,6 +5,7 @@ namespace GeneralRenderingExamples
 example (A : Type u) (xs : List A) : (the length of xs) = xs.length := rfl
 example (A : Type u) : (the set of all elements of A) = (Set.univ : Set A) := rfl
 example (A : Type u) (x y : A) : (the set {x, y}) = ({x, y} : Set A) := rfl
+example (A : Type u) (s t : Set A) : (the complement of s ∪ t) = sᶜ ∪ t := rfl
 example (A : Type u) (x : A) : (the set {x}) = ({x} : Set A) := rfl
 example (A : Type u) : (the set ∅) = (∅ : Set A) := rfl
 example (s : Set Nat) :

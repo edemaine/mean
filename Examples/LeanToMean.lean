@@ -145,6 +145,10 @@ info: the function mapping a natural number n to
 #mean_term_compare (Set.univ : Set Nat)
 end
 section
+variable (s t : Set Nat)
+#mean_term_compare (s ∪ t)ᶜ
+end
+section
 open GeneralRenderingExamples
 variable (f t : Motion) (p q : Space) (s : Set Space)
 variable (L : Space →ₗ[Real] Space)

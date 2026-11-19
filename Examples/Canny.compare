@@ -78,7 +78,7 @@ Definition:
         t.eval x = 0;
       ltZero t gives the set of functions x from indices in [0, n) to ℝ such that
         t.eval x < 0;
-      «not» p gives p.solutionSetᶜ;
+      «not» p gives the complement of p.solutionSet;
       «and» p q gives p.solutionSet ∩ q.solutionSet;
       «or» p q gives p.solutionSet ∪ q.solutionSet.
 

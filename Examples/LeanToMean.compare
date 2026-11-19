@@ -161,6 +161,11 @@ the length of ([1, 2, 3])
 the set of all elements of ℕ
 
 -- LEAN INPUT:
+(s ∪ t)ᶜ
+-- MEAN OUTPUT:
+the complement of (s ∪ t)
+
+-- LEAN INPUT:
 (Space ≃ᵃⁱ[Real] Space)
 -- MEAN OUTPUT:
 the type of bijective affine isometries from Space to Space over ℝ

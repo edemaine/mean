@@ -81,6 +81,16 @@ def delabSetImage : Delab := do
   `(the image of $s under $f)
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.Compl.compl]
+def delabSetComplement : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  guard <| !(pp.explicit.get (← getOptions))
+  let e ← getExpr
+  guard <| e.isAppOfArity ``Compl.compl 3 && (e.getArg! 0).isAppOfArity ``Set 1
+  let s ← withNaryArg 2 delab
+  `(the complement of $s)
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app.AffineEquiv.linear, delab app.DFunLike.coe,
   delab app.AffineSubspace.perpBisector, delab app.EuclideanGeometry.reflection]
 def delabGeometryValue : Delab := do

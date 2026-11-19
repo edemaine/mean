@@ -871,6 +871,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Set comprehension | `the set of elements x of T such that <proposition>` |
 | Set literal | `the set {x, y}`, `the set ∅` |
 | Set image | `the image of S under f` |
+| Set complement | `the complement of S` |
 | Collection properties | `the length of xs`, `the set of all elements of T` |
 | Function subject | `a function f from A to B`, `a function f from A and B to C` |
 | Universal quantifier | `for all <bindings> [where <condition>]: <proposition>`, `for every …` |

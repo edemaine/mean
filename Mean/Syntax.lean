@@ -96,6 +96,7 @@ macro_rules
 
 /-! General set and geometry expressions use contextual words after `the`. -/
 def imageWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "image "
+def complementWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "complement "
 def lengthWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "length "
 def underWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "under "
 def euclideanSpaceWords : Lean.Parser.Parser :=
@@ -114,6 +115,7 @@ def bisectorWords : Lean.Parser.Parser :=
 def reflectionWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "reflection "
 def acrossWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "across "
 syntax:max "the " imageWord "of " term:arg ppSpace underWord term:arg : term
+syntax:max "the " complementWord "of " term:arg : term
 syntax:max "the " lengthWord "of " term:arg : term
 syntax:max "the " "set " "of " "all " "elements " "of " term:arg : term
 syntax:max "the " "set " term:arg : term
@@ -125,6 +127,7 @@ syntax:max "the " bisectorWords "of " term:arg " and " term:arg : term
 syntax:max "the " reflectionWord acrossWord term:arg : term
 macro_rules
   | `(the image of $s:term under $f:term) => `(Set.image $f $s)
+  | `(the complement of $s:term) => `(Compl.compl ($s : Set _))
   | `(the length of $xs:term) => `(List.length $xs)
   | `(the set of all elements of $ty:term) => `((Set.univ : Set $ty))
   | `(the set $value:term) => `(($value : Set _))
