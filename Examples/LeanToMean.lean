@@ -2103,11 +2103,29 @@ info: Theorem TheoremExamples.zeroExists:
 -- An actual axiom must remain distinct from an imported theorem without its proof.
 axiom ordinaryAxiom : True
 /--
-info: -- Statement of ordinaryAxiom
-True
+info: Axiom ordinaryAxiom:
+  True
 -/
 #guard_msgs in
 #mean ordinaryAxiom
+#mean_compare TheoremExamples.assumedZero
+#mean_compare TheoremExamples.selectFirst
+#mean_compare TheoremExamples.unsafeNumber
+
+open Lean Elab Term in
+run_elab do
+  let before := (← getEnv).constants.toList.length
+  let valid := "Axiom changed.{r, s}: {α : Type r} → {β : Type s} → (x : α) → β → α"
+  Mean.RoundTrip.checkAxiom ``TheoremExamples.selectFirst valid
+  for invalid in [valid.replace "(x : α)" "(y : α)", valid.replace ".{r, s}" ".{s, r}",
+      valid.replace "{β : Type s}" "(β : Type s)", "unsafe " ++ valid] do
+    let rejected ← try
+      Mean.RoundTrip.checkAxiom ``TheoremExamples.selectFirst invalid
+      pure false
+    catch _ => pure true
+    unless rejected do throwError "axiom checker accepted a changed interface"
+  unless (← getEnv).constants.toList.length == before do
+    throwError "axiom checker leaked a temporary declaration"
 
 open Lean Elab Term in
 run_elab do

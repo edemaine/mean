@@ -1977,6 +1977,16 @@ Theorem TheoremExamples.natAddZero:
   for every natural number n:
     n + 0 = n
 
+Axiom TheoremExamples.assumedZero:
+  there is a natural number n such that
+    n = 0
+
+Axiom TheoremExamples.selectFirst.{u, v}:
+  {α : Type u} → {β : Type v} → (x : α) → β → α
+
+unsafe Axiom TheoremExamples.unsafeNumber:
+  ℕ
+
 Definition:
   a simple graph G = (V, E) satisfies ordinaryPreconnected if
     for all vertices u and v of G:

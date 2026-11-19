@@ -442,6 +442,12 @@ The command creates an ordinary Lean theorem named `natTrans3`.
 `#mean natTrans3` renders its `Theorem natTrans3:` header and statement, omitting
 the proof. Add `Proof: …` to turn that statement view into a declaration.
 
+Axioms use `Axiom name: <type>` with no proof. The type may be a proposition
+or a data signature, such as `Axiom encode: ℕ ↪ List Bool`. Mean checks the
+complete axiom declaration, including its universe order and named arguments.
+Universe parameters can be declared with `Axiom name.{u, v}:`. Lean's
+`unsafe` modifier is also supported.
+
 `Lemma name:` is an alias for `Theorem name:`. Both render canonically as
 `Theorem`, since Lean does not retain the distinction. Similarly, Mathlib provides
 [`lemma`](https://github.com/leanprover-community/mathlib4/blob/v4.35.0/Mathlib/Tactic/Lemma.lean)
@@ -854,6 +860,7 @@ The grammar separates logical structure from mathematical vocabulary:
 | Scalar coercion | `<term> as a real number`, `<term> as an integer` |
 | Custom target coercion | `<term> as Foo`, `<term> as Box A` |
 | Theorem clause | `Theorem <name>: <proposition> Proof: <Lean proof>` |
+| Axiom | `Axiom <name>: <type>` |
 | Lemma clause | `Lemma <name>: <proposition> Proof: <Lean proof>` |
 | Example clause | `Example: <proposition> Proof: <Lean proof>` |
 | Subject | `a simple graph G`, `a natural number n`, `a boolean x`, `an element x of T` |

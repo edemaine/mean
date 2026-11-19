@@ -1238,8 +1238,18 @@ Theorem zeroExists:
 Proof:
   ⟨0, rfl⟩
 
+Axiom assumedZero:
+  there is a natural number n such that n = 0
+
+Axiom selectFirst.{u, v}:
+  {α : Type u} → {β : Type v} → (x : α) → β → α
+
+unsafe Axiom unsafeNumber: ℕ
+
 example : ∀ x y z w : Nat, x = y ∧ z = y ∧ z = w → x = w := natTrans3
 example : ∃ n : Nat, n = 0 := zeroExists
+example : ∃ n : Nat, n = 0 := assumedZero
+noncomputable example (α : Type u) (β : Type v) (x : α) (y : β) : α := selectFirst (x := x) y
 
 Lemma natAddZero:
   for every natural number n:

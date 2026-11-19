@@ -41,9 +41,11 @@ Definition:
       «and» p q gives p.solutionSet ∩ q.solutionSet;
       «or» p q gives p.solutionSet ∪ q.solutionSet.
 
-(n : ℕ) → Term n ↪ the type of lists of booleans
+Axiom encTerm:
+  (n : ℕ) → Term n ↪ the type of lists of booleans
 
-(n : ℕ) → Formula n ↪ the type of lists of booleans
+Axiom encFormula:
+  (n : ℕ) → Formula n ↪ the type of lists of booleans
 
 Definition:
   ETR is

@@ -4116,6 +4116,31 @@ Theorem TheoremExamples.natAddZero:
     n + 0 = n
 
 -- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
+axiom TheoremExamples.assumedZero :
+  ∃ (n : ℕ), n = 0
+-- MEAN OUTPUT:
+Axiom TheoremExamples.assumedZero:
+  there is a natural number n such that
+    n = 0
+
+-- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
+axiom TheoremExamples.selectFirst.{u, v} :
+  {α : Type u} → {β : Type v} → α → β → α
+-- MEAN OUTPUT:
+Axiom TheoremExamples.selectFirst.{u, v}:
+  {α : Type u} → {β : Type v} → (x : α) → β → α
+
+-- LEAN INPUT:
+-- Reconstructed declaration; original source is unavailable in this module.
+unsafe axiom TheoremExamples.unsafeNumber :
+  ℕ
+-- MEAN OUTPUT:
+unsafe Axiom TheoremExamples.unsafeNumber:
+  ℕ
+
+-- LEAN INPUT:
 def ordinaryPreconnected {V : Type*} (G : SimpleGraph V) : Prop :=
   ∀ u v : V, ∃ _p : G.Path u v, True
 -- MEAN OUTPUT:

@@ -1440,6 +1440,21 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
       else logInfo s!"{context}{text}"
       return
     match info with
+    | .axiomInfo ax =>
+      let safety := if ax.isUnsafe then "unsafe " else ""
+      let levels ← if ax.levelParams.isEmpty then pure "" else do
+        let names ← ax.levelParams.mapM (fun level => nameText level)
+        pure (".{" ++ String.intercalate ", " names ++ "}")
+      let header := s!"{safety}Axiom {declarationName}{levels}:"
+      let text ← checkedRendering
+        (do pure s!"{header}\n{indented (← renderExpr ax.type)}")
+        (RoundTrip.checkAxiom n) fun _ =>
+          withOptions (fun opts => opts.setBool `pp.explicit true) do
+            pure s!"{header}\n{indented (← typeText ax.type)}"
+      if compare then
+        let before := s!"{safety}axiom {declarationName}{levels} :\n{indented (← leanText ax.type)}"
+        logInfo (comparisonText (← declarationInputText n before) text)
+      else logInfo text
     | .inductInfo i =>
       let text ← checkedRendering (renderInductiveEnglish i) (RoundTrip.checkInductive n) fun _ =>
         withOptions (fun opts => opts.setBool `pp.explicit true) (renderInductiveSignature i)

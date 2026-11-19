@@ -86,13 +86,15 @@ Definition:
 /-- Intended: flat constructor stream, with binary integers and unary Fin indices. -/
 axiom encTerm (n : ℕ) : Term n ↪ List Bool
 -- MEAN OUTPUT:
-(n : ℕ) → Term n ↪ the type of lists of booleans
+Axiom encTerm:
+  (n : ℕ) → Term n ↪ the type of lists of booleans
 
 -- LEAN INPUT:
 /-- Intended: the corresponding formula stream reusing encTerm. -/
 axiom encFormula (n : ℕ) : Formula n ↪ List Bool
 -- MEAN OUTPUT:
-(n : ℕ) → Formula n ↪ the type of lists of booleans
+Axiom encFormula:
+  (n : ℕ) → Formula n ↪ the type of lists of booleans
 
 -- LEAN INPUT:
 /-- ETR consists of the encodings of real-satisfiable formulas. -/

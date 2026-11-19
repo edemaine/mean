@@ -306,6 +306,41 @@ def checkDefinition (originalName : Name) (text : String) : TermElabM Unit :=
     if (← whnf original.type).isSort then
       checkParameterNames original.value actualValue
 
+open Lean.Parser.Command in
+/-- Audit an axiom declaration, including its type, public binders, and safety. -/
+def checkAxiom (originalName : Name) (text : String) : TermElabM Unit :=
+  withoutModifyingState do
+    let .axiomInfo original ← getConstInfo originalName
+      | throwError "expected an axiom"
+    if wasOriginallyTheorem (← getEnv) originalName then
+      throwError "expected an axiom, but the declaration was originally a theorem"
+    let stx ← parseText `command text
+    let fresh ← mkFreshUserName `meanAxiom
+    let renamedId (id : TSyntax ``declId) : TSyntax ``declId :=
+      ⟨id.raw.setArg 0 (mkIdent fresh).raw⟩
+    let command ← match stx with
+      | `(command| Axiom $id:declId : $ty:term) =>
+        `(command| Axiom $(renamedId id):declId : $ty)
+      | `(command| unsafe Axiom $id:declId : $ty:term) =>
+        `(command| unsafe Axiom $(renamedId id):declId : $ty)
+      | _ => throwError "unsupported rendered axiom declaration"
+    let currNamespace ← getCurrNamespace
+    let openDecls ← getOpenDecls
+    liftCommandElabM do
+      Command.withScope (fun scope => { scope with
+        currNamespace, openDecls, levelNames := [], isPublic := true }) do
+        Command.elabCommand command
+    let .axiomInfo actual ← getConstInfo (currNamespace ++ fresh)
+      | throwError "Mean round-trip changed the declaration kind"
+    unless original.isUnsafe == actual.isUnsafe do
+      throwError "Mean round-trip changed the declaration's safety"
+    unless original.levelParams.length == actual.levelParams.length do
+      throwError "Mean round-trip changed the declaration's universe signature"
+    let actualType := actual.type.instantiateLevelParams actual.levelParams
+      (original.levelParams.map Level.param)
+    checkExpressions original.type actualType text
+    checkParameterNames original.type actualType
+
 /-- Audit a complete single inductive declaration, including constructor order,
 parameters, indices, safety, universes, and public binder names. -/
 def checkInductive (originalName : Name) (text : String) : TermElabM Unit :=

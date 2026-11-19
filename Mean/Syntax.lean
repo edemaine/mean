@@ -897,6 +897,16 @@ macro_rules
   | `(command| Theorem $name:ident : $statement:term Proof: $proofTerm:term) =>
       `(command| theorem $name:ident : $statement := $proofTerm)
 
+syntax "Axiom" Lean.Parser.Command.declId ":" term : command
+syntax "unsafe" "Axiom" Lean.Parser.Command.declId ":" term : command
+
+open Lean.Parser.Command in
+macro_rules
+  | `(command| Axiom $name:declId : $ty:term) =>
+      `(command| axiom $name:declId : $ty)
+  | `(command| unsafe Axiom $name:declId : $ty:term) =>
+      `(command| unsafe axiom $name:declId : $ty)
+
 -- Lemmas share theorem semantics; examples use Lean's anonymous declaration form.
 macro "Lemma" name:ident ":" statement:term "Proof" ":" proofTerm:term : command =>
   `(command| Theorem $name:ident : $statement Proof: $proofTerm)
