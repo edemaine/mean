@@ -189,6 +189,9 @@ private partial def nativeBinderOptions (env : Environment) (e : Expr)
   | .app f argument =>
     let head := f.getAppFn
     let options := if argument.consumeMData.isLambda && head.isConst &&
+        -- These operators accept ordinary terms in their operand positions.
+        -- Their notation does not inspect a lambda as a binder.
+        !([ ``Set.image, ``Membership.mem ].contains head.constName!) &&
         !(Lean.PrettyPrinter.Delaborator.appUnexpanderAttribute.getValues env head.constName!).isEmpty then
       options.insertAt (pos.push 1) `mean.renderFunctions (.ofBool false)
     else options
