@@ -106,10 +106,10 @@ def ETR : Set (List Bool) :=
 Definition:
   ETR is
     the union over natural numbers n of
-        the image of
-          (the set of elements p of Formula n such that
-              p.solutionSet is a nonempty set)
-          under (encFormula n).
+      the image of
+        (the set of elements p of Formula n such that
+            p.solutionSet is a nonempty set)
+        under (encFormula n).
 
 -- LEAN INPUT:
 /-- Theorem (Canny, 1988): existential real satisfiability is decidable in deterministic
@@ -193,14 +193,14 @@ def ExistsForallReal : Set (List Bool) :=
 Definition:
   ExistsForallReal is
     the union over natural numbers r and s of
-        the image of
-          (the set of elements p of Formula (r + s) such that
-              p.existsForallSolutionSet is a nonempty set)
-          under
-          (the function mapping an element p of Formula (r + s) to
-              (Background.encPair Background.encUnary Background.encBits :
-                  ℕ × the type of lists of booleans → the type of lists of booleans)
-                (r, (encFormula (r + s) : Formula (r + s) → the type of lists of booleans) p)).
+      the image of
+        (the set of elements p of Formula (r + s) such that
+            p.existsForallSolutionSet is a nonempty set)
+        under
+        (the function mapping an element p of Formula (r + s) to
+            (Background.encPair Background.encUnary Background.encBits :
+                ℕ × the type of lists of booleans → the type of lists of booleans)
+              (r, (encFormula (r + s) : Formula (r + s) → the type of lists of booleans) p)).
 
 -- LEAN INPUT:
 /-- Theorem (OpenAI, 2026): ∃∀ℝ belongs to CH.
@@ -235,11 +235,11 @@ def ConnectedLanguage : Set (List Bool) :=
 Definition:
   ConnectedLanguage is
     the union over natural numbers n of
-        the image of (ConnectedFormulas n) under
-          (the function mapping an element p of Formula n to
-              (Background.encPair Background.encUnary Background.encBits :
-                  ℕ × the type of lists of booleans → the type of lists of booleans)
-                (n, (encFormula n : Formula n → the type of lists of booleans) p)).
+      the image of (ConnectedFormulas n) under
+        (the function mapping an element p of Formula n to
+            (Background.encPair Background.encUnary Background.encBits :
+                ℕ × the type of lists of booleans → the type of lists of booleans)
+              (n, (encFormula n : Formula n → the type of lists of booleans) p)).
 
 -- LEAN INPUT:
 /-- Theorem (Canny, 1988): connectivity of an integer semialgebraic set is in PSPACE,
@@ -283,17 +283,17 @@ def ReachableLanguage : Set (List Bool) :=
 Definition:
   ReachableLanguage is
     the union over natural numbers n of
-        the union over elements p of (Formula n) of
-            the image of (ReachableEndpoints p) under
-              (the function mapping an element x of Formula n × Formula n to
-                  match x with
-                  | (p₁, p₂) =>
-                    (Background.encPair Background.encUnary (Background.encList Background.encBits) :
-                        ℕ × the type of lists of (the type of lists of booleans) elements → the type of lists of booleans)
-                      (n,
-                        [(encFormula n : Formula n → the type of lists of booleans) p,
-                          (encFormula n : Formula n → the type of lists of booleans) p₁,
-                          (encFormula n : Formula n → the type of lists of booleans) p₂])).
+      the union over elements p of (Formula n) of
+        the image of (ReachableEndpoints p) under
+          (the function mapping an element x of Formula n × Formula n to
+              match x with
+              | (p₁, p₂) =>
+                (Background.encPair Background.encUnary (Background.encList Background.encBits) :
+                    ℕ × the type of lists of (the type of lists of booleans) elements → the type of lists of booleans)
+                  (n,
+                    [(encFormula n : Formula n → the type of lists of booleans) p,
+                      (encFormula n : Formula n → the type of lists of booleans) p₁,
+                      (encFormula n : Formula n → the type of lists of booleans) p₂])).
 
 -- LEAN INPUT:
 /-- Theorem (Canny, 1988): path connectivity between two formula-described points

@@ -606,8 +606,8 @@ syntax ident " in " aggregateDomain : meanAggregateIndex
 def unionWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "union "
 def intersectionWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "intersection "
 syntax:60 "the " "sum " "over " meanAggregateIndex " of " term:60 : term
-syntax:60 "the " unionWord "over " meanAggregateIndex " of" ppIndent(ppLine term:60) : term
-syntax:60 "the " intersectionWord "over " meanAggregateIndex " of" ppIndent(ppLine term:60) : term
+syntax:60 "the " unionWord "over " meanAggregateIndex " of" ppLine term:60 : term
+syntax:60 "the " intersectionWord "over " meanAggregateIndex " of" ppLine term:60 : term
 
 private def aggregateBinder (binding : Lean.TSyntax `meanAggregateIndex) :
     Lean.MacroM (Lean.Ident × Option Lean.Ident × Lean.Term) := do

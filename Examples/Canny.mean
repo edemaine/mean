@@ -52,10 +52,10 @@ Axiom encFormula:
 Definition:
   ETR is
     the union over natural numbers n of
-        the image of
-          (the set of elements p of Formula n such that
-              p.solutionSet is a nonempty set)
-          under (encFormula n).
+      the image of
+        (the set of elements p of Formula n such that
+            p.solutionSet is a nonempty set)
+        under (encFormula n).
 
 Theorem etr_in_PSPACE:
   ETR ∈ Background.PSPACE Background.encBits
@@ -86,14 +86,14 @@ Definition:
 Definition:
   ExistsForallReal is
     the union over natural numbers r and s of
-        the image of
-          (the set of elements p of Formula (r + s) such that
-              p.existsForallSolutionSet is a nonempty set)
-          under
-          (the function mapping an element p of Formula (r + s) to
-              (Background.encPair Background.encUnary Background.encBits :
-                  ℕ × the type of lists of booleans → the type of lists of booleans)
-                (r, (encFormula (r + s) : Formula (r + s) → the type of lists of booleans) p)).
+      the image of
+        (the set of elements p of Formula (r + s) such that
+            p.existsForallSolutionSet is a nonempty set)
+        under
+        (the function mapping an element p of Formula (r + s) to
+            (Background.encPair Background.encUnary Background.encBits :
+                ℕ × the type of lists of booleans → the type of lists of booleans)
+              (r, (encFormula (r + s) : Formula (r + s) → the type of lists of booleans) p)).
 
 Theorem existsForallReal_in_CountingLevel:
   ExistsForallReal ∈ Background.CountingLevel 60 Background.encBits
@@ -107,11 +107,11 @@ Definition:
 Definition:
   ConnectedLanguage is
     the union over natural numbers n of
-        the image of (ConnectedFormulas n) under
-          (the function mapping an element p of Formula n to
-              (Background.encPair Background.encUnary Background.encBits :
-                  ℕ × the type of lists of booleans → the type of lists of booleans)
-                (n, (encFormula n : Formula n → the type of lists of booleans) p)).
+      the image of (ConnectedFormulas n) under
+        (the function mapping an element p of Formula n to
+            (Background.encPair Background.encUnary Background.encBits :
+                ℕ × the type of lists of booleans → the type of lists of booleans)
+              (n, (encFormula n : Formula n → the type of lists of booleans) p)).
 
 Theorem connectedLanguage_in_PSPACE:
   ConnectedLanguage ∈ Background.PSPACE Background.encBits
@@ -131,17 +131,17 @@ Definition:
 Definition:
   ReachableLanguage is
     the union over natural numbers n of
-        the union over elements p of (Formula n) of
-            the image of (ReachableEndpoints p) under
-              (the function mapping an element x of Formula n × Formula n to
-                  match x with
-                  | (p₁, p₂) =>
-                    (Background.encPair Background.encUnary (Background.encList Background.encBits) :
-                        ℕ × the type of lists of (the type of lists of booleans) elements → the type of lists of booleans)
-                      (n,
-                        [(encFormula n : Formula n → the type of lists of booleans) p,
-                          (encFormula n : Formula n → the type of lists of booleans) p₁,
-                          (encFormula n : Formula n → the type of lists of booleans) p₂])).
+      the union over elements p of (Formula n) of
+        the image of (ReachableEndpoints p) under
+          (the function mapping an element x of Formula n × Formula n to
+              match x with
+              | (p₁, p₂) =>
+                (Background.encPair Background.encUnary (Background.encList Background.encBits) :
+                    ℕ × the type of lists of (the type of lists of booleans) elements → the type of lists of booleans)
+                  (n,
+                    [(encFormula n : Formula n → the type of lists of booleans) p,
+                      (encFormula n : Formula n → the type of lists of booleans) p₁,
+                      (encFormula n : Formula n → the type of lists of booleans) p₂])).
 
 Theorem reachableLanguage_in_PSPACE:
   ReachableLanguage ∈ Background.PSPACE Background.encBits

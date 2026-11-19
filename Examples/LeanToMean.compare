@@ -169,20 +169,20 @@ the complement of (s ∪ t)
 ⋃ n ∈ s, S n
 -- MEAN OUTPUT:
 the union over n in s of
-    S n
+  S n
 
 -- LEAN INPUT:
 ⋂ n ∈ s, S n
 -- MEAN OUTPUT:
 the intersection over n in s of
-    S n
+  S n
 
 -- LEAN INPUT:
 ⋃ n, ⋂ m, T n m
 -- MEAN OUTPUT:
 the union over natural numbers n of
-    the intersection over natural numbers m of
-        T n m
+  the intersection over natural numbers m of
+    T n m
 
 -- LEAN INPUT:
 (Space ≃ᵃⁱ[Real] Space)
