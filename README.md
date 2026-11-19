@@ -443,8 +443,17 @@ The command creates an ordinary Lean theorem named `natTrans3`.
 the proof. Add `Proof: …` to turn that statement view into a declaration.
 
 Axioms use `Axiom name: <type>` with no proof. The type may be a proposition
-or a data signature, such as `Axiom encode: ℕ ↪ List Bool`. Mean checks the
-complete axiom declaration, including its universe order and named arguments.
+or a data signature. In a data signature, `we have` describes the supplied
+value's type. The phrase `an injective function from A to B` means Lean's
+`A ↪ B`.
+
+```lean
+Axiom encode:
+  for every natural number n:
+    we have an injective function from indices in [0, n) to lists of booleans
+```
+
+Mean checks the complete axiom declaration, including its universe order and named arguments.
 Universe parameters can be declared with `Axiom name.{u, v}:`. Lean's
 `unsafe` modifier is also supported.
 

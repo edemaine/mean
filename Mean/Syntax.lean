@@ -412,14 +412,27 @@ syntax "from" functionDomain ("and" functionDomain)* "to" functionResult : meanF
 
 /-- A nested signature owns its internal `and` and `to` separators.
 Its result parser restores the outer delimiters. -/
-def functionSignature : Lean.Parser.Parser :=
+private def signatureParser (category : Lean.Name) : Lean.Parser.Parser :=
   Lean.Parser.adaptCacheableContext
     (fun ctx => { ctx with forbiddenTks := ctx.forbiddenTks.filter (fun tk => tk != "and" && tk != "to") })
-    (Lean.Parser.categoryParser `meanFunctionSignature 0)
+    (Lean.Parser.categoryParser category 0)
+
+def functionSignature : Lean.Parser.Parser := signatureParser `meanFunctionSignature
+
+declare_syntax_cat meanEmbeddingSignature
+syntax "from " functionDomain " to " functionResult : meanEmbeddingSignature
+def embeddingSignature : Lean.Parser.Parser := signatureParser `meanEmbeddingSignature
+def embeddingWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "embedding "
+syntax:max "an " embeddingWord embeddingSignature : term
+syntax:max "an " "injective " "function " embeddingSignature : term
 
 syntax "functionType%" functionSignature : term
 syntax "functionEndpointType%" meanFunctionEndpoint : term
 macro_rules
+  | `(an embedding $signature:meanEmbeddingSignature) =>
+      `(an injective function $signature)
+  | `(an injective function from $domain:meanFunctionEndpoint to $result:meanFunctionEndpoint) =>
+      `(Function.Embedding (functionEndpointType% $domain) (functionEndpointType% $result))
   | `(functionEndpointType% $ty:term) => `($ty)
   | `(functionType% from $domain:meanFunctionEndpoint $[and $domains:meanFunctionEndpoint]*
         to $result:meanFunctionEndpoint) => do
@@ -611,6 +624,7 @@ syntax "list" (ppSpace ident)? " of " meanListElements : meanWitnessNoun
 syntax "set" (ppSpace ident)? " of " meanListElements : meanWitnessNoun
 syntax "index" (ppSpace ident)? meanIndexDomain : meanWitnessNoun
 syntax "function" (ppSpace ident)? functionSignature : meanWitnessNoun
+syntax "injective" "function" (ppSpace ident)? embeddingSignature : meanWitnessNoun
 syntax "instance" (ppSpace ident)? " of " "typeclass" term : meanWitnessNoun
 
 private def nounBinding (noun : Lean.TSyntax `meanWitnessNoun) :
@@ -630,6 +644,8 @@ private def nounBinding (noun : Lean.TSyntax `meanWitnessNoun) :
         pure (x, ← `(indexType% $domain))
     | `(meanWitnessNoun| function $[$x:ident]? $signature:meanFunctionSignature) => do
         pure (x, ← `(functionType% $signature))
+    | `(meanWitnessNoun| injective function $[$x:ident]? $signature:meanEmbeddingSignature) => do
+        pure (x, ← `(an injective function $signature))
     | `(meanWitnessNoun| instance $[$x:ident]? of typeclass $ty:term) => do
         pure (x, ← `(typeclassType% $ty))
     | `(meanWitnessNoun| path $[$x:ident]? in $g:term from $u:term to $v:term) => do
@@ -1105,6 +1121,7 @@ syntax "an" meanWitnessNoun : meanWitness
 syntax "anonymousType%" meanWitness : term
 syntax "anonymousNounType%" meanWitnessNoun : term
 elab "typeExpression%" t:term : term => Lean.Elab.Term.elabType t
+macro "we " "have " description:meanWitness : term => `(anonymousType% $description)
 macro_rules
   | `(anonymousType% a $noun:meanWitnessNoun) => `(anonymousNounType% $noun)
   | `(anonymousType% an $noun:meanWitnessNoun) => `(anonymousNounType% $noun)

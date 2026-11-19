@@ -1241,6 +1241,10 @@ Proof:
 Axiom assumedZero:
   there is a natural number n such that n = 0
 
+example : (for every natural number n:
+    we have an injective function from indices in [0, n) to lists of booleans) =
+    ((n : ℕ) → Fin n ↪ List Bool) := rfl
+
 Axiom selectFirst.{u, v}:
   {α : Type u} → {β : Type v} → (x : α) → β → α
 

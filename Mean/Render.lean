@@ -461,6 +461,23 @@ private partial def functionSignatureText? (ty : Expr) : MetaM (Option String) :
 
 end
 
+private def embeddingSignatureText? (ty : Expr) : MetaM (Option String) := do
+  unless ty.isAppOfArity ``Function.Embedding 2 && !(pp.explicit.get (← getOptions)) do
+    return none
+  let args := ty.getAppArgs
+  return some s!"from {← functionEndpointText args[0]!} to {← functionEndpointText args[1]! true}"
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.Function.Embedding]
+def delabEmbedding : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  let some signature ← embeddingSignatureText? (← getExpr) | failure
+  let .ok stx := Parser.runParserCategory (← getEnv) `term s!"an injective function {signature}" | failure
+  let phrase : Term := ⟨stx⟩
+  if (← getPos) == .root then return phrase
+  -- The result type can otherwise absorb the enclosing operator.
+  `(($phrase))
+
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app.List, delab app.Set]
 def delabCollections : Delab := do
@@ -510,6 +527,8 @@ private def bindingDescription (ty : Expr) (name : Option String)
     return ("a", s!"set{suffix} of {← collectionElementsText ty.getAppArgs[0]!}")
   if let some signature ← functionSignatureText? ty then
     return ("a", s!"function{suffix} {signature}")
+  if let some signature ← embeddingSignatureText? ty then
+    return ("an", s!"injective function{suffix} {signature}")
   if let some (noun, _) := scalarNouns? ty then
     return (if ty.isConstOf ``Int then "an" else "a", noun ++ suffix)
   return ("an", s!"element{suffix} of {← typeText}")
@@ -826,8 +845,10 @@ Embedded implications stay inline; standalone implications introduce a block.
 Quantifiers retain their block layout in either context. `atEnd` permits an
 operand to extend its scope to the end of the enclosing text. -/
 partial def renderExpr (e : Expr) (sentenceEnd := false)
-    (inlineContext := false) (atEnd := true) : MetaM String := do
+    (inlineContext := false) (atEnd := true) (axiomData := false) : MetaM String := do
   let e := inlineLets e
+  if axiomData && !e.isForall then
+    return ← sentenceTail s!"we have {← witnessText e none}" sentenceEnd
   match e with
   | .lam n ty body bi =>
     functionText n ty body bi (fun body => renderExpr body sentenceEnd)
@@ -843,15 +864,17 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
       else
         s!"if {premise} then\n{indented conclusion}"
       return ← sentenceTail text sentenceEnd
-    if bi == .default && (← isProp e) then
+    let proposition ← isProp e
+    if bi == .default && (proposition || publicParameterName n) then
       let n ← freshName n
       withLocalDecl n bi ty fun x => do
         let renderQuantified (heading : String) (body : Expr) (subjects : List Expr := [x]) : MetaM String :=
-          restrictedQuantifierText heading body subjects (fun body => renderExpr body sentenceEnd)
+          restrictedQuantifierText heading body subjects
+            (fun body => renderExpr body sentenceEnd (axiomData := axiomData))
             (fun condition => renderExpr condition false true)
         let renderSingle : MetaM String := do
           let body := inlineLets (body.instantiate1 x)
-          if !(pp.explicit.get (← getOptions)) then
+          if proposition && !(pp.explicit.get (← getOptions)) then
             if let .forallE _ premise conclusion .default := body then
               let premise := inlineLets premise
               if !conclusion.hasLooseBVars then
@@ -882,7 +905,9 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
         | _ => renderSingle
     else
       if let some signature ← functionSignatureText? e then
-        return ← sentenceTail s!"the type of functions {signature}" sentenceEnd
+        let description := if axiomData then s!"we have a function {signature}"
+          else s!"the type of functions {signature}"
+        return ← sentenceTail description sentenceEnd
       leafText e sentenceEnd
   | _ =>
     -- Structural forms take precedence over the open-ended predicate fallback.
@@ -1446,8 +1471,9 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
         let names ← ax.levelParams.mapM (fun level => nameText level)
         pure (".{" ++ String.intercalate ", " names ++ "}")
       let header := s!"{safety}Axiom {declarationName}{levels}:"
+      let axiomData := !(← isProp ax.type)
       let text ← checkedRendering
-        (do pure s!"{header}\n{indented (← renderExpr ax.type)}")
+        (do pure s!"{header}\n{indented (← renderExpr ax.type (axiomData := axiomData))}")
         (RoundTrip.checkAxiom n) fun _ =>
           withOptions (fun opts => opts.setBool `pp.explicit true) do
             pure s!"{header}\n{indented (← typeText ax.type)}"

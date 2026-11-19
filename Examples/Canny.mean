@@ -42,10 +42,12 @@ Definition:
       «or» p q gives p.solutionSet ∪ q.solutionSet.
 
 Axiom encTerm:
-  (n : ℕ) → Term n ↪ the type of lists of booleans
+  for every natural number n:
+    we have an injective function from Term n to lists of booleans
 
 Axiom encFormula:
-  (n : ℕ) → Formula n ↪ the type of lists of booleans
+  for every natural number n:
+    we have an injective function from Formula n to lists of booleans
 
 Definition:
   ETR is

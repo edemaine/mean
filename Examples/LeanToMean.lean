@@ -2111,6 +2111,7 @@ info: Axiom ordinaryAxiom:
 #mean_compare TheoremExamples.assumedZero
 #mean_compare TheoremExamples.selectFirst
 #mean_compare TheoremExamples.unsafeNumber
+#mean_term_compare Option (Fin 3 ↪ List Bool)
 
 open Lean Elab Term in
 run_elab do
