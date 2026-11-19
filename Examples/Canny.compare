@@ -83,6 +83,74 @@ Definition:
       «or» p q gives p.solutionSet ∪ q.solutionSet.
 
 -- LEAN INPUT:
+/-- Intended: unary dimension encoding.
+
+These declarations stand in for CSLib Frontier. The encoding interfaces are
+injective, but their bit layout and size bounds are not checked in this example.
+The class interfaces carry no machine semantics or closure properties here.
+Consult the pinned upstream abstract for the actual generated encodings and
+machine-based classes. -/
+axiom encUnary : ℕ ↪ List Bool
+-- MEAN OUTPUT:
+Axiom encUnary:
+  we have an injective function from ℕ to lists of booleans
+
+-- LEAN INPUT:
+/-- Intended: the upstream framed pair encoding. -/
+axiom encPair {α β : Type} : (α ↪ List Bool) → (β ↪ List Bool) → (α × β ↪ List Bool)
+-- MEAN OUTPUT:
+Axiom encPair:
+  {α β : Type} →
+    (an injective function from α to lists of booleans) →
+      (an injective function from β to lists of booleans) → (an injective function from (α × β) to lists of booleans)
+
+-- LEAN INPUT:
+/-- Intended: the upstream framed list encoding. -/
+axiom encList {α : Type} : (α ↪ List Bool) → (List α ↪ List Bool)
+-- MEAN OUTPUT:
+Axiom encList:
+  {α : Type} →
+    (an injective function from α to lists of booleans) →
+      (an injective function from lists of α elements to lists of booleans)
+
+-- LEAN INPUT:
+/-- Binary words encode themselves. -/
+abbrev encBits : List Bool ↪ List Bool := Function.Embedding.refl _
+-- MEAN OUTPUT:
+Abbreviation:
+  encBits is
+    Function.Embedding.refl (the type of lists of booleans).
+
+-- LEAN INPUT:
+/-- Intended: one uniform deterministic machine decides the language in polynomial space. -/
+axiom PSPACE {α : Type} : (α ↪ List Bool) → Set (Set α)
+-- MEAN OUTPUT:
+Axiom PSPACE:
+  {α : Type} →
+    (an injective function from α to lists of booleans) → the type of sets of (the type of sets of α elements) elements
+
+-- LEAN INPUT:
+/-- Intended: C₀P is P; each successor is strict-majority polynomial time
+with one fixed oracle from the preceding level. -/
+axiom CountingLevel : ℕ → {α : Type} → (α ↪ List Bool) → Set (Set α)
+-- MEAN OUTPUT:
+Axiom CountingLevel:
+  ℕ →
+    {α : Type} →
+      (an injective function from α to lists of booleans) → the type of sets of (the type of sets of α elements) elements
+
+-- LEAN INPUT:
+/-- Intended: an encoding-relative, total polynomial-time many-one reduction. -/
+axiom PolyTimeReducible {α β : Type} :
+  (α ↪ List Bool) → (β ↪ List Bool) → Set α → Set β → Prop
+-- MEAN OUTPUT:
+Axiom PolyTimeReducible:
+  {α β : Type} →
+    (an injective function from α to lists of booleans) →
+      (an injective function from β to lists of booleans) →
+        the type of sets of α elements → the type of sets of β elements → Prop
+
+-- LEAN INPUT:
 /-- Intended: flat constructor stream, with binary integers and unary Fin indices. -/
 axiom encTerm (n : ℕ) : Term n ↪ List Bool
 -- MEAN OUTPUT:
@@ -114,54 +182,54 @@ Definition:
 -- LEAN INPUT:
 /-- Theorem (Canny, 1988): existential real satisfiability is decidable in deterministic
 polynomial space, including rejection of malformed binary inputs. -/
-theorem etr_in_PSPACE : ETR ∈ Background.PSPACE Background.encBits :=
+theorem etr_in_PSPACE : ETR ∈ PSPACE encBits :=
   sorry
 -- MEAN OUTPUT:
 Theorem etr_in_PSPACE:
-  ETR ∈ Background.PSPACE Background.encBits
+  ETR ∈ PSPACE encBits
 
 -- LEAN INPUT:
 /-- Theorem (OpenAI, 2026): ETR belongs to the fixed counting level C₂₆P,
 with the same encoded language used in the PSPACE theorem above. -/
 theorem etr_in_CountingLevel :
-    ETR ∈ Background.CountingLevel 26 Background.encBits :=
+    ETR ∈ CountingLevel 26 encBits :=
   sorry
 -- MEAN OUTPUT:
 Theorem etr_in_CountingLevel:
-  ETR ∈ Background.CountingLevel 26 Background.encBits
+  ETR ∈ CountingLevel 26 encBits
 
 -- LEAN INPUT:
 /-- The class ∃ℝ consists of binary languages reducible to ETR in polynomial time.
 A reduction is a polynomial-time algorithm on all input strings that preserves
 yes/no answers; the background library's `PolyTimeReducible` includes its time bound. -/
 def ExistsReal : Set (Set (List Bool)) :=
-  {L | Background.PolyTimeReducible Background.encBits
-    Background.encBits L ETR}
+  {L | PolyTimeReducible encBits
+    encBits L ETR}
 -- MEAN OUTPUT:
 Definition:
   ExistsReal is
     the set of elements L of the type of sets of (the type of lists of booleans) elements such that
-      Background.encBits and Background.encBits and L and ETR satisfy Background.PolyTimeReducible.
+      encBits and encBits and L and ETR satisfy PolyTimeReducible.
 
 -- LEAN INPUT:
 /-- Corollary (Canny, 1988): every problem in ∃ℝ is decidable in deterministic
 polynomial space. -/
 theorem existsReal_subset_PSPACE :
-    ExistsReal ⊆ Background.PSPACE Background.encBits :=
+    ExistsReal ⊆ PSPACE encBits :=
   sorry
 -- MEAN OUTPUT:
 Theorem existsReal_subset_PSPACE:
-  ExistsReal ⊆ Background.PSPACE Background.encBits
+  ExistsReal ⊆ PSPACE encBits
 
 -- LEAN INPUT:
 /-- Corollary (OpenAI, 2026): every problem in ∃ℝ belongs to that same fixed
 counting level. -/
 theorem existsReal_subset_CountingLevel :
-    ExistsReal ⊆ Background.CountingLevel 26 Background.encBits :=
+    ExistsReal ⊆ CountingLevel 26 encBits :=
   sorry
 -- MEAN OUTPUT:
 Theorem existsReal_subset_CountingLevel:
-  ExistsReal ⊆ Background.CountingLevel 26 Background.encBits
+  ExistsReal ⊆ CountingLevel 26 encBits
 
 -- LEAN INPUT:
 /-- The ∃∀ℝ solution set contains the existential assignments `x` of length `r`
@@ -187,7 +255,7 @@ length. The union allows all finite block sizes; unused coordinates do not affec
 truth. Every other word is rejected. -/
 def ExistsForallReal : Set (List Bool) :=
   ⋃ r, ⋃ s, {p : Formula (r + s) | p.existsForallSolutionSet.Nonempty}.image (fun p =>
-    Background.encPair Background.encUnary Background.encBits
+    encPair encUnary encBits
       (r, encFormula (r + s) p))
 -- MEAN OUTPUT:
 Definition:
@@ -198,8 +266,7 @@ Definition:
             p.existsForallSolutionSet is a nonempty set)
         under
         (the function mapping an element p of Formula (r + s) to
-            (Background.encPair Background.encUnary Background.encBits :
-                ℕ × the type of lists of booleans → the type of lists of booleans)
+            (encPair encUnary encBits : ℕ × the type of lists of booleans → the type of lists of booleans)
               (r, (encFormula (r + s) : Formula (r + s) → the type of lists of booleans) p)).
 
 -- LEAN INPUT:
@@ -207,11 +274,11 @@ Definition:
 This formalization supplies the fixed level C₆₀P, independent of variable counts,
 polynomial degrees, and coefficient magnitudes. -/
 theorem existsForallReal_in_CountingLevel :
-    ExistsForallReal ∈ Background.CountingLevel 60 Background.encBits :=
+    ExistsForallReal ∈ CountingLevel 60 encBits :=
   sorry
 -- MEAN OUTPUT:
 Theorem existsForallReal_in_CountingLevel:
-  ExistsForallReal ∈ Background.CountingLevel 60 Background.encBits
+  ExistsForallReal ∈ CountingLevel 60 encBits
 
 -- LEAN INPUT:
 /-- Connected formulas describe connected solution sets in `ℝⁿ`, allowing the
@@ -229,7 +296,7 @@ Definition:
 /-- Whole-space connectivity applies the input encoding to connected formulas. -/
 def ConnectedLanguage : Set (List Bool) :=
   ⋃ n, (ConnectedFormulas n).image (fun p =>
-    Background.encPair Background.encUnary Background.encBits
+    encPair encUnary encBits
       (n, encFormula n p))
 -- MEAN OUTPUT:
 Definition:
@@ -237,19 +304,18 @@ Definition:
     the union over natural numbers n of
       the image of (ConnectedFormulas n) under
         (the function mapping an element p of Formula n to
-            (Background.encPair Background.encUnary Background.encBits :
-                ℕ × the type of lists of booleans → the type of lists of booleans)
+            (encPair encUnary encBits : ℕ × the type of lists of booleans → the type of lists of booleans)
               (n, (encFormula n : Formula n → the type of lists of booleans) p)).
 
 -- LEAN INPUT:
 /-- Theorem (Canny, 1988): connectivity of an integer semialgebraic set is in PSPACE,
 including singular and unbounded sets and accepting the empty set. -/
 theorem connectedLanguage_in_PSPACE :
-    ConnectedLanguage ∈ Background.PSPACE Background.encBits :=
+    ConnectedLanguage ∈ PSPACE encBits :=
   sorry
 -- MEAN OUTPUT:
 Theorem connectedLanguage_in_PSPACE:
-  ConnectedLanguage ∈ Background.PSPACE Background.encBits
+  ConnectedLanguage ∈ PSPACE encBits
 
 -- LEAN INPUT:
 /-- Reachable endpoint pairs describe two unique points joined by a continuous
@@ -276,8 +342,8 @@ Definition:
 /-- Reachability applies the input encoding to reachable endpoint pairs. -/
 def ReachableLanguage : Set (List Bool) :=
   ⋃ n, ⋃ p : Formula n, (ReachableEndpoints p).image (fun (p₁, p₂) =>
-    Background.encPair Background.encUnary
-      (Background.encList Background.encBits)
+    encPair encUnary
+      (encList encBits)
       (n, [encFormula n p, encFormula n p₁, encFormula n p₂]))
 -- MEAN OUTPUT:
 Definition:
@@ -288,7 +354,7 @@ Definition:
           (the function mapping an element x of Formula n × Formula n to
               match x with
               | (p₁, p₂) =>
-                (Background.encPair Background.encUnary (Background.encList Background.encBits) :
+                (encPair encUnary (encList encBits) :
                     ℕ × the type of lists of (the type of lists of booleans) elements → the type of lists of booleans)
                   (n,
                     [(encFormula n : Formula n → the type of lists of booleans) p,
@@ -299,8 +365,8 @@ Definition:
 /-- Theorem (Canny, 1988): path connectivity between two formula-described points
 in an integer semialgebraic set is in PSPACE, including endpoint validation. -/
 theorem reachableLanguage_in_PSPACE :
-    ReachableLanguage ∈ Background.PSPACE Background.encBits :=
+    ReachableLanguage ∈ PSPACE encBits :=
   sorry
 -- MEAN OUTPUT:
 Theorem reachableLanguage_in_PSPACE:
-  ReachableLanguage ∈ Background.PSPACE Background.encBits
+  ReachableLanguage ∈ PSPACE encBits

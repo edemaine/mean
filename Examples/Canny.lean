@@ -68,15 +68,14 @@ def Formula.solutionSet {n : ℕ} : Formula n → Set (Fin n → ℝ)
   | .or p q => p.solutionSet ∪ q.solutionSet
 #mean_compare Formula.solutionSet
 
-/-! ## Background interfaces (not implementations)
+/-! ## Background interfaces -/
+/-- Intended: unary dimension encoding.
 
 These declarations stand in for CSLib Frontier. The encoding interfaces are
 injective, but their bit layout and size bounds are not checked in this example.
 The class interfaces carry no machine semantics or closure properties here.
 Consult the pinned upstream abstract for the actual generated encodings and
 machine-based classes. -/
-namespace Background
-/-- Intended: unary dimension encoding. -/
 axiom encUnary : ℕ ↪ List Bool
 /-- Intended: the upstream framed pair encoding. -/
 axiom encPair {α β : Type} : (α ↪ List Bool) → (β ↪ List Bool) → (α × β ↪ List Bool)
@@ -92,7 +91,13 @@ axiom CountingLevel : ℕ → {α : Type} → (α ↪ List Bool) → Set (Set α
 /-- Intended: an encoding-relative, total polynomial-time many-one reduction. -/
 axiom PolyTimeReducible {α β : Type} :
   (α ↪ List Bool) → (β ↪ List Bool) → Set α → Set β → Prop
-end Background
+#mean_compare encUnary
+#mean_compare encPair
+#mean_compare encList
+#mean_compare encBits
+#mean_compare PSPACE
+#mean_compare CountingLevel
+#mean_compare PolyTimeReducible
 
 /-- Intended: flat constructor stream, with binary integers and unary Fin indices. -/
 axiom encTerm (n : ℕ) : Term n ↪ List Bool
@@ -112,7 +117,7 @@ def ETR : Set (List Bool) :=
 set_option warn.sorry false in
 /-- Theorem (Canny, 1988): existential real satisfiability is decidable in deterministic
 polynomial space, including rejection of malformed binary inputs. -/
-theorem etr_in_PSPACE : ETR ∈ Background.PSPACE Background.encBits :=
+theorem etr_in_PSPACE : ETR ∈ PSPACE encBits :=
   sorry
 #mean_compare etr_in_PSPACE
 
@@ -120,7 +125,7 @@ set_option warn.sorry false in
 /-- Theorem (OpenAI, 2026): ETR belongs to the fixed counting level C₂₆P,
 with the same encoded language used in the PSPACE theorem above. -/
 theorem etr_in_CountingLevel :
-    ETR ∈ Background.CountingLevel 26 Background.encBits :=
+    ETR ∈ CountingLevel 26 encBits :=
   sorry
 #mean_compare etr_in_CountingLevel
 
@@ -128,15 +133,15 @@ theorem etr_in_CountingLevel :
 A reduction is a polynomial-time algorithm on all input strings that preserves
 yes/no answers; the background library's `PolyTimeReducible` includes its time bound. -/
 def ExistsReal : Set (Set (List Bool)) :=
-  {L | Background.PolyTimeReducible Background.encBits
-    Background.encBits L ETR}
+  {L | PolyTimeReducible encBits
+    encBits L ETR}
 #mean_compare ExistsReal
 
 set_option warn.sorry false in
 /-- Corollary (Canny, 1988): every problem in ∃ℝ is decidable in deterministic
 polynomial space. -/
 theorem existsReal_subset_PSPACE :
-    ExistsReal ⊆ Background.PSPACE Background.encBits :=
+    ExistsReal ⊆ PSPACE encBits :=
   sorry
 #mean_compare existsReal_subset_PSPACE
 
@@ -144,7 +149,7 @@ set_option warn.sorry false in
 /-- Corollary (OpenAI, 2026): every problem in ∃ℝ belongs to that same fixed
 counting level. -/
 theorem existsReal_subset_CountingLevel :
-    ExistsReal ⊆ Background.CountingLevel 26 Background.encBits :=
+    ExistsReal ⊆ CountingLevel 26 encBits :=
   sorry
 #mean_compare existsReal_subset_CountingLevel
 
@@ -164,7 +169,7 @@ length. The union allows all finite block sizes; unused coordinates do not affec
 truth. Every other word is rejected. -/
 def ExistsForallReal : Set (List Bool) :=
   ⋃ r, ⋃ s, {p : Formula (r + s) | p.existsForallSolutionSet.Nonempty}.image (fun p =>
-    Background.encPair Background.encUnary Background.encBits
+    encPair encUnary encBits
       (r, encFormula (r + s) p))
 #mean_compare ExistsForallReal
 
@@ -173,7 +178,7 @@ set_option warn.sorry false in
 This formalization supplies the fixed level C₆₀P, independent of variable counts,
 polynomial degrees, and coefficient magnitudes. -/
 theorem existsForallReal_in_CountingLevel :
-    ExistsForallReal ∈ Background.CountingLevel 60 Background.encBits :=
+    ExistsForallReal ∈ CountingLevel 60 encBits :=
   sorry
 #mean_compare existsForallReal_in_CountingLevel
 
@@ -188,7 +193,7 @@ def ConnectedFormulas (n : ℕ) : Set (Formula n) :=
 /-- Whole-space connectivity applies the input encoding to connected formulas. -/
 def ConnectedLanguage : Set (List Bool) :=
   ⋃ n, (ConnectedFormulas n).image (fun p =>
-    Background.encPair Background.encUnary Background.encBits
+    encPair encUnary encBits
       (n, encFormula n p))
 #mean_compare ConnectedLanguage
 
@@ -196,7 +201,7 @@ set_option warn.sorry false in
 /-- Theorem (Canny, 1988): connectivity of an integer semialgebraic set is in PSPACE,
 including singular and unbounded sets and accepting the empty set. -/
 theorem connectedLanguage_in_PSPACE :
-    ConnectedLanguage ∈ Background.PSPACE Background.encBits :=
+    ConnectedLanguage ∈ PSPACE encBits :=
   sorry
 #mean_compare connectedLanguage_in_PSPACE
 
@@ -214,8 +219,8 @@ def ReachableEndpoints {n : ℕ} (p : Formula n) : Set (Formula n × Formula n) 
 /-- Reachability applies the input encoding to reachable endpoint pairs. -/
 def ReachableLanguage : Set (List Bool) :=
   ⋃ n, ⋃ p : Formula n, (ReachableEndpoints p).image (fun (p₁, p₂) =>
-    Background.encPair Background.encUnary
-      (Background.encList Background.encBits)
+    encPair encUnary
+      (encList encBits)
       (n, [encFormula n p, encFormula n p₁, encFormula n p₂]))
 #mean_compare ReachableLanguage
 
@@ -223,7 +228,7 @@ set_option warn.sorry false in
 /-- Theorem (Canny, 1988): path connectivity between two formula-described points
 in an integer semialgebraic set is in PSPACE, including endpoint validation. -/
 theorem reachableLanguage_in_PSPACE :
-    ReachableLanguage ∈ Background.PSPACE Background.encBits :=
+    ReachableLanguage ∈ PSPACE encBits :=
   sorry
 #mean_compare reachableLanguage_in_PSPACE
 
