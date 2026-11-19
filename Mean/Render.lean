@@ -403,6 +403,25 @@ def delabLogarithm : Delab := do
   `(log base $base of $value)
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+private def delabAggregateBinder (i : Ident) (arg : Nat) (useScalarNoun := false)
+    (j : Option Ident := none) :
+    DelabM (TSyntax `meanAggregateIndex) := do
+  let ty := (← getExpr).getArg! arg
+  if let some domain ← indexDomainText? ty then
+    let .ok stx := Parser.runParserCategory (← getEnv) `meanIndexDomain domain | failure
+    `(meanAggregateIndex| indices $i:ident $[and $j:ident]? $(⟨stx⟩):meanIndexDomain)
+  else if let some (_, plural) := if useScalarNoun then scalarNouns? ty else none then
+    let .ok stx := Parser.runParserCategory (← getEnv) `meanScalarPlural plural | failure
+    `(meanAggregateIndex| $(⟨stx⟩):meanScalarPlural $i:ident $[and $j:ident]?)
+  else
+    let text ← phraseArgument ty (← withNaryArg arg delab)
+    `(meanAggregateIndex| elements $i:ident $[and $j:ident]? of $text)
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+private def delabAggregateBody : DelabM (Ident × Term) :=
+  withAppArg <| withBindingBodyUnusedName fun i => return (⟨i⟩, ← delab)
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app.Finset.sum]
 def delabSum : Delab := do
   guard <| mean.renderProperties.get (← getOptions)
@@ -411,21 +430,49 @@ def delabSum : Delab := do
   guard <| e.isAppOfArity ``Finset.sum 5
   let args := e.getAppArgs
   guard args[4]!.isLambda
-  let (i, body) ← withAppArg <| withBindingBodyUnusedName fun i =>
-    return ((⟨i⟩ : Ident), ← delab)
+  let (i, body) ← delabAggregateBody
   if args[3]!.isAppOfArity ``Finset.univ 2 then
-    if let some domain ← indexDomainText? args[0]! then
-      let .ok stx := Parser.runParserCategory (← getEnv) `meanIndexDomain domain | failure
-      let domain : TSyntax `meanIndexDomain := ⟨stx⟩
-      `(the sum over indices $i:ident $domain:meanIndexDomain of $body)
-    else
-      let ty ← withNaryArg 0 delab
-      let ty ← if args[0]!.isConst || args[0]!.isFVar then pure ty else `(($ty))
-      `(the sum over elements $i:ident of $ty of $body)
+    let binding ← delabAggregateBinder i 0
+    `(the sum over $binding:meanAggregateIndex of $body)
   else
     let s ← withNaryArg 3 delab
     let s ← if args[3]!.isConst || args[3]!.isFVar then pure s else `(($s))
     `(the sum over $i:ident in $s of $body)
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.Set.iUnion, delab app.Set.iInter]
+def delabIndexedSetOperation : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  guard <| !(pp.explicit.get (← getOptions))
+  let e ← getExpr
+  let op := e.getAppFn.constName!
+  guard <| e.getAppNumArgs == 3 && (e.getArg! 2).isLambda
+  let intersection := op == ``Set.iInter
+  guard <| !(← isProp (e.getArg! 1))
+  let render (binding : TSyntax `meanAggregateIndex) (body : Term) : Delab :=
+    if intersection then `(the intersection over $binding:meanAggregateIndex of $body)
+    else `(the union over $binding:meanAggregateIndex of $body)
+  let bounded (i : Ident) (body : Term) : Option (Term × Term) :=
+    match body with
+    | `(⋃ (_ : $x:ident ∈ $s), $rest) =>
+      if !intersection && i.getId == x.getId then some (s, rest) else none
+    | `(⋂ (_ : $x:ident ∈ $s), $rest) =>
+      if intersection && i.getId == x.getId then some (s, rest) else none
+    | _ => none
+  let inner := (e.getArg! 2).bindingBody!.consumeMData
+  if inner.isAppOfArity op 3 && (inner.getArg! 2).isLambda && inner.getArg! 1 == e.getArg! 1 then
+    let (i, j, body) ← withAppArg <| withBindingBodyUnusedName fun i => do
+      let (j, body) ← delabAggregateBody
+      return ((⟨i⟩ : Ident), j, body)
+    if (bounded j body).isNone then
+      let binding ← delabAggregateBinder i 1 (useScalarNoun := true) (j := some j)
+      return ← render binding body
+  let (i, body) ← delabAggregateBody
+  if let some (s, rest) := bounded i body then
+    let s ← if s.raw.isIdent || groupedSyntax s.raw then pure s else `(($s))
+    let binding ← `(meanAggregateIndex| $i:ident in $s)
+    return ← render binding rest
+  render (← delabAggregateBinder i 1 (useScalarNoun := true)) body
 
 /-- Only explicit, nondependent arrows admit the simple from/to description.
 Inspect the type expression without unfolding user-defined aliases. -/

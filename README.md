@@ -865,6 +865,8 @@ The grammar separates logical structure from mathematical vocabulary:
 | Function expression | `the function [: <type>] mapping <subject> [and <subject> …] to <value>` |
 | Function type | `the type of functions from A to B` |
 | Finite sum | `the sum over indices i in [0, n) of f i`, `the sum over i in s of f i` |
+| Indexed set union | `the union over natural numbers n of S n` |
+| Indexed set intersection | `the intersection over natural numbers n of S n` |
 | Typed scalar value | `the <scalar> <value>`, `the integer 42`, `the real number (2 * x)` |
 | Scalar coercion | `<term> as a real number`, `<term> as an integer` |
 | Custom target coercion | `<term> as Foo`, `<term> as Box A` |
@@ -954,6 +956,12 @@ Index and element domains sum over all values of a type with a `Fintype` instanc
 following `of` belongs to the summand; comparisons and logical connectives stay
 outside it. Write `(the sum over indices i in [0, n) of f i) + 1` to add one to
 the completed sum. Parentheses also group summands with lower precedence.
+
+Indexed set unions and intersections use the same index descriptions. For example,
+`the union over natural numbers n of S n` means `⋃ n : ℕ, S n`.
+In `the union over n in s of S n`, the index ranges over the set `s`.
+Write `the union over natural numbers r and s of S r s` for two successive
+unions over the same domain. The same form works for two intersections.
 
 Real logarithms use `log base b of x`, meaning `Real.logb b x`:
 

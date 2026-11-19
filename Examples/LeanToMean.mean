@@ -77,6 +77,16 @@ the set of all elements of ℕ
 
 the complement of (s ∪ t)
 
+the union over n in s of
+    S n
+
+the intersection over n in s of
+    S n
+
+the union over natural numbers n of
+    the intersection over natural numbers m of
+        T n m
+
 the type of bijective affine isometries from Space to Space over ℝ
 
 the linear part of f

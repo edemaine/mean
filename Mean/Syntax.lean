@@ -589,23 +589,56 @@ macro_rules
   | `(describedType% sets of $items:meanListElements) => `(setType% $items)
   | `(describedType% indices $domain:meanIndexDomain) => `(indexType% $domain)
 
-/-! Finite sums bind their index only in the summand. Arithmetic belongs to the
-summand; comparisons and logical connectives remain outside it. -/
-def sumDomain : Lean.Parser.Parser :=
+/-! Sums and indexed unions share index descriptions. Their bodies stop
+before comparisons and logical connectives. -/
+def aggregateDomain : Lean.Parser.Parser :=
   Lean.Parser.withForbidden "of" Lean.Parser.termParser
 
-declare_syntax_cat meanSumIndex
-syntax "indices" ident meanIndexDomain : meanSumIndex
-syntax "elements " ident " of " sumDomain : meanSumIndex
-syntax ident " in " sumDomain : meanSumIndex
-syntax:60 "the " "sum " "over " meanSumIndex " of " term:60 : term
+declare_syntax_cat meanAggregateIndex
+syntax "indices" ident (" and " ident)? meanIndexDomain : meanAggregateIndex
+syntax "elements " ident (" and " ident)? " of " aggregateDomain : meanAggregateIndex
+syntax meanScalarPlural ppSpace ident (" and " ident)? : meanAggregateIndex
+syntax ident " in " aggregateDomain : meanAggregateIndex
+def unionWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "union "
+def intersectionWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "intersection "
+syntax:60 "the " "sum " "over " meanAggregateIndex " of " term:60 : term
+syntax:60 "the " unionWord "over " meanAggregateIndex " of" ppIndent(ppLine term:60) : term
+syntax:60 "the " intersectionWord "over " meanAggregateIndex " of" ppIndent(ppLine term:60) : term
+
+private def aggregateBinder (binding : Lean.TSyntax `meanAggregateIndex) :
+    Lean.MacroM (Lean.Ident × Option Lean.Ident × Lean.Term) := do
+  match binding with
+  | `(meanAggregateIndex| indices $i:ident $[and $j:ident]? $domain:meanIndexDomain) =>
+      pure (i, j, ← `(indexType% $domain))
+  | `(meanAggregateIndex| elements $i:ident $[and $j:ident]? of $ty:term) => pure (i, j, ty)
+  | `(meanAggregateIndex| $plural:meanScalarPlural $i:ident $[and $j:ident]?) => do
+      let domain ← `(meanScalarDomain| $plural:meanScalarPlural)
+      pure (i, j, ← `(scalarDomainType% $domain))
+  | _ => Lean.Macro.throwUnsupported
+
+private def typedAggregate (op : Lean.Term) (binding : Lean.TSyntax `meanAggregateIndex)
+    (body : Lean.Term) : Lean.MacroM Lean.Term := do
+  let (i, j, ty) ← aggregateBinder binding
+  if let some j := j then
+    -- Resolve the shared domain before either index can shadow its free names.
+    `(let sharedType := $ty
+      $op (fun ($i : sharedType) => $op (fun ($j : sharedType) => $body)))
+  else
+    `($op (fun ($i : $ty) => $body))
+
 macro_rules
-  | `(the sum over indices $i:ident $domain:meanIndexDomain of $body:term) =>
-      `(Finset.sum Finset.univ (fun ($i : indexType% $domain) => $body))
-  | `(the sum over elements $i:ident of $ty:term of $body:term) =>
-      `(Finset.sum Finset.univ (fun ($i : $ty) => $body))
   | `(the sum over $i:ident in $s:term of $body:term) =>
       `(Finset.sum $s (fun $i => $body))
+  | `(the sum over $binding:meanAggregateIndex of $body:term) => do
+      typedAggregate (← `(Finset.sum Finset.univ)) binding body
+  | `(the union over $i:ident in $s:term of $body:term) =>
+      `(⋃ $i:ident ∈ $s, $body)
+  | `(the union over $binding:meanAggregateIndex of $body:term) => do
+      typedAggregate (← `(Set.iUnion)) binding body
+  | `(the intersection over $i:ident in $s:term of $body:term) =>
+      `(⋂ $i:ident ∈ $s, $body)
+  | `(the intersection over $binding:meanAggregateIndex of $body:term) => do
+      typedAggregate (← `(Set.iInter)) binding body
 
 /-- The word `typeclass` requires a class application, including proposition-valued classes. -/
 elab "typeclassType%" t:term : term => do

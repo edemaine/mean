@@ -105,11 +105,11 @@ def ETR : Set (List Bool) :=
 -- MEAN OUTPUT:
 Definition:
   ETR is
-    ⋃ (n : ℕ),
-      the image of
-        (the set of elements p of Formula n such that
-            p.solutionSet satisfies Set.Nonempty)
-        under (encFormula n).
+    the union over natural numbers n of
+        the image of
+          (the set of elements p of Formula n such that
+              p.solutionSet satisfies Set.Nonempty)
+          under (encFormula n).
 
 -- LEAN INPUT:
 /-- Theorem (Canny, 1988): existential real satisfiability is decidable in deterministic
@@ -190,8 +190,7 @@ def ExistsForallReal : Set (List Bool) :=
 -- MEAN OUTPUT:
 Definition:
   ExistsForallReal is
-    ⋃ (r : ℕ),
-      ⋃ (s : ℕ),
+    the union over natural numbers r and s of
         the image of
           (the set of elements p of Formula (r + s) such that
               p.existsForallSolutionSet satisfies Set.Nonempty)
@@ -233,12 +232,12 @@ def ConnectedLanguage : Set (List Bool) :=
 -- MEAN OUTPUT:
 Definition:
   ConnectedLanguage is
-    ⋃ (n : ℕ),
-      the image of (ConnectedFormulas n) under
-        (fun (p : Formula n) =>
-          (Background.encPair Background.encUnary Background.encBits :
-              ℕ × the type of lists of booleans → the type of lists of booleans)
-            (n, (encFormula n : Formula n → the type of lists of booleans) p)).
+    the union over natural numbers n of
+        the image of (ConnectedFormulas n) under
+          (fun (p : Formula n) =>
+            (Background.encPair Background.encUnary Background.encBits :
+                ℕ × the type of lists of booleans → the type of lists of booleans)
+              (n, (encFormula n : Formula n → the type of lists of booleans) p)).
 
 -- LEAN INPUT:
 /-- Theorem (Canny, 1988): connectivity of an integer semialgebraic set is in PSPACE,
@@ -281,18 +280,18 @@ def ReachableLanguage : Set (List Bool) :=
 -- MEAN OUTPUT:
 Definition:
   ReachableLanguage is
-    ⋃ (n : ℕ),
-      ⋃ (p : Formula n),
-        the image of (ReachableEndpoints p) under
-          (fun (x : Formula n × Formula n) =>
-            match x with
-            | (p₁, p₂) =>
-              (Background.encPair Background.encUnary (Background.encList Background.encBits) :
-                  ℕ × the type of lists of (the type of lists of booleans) elements → the type of lists of booleans)
-                (n,
-                  [(encFormula n : Formula n → the type of lists of booleans) p,
-                    (encFormula n : Formula n → the type of lists of booleans) p₁,
-                    (encFormula n : Formula n → the type of lists of booleans) p₂])).
+    the union over natural numbers n of
+        the union over elements p of (Formula n) of
+            the image of (ReachableEndpoints p) under
+              (fun (x : Formula n × Formula n) =>
+                match x with
+                | (p₁, p₂) =>
+                  (Background.encPair Background.encUnary (Background.encList Background.encBits) :
+                      ℕ × the type of lists of (the type of lists of booleans) elements → the type of lists of booleans)
+                    (n,
+                      [(encFormula n : Formula n → the type of lists of booleans) p,
+                        (encFormula n : Formula n → the type of lists of booleans) p₁,
+                        (encFormula n : Formula n → the type of lists of booleans) p₂])).
 
 -- LEAN INPUT:
 /-- Theorem (Canny, 1988): path connectivity between two formula-described points

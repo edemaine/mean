@@ -6,6 +6,15 @@ example (A : Type u) (xs : List A) : (the length of xs) = xs.length := rfl
 example (A : Type u) : (the set of all elements of A) = (Set.univ : Set A) := rfl
 example (A : Type u) (x y : A) : (the set {x, y}) = ({x, y} : Set A) := rfl
 example (A : Type u) (s t : Set A) : (the complement of s ∪ t) = sᶜ ∪ t := rfl
+example (S : (n : ℕ) → Fin n → Set Nat) :
+    (the union over natural numbers n of the union over indices i in [0, n) of S n i) =
+    (⋃ n, ⋃ i, S n i) := rfl
+example (s : Set Nat) (S : ℕ → Set Nat) :
+    (the union over n in s of S n) = (⋃ n ∈ s, S n) := rfl
+example (s : Set Nat) (S : ℕ → Set Nat) :
+    (the intersection over n in s of S n) = (⋂ n ∈ s, S n) := rfl
+example (S : ℕ → ℕ → Set Nat) :
+    (the union over natural numbers r and s of S r s) = (⋃ r, ⋃ s, S r s) := rfl
 example (A : Type u) (x : A) : (the set {x}) = ({x} : Set A) := rfl
 example (A : Type u) : (the set ∅) = (∅ : Set A) := rfl
 example (s : Set Nat) :

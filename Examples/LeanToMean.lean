@@ -149,6 +149,13 @@ variable (s t : Set Nat)
 #mean_term_compare (s ∪ t)ᶜ
 end
 section
+variable (s : Set Nat) (S : ℕ → Set Nat)
+#mean_term_compare ⋃ n ∈ s, S n
+#mean_term_compare ⋂ n ∈ s, S n
+variable (T : ℕ → ℕ → Set Nat)
+#mean_term_compare ⋃ n, ⋂ m, T n m
+end
+section
 open GeneralRenderingExamples
 variable (f t : Motion) (p q : Space) (s : Set Space)
 variable (L : Space →ₗ[Real] Space)
