@@ -1524,6 +1524,12 @@ with constructors:"
 " ++ indented clause
       return if info.ctors.isEmpty then header ++ " ." else header
 
+/-- Ignore theorem parameters when checking whether the entire proof is a placeholder. -/
+private partial def isPlaceholderProof (value : Expr) : Bool :=
+  match value.consumeMData with
+  | .lam _ _ body _ => isPlaceholderProof body
+  | body => body.isNonSyntheticSorry && body.getSorry? == some body
+
 private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.CommandElabM Unit :=
   Command.liftTermElabM do
   let n ← realizeGlobalConstNoOverloadWithInfo declaration
@@ -1537,8 +1543,14 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
       let text := s!"Theorem {declarationName}:\n{indented (← renderChecked info.type)}"
       RoundTrip.checkText info.type text `meanTheoremStatement
       if compare then
-        let before := s!"theorem {declarationName} :\n{indented (← leanText info.type)}"
-        logInfo (comparisonText (← declarationInputText n (context ++ before)) (context ++ text))
+        let placeholder := match info with
+          | .thmInfo theoremInfo => isPlaceholderProof theoremInfo.value
+          | _ => false
+        let nativeProof := if placeholder then " := sorry" else ""
+        let meanProof := if placeholder then "\nProof: sorry" else ""
+        let before := s!"theorem {declarationName} :\n{indented (← leanText info.type)}{nativeProof}"
+        logInfo (comparisonText (← declarationInputText n (context ++ before))
+          (context ++ text ++ meanProof))
       else logInfo s!"{context}{text}"
       return
     match info with

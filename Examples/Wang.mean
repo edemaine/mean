@@ -51,6 +51,8 @@ Definition:
 
 Theorem coRE_complete:
   TilesPlane satisfies CoREComplete
+Proof: sorry
 
 Theorem undecidable:
   TilesPlane is not computable
+Proof: sorry

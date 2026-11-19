@@ -183,6 +183,7 @@ theorem etr_in_PSPACE : ETR ∈ PSPACE encBits :=
 -- MEAN OUTPUT:
 Theorem etr_in_PSPACE:
   ETR ∈ PSPACE encBits
+Proof: sorry
 
 -- LEAN INPUT:
 /-- Theorem (OpenAI, 2026): ETR belongs to the fixed counting level C₂₆P,
@@ -193,6 +194,7 @@ theorem etr_in_CountingLevel :
 -- MEAN OUTPUT:
 Theorem etr_in_CountingLevel:
   ETR ∈ CountingLevel 26 encBits
+Proof: sorry
 
 -- LEAN INPUT:
 /-- The class ∃ℝ consists of binary languages reducible to ETR in polynomial time.
@@ -216,6 +218,7 @@ theorem existsReal_subset_PSPACE :
 -- MEAN OUTPUT:
 Theorem existsReal_subset_PSPACE:
   ExistsReal ⊆ PSPACE encBits
+Proof: sorry
 
 -- LEAN INPUT:
 /-- Corollary (OpenAI, 2026): every problem in ∃ℝ belongs to that same fixed
@@ -226,6 +229,7 @@ theorem existsReal_subset_CountingLevel :
 -- MEAN OUTPUT:
 Theorem existsReal_subset_CountingLevel:
   ExistsReal ⊆ CountingLevel 26 encBits
+Proof: sorry
 
 -- LEAN INPUT:
 /-- The ∃∀ℝ solution set contains the existential assignments `x` of length `r`
@@ -275,6 +279,7 @@ theorem existsForallReal_in_CountingLevel :
 -- MEAN OUTPUT:
 Theorem existsForallReal_in_CountingLevel:
   ExistsForallReal ∈ CountingLevel 60 encBits
+Proof: sorry
 
 -- LEAN INPUT:
 /-- Connected formulas describe connected solution sets in `ℝⁿ`, allowing the
@@ -312,6 +317,7 @@ theorem connectedLanguage_in_PSPACE :
 -- MEAN OUTPUT:
 Theorem connectedLanguage_in_PSPACE:
   ConnectedLanguage ∈ PSPACE encBits
+Proof: sorry
 
 -- LEAN INPUT:
 /-- Reachable endpoint pairs describe two unique points joined by a continuous
@@ -366,3 +372,4 @@ theorem reachableLanguage_in_PSPACE :
 -- MEAN OUTPUT:
 Theorem reachableLanguage_in_PSPACE:
   ReachableLanguage ∈ PSPACE encBits
+Proof: sorry

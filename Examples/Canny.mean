@@ -87,9 +87,11 @@ Definition:
 
 Theorem etr_in_PSPACE:
   ETR ∈ PSPACE encBits
+Proof: sorry
 
 Theorem etr_in_CountingLevel:
   ETR ∈ CountingLevel 26 encBits
+Proof: sorry
 
 Definition:
   ExistsReal is
@@ -98,9 +100,11 @@ Definition:
 
 Theorem existsReal_subset_PSPACE:
   ExistsReal ⊆ PSPACE encBits
+Proof: sorry
 
 Theorem existsReal_subset_CountingLevel:
   ExistsReal ⊆ CountingLevel 26 encBits
+Proof: sorry
 
 Definition:
   Formula.existsForallSolutionSet is
@@ -124,6 +128,7 @@ Definition:
 
 Theorem existsForallReal_in_CountingLevel:
   ExistsForallReal ∈ CountingLevel 60 encBits
+Proof: sorry
 
 Definition:
   ConnectedFormulas is
@@ -141,6 +146,7 @@ Definition:
 
 Theorem connectedLanguage_in_PSPACE:
   ConnectedLanguage ∈ PSPACE encBits
+Proof: sorry
 
 Definition:
   ReachableEndpoints is
@@ -171,3 +177,4 @@ Definition:
 
 Theorem reachableLanguage_in_PSPACE:
   ReachableLanguage ∈ PSPACE encBits
+Proof: sorry

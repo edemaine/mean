@@ -51,11 +51,13 @@ Theorem tiling_coRE_complete:
   for every natural number d where 3 ≤ d:
     (the function mapping an element P of Prototile d to
       P satisfies Connected and P satisfies Tiles) satisfies LeanWang.Abstract.CoREComplete
+Proof: sorry
 
 Theorem tiling_undecidable:
   for every natural number d where 3 ≤ d:
     (the function mapping an element P of Prototile d to
       P satisfies Connected and P satisfies Tiles) is not computable
+Proof: sorry
 
 Theorem tiling_reduction:
   for every natural number d where 3 ≤ d:
@@ -68,6 +70,7 @@ Theorem tiling_reduction:
         the length of (f T) as a real number ≤
           (the length of T as a real number + 4) ^
             (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4)))
+Proof: sorry
 
 Abbreviation:
   RealPoint is
@@ -126,18 +129,21 @@ Theorem real_tiling_coRE_hard:
     for every superset motions of translations:
       (the function mapping an element P of Prototile d to
         P satisfies Connected and (P and motions satisfy RealTiles)) satisfies LeanWang.Abstract.CoREHard
+Proof: sorry
 
 Theorem real_tiling_undecidable:
   for every natural number d where 3 ≤ d:
     for every superset motions of translations:
       (the function mapping an element P of Prototile d to
         P satisfies Connected and (P and motions satisfy RealTiles)) is not computable
+Proof: sorry
 
 Theorem real_tiling_coRE_complete:
   for every natural number d where 3 ≤ d:
     for every motions ∈ the set {allMotions, translations, translationsAndRotations, translationsAndReflections}:
       (the function mapping an element P of Prototile d to
         P satisfies Connected and (P and motions satisfy RealTiles)) satisfies LeanWang.Abstract.CoREComplete
+Proof: sorry
 
 Theorem real_tiling_reduction:
   for every natural number d where 3 ≤ d:
@@ -151,6 +157,7 @@ Theorem real_tiling_reduction:
         the length of (f T) as a real number ≤
           (the length of T as a real number + 4) ^
             (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4)))
+Proof: sorry
 
 Theorem rigid_tiling_reduction:
   for every natural number d where 3 ≤ d:
@@ -166,6 +173,7 @@ Theorem rigid_tiling_reduction:
           2 ^ (10 * (d + 1) ^ 2) *
             (the length of T as a real number + 4) ^
               (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4)))
+Proof: sorry
 
 Theorem rigid_tiling_reduction_three:
   there is a function f from lists of LeanWang.Abstract.Tile elements to Prototile 3 such that
@@ -180,3 +188,4 @@ Theorem rigid_tiling_reduction_three:
         64000 *
           (the length of T as a real number + 4) ^
             (10 ^ 61 * log base 2 of (log base 2 of (the length of T as a real number + 4)))
+Proof: sorry

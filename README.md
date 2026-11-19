@@ -642,6 +642,8 @@ The comparison's input view preserves the original expression or declaration
 source from the active module, including its notation, formatting, and comments.
 Imported declarations whose source is unavailable in the active module use an
 explicitly labelled reconstruction. Line endings are normalized for snapshots.
+The comparison preserves a theorem's placeholder proof as `Proof: sorry`.
+The round-trip check applies to the statement.
 Rendering commands display text without adding declarations.
 The Lean input view preserves `abbrev` for abbreviations; the Mean output uses
 `Abbreviation:`. Both the defined value and this declaration kind are checked.

@@ -112,6 +112,7 @@ theorem coRE_complete : CoREComplete TilesPlane := sorry
 -- MEAN OUTPUT:
 Theorem coRE_complete:
   TilesPlane satisfies CoREComplete
+Proof: sorry
 
 -- LEAN INPUT:
 /--
@@ -123,3 +124,4 @@ theorem undecidable : ¬ ComputablePred TilesPlane := sorry
 -- MEAN OUTPUT:
 Theorem undecidable:
   TilesPlane is not computable
+Proof: sorry
