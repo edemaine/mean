@@ -2368,16 +2368,60 @@ the vertex type of G is a nonempty type
 the edge set of G = the set ∅ and the edge set of H = the set ∅
 
 -- Universe parameters: u
-Inductive Tree (α : Type u) : Type u where
-  | leaf : α → Tree α
-  | branch : Tree α → Tree α → Tree α
+Inductive type Tree parameterized by an element α of Type u
+with values in Type u
+with constructors:
+  leaf from an element of α;
+  branch from two elements of Tree α.
 
 -- Universe parameters: u
-Inductive Vector (α : Type u) : ℕ → Type u where
-  | nil : Vector α 0
-  | cons : {n : ℕ} → α → Vector α n → Vector α (n + 1)
+Inductive family Vector parameterized by an element α of Type u
+indexed by a natural number
+with values in Type u
+with constructors:
+  nil to (Vector α 0);
+  cons from an implicit natural number n and an element of α and an element of Vector α n to Vector α (n + 1).
 
-Inductive Empty : Type where
+Inductive type Empty
+with constructors: .
 
-Inductive «a» : Type where
-  | «is» : «a»
+Inductive type «a»
+with constructors:
+  «is».
+
+Inductive type Term parameterized by a natural number n
+with constructors:
+  const from an integer;
+  var from an index in [0, n);
+  add from two elements of Term n;
+  mul from two elements of Term n.
+
+Inductive type Color
+with constructors:
+  red;
+  green;
+  blue.
+
+Inductive family Vector parameterized by a type A
+indexed by a natural number
+with constructors:
+  nil to (Vector A 0);
+  cons from an implicit natural number n and an element x of A and an element xs of Vector A n to Vector A (n + 1).
+
+-- Universe parameters: u
+Inductive type Tree parameterized by an element A of Type u
+with values in Type u
+with constructors:
+  leaf from an element of A;
+  branch from two elements of Tree A.
+
+Inductive type Empty
+with constructors: .
+
+Inductive type Hidden parameterized by an implicit element A of Type
+with constructors:
+  wrap from an element value of A.
+
+Inductive type WithInstance parameterized by a type A and an instance inst of typeclass Inhabited A
+with constructors:
+  choose.

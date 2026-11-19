@@ -1682,3 +1682,43 @@ example : Tree.branch (Tree.leaf 0) (Tree.leaf 1) =
     Tree.branch (Tree.leaf 0) (Tree.leaf 1) := rfl
 example : Vector.cons 1 Vector.nil = Vector.cons 1 Vector.nil := rfl
 end InductiveExamples
+
+namespace EnglishInductiveExamples
+Inductive type Term parameterized by a natural number n
+with constructors:
+  const from an integer;
+  var from an index in [0, n);
+  add from two elements of Term n;
+  mul from two elements of Term n.
+Inductive type Color with constructors:
+  red;
+  green;
+  blue.
+Inductive family Vector parameterized by a type A
+indexed by a natural number
+with constructors:
+  nil to (Vector A 0);
+  cons from an implicit natural number n and an element x of A and an element xs of Vector A n
+    to Vector A (n + 1).
+Inductive type Tree parameterized by an element A of Type u
+with values in Type u
+with constructors:
+  leaf from an element of A;
+  branch from two elements of Tree A.
+Inductive type Empty with constructors: .
+example : Term.add (Term.const 0) (Term.var (0 : Fin 1)) =
+    Term.add (Term.const 0) (Term.var (0 : Fin 1)) := rfl
+example : Vector.cons 3 Vector.nil = Vector.cons 3 Vector.nil := rfl
+example : Tree.branch (Tree.leaf 1) (Tree.leaf 2) =
+    Tree.branch (Tree.leaf 1) (Tree.leaf 2) := rfl
+end EnglishInductiveExamples
+
+namespace EnglishInductiveExamples
+Inductive type Hidden parameterized by an implicit type A with constructors:
+  wrap from an element value of A.
+Inductive type WithInstance parameterized by a type A and an instance inst of typeclass Inhabited A
+with constructors:
+  choose.
+example : Hidden.wrap 1 = Hidden.wrap 1 := rfl
+example : WithInstance.choose (A := Nat) = WithInstance.choose (A := Nat) := rfl
+end EnglishInductiveExamples

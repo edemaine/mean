@@ -270,7 +270,7 @@ def checkInductive (originalName : Name) (text : String) : TermElabM Unit :=
     if isStructure (← getEnv) originalName || isClass (← getEnv) originalName then
       throwError "expected an ordinary inductive type, not a structure or class"
     let stx ← parseText `command text
-    let `(command| Inductive $printedName:ident $binders:bracketedBinder* : $ty:term where $ctors:ctor*) := stx
+    let some printedName := inductiveDeclarationName? stx
       | throwError "unsupported rendered inductive declaration"
     let fresh ← mkFreshUserName `meanInductive
     let ns ← getCurrNamespace
@@ -279,8 +279,7 @@ def checkInductive (originalName : Name) (text : String) : TermElabM Unit :=
     let renameSelf (stx : Syntax) : Syntax := stx.rewriteBottomUp fun node =>
       if node.isIdent && (node.getId == printedName.getId || node.getId == declaredName ||
           node.getId == (`_root_ ++ declaredName)) then mkIdent fresh else node
-    let ctors : Array (TSyntax ``Parser.Command.ctor) := ctors.map fun ctor => ⟨renameSelf ctor.raw⟩
-    let command ← `(command| Inductive $(mkIdent fresh) $binders* : $ty where $ctors:ctor*)
+    let command : TSyntax `command := ⟨renameSelf stx⟩
     let openDecls ← getOpenDecls
     liftCommandElabM do
       Command.withScope (fun scope => { scope with

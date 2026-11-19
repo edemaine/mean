@@ -4870,9 +4870,11 @@ inductive Tree (α : Type u) : Type u where
   | branch : Tree α → Tree α → Tree α
 -- MEAN OUTPUT:
 -- Universe parameters: u
-Inductive Tree (α : Type u) : Type u where
-  | leaf : α → Tree α
-  | branch : Tree α → Tree α → Tree α
+Inductive type Tree parameterized by an element α of Type u
+with values in Type u
+with constructors:
+  leaf from an element of α;
+  branch from two elements of Tree α.
 
 -- LEAN INPUT:
 -- Universe parameters: u
@@ -4881,18 +4883,95 @@ inductive Vector (α : Type u) : ℕ → Type u where
   | cons : {n : ℕ} → α → Vector α n → Vector α (n + 1)
 -- MEAN OUTPUT:
 -- Universe parameters: u
-Inductive Vector (α : Type u) : ℕ → Type u where
-  | nil : Vector α 0
-  | cons : {n : ℕ} → α → Vector α n → Vector α (n + 1)
+Inductive family Vector parameterized by an element α of Type u
+indexed by a natural number
+with values in Type u
+with constructors:
+  nil to (Vector α 0);
+  cons from an implicit natural number n and an element of α and an element of Vector α n to Vector α (n + 1).
 
 -- LEAN INPUT:
 inductive Empty : Type where
 -- MEAN OUTPUT:
-Inductive Empty : Type where
+Inductive type Empty
+with constructors: .
 
 -- LEAN INPUT:
 inductive «a» : Type where
   | «is» : «a»
 -- MEAN OUTPUT:
-Inductive «a» : Type where
-  | «is» : «a»
+Inductive type «a»
+with constructors:
+  «is».
+
+-- LEAN INPUT:
+inductive Term (n : ℕ) : Type where
+  | const : ℤ → Term n
+  | var : Fin n → Term n
+  | add : Term n → Term n → Term n
+  | mul : Term n → Term n → Term n
+-- MEAN OUTPUT:
+Inductive type Term parameterized by a natural number n
+with constructors:
+  const from an integer;
+  var from an index in [0, n);
+  add from two elements of Term n;
+  mul from two elements of Term n.
+
+-- LEAN INPUT:
+inductive Color : Type where
+  | red : Color
+  | green : Color
+  | blue : Color
+-- MEAN OUTPUT:
+Inductive type Color
+with constructors:
+  red;
+  green;
+  blue.
+
+-- LEAN INPUT:
+inductive Vector (A : Type) : ℕ → Type where
+  | nil : Vector A 0
+  | cons : {n : ℕ} → A → Vector A n → Vector A (n + 1)
+-- MEAN OUTPUT:
+Inductive family Vector parameterized by a type A
+indexed by a natural number
+with constructors:
+  nil to (Vector A 0);
+  cons from an implicit natural number n and an element x of A and an element xs of Vector A n to Vector A (n + 1).
+
+-- LEAN INPUT:
+-- Universe parameters: u
+inductive Tree (A : Type u) : Type u where
+  | leaf : A → Tree A
+  | branch : Tree A → Tree A → Tree A
+-- MEAN OUTPUT:
+-- Universe parameters: u
+Inductive type Tree parameterized by an element A of Type u
+with values in Type u
+with constructors:
+  leaf from an element of A;
+  branch from two elements of Tree A.
+
+-- LEAN INPUT:
+inductive Empty : Type where
+-- MEAN OUTPUT:
+Inductive type Empty
+with constructors: .
+
+-- LEAN INPUT:
+inductive Hidden {A : Type} : Type where
+  | wrap : A → Hidden
+-- MEAN OUTPUT:
+Inductive type Hidden parameterized by an implicit element A of Type
+with constructors:
+  wrap from an element value of A.
+
+-- LEAN INPUT:
+inductive WithInstance (A : Type) [inst : Inhabited A] : Type where
+  | choose : WithInstance A
+-- MEAN OUTPUT:
+Inductive type WithInstance parameterized by a type A and an instance inst of typeclass Inhabited A
+with constructors:
+  choose.

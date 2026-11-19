@@ -745,17 +745,40 @@ The November 12 update prompted these general rendering improvements:
 single, non-nested inductive types, including parameters and indices:
 
 ```lean
-Inductive Tree (α : Type u) : Type u where
-  | leaf : α → Tree α
-  | branch : Tree α → Tree α → Tree α
+Inductive type Term parameterized by a natural number n
+with constructors:
+  const from an integer;
+  var from an index in [0, n);
+  add from two elements of Term n;
+  mul from two elements of Term n.
 ```
 
-`Inductive` accepts Lean's binder and constructor notation, with Mean type
-phrases available in signatures. Its round-trip check elaborates a temporary
-inductive declaration and compares the type and every constructor, preserving
-names, order, binder implicitness, universes, and the parameter/index split.
-Mutual, nested, and unsafe inductive declarations currently report an explicit
-unsupported-form error.
+Ordinary constructors return the declared type with the same parameters, so
+`to …` can be omitted. Indexed families state each constructor's result:
+
+```lean
+Inductive family Vector parameterized by a type A
+indexed by a natural number
+with constructors:
+  nil to (Vector A 0);
+  cons from an implicit natural number n and an element x of A
+    and an element xs of Vector A n to Vector A (n + 1).
+```
+
+Semicolons separate constructor clauses; a final period closes the declaration.
+Indentation is for readability. An empty constructor list is written
+`with constructors: .`. Inputs and parameters reuse function-subject vocabulary, including named dependent inputs,
+implicit binders, and typeclass instances. `two elements of T` is shorthand for
+two anonymous explicit inputs of type T. A nullary constructor needs only its
+name before the separator or closing period. `a type A` binds `A : Type`; other sorts can use an element
+binding such as `an element A of Type u`. `with values in Type u` preserves a
+nondefault result universe (the default is `Type`).
+
+The earlier `Inductive Name … : … where | …` form remains available as a precise
+fallback. The round-trip checker elaborates the actual printed declaration and
+compares the type and every constructor, preserving names, order, binder
+implicitness, universes, and the parameter/index split. Mutual, nested, and unsafe
+inductive declarations currently report an explicit unsupported-form error.
 
 ## Real-algebraic complexity example
 

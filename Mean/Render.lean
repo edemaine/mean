@@ -1136,7 +1136,7 @@ private def showTerm (t : Syntax) (compare : Bool) : Command.CommandElabM Unit :
   else logInfo after
 
 /-- Render the complete constructor interface of a single non-nested inductive. -/
-private def renderInductive (info : InductiveVal) (mean := true) : TermElabM String := do
+private def renderInductiveSignature (info : InductiveVal) (mean := true) : TermElabM String := do
   unless info.all.length == 1 && info.numNested == 0 && !info.isUnsafe &&
       !isStructure (← getEnv) info.name && !isClass (← getEnv) info.name do
     throwError "Mean inductive rendering currently supports safe, single, non-nested inductive types"
@@ -1165,6 +1165,65 @@ private def renderInductive (info : InductiveVal) (mean := true) : TermElabM Str
 " ++ indented s!"| {name} : {← printType ty}"
     return header
 
+/-- Concise English constructor inputs share the ordinary subject vocabulary. -/
+private def inductiveSubjectText (x : Expr) (keepName := true) : MetaM String := do
+  let decl ← x.fvarId!.getDecl
+  let name := if keepName then some decl.userName else none
+  if decl.type == mkSort (.succ .zero) && decl.binderInfo == .default then
+    let suffix ← match name with
+      | some name => do pure (" " ++ (← nameText name))
+      | none => pure ""
+    return "a type" ++ suffix
+  subjectText decl.type name decl.binderInfo
+
+private def renderInductiveEnglish (info : InductiveVal) : TermElabM String := do
+  -- Check coverage before attempting the English form.
+  discard <| renderInductiveSignature info
+  forallBoundedTelescope info.type info.numParams fun params rest => do
+    forallBoundedTelescope rest info.numIndices fun idxs sort => do
+      let kind := if idxs.isEmpty then "type" else "family"
+      let mut header := s!"Inductive {kind} {← declarationNameText info.name}"
+      if !params.isEmpty then
+        let subjects ← params.toList.mapM (fun p => inductiveSubjectText p)
+        header := header ++ " parameterized by " ++ String.intercalate " and " subjects
+      if !idxs.isEmpty then
+        let subjects ← idxs.toList.mapM fun i => do
+          let decl ← i.fvarId!.getDecl
+          inductiveSubjectText i (publicParameterName decl.userName)
+        header := header ++ "
+indexed by " ++ String.intercalate " and " subjects
+      unless sort == mkSort (.succ .zero) do
+        header := header ++ s!"
+with values in {← typeText sort}"
+      header := header ++ "
+with constructors:"
+      for (ctorName, position) in info.ctors.zipIdx do
+        let ctor ← getConstInfo ctorName
+        let mut ty := ctor.type
+        for param in params do
+          let .forallE _ _ body _ := ty | throwError "invalid constructor parameters"
+          ty := body.instantiate1 param
+        let clause ← forallTelescope ty fun fields target => do
+          let name ← nameText (ctorName.replacePrefix info.name .anonymous)
+          let descriptions ← fields.toList.mapM fun field => do
+            let decl ← field.fvarId!.getDecl
+            -- Keep names used by dependent inputs or results, as well as public names.
+            let mut used := target.containsFVar field.fvarId!
+            for other in fields do
+              if other != field && (← other.fvarId!.getDecl).type.containsFVar field.fvarId! then
+                used := true
+            inductiveSubjectText field (publicParameterName decl.userName || used)
+          let inputs := if descriptions.isEmpty then "" else
+            if descriptions.length == 2 && descriptions[0]! == descriptions[1]! &&
+                descriptions[0]!.startsWith "an element of " then
+              " from two elements of " ++ (descriptions[0]!.drop 14).toString
+            else " from " ++ String.intercalate " and " descriptions
+          let result ← if idxs.isEmpty then pure "" else pure s!" to {← sentenceTail (← typeText target) true}"
+          return name ++ inputs ++ result ++ (if position + 1 == info.ctors.length then "." else ";")
+        header := header ++ "
+" ++ indented clause
+      return if info.ctors.isEmpty then header ++ " ." else header
+
 private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.CommandElabM Unit :=
   Command.liftTermElabM do
   let n ← realizeGlobalConstNoOverloadWithInfo declaration
@@ -1184,10 +1243,10 @@ private def showDeclaration (declaration : Syntax) (compare : Bool) : Command.Co
       return
     match info with
     | .inductInfo i =>
-      let text ← checkedRendering (renderInductive i) (RoundTrip.checkInductive n) fun _ =>
-        withOptions (fun opts => opts.setBool `pp.explicit true) (renderInductive i)
+      let text ← checkedRendering (renderInductiveEnglish i) (RoundTrip.checkInductive n) fun _ =>
+        withOptions (fun opts => opts.setBool `pp.explicit true) (renderInductiveSignature i)
       if compare then
-        logInfo (comparisonText (context ++ (← renderInductive i false)) (context ++ text))
+        logInfo (comparisonText (context ++ (← renderInductiveSignature i false)) (context ++ text))
       else logInfo (context ++ text)
     | .defnInfo d =>
       let abbreviation := d.hints.isAbbrev

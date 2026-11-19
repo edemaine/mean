@@ -3,24 +3,26 @@
 -- Upstream source: [LeanCanny/Abstract.lean](https://github.com/edemaine/lean-canny/blob/6b758a2abff2b2ef69d245dad37505f9fb790921/LeanCanny/Abstract.lean)
 -- Upstream license: [Apache 2.0](https://github.com/edemaine/lean-canny/blob/6b758a2abff2b2ef69d245dad37505f9fb790921/LICENSE)
 
-Inductive Term (n : ℕ) : Type where
-  | const : ℤ → Term n
-  | var : the type of indices in [0, n) → Term n
-  | add : Term n → Term n → Term n
-  | mul : Term n → Term n → Term n
+Inductive type Term parameterized by a natural number n
+with constructors:
+  const from an integer;
+  var from an index in [0, n);
+  add from two elements of Term n;
+  mul from two elements of Term n.
 
 Definition:
   Term.eval is
     the function : {n : ℕ} → (Fin n → ℝ) → Term n → ℝ mapping an implicit natural number n and a function x from indices in [0, n) to ℝ and an element x_1 of Term n to
       Term.brecOn x_1 (Term.eval._f x).
 
-Inductive Formula (n : ℕ) : Type where
-  | false : Formula n
-  | eqZero : Term n → Formula n
-  | ltZero : Term n → Formula n
-  | «not» : Formula n → Formula n
-  | «and» : Formula n → Formula n → Formula n
-  | «or» : Formula n → Formula n → Formula n
+Inductive type Formula parameterized by a natural number n
+with constructors:
+  false;
+  eqZero from an element of Term n;
+  ltZero from an element of Term n;
+  «not» from an element of Formula n;
+  «and» from two elements of Formula n;
+  «or» from two elements of Formula n.
 
 Definition:
   Formula.solutionSet is

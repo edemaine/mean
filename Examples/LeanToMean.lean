@@ -2496,3 +2496,44 @@ run_elab do
     catch _ => pure true
     unless rejected do throwError "inductive checker accepted a changed interface"
 end InductiveExamples
+
+namespace EnglishInductiveExamples
+#mean_compare Term
+#mean_compare Color
+#mean_compare Vector
+#mean_compare Tree
+#mean_compare Empty
+end EnglishInductiveExamples
+
+namespace EnglishInductiveExamples
+open Lean Elab Term in
+run_elab do
+  let valid := "Inductive type changed parameterized by a natural number n with constructors:\n const from an integer;\n var from an index in [0, n);\n add from two elements of changed n;\n mul from two elements of changed n."
+  let count := (← getEnv).constants.toList.length
+  Mean.RoundTrip.checkInductive ``Term valid
+  unless (← getEnv).constants.toList.length == count do
+    throwError "English inductive audit leaked declarations"
+  for invalid in [valid.replace "an integer" "a boolean",
+      valid.replace "two elements" "an element",
+      valid.replace "mul from" "renamed from",
+      valid.replace "changed n" "Term n"] do
+    let rejected ← try
+      Mean.RoundTrip.checkInductive ``Term invalid
+      pure false
+    catch _ => pure true
+    unless rejected do throwError "English inductive audit accepted a changed interface"
+end EnglishInductiveExamples
+
+namespace EnglishInductiveExamples
+#mean_compare Hidden
+#mean_compare WithInstance
+end EnglishInductiveExamples
+
+-- A period closes the declaration; semicolons only separate constructors.
+open Lean Elab Term in
+run_elab do
+  for text in ["Inductive type Missing with constructors: red",
+      "Inductive type Missing with constructors: red;",
+      "Inductive type Split with constructors: red. blue."] do
+    if let .ok _ := Parser.runParserCategory (← getEnv) `command text then
+      throwError "accepted an incorrectly terminated constructor list"

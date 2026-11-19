@@ -597,6 +597,7 @@ elab "typeclassType%" t:term : term => do
 
 declare_syntax_cat meanWitnessNoun
 syntax "element" (ppSpace ident)? " of " term : meanWitnessNoun
+syntax "type" (ppSpace ident)? : meanWitnessNoun
 syntax "proof" (ppSpace ident)? " that " term : meanWitnessNoun
 syntax meanScalar (ppSpace ident)? : meanWitnessNoun
 syntax "path" (ppSpace ident)? " in " term " from " term " to " term : meanWitnessNoun
@@ -610,6 +611,7 @@ private def nounBinding (noun : Lean.TSyntax `meanWitnessNoun) :
     Lean.MacroM (Option Lean.Ident × Lean.TSyntax `term) :=
   match noun with
     | `(meanWitnessNoun| element $[$x:ident]? of $ty:term) => pure (x, ty)
+    | `(meanWitnessNoun| type $[$x:ident]?) => do pure (x, ← `(Type))
     | `(meanWitnessNoun| proof $[$x:ident]? that $p:term) => do
         pure (x, ← `(($p : Prop)))
     | `(meanWitnessNoun| $scalar:meanScalar $[$x:ident]?) => do
@@ -705,6 +707,109 @@ macro_rules
       let (name, ty) ← nounBinding noun
       let name ← parameterName name
       `(fun ⦃$name : $ty⦄ => $body)
+
+/-! English inductive declarations share subject binding with functions. -/
+def inductiveSubject : Lean.Parser.Parser :=
+  Lean.Parser.withForbiddens #["and", "with", "indexed", "to", ";", "."]
+    (Lean.Parser.categoryParser `meanSubject 0)
+declare_syntax_cat meanConstructorInputs
+syntax inductiveSubject ("and" inductiveSubject)* : meanConstructorInputs
+def constructorElementType : Lean.Parser.Parser :=
+  Lean.Parser.withForbiddens #["and", "to", ";", "."] Lean.Parser.termParser
+syntax "two" "elements" "of" constructorElementType : meanConstructorInputs
+def constructorInputs : Lean.Parser.Parser :=
+  Lean.Parser.withForbiddens #["to", ";", "."] (Lean.Parser.categoryParser `meanConstructorInputs 0)
+declare_syntax_cat meanConstructorClause
+def constructorResult : Lean.Parser.Parser :=
+  Lean.Parser.withForbiddens #[";", "."] Lean.Parser.termParser
+syntax ident ("from" constructorInputs)? ("to" constructorResult)? : meanConstructorClause
+syntax "Inductive" "type" ident
+  ("parameterized" "by" inductiveSubject ("and" inductiveSubject)*)?
+  (atomic("with" "values" "in") sentenceBody)?
+  "with" "constructors" ":" ppIndent(ppLine sepBy(meanConstructorClause, ";")) "." : command
+syntax "Inductive" "family" ident
+  ("parameterized" "by" inductiveSubject ("and" inductiveSubject)*)?
+  "indexed" "by" inductiveSubject ("and" inductiveSubject)*
+  (atomic("with" "values" "in") sentenceBody)?
+  "with" "constructors" ":" ppIndent(ppLine sepBy(meanConstructorClause, ";")) "." : command
+
+/-- Extract typed binders through the existing function-subject extension hook. -/
+private partial def inductiveBinders (subject : Lean.TSyntax `meanSubject) :
+    Lean.MacroM (Array (Lean.TSyntax ``Lean.Parser.Term.bracketedBinder)) := do
+  let mut expanded ← `(functionOn% $subject => True)
+  for _ in [:100] do
+    if let `(fun $binders* => $_:term) := expanded then
+      return ← binders.mapM fun binder => do
+        if binder.raw.isOfKind ``Lean.Parser.Term.typeAscription then
+          let `(($name:ident : $ty:term)) := binder.raw
+            | Lean.Macro.throwErrorAt binder "expected a named typed binder"
+          return ⟨← Lean.Elab.Term.expandSimpleBinderWithType ty name.raw⟩
+        else
+          pure ⟨binder.raw⟩
+    let some next ← Lean.expandMacro? expanded
+      | Lean.Macro.throwErrorAt subject "expected a subject introducing typed binders"
+    expanded := ⟨next⟩
+  Lean.Macro.throwErrorAt subject "subject expansion did not terminate"
+
+private def inductiveBinderNames (binders : Array (Lean.TSyntax ``Lean.Parser.Term.bracketedBinder)) :
+    Array (Lean.TSyntax `term) :=
+  binders.flatMap fun binder =>
+    -- Instance binders are [name : type]; other typed binders contain an identifier list.
+    if binder.raw.isOfKind ``Lean.Parser.Term.instBinder then
+      #[⟨binder.raw[1][0]⟩]
+    else binder.raw[1].getArgs.map (fun name => ⟨name⟩)
+
+private def englishInductive (name : Lean.Ident) (parameters idxs : Array (Lean.TSyntax `meanSubject))
+    (sort : Option Lean.Term) (clauses : Array (Lean.TSyntax `meanConstructorClause)) :
+    Lean.MacroM (Lean.TSyntax `command) := do
+  let parameters ← parameters.foldlM (fun acc subject => return acc ++ (← inductiveBinders subject)) #[]
+  let idxs ← idxs.foldlM (fun acc subject => return acc ++ (← inductiveBinders subject)) #[]
+  let mut result ← match sort with
+    | some sort => pure sort
+    | none => `(Type)
+  if !idxs.isEmpty then result ← `(∀ $idxs:bracketedBinder*, $result)
+  let args := inductiveBinderNames parameters
+  let defaultResult ← `(@$name $args*)
+  let mut ctorSyntax : Array (Lean.TSyntax ``Lean.Parser.Command.ctor) := #[]
+  for clause in clauses do
+    let `(meanConstructorClause| $ctor:ident $[from $inputs:meanConstructorInputs]? $[to $target:term]?) := clause
+      | Lean.Macro.throwUnsupported
+    if !idxs.isEmpty && target.isNone then
+      Lean.Macro.throwErrorAt clause "indexed constructors require an explicit to result"
+    let mut ty := target.getD defaultResult
+    if let some inputs := inputs then
+      let binders ← match inputs with
+        | `(meanConstructorInputs| $first:meanSubject $[and $rest:meanSubject]*) =>
+          (#[first] ++ rest).foldlM (fun acc subject => return acc ++ (← inductiveBinders subject)) #[]
+        | `(meanConstructorInputs| two elements of $domain:term) => do
+          let subject ← `(meanSubject| an element of $domain)
+          pure ((← inductiveBinders subject) ++ (← inductiveBinders subject))
+        | _ => Lean.Macro.throwUnsupported
+      ty ← `(∀ $binders:bracketedBinder*, $ty)
+    ctorSyntax := ctorSyntax.push (← `(Lean.Parser.Command.ctor| | $ctor:ident : $ty))
+  `(command| inductive $name $parameters:bracketedBinder* : $result where $ctorSyntax:ctor*)
+
+macro_rules
+  | `(command| Inductive type $name:ident
+      $[parameterized by $first:meanSubject $[and $rest:meanSubject]*]?
+      $[with values in $sort:term]? with constructors: $clauses:meanConstructorClause;* .) =>
+    englishInductive name (first.toArray ++ rest.getD #[]) #[] sort clauses.getElems
+  | `(command| Inductive family $name:ident
+      $[parameterized by $first:meanSubject $[and $rest:meanSubject]*]?
+      indexed by $idx:meanSubject $[and $idxs:meanSubject]*
+      $[with values in $sort:term]? with constructors: $clauses:meanConstructorClause;* .) =>
+    englishInductive name (first.toArray ++ rest.getD #[]) (#[idx] ++ idxs) sort clauses.getElems
+
+/-- The declaration checker preserves the actual printed command when renaming. -/
+def inductiveDeclarationName? (stx : Lean.Syntax) : Option Lean.Ident :=
+  match stx with
+  | `(command| Inductive $name:ident $_:bracketedBinder* : $_:term where $_:ctor*) => some name
+  | `(command| Inductive type $name:ident $[parameterized by $_:meanSubject $[and $_:meanSubject]*]?
+      $[with values in $_:term]? with constructors: $_:meanConstructorClause;* .) => some name
+  | `(command| Inductive family $name:ident $[parameterized by $_:meanSubject $[and $_:meanSubject]*]?
+      indexed by $_:meanSubject $[and $_:meanSubject]*
+      $[with values in $_:term]? with constructors: $_:meanConstructorClause;* .) => some name
+  | _ => none
 
 /-! Multiple predicate subjects share function binding semantics. Plural nouns
 group names of the same type; mixed subjects keep their individual descriptions. -/
