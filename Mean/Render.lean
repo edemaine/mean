@@ -346,12 +346,16 @@ private def compactCaseBody : Name := `mean.compactCaseBody
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app]
-def delabValueCoercion : Delab := do
+def delabCoercion : Delab := do
   guard <| mean.renderProperties.get (← getOptions)
   guard <| !(pp.explicit.get (← getOptions))
   let e ← getExpr
   let .const name _ := e.getAppFn | failure
   let some info ← Meta.getCoeFnInfo? name | failure
+  -- Applying a callable value lets Lean infer the function coercion again.
+  -- A standalone coercion still needs its type to distinguish it from the value.
+  if info.type == .coeFun && e.getAppNumArgs > info.numArgs then
+    return ← withOverApp info.numArgs (withNaryArg info.coercee delab)
   guard <| info.type == .coe && e.getAppNumArgs == info.numArgs
   let value ← withNaryArg info.coercee delab
   if (← getOptions).getBool compactCaseBody false then return value

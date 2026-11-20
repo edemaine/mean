@@ -2005,6 +2005,10 @@ unsafe Axiom TheoremExamples.unsafeNumber:
 
 Option (an injective function from indices in [0, 3) to lists of booleans)
 
+f 3
+
+(⇑f : ℕ → ℕ)
+
 Definition:
   a simple graph G = (V, E) satisfies ordinaryPreconnected if
     for all vertices u and v of G:

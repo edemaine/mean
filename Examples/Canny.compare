@@ -264,8 +264,7 @@ Definition:
             p.existsForallSolutionSet is a nonempty set)
         under
         (the function mapping an element p of Formula (r + s) to
-            (encPair encUnary encBits : ℕ × the type of lists of booleans → the type of lists of booleans)
-              (r, (encFormula (r + s) : Formula (r + s) → the type of lists of booleans) p)).
+            (encPair encUnary encBits) (r, (encFormula (r + s)) p)).
 
 -- LEAN INPUT:
 /-- Theorem (OpenAI, 2026): ∃∀ℝ belongs to CH.
@@ -303,8 +302,7 @@ Definition:
     the union over natural numbers n of
       the image of (ConnectedFormulas n) under
         (the function mapping an element p of Formula n to
-            (encPair encUnary encBits : ℕ × the type of lists of booleans → the type of lists of booleans)
-              (n, (encFormula n : Formula n → the type of lists of booleans) p)).
+            (encPair encUnary encBits) (n, (encFormula n) p)).
 
 -- LEAN INPUT:
 /-- Theorem (Canny, 1988): connectivity of an integer semialgebraic set is in PSPACE,
@@ -334,9 +332,7 @@ Definition:
         | (p₁, p₂) =>
           ∃ (x : the type of indices in [0, n) → ℝ) (y : the type of indices in [0, n) → ℝ),
             p₁.solutionSet = the set {x} ∧
-              p₂.solutionSet = the set {y} ∧
-                ∃ (γ : Path x y),
-                  ∀ (t : unitInterval as Type), (γ : unitInterval as Type → the type of indices in [0, n) → ℝ) t ∈ p.solutionSet.
+              p₂.solutionSet = the set {y} ∧ ∃ (γ : Path x y), ∀ (t : unitInterval as Type), γ t ∈ p.solutionSet.
 
 -- LEAN INPUT:
 /-- Reachability applies the input encoding to reachable endpoint pairs. -/
@@ -354,12 +350,7 @@ Definition:
           (the function mapping an element x of Formula n × Formula n to
               match x with
               | (p₁, p₂) =>
-                (encPair encUnary (encList encBits) :
-                    ℕ × the type of lists of (the type of lists of booleans) elements → the type of lists of booleans)
-                  (n,
-                    [(encFormula n : Formula n → the type of lists of booleans) p,
-                      (encFormula n : Formula n → the type of lists of booleans) p₁,
-                      (encFormula n : Formula n → the type of lists of booleans) p₂])).
+                (encPair encUnary (encList encBits)) (n, [(encFormula n) p, (encFormula n) p₁, (encFormula n) p₂])).
 
 -- LEAN INPUT:
 /-- Theorem (Canny, 1988): path connectivity between two formula-described points
