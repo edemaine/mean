@@ -244,9 +244,7 @@ Definition:
     the function mapping an implicit natural number r and an implicit natural number s and an element p of Formula (r + s) to
       the set of functions x from indices in [0, r) to ℝ such that
         for every function y from indices in [0, s) to ℝ:
-          (the function mapping an index i in [0, r + s) to
-                Fin.addCases x y i) ∈
-            p.solutionSet.
+          the concatenation of x and y ∈ p.solutionSet.
 
 -- LEAN INPUT:
 /-- The language ∃∀ℝ consists of true existential-universal real sentences.

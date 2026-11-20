@@ -185,6 +185,16 @@ the union over natural numbers n of
     T n m
 
 -- LEAN INPUT:
+Fin.append xs ys
+-- MEAN OUTPUT:
+the concatenation of xs and ys
+
+-- LEAN INPUT:
+(Fin.addCases xs ys i : A)
+-- MEAN OUTPUT:
+(the concatenation of xs and ys) i
+
+-- LEAN INPUT:
 (Space ≃ᵃⁱ[Real] Space)
 -- MEAN OUTPUT:
 the type of bijective affine isometries from Space to Space over ℝ

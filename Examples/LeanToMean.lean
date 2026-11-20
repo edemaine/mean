@@ -156,6 +156,11 @@ variable (T : ℕ → ℕ → Set Nat)
 #mean_term_compare ⋃ n, ⋂ m, T n m
 end
 section
+variable {A : Type u} {m n : ℕ} (xs : Fin m → A) (ys : Fin n → A) (i : Fin (m + n))
+#mean_term_compare Fin.append xs ys
+#mean_term_compare (Fin.addCases xs ys i : A)
+end
+section
 open GeneralRenderingExamples
 variable (f t : Motion) (p q : Space) (s : Set Space)
 variable (L : Space →ₗ[Real] Space)

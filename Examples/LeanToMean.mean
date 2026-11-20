@@ -87,6 +87,10 @@ the union over natural numbers n of
   the intersection over natural numbers m of
     T n m
 
+the concatenation of xs and ys
+
+(the concatenation of xs and ys) i
+
 the type of bijective affine isometries from Space to Space over ℝ
 
 the linear part of f

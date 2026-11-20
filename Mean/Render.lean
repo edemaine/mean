@@ -32,6 +32,27 @@ private def phraseArgument (e : Expr) (text : Term) : Delab :=
       groupedSyntax text.raw then pure text
   else `(($text))
 
+private def isTupleConcatenation (e : Expr) : Bool :=
+  e.isAppOfArity ``Fin.append 5 ||
+    (e.isAppOfArity ``Fin.addCases 5 &&
+      match (e.getArg! 2).consumeMData with
+      | .lam _ _ result _ => !result.hasLooseBVars
+      | _ => false)
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.Fin.append, delab app.Fin.addCases]
+def delabTupleConcatenation : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  guard <| !(pp.explicit.get (← getOptions))
+  let applied := (← getExpr).getAppNumArgs > 5
+  withOverApp 5 do
+    let e ← getExpr
+    guard <| isTupleConcatenation e
+    let xs ← phraseArgument (e.getArg! 3) (← withNaryArg 3 delab)
+    let ys ← phraseArgument (e.getArg! 4) (← withNaryArg 4 delab)
+    let joined ← `(the concatenation of $xs and $ys)
+    if applied then `(($joined)) else pure joined
+
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app.List.length, delab app.Set.univ]
 def delabCollectionProperty : Delab := do
@@ -908,6 +929,9 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
     return ← sentenceTail s!"we have {← witnessText e none}" sentenceEnd
   match e with
   | .lam n ty body bi =>
+    let shortened := e.eta
+    if bi == .default && !(pp.explicit.get (← getOptions)) && isTupleConcatenation shortened then
+      return ← leafText shortened sentenceEnd
     functionText n ty body bi (fun body => renderExpr body sentenceEnd)
   | .forallE n ty body bi =>
     if ← isImplication e then
