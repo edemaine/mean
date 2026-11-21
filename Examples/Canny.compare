@@ -327,13 +327,12 @@ def ReachableEndpoints {n : ℕ} (p : Formula n) : Set (Formula n × Formula n) 
 Definition:
   ReachableEndpoints is
     the function mapping an implicit natural number n and an element p of Formula n to
-      the set of elements x of Formula n × Formula n such that
-        write x as (p₁, p₂);
-        there is a function x_1 from indices in [0, n) to ℝ such that
+      the set of pairs (p₁, p₂) of elements of Formula n such that
+        there is a function x from indices in [0, n) to ℝ such that
           there is a function y from indices in [0, n) to ℝ such that
-            p₁.solutionSet = the set {x_1} and
+            p₁.solutionSet = the set {x} and
             p₂.solutionSet = the set {y} and
-            there is an element γ of Path x_1 y such that
+            there is a continuous path γ from x to y such that
               for every element t of the real interval [0, 1]:
                 γ t ∈ p.solutionSet.
 

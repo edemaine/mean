@@ -241,9 +241,14 @@ This is Lean's `{x : RealPoint | …}` (`Set.ofPred`). The name is optional when
 the condition does not use it, as in `the set of elements of ℕ such that True`.
 For a set of functions, write
 `the set of functions f from indices in [0, n) to ℝ such that …`.
+For pairs whose components have the same type, write
+`the set of pairs (x, y) of elements of T such that …`.
 The renderer translates the condition recursively, including quantifiers and
 logical connectives, even when the set occurs inside otherwise ordinary Lean
 syntax. Parentheses group a comprehension used as an operand or argument.
+
+Use `there is a continuous path γ from x to y` to bind a Mathlib path
+`γ : Path x y`. Its parameter ranges over the real interval `[0, 1]`.
 
 `the type of indices in [0, n)` means `Fin n`: natural-number indices starting at zero
 and strictly less than `n`. It is a type expression, not a real interval or a

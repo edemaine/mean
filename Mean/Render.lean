@@ -641,6 +641,8 @@ private def bindingDescription (ty : Expr) (name : Option String)
   if !parameter && ty.isAppOfArity ``SimpleGraph.Path 4 then
     let args := ty.getAppArgs
     return ("a", s!"path{suffix} in {← atomText args[1]!} from {← atomText args[2]!} to {← atomText args[3]!}")
+  if !parameter && !(pp.explicit.get (← getOptions)) && ty.isAppOfArity ``_root_.Path 4 then
+    return ("a", s!"continuous path{suffix} from {← atomText (ty.getArg! 2)} to {← atomText (ty.getArg! 3)}")
   if ty.isAppOfArity ``List 1 then
     return ("a", s!"list{suffix} of {← collectionElementsText ty.getAppArgs[0]!}")
   if ty.isAppOfArity ``Set 1 then
@@ -969,8 +971,8 @@ private partial def relationOperatorText (e : Expr) : MetaM String := do
 
 /-- Recover a flat pair pattern from a matcher, checking that its alternative
 receives the two constructor fields in order. -/
-private def renderPairMatch? (e : Expr) (renderBody : Expr → MetaM String) :
-    MetaM (Option String) := do
+private def withPairMatch? (e : Expr)
+    (render : Expr → Name → Name → Expr → MetaM (Option String)) : MetaM (Option String) := do
   if pp.explicit.get (← getOptions) then return none
   let some matcher ← matchMatcherApp? e (alsoCasesOn := true) | return none
   unless matcher.discrs.size == 1 && matcher.altNumParams == #[2] &&
@@ -994,8 +996,13 @@ private def renderPairMatch? (e : Expr) (renderBody : Expr → MetaM String) :
         isDefEq ty₁ fields[0]! <&&> isDefEq ty₂ fields[1]! <&&>
           isDefEq ({ matcher with discrs := #[pair] }.toExpr) body
       unless valid do return none
-      let value ← atomText scrutinee
-      return some s!"write {value} as ({← nameText first}, {← nameText second});\n{← renderBody body}"
+      render scrutinee first second body
+
+private def renderPairMatch? (e : Expr) (renderBody : Expr → MetaM String) :
+    MetaM (Option String) :=
+  withPairMatch? e fun scrutinee first second body => do
+    let value ← atomText scrutinee
+    return some s!"write {value} as ({← nameText first}, {← nameText second});\n{← renderBody body}"
 
 /-- Recognize supported logical structure without unfolding mathematical constants.
 Embedded implications stay inline; standalone implications introduce a block.
@@ -1107,6 +1114,15 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
       let args := e.getAppArgs
       let ty := args[0]!
       let predicate := args[1]!
+      if ty.isAppOfArity ``Prod 2 && ty.getArg! 0 == ty.getArg! 1 then
+        let pairs ← withLocalDeclD (← mkFreshUserName `pair) ty fun pair =>
+          withPairMatch? (inlineLets (predicate.beta #[pair])) fun scrutinee first second body => do
+            unless scrutinee == pair && !body.containsFVar pair.fvarId! do return none
+            let item ← subjectTypeText (ty.getArg! 0)
+            let names := s!"({← nameText first}, {← nameText second})"
+            return some s!"the set of pairs {names} of elements of {item} such that
+{indented (← renderExpr body sentenceEnd)}"
+        if let some text := pairs then return text
       let suggested := match predicate.consumeMData with
         | .lam n _ _ _ => n
         | _ => `x

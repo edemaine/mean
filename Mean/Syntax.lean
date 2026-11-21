@@ -9,6 +9,7 @@ import Mathlib.Analysis.Normed.Affine.Isometry
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Geometry.Euclidean.Projection
 import Mathlib.LinearAlgebra.Determinant
+import Mathlib.Topology.Path
 import Lean
 
 /-! # Mean: compositional controlled mathematical syntax inside Lean.
@@ -680,11 +681,13 @@ elab "typeclassType%" t:term : term => do
   return ty
 
 declare_syntax_cat meanWitnessNoun
+def continuousWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "continuous " true
 syntax "element" (ppSpace ident)? " of " term : meanWitnessNoun
 syntax "type" (ppSpace ident)? : meanWitnessNoun
 syntax "proof" (ppSpace ident)? " that " term : meanWitnessNoun
 syntax meanScalar (ppSpace ident)? : meanWitnessNoun
 syntax "path" (ppSpace ident)? " in " term " from " term " to " term : meanWitnessNoun
+syntax continuousWord "path" (ppSpace ident)? " from " term " to " term : meanWitnessNoun
 syntax "list" (ppSpace ident)? " of " meanListElements : meanWitnessNoun
 syntax "set" (ppSpace ident)? " of " meanListElements : meanWitnessNoun
 syntax "index" (ppSpace ident)? meanIndexDomain : meanWitnessNoun
@@ -715,6 +718,8 @@ private def nounBinding (noun : Lean.TSyntax `meanWitnessNoun) :
         pure (x, ← `(typeclassType% $ty))
     | `(meanWitnessNoun| path $[$x:ident]? in $g:term from $u:term to $v:term) => do
         pure (x, ← `(SimpleGraph.Path $g $u $v))
+    | `(meanWitnessNoun| continuous path $[$x:ident]? from $u:term to $v:term) => do
+        pure (x, ← `(_root_.Path $u $v))
     | _ => Lean.Macro.throwErrorAt noun "unsupported quantified noun"
 
 /-! Subjects specify bindings, independently of the definition clause.
@@ -1179,6 +1184,9 @@ def setComprehensionSignature : Lean.Parser.Parser :=
   Lean.Parser.withForbidden "such" functionSignature
 syntax "the " "set " "of " "functions" (ppSpace ident)? setComprehensionSignature
   " such " "that" ppIndent(ppLine term) : term
+def pairsWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "pairs "
+syntax "the " "set " "of " pairsWord "(" ident ", " ident ")" " of " "elements " "of "
+  setComprehensionType " such " "that" ppIndent(ppLine term) : term
 
 private def setComprehension (name : Option Lean.Ident) (ty body : Lean.Term) : Lean.MacroM Lean.Term := do
   let name ← parameterName name
@@ -1189,6 +1197,10 @@ macro_rules
       setComprehension x ty body
   | `(the set of functions $[$x:ident]? $signature:meanFunctionSignature such that $body:term) => do
       setComprehension x (← `(functionType% $signature)) body
+  | `(the set of pairs ($left:ident, $right:ident) of elements of $ty:term such that $body:term) => do
+      let pair ← parameterName none
+      let body ← `(match $pair:ident with | ($left, $right) => $body)
+      setComprehension (some pair) (← `($ty × $ty)) body
 
 macro_rules
   | `(forallOver% $binding:meanQuantified => $body:term) => do
