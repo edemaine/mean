@@ -58,12 +58,12 @@ Abbreviation:
 
 Axiom PSPACE:
   with implicit type parameter α:
-    we have a function from (an injective function from α to lists of booleans) to sets of (the type of sets of α elements) elements
+    we have a function from (an injective function from α to lists of booleans) to sets of sets of α elements
 
 Axiom CountingLevel:
-  ℕ →
-    {α : Type} →
-      (an injective function from α to lists of booleans) → the type of sets of (the type of sets of α elements) elements
+  for every natural number:
+    with implicit type parameter α:
+      we have a function from (an injective function from α to lists of booleans) to sets of sets of α elements
 
 Axiom PolyTimeReducible:
   with implicit type parameters α and β:
@@ -95,7 +95,7 @@ Proof: sorry
 
 Definition:
   ExistsReal is
-    the set of elements L of the type of sets of (the type of lists of booleans) elements such that
+    the set of elements L of the type of sets of lists of booleans such that
       encBits and encBits and L and ETR satisfy PolyTimeReducible.
 
 Theorem existsReal_subset_PSPACE:

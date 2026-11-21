@@ -1792,7 +1792,7 @@ the type of sets of functions from ℕ to Bool
 -- LEAN INPUT:
 Set (Set Nat)
 -- MEAN OUTPUT:
-the type of sets of (the type of sets of natural numbers) elements
+the type of sets of sets of natural numbers
 
 -- LEAN INPUT:
 fun (S : Set Nat) => S
@@ -2691,7 +2691,7 @@ the type of lists of A elements
 -- LEAN INPUT:
 List (List A)
 -- MEAN OUTPUT:
-the type of lists of (the type of lists of A elements) elements
+the type of lists of lists of A elements
 
 -- LEAN INPUT:
 List (Fin n)
@@ -2701,7 +2701,7 @@ the type of lists of (the type of indices in [0, n)) elements
 -- LEAN INPUT:
 List (List Nat)
 -- MEAN OUTPUT:
-the type of lists of (the type of lists of natural numbers) elements
+the type of lists of lists of natural numbers
 
 -- LEAN INPUT:
 List (Nat → Nat)

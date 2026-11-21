@@ -554,22 +554,22 @@ and using familiar scalar plurals. -/
 declare_syntax_cat meanListElements
 syntax meanScalarPlural : meanListElements
 syntax "functions " functionSignature : meanListElements
+syntax "lists " "of " meanListElements : meanListElements
+syntax "sets " "of " meanListElements : meanListElements
 syntax listElementType ppSpace "elements" : meanListElements
+syntax "collectionElementType%" meanListElements : term
 syntax "listType%" meanListElements : term
-macro_rules
-  | `(listType% $plural:meanScalarPlural) => do
-      let domain ← `(meanScalarDomain| $plural:meanScalarPlural)
-      `(List (scalarDomainType% $domain))
-  | `(listType% functions $signature:meanFunctionSignature) => `(List (functionType% $signature))
-  | `(listType% $ty:term elements) => `(List $ty)
-
 syntax "setType%" meanListElements : term
 macro_rules
-  | `(setType% $plural:meanScalarPlural) => do
+  | `(listType% $items:meanListElements) => `(List (collectionElementType% $items))
+  | `(setType% $items:meanListElements) => `(Set (collectionElementType% $items))
+  | `(collectionElementType% $plural:meanScalarPlural) => do
       let domain ← `(meanScalarDomain| $plural:meanScalarPlural)
-      `(Set (scalarDomainType% $domain))
-  | `(setType% functions $signature:meanFunctionSignature) => `(Set (functionType% $signature))
-  | `(setType% $ty:term elements) => `(Set $ty)
+      `(scalarDomainType% $domain)
+  | `(collectionElementType% functions $signature:meanFunctionSignature) => `(functionType% $signature)
+  | `(collectionElementType% lists of $items:meanListElements) => `(listType% $items)
+  | `(collectionElementType% sets of $items:meanListElements) => `(setType% $items)
+  | `(collectionElementType% $ty:term elements) => `($ty)
 
 /-! Index ranges are types, not real intervals or sets. The lower endpoint must
 be zero; the upper endpoint is exclusive, including when it is zero. -/

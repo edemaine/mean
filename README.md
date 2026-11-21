@@ -215,6 +215,7 @@ These type phrases also work inside function signatures and compound types.
 The renderer preserves custom type names such as `Point` without pluralizing them.
 Collections of functions can use phrases such as
 `the type of sets of functions from indices in [0, n) to ℝ`.
+Collection nouns can also nest, as in `the type of sets of lists of booleans`.
 
 Set phrases work in function and predicate subjects, universal quantifiers, and
 positive, negative, and unique existential witnesses:
@@ -463,7 +464,9 @@ Axiom encode:
 
 Mean checks the complete axiom declaration, including its universe order and named arguments.
 Use `with implicit type parameter α:` or `with implicit type parameters α and β:`
-to introduce type parameters that Lean infers.
+to introduce type parameters that Lean infers. Keep these clauses in declaration
+order, including when an explicit input comes first. For example,
+`for every natural number:` can be followed by `with implicit type parameter α:`.
 Universe parameters can be declared with `Axiom name.{u, v}:`. Lean's
 `unsafe` modifier is also supported.
 

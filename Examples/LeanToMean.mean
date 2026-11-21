@@ -865,7 +865,7 @@ the type of sets of SetPhraseExamples.Point elements
 
 the type of sets of functions from ℕ to Bool
 
-the type of sets of (the type of sets of natural numbers) elements
+the type of sets of sets of natural numbers
 
 the function mapping a set S of natural numbers to
   S
@@ -1299,11 +1299,11 @@ the type of lists of TypeNounExamples.Token elements
 
 the type of lists of A elements
 
-the type of lists of (the type of lists of A elements) elements
+the type of lists of lists of A elements
 
 the type of lists of (the type of indices in [0, n)) elements
 
-the type of lists of (the type of lists of natural numbers) elements
+the type of lists of lists of natural numbers
 
 the type of lists of functions from ℕ to ℕ
 

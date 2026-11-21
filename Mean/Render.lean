@@ -561,17 +561,21 @@ mutual
 
 private partial def collectionElementsText (ty : Expr) : MetaM String := do
   if let some (_, plural) := scalarNouns? ty then return plural
+  if let some description ← collectionDescription? ty then return description
   if let some signature ← functionSignatureText? ty then return s!"functions {signature}"
   return s!"{← typeAtomText ty} elements"
+
+private partial def collectionDescription? (ty : Expr) : MetaM (Option String) := do
+  let isSet := ty.isAppOfArity ``Set 1
+  unless isSet || ty.isAppOfArity ``List 1 do return none
+  let noun := if isSet then "sets" else "lists"
+  return some s!"{noun} of {← collectionElementsText (ty.getArg! 0)}"
 
 /-- Function signatures already establish a type context, so descriptions need
 neither a `the type of` introducer nor an extra grouping layer. -/
 private partial def functionEndpointText (ty : Expr) (result := false) : MetaM String := do
   if let some domain ← indexDomainText? ty then return s!"indices {domain}"
-  if ty.isAppOfArity ``List 1 then
-    return s!"lists of {← collectionElementsText ty.getAppArgs[0]!}"
-  if ty.isAppOfArity ``Set 1 then
-    return s!"sets of {← collectionElementsText ty.getAppArgs[0]!}"
+  if let some description ← collectionDescription? ty then return description
   if result then subjectTypeText ty else typeAtomText ty
 
 private partial def functionSignatureText? (ty : Expr) : MetaM (Option String) := do
@@ -606,7 +610,12 @@ def delabCollections : Delab := do
   let isSet := e.isAppOfArity ``Set 1
   guard <| isSet || e.isAppOfArity ``List 1
   let ty := e.getAppArgs[0]!
-  if let some (_, plural) := scalarNouns? ty then
+  if let some description ← collectionDescription? ty then
+    let .ok stx := Parser.runParserCategory (← getEnv) `meanListElements description | failure
+    let items : TSyntax `meanListElements := ⟨stx⟩
+    if isSet then `(the type of sets of $items)
+    else `(the type of lists of $items)
+  else if let some (_, plural) := scalarNouns? ty then
     let .ok noun := Parser.runParserCategory (← getEnv) `meanScalarPlural plural
       | failure
     let noun : TSyntax `meanScalarPlural := ⟨noun⟩
@@ -1504,7 +1513,12 @@ def renderDefinition (name : Name) (signatureType value : Expr) (abbreviation :=
   {nameStr} is
 {indented (indented typedValue)}"
 
-/-- Introduce the leading implicit parameters before describing an axiom's result. -/
+private partial def hasImplicitBinder (ty : Expr) : Bool :=
+  match ty.consumeMData with
+  | .forallE _ _ body bi => bi != .default || hasImplicitBinder body
+  | _ => false
+
+/-- Describe axiom binders in their declaration order, grouping adjacent implicit parameters. -/
 private partial def renderAxiomType (ty : Expr) (axiomData : Bool) : MetaM String := do
   let (subjects, text) ← go ty
   if subjects.isEmpty then return text
@@ -1527,6 +1541,14 @@ where
             some <$> nameText name
           else pure none
           return ((subject, typeParameter) :: subjects, text)
+      if axiomData && hasImplicitBinder body then
+        let name ← freshName suggested
+        return ← withLocalDeclD name domain fun x => do
+          let keepName := publicParameterName suggested || body.hasLooseBVars
+          let name ← if keepName then some <$> nameText name else pure none
+          let (_, noun) ← witnessDescription domain name
+          let rest ← renderAxiomType (body.instantiate1 x) axiomData
+          return ([], s!"for every {noun}:\n{indented rest}")
     return ([], ← renderExpr ty (axiomData := axiomData))
 
 /-- Return text only after checking its meaning. -/
