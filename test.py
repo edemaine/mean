@@ -10,7 +10,9 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parent
+FORWARD_EXAMPLE = "Examples/MeanToLean.lean"
 EXAMPLES = (
+    FORWARD_EXAMPLE,
     "Examples/LeanToMean.lean",
     "Examples/Wang.lean",
     "Examples/TranslationTiling.lean",
@@ -25,7 +27,9 @@ def run(*command: str) -> subprocess.CompletedProcess:
 
 
 def example_outputs(source: str) -> tuple[dict[str, str], int]:
-    result = run("lake", "env", "lean", "--json", source)
+    forward = source == FORWARD_EXAMPLE
+    options = ("--run", "tools/ForwardExamples.lean") if forward else ("--json",)
+    result = run("lake", "env", "lean", *options, source)
     if result.returncode or result.stderr:
         raise RuntimeError(result.stdout + result.stderr)
 
@@ -48,19 +52,30 @@ def example_outputs(source: str) -> tuple[dict[str, str], int]:
         if line.startswith(("Upstream source: ", "Upstream license: ")):
             attribution += f"-- {line}\n"
 
+    input_heading, output_heading = (
+        ("MEAN INPUT", "LEAN OUTPUT") if forward else ("LEAN INPUT", "MEAN OUTPUT")
+    )
     comparisons = []
     renderings = []
     for message in messages:
         comparison = message["data"]
-        if not comparison.startswith("\n-- LEAN INPUT:\n"):
-            raise ValueError(f"Expected a Lean/Mean comparison, got:\n{comparison}")
-        _, separator, mean = comparison.partition("\n-- MEAN OUTPUT:\n")
-        if not separator or not mean:
-            raise ValueError(f"Missing Mean output in comparison:\n{comparison}")
+        if not comparison.startswith(f"\n-- {input_heading}:\n"):
+            raise ValueError(f"Expected {input_heading} in comparison, got:\n{comparison}")
+        _, separator, output = comparison.partition(f"\n-- {output_heading}:\n")
+        if not separator or not output:
+            raise ValueError(f"Missing {output_heading} in comparison:\n{comparison}")
         comparisons.append(comparison + "\n")
-        renderings.append("\n" + mean + "\n")
+        if not forward:
+            renderings.append("\n" + output + "\n")
 
     paired_path = Path(source).with_suffix(".compare").as_posix()
+    if forward:
+        return {
+            ".compare": header
+            + "-- Lean output is printed from the elaborated forward tests.\n"
+            + attribution
+            + "".join(comparisons),
+        }, len(messages)
     return {
         ".mean": header
         + f"-- Checked Mean output; see {paired_path} for paired Lean/Mean comparisons.\n"

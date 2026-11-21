@@ -25,6 +25,9 @@ Both workflows are implemented in an ordinary Lean 4 library, using its
 The current implementation is a proof of concept, with a small vocabulary and
 partial rendering coverage.
 
+[Setup and example files](#try-it) · [Syntax reference](#compositional-syntax) ·
+[Case studies](#case-studies)
+
 ## Review a Lean formalization
 
 1. An LLM or a human writes definitions and theorem statements in Lean.
@@ -54,10 +57,116 @@ The focus is on **definitions and theorem statements**. Explaining proofs,
 accepting unrestricted English, and producing persuasive but unchecked paraphrases
 are outside the current scope.
 
+## Try it
+
+With [elan](https://github.com/leanprover/elan) installed, run from this directory:
+
+```sh
+lake exe cache get Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected
+lake exe cache get Mathlib.Computability.RE Mathlib.Computability.Primrec.List
+lake exe cache get Mathlib.Computability.Halting Mathlib.Computability.Reduce Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+lake build
+```
+
+Lean and mathlib are pinned to v4.35.0. `lake build` checks both directions and the
+round-trip tests.
+
+To also check the examples' exact generated output, using Python 3.9 or newer:
+
+```sh
+python test.py
+```
+
+This builds the project and checks the generated comparisons in both directions.
+Changes produce a diff and a nonzero exit status. Source locations are ignored; wording,
+parentheses, indentation, and blank lines are checked. LF and CRLF are equivalent.
+The `.mean` files contain the checked Mean renderings. The reverse `.compare`
+files pair them with Lean input under `-- LEAN INPUT:` and `-- MEAN OUTPUT:`
+headings. The forward comparison uses `-- MEAN INPUT:` and `-- LEAN OUTPUT:`.
+Term examples can refer to their original section variables. Each file begins
+with a comment identifying its Lean source and regeneration command.
+Upstream source and license links in the input's opening comment
+are copied to the generated header.
+The repository's `.gitattributes` selects Lean 4 syntax highlighting for both
+extensions on [GitHub](https://github.com/github-linguist/linguist/blob/main/docs/overrides.md#using-gitattributes).
+VS Code uses a separate mechanism: the repository's
+[workspace settings](.vscode/settings.json) use
+[`files.associations`](https://code.visualstudio.com/docs/languages/overview#_add-a-file-extension-to-a-language)
+to associate both extensions with `lean4`.
+Install the Lean 4 extension and open the repository folder to use these associations.
+The forward examples and round-trip meaning checks still run as part of the build.
+
+After an intentional output change, regenerate the snapshots and review the diff:
+
+```sh
+python test.py --update
+```
+
+### Example index
+
+| Example | Lean source | Mean output | Lean/Mean comparison |
+|---|---|---|---|
+| Writing Mean definitions and proofs | [MeanToLean.lean](Examples/MeanToLean.lean) | — | [MeanToLean.compare](Examples/MeanToLean.compare) |
+| Rendering Lean with checked round trips | [LeanToMean.lean](Examples/LeanToMean.lean) | [LeanToMean.mean](Examples/LeanToMean.mean) | [LeanToMean.compare](Examples/LeanToMean.compare) |
+| [Wang tiling](#wang-tiling-example) | [Wang.lean](Examples/Wang.lean) | [Wang.mean](Examples/Wang.mean) | [Wang.compare](Examples/Wang.compare) |
+| [Translation tiling](#translation-tiling-example) | [TranslationTiling.lean](Examples/TranslationTiling.lean) | [TranslationTiling.mean](Examples/TranslationTiling.mean) | [TranslationTiling.compare](Examples/TranslationTiling.compare) |
+| [Canny's real-algebraic complexity bounds](#cannys-real-algebraic-complexity-bounds) | [Canny.lean](Examples/Canny.lean) | [Canny.mean](Examples/Canny.mean) | [Canny.compare](Examples/Canny.compare) |
+
+Run any Lean source in the table from this directory. To run Canny, use the
+following command.
+
+```sh
+lake env lean Examples/Canny.lean
+```
+
+`Examples/MeanToLean.lean` checks Mean expressions, declarations, and proofs.
+The snapshot runner collects Mean declarations and outermost Mean expressions
+from the successful tests and prints their Lean elaborations in the original
+context. `Examples/LeanToMean.lean` shows how Mean renders Lean. In a Lean editor,
+place the cursor on a comparison command to see its output.
+
+Comparisons have this format, with a blank line between examples:
+
+```text
+-- LEAN INPUT:
+∃ (n : ℕ), n = 0
+-- MEAN OUTPUT:
+there is a natural number n such that
+  n = 0
+```
+
+| Command | Output |
+|---|---|
+| `#mean name` | A definition's rendering, or a theorem's statement without its proof |
+| `#mean_term expression` | A rendering of an expression; section variables are supported |
+| `#mean_compare name` | Ordinary Lean and Mean for a declaration |
+| `#mean_term_compare expression` | Ordinary Lean and Mean for an expression |
+| `#lean_compare name` | Original Mean and printed Lean for a definition, theorem, or axiom in the current file |
+| `#lean_term_compare expression` | Original Mean and printed Lean for an expression |
+| `#print name` | Lean's own display of the definition |
+
+The comparison's input view preserves the original expression or declaration
+source from the active module, including its notation, formatting, and comments.
+Imported declarations whose source is unavailable in the active module use an
+explicitly labelled reconstruction. Line endings are normalized for snapshots.
+The comparison preserves a theorem's placeholder proof as `Proof: sorry`.
+The round-trip check applies to the statement.
+Rendering commands display text without adding declarations.
+The Lean input view preserves `abbrev` for abbreviations; the Mean output uses
+`Abbreviation:`. Both the defined value and this declaration kind are checked.
+Declaration headings omit the current namespace: inside `TranslationTiling.Abstract`,
+`Point` renders as `Point`. Nested names retain their relative path, and declarations
+outside the current namespace retain their qualification, even when their namespace
+is open. Reconstructed input headings use the same convention; original source
+keeps its original spelling.
+
+Output is checked in its original namespace, import, variable, and universe
+context; it is not a standalone export file.
+
 ## Write directly in Mean
 
-After `import Mean`, the readable definition above is executable Lean syntax.
-It creates a normal predicate named `preconnected`, usable in ordinary Lean theorem
+After `import Mean`, the [introductory `preconnected` definition](#review-a-lean-formalization)
+is executable Lean syntax. It creates a predicate usable in ordinary Lean theorem
 statements and proofs. Mean propositions can also be embedded within Lean, and
 Mean definition bodies can contain ordinary Lean expressions.
 
@@ -505,278 +614,6 @@ grammar; rendering needs predictable wording and enough coverage to make existin
 Lean readable. Both benefit from reviewed vocabulary and access to the underlying
 formal definitions.
 
-## What is checked, and what still needs review?
-
-The renderer reads `Lean.Expr`, where names and implicit arguments have been
-resolved, rather than translating source text. It is implemented separately from
-the forward syntax macros. This gives two implementations to compare, although
-independence alone is not a correctness guarantee.
-
-Every successful rendering is checked by parsing its actual output text.
-For expressions and theorem statements, Mean elaborates the text, tests
-definitional equality, and asks Lean's kernel to check an equality certificate.
-For named definitions, Mean elaborates a renamed copy of the complete printed
-command in a temporary environment. It checks the resulting type and value,
-function binder information, public parameter names, universe parameters, definition/abbreviation kind,
-effective reducibility, and safety against the original declaration. Expected
-metadata is read independently from Lean's environment. The temporary declaration
-and elaboration state are discarded afterward.
-
-These metadata checks are necessary because kernel definitional equality ignores
-properties such as implicit argument flags and declaration reducibility. The
-comparison permits renaming universe parameters, but does not specialize them to
-fixed levels. Checks reject unresolved metavariables and compared expressions
-containing `sorry`. A failed round trip produces an error instead of displayed
-output. Theorems are checked through their statements; their proofs may contain
-`sorry` without weakening that statement check.
-
-The guarantee covers these expressions and metadata, rather than every aspect of
-Lean behavior. Other attributes such as `[simp]` and instance registration,
-compiled code behavior, and performance are outside the current check. Unsupported
-changes to the checked metadata, such as dropping an `irreducible` attribute,
-cause rejection. The internal value-only annotation probe is separate from the
-final declaration check.
-
-**This checks preservation of formal meaning, not agreement with human intent.**
-The vocabulary still needs review. If both directions consistently use a misleading
-English phrase for a Lean concept, the round trip cannot detect that. A small,
-compositional collection of mappings makes this review more manageable.
-
-The graph example illustrates why conventions matter. `G.Path u v` permits a
-zero-length path, and the pairwise-path definition holds vacuously for an empty
-graph. It is equivalent to mathlib's `G.Preconnected`. Mathlib's `G.Connected`
-additionally requires a vertex. `Examples/MeanToLean.lean` proves both the first equivalence
-and the second under `[Nonempty V]`.
-
-Different phrasings can have exactly the same interpretation. The parser can
-accept alternatives while the renderer chooses a consistent style—for example,
-`for all` rather than `for every`. Different *mathematical formulations* may require
-more than definitional equality: `Nonempty (G.Path u v)` and
-`∃ p : G.Path u v, True` are logically equivalent but not definitionally equal.
-Checked equivalence rules are a future extension. The renderer preserves
-`Nonempty T` as `T is a nonempty type`, rather than rewriting it to an existential.
-Similarly, `IsEmpty T` renders as `T is an empty type`. For lists, `xs ≠ []`
-and `xs = []` render as `xs is a nonempty list` and `xs is an empty list`.
-
-## Try it
-
-With [elan](https://github.com/leanprover/elan) installed, run from this directory:
-
-```sh
-lake exe cache get Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected
-lake exe cache get Mathlib.Computability.RE Mathlib.Computability.Primrec.List
-lake exe cache get Mathlib.Computability.Halting Mathlib.Computability.Reduce Mathlib.MeasureTheory.Measure.Lebesgue.Basic
-lake build
-```
-
-Lean and mathlib are pinned to v4.35.0. `lake build` checks both directions and the
-round-trip tests.
-
-To also check the examples' exact generated output, using Python 3.9 or newer:
-
-```sh
-python test.py
-```
-
-This builds the project, runs the renderer examples, and checks two views:
-
-- Mean output only: [LeanToMean.mean](Examples/LeanToMean.mean),
-  [Wang.mean](Examples/Wang.mean), and [TranslationTiling.mean](Examples/TranslationTiling.mean).
-- Paired Lean/Mean comparisons: [LeanToMean.compare](Examples/LeanToMean.compare),
-  [Wang.compare](Examples/Wang.compare), and [TranslationTiling.compare](Examples/TranslationTiling.compare).
-
-Changes produce a diff and a nonzero exit status. Source locations are ignored; wording,
-parentheses, indentation, and blank lines are checked. LF and CRLF are equivalent.
-The `.mean` files contain only the checked Mean renderings; `.compare` files
-also show the original elaborated Lean, separated by `-- LEAN INPUT:` and
-`-- MEAN OUTPUT:` comments. These are generated views, not standalone programs:
-for example, rendered theorem statements omit proofs and term examples can refer
-to their original section variables. Each file begins with a comment identifying
-its Lean source and regeneration command.
-Upstream source and license links in the input's opening comment
-are copied to the generated header.
-The repository's `.gitattributes` selects Lean 4 syntax highlighting for both
-extensions on [GitHub](https://github.com/github-linguist/linguist/blob/main/docs/overrides.md#using-gitattributes).
-VS Code uses a separate mechanism: the repository's
-[workspace settings](.vscode/settings.json) use
-[`files.associations`](https://code.visualstudio.com/docs/languages/overview#_add-a-file-extension-to-a-language)
-to associate both extensions with `lean4`.
-Install the Lean 4 extension and open the repository folder to use these associations.
-The forward examples and round-trip meaning checks still run as part of the build.
-
-After an intentional output change, regenerate both views and review the diff:
-
-```sh
-python test.py --update
-```
-
-There are runnable examples in both directions:
-
-| Direction | File | What it demonstrates |
-|---|---|---|
-| Mean → Lean | [Examples/MeanToLean.lean](Examples/MeanToLean.lean) | Mean definitions and propositions, checked against explicit Lean expressions and used in ordinary proofs |
-| Lean → Mean | [Examples/LeanToMean.lean](Examples/LeanToMean.lean) | Before/after renderings of elaborated Lean, with checked round trips |
-| Lean → Mean | [Examples/Wang.lean](Examples/Wang.lean) | Definitions and main theorem statements from a Wang tiling formalization |
-
-Run these from this directory:
-
-```sh
-lake env lean Examples/MeanToLean.lean
-lake env lean Examples/LeanToMean.lean
-lake env lean Examples/Wang.lean
-```
-
-`Examples/MeanToLean.lean` checks its definitions and proofs without printing them. In a Lean
-editor, add `#print preconnected` after the definition to inspect the resulting
-Lean in the Infoview. `Examples/LeanToMean.lean` prints the before/after comparisons;
-in the editor, place the cursor on a comparison command to see its output.
-
-Comparisons have this format, with a blank line between examples:
-
-```text
--- LEAN INPUT:
-∃ (n : ℕ), n = 0
--- MEAN OUTPUT:
-there is a natural number n such that
-  n = 0
-```
-
-| Command | Output |
-|---|---|
-| `#mean name` | A definition's rendering, or a theorem's statement without its proof |
-| `#mean_term expression` | A rendering of an expression; section variables are supported |
-| `#mean_compare name` | Ordinary Lean and Mean for a declaration |
-| `#mean_term_compare expression` | Ordinary Lean and Mean for an expression |
-| `#print name` | Lean's own display of the definition |
-
-The comparison's input view preserves the original expression or declaration
-source from the active module, including its notation, formatting, and comments.
-Imported declarations whose source is unavailable in the active module use an
-explicitly labelled reconstruction. Line endings are normalized for snapshots.
-The comparison preserves a theorem's placeholder proof as `Proof: sorry`.
-The round-trip check applies to the statement.
-Rendering commands display text without adding declarations.
-The Lean input view preserves `abbrev` for abbreviations; the Mean output uses
-`Abbreviation:`. Both the defined value and this declaration kind are checked.
-Declaration headings omit the current namespace: inside `TranslationTiling.Abstract`,
-`Point` renders as `Point`. Nested names retain their relative path, and declarations
-outside the current namespace retain their qualification, even when their namespace
-is open. Reconstructed input headings use the same convention; original source
-keeps its original spelling.
-
-Output is checked in its original namespace, import, variable, and universe
-context; it is not a standalone export file.
-
-## Wang tiling example
-
-[Examples/Wang.lean](Examples/Wang.lean) adapts the formal abstract
-from [lean-wang at commit 64268a3](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LeanWang/Abstract.lean).
-It keeps the original nine definitions/abbreviations and compares the statements
-of co-RE-completeness and undecidability. The upstream attribution and
-[Apache 2.0 license](Examples/Wang.LICENSE) are retained.
-The [upstream license](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE)
-is linked in `Wang.lean` and both generated headers. A local license copy accompanies
-the adapted source, as required by [Apache 2.0 §4(a)](https://www.apache.org/licenses/LICENSE-2.0#redistribution).
-
-Mean and lean-wang both use Lean/mathlib 4.35.0.
-The original lambda parameter `a` is renamed to `x` because Mean reserves `a`.
-The two theorem declarations are retained with `sorry` proofs and rendered by
-`#mean_compare`. Only their statements are checked here; the complete proofs
-remain upstream. The `sorry` warning is disabled locally for these two copied
-declarations, while other renderer warnings and errors remain checked.
-
-[Examples/Wang.mean](Examples/Wang.mean) contains the generated Mean output;
-[Examples/Wang.compare](Examples/Wang.compare) pairs it with the Lean input.
-Each rendering passes the usual checked round trip,
-and `python test.py` checks the exact output. This is a baseline for improving
-the translation of real mathematics; unsupported portions retain Lean syntax.
-The tiling definition renders existential and integer quantifiers and conjunctions.
-The complexity definitions use `an instance of typeclass Primcodable α` for their
-instance parameters. `CoRE` describes the function mapping `x` to `x does not satisfy p`
-as recursively enumerable. Named predicates without registered English wording
-use their Lean names after `is`. `CoREComplete` renders its function-valued universal and
-existential quantifiers, implication, conjunction, and equivalence in Mean.
-
-## Translation tiling example
-
-[Examples/TranslationTiling.lean](Examples/TranslationTiling.lean) adapts the
-[formal abstract at commit 79b39ab](https://github.com/edemaine/translation-tiling-paper/blob/79b39abcd4f6bd070610657d1c2ef187b3e2bd1a/lean/TranslationTiling/Abstract.lean)
-from [Tiling 3D by Translates of a Single Polycube is Undecidable](https://edemaine.github.io/translation-tiling-paper/).
-It retains all 13 definitions/abbreviations and nine theorem declarations from
-the November 12, 2026 update. They cover each fixed dimension `d ≥ 3`, lattice
-translations, and real translations with optional rotations and reflections.
-The reduction theorems now provide computable functions with explicit cube bounds.
-Rigid reductions preserve tileability for every permitted motion set containing
-all translations, with a dimension-dependent size factor and a sharper factor
-of 64000 in dimension three. The nine bridge proofs are replaced with
-`sorry`, as in Wang; the complete proofs remain upstream.
-
-The input imports [Examples/Wang.lean](Examples/Wang.lean) and uses
-`LeanWang.Abstract.CoREComplete` in its completeness statements. Upstream
-uses `LeanWang.CoREComplete`, which quantifies over all encoded source types of
-the same universe; the Wang abstract instead uses predicates on natural numbers
-as source problems. These are equivalent formulations here, but are not
-definitionally identical in Lean. This interface adaptation is recorded in the
-input's top comment. A companion `LeanWang.Abstract.CoREHard` definition is added
-in this example for the new hardness theorem, using the same source encoding.
-Its relation to the existing completeness definition is checked by `Iff.rfl`.
-The reduction statements likewise use `List LeanWang.Abstract.Tile`
-and `LeanWang.Abstract.TilesPlane` from our Wang example. Upstream uses lists of
-four-field Wang-tile structures; our abstract uses functions from `Fin 4` to `ℕ`.
-The correspondence preserves edge colors, list lengths, and tileability, but the
-types and predicates are not definitionally identical. No external Wang package is needed.
-Point binders `a`, `b` are renamed to `p`, `q` because Mean reserves `a`;
-`Connected` uses `x`, `y` for its outer endpoints to avoid shadowing.
-Mean and both upstream projects use Lean/mathlib 4.35.0.
-
-The pinned TranslationTiling repository does not declare a project-wide license.
-Its source link and this license status are recorded in the input's top comment
-and both output headers. The imported Wang example retains its Apache 2.0
-license and notices.
-
-[TranslationTiling.mean](Examples/TranslationTiling.mean) contains the checked
-Mean output; [TranslationTiling.compare](Examples/TranslationTiling.compare)
-pairs it with Lean input. `python test.py` checks all 23 comparisons, including
-the added hardness interface. Unsupported
-structures retain Lean syntax and pass the same round-trip checks.
-
-The November 12 update prompted these general rendering improvements:
-
-1. **Identify set literals locally.** The motion-policy condition in
-   `real_tiling_coRE_complete` needs the type of its finite set of sets. Compact
-   printing previously lost that information. Finite set literals now use
-   `the set {…}`, distinguishing `Set` from `Finset` while inferring the element
-   type from the surrounding statement. The checked
-   explicit-argument fallback remains available. `finiteSetChoice` is a regression
-   example for this distinction.
-2. **Normalize scalar cast targets and Euclidean coordinates.** In `Solid`, the
-   target `(fun i => ℝ) i` is beta-reduced before recognizing scalar vocabulary,
-   and coordinate access renders as `x i`, restoring
-   `p i as a real number ≤ x i`. Named type aliases and the Euclidean norm on
-   `RealPoint d` are preserved. A different local coordinate coercion triggers
-   the checked explicit fallback.
-3. **Extend bounded quantifiers to existence and add set-image wording.** `RealTiles`
-   uses “there is a subset T of motions,” “there is exactly one f ∈ T,” and
-   “the image of (Solid P) under f.” Uniqueness remains restricted to motions
-   in T; ordinary and negated existence support membership restrictions too.
-4. **Keep project-specific predicate wording local.** The generic subject-list rule
-   produces `P and motions satisfy RealTiles`; “P tiles real space using motions”
-   would express those roles. That wording, and names such as “co-RE-hard,”
-   belong with local declarations rather than global TranslationTiling rules.
-   Predicate definitions with implicit dimension parameters retain their current
-   function descriptions.
-5. **Add geometry vocabulary.** Euclidean spaces, bijective affine isometries,
-   linear parts, determinants, perpendicular bisectors, and reflections now have
-   general wording. The isometry type explicitly retains bijectivity and its
-   scalar field. Multiplication keeps its order: `t * r` applies r first, then t.
-   Reflection tests include the degenerate bisector case p = q.
-6. **Shorten collection properties.** `List.length (f T)` renders as
-   `the length of (f T)`; `Set.univ` names the set of all elements of its type.
-7. **Describe functions returning types clearly.** `Point`, `Prototile`, `RealPoint`,
-   and `Motion` use `the function mapping …` with a type description as the
-   result. In particular, `Point d` describes the type of functions from indices
-   in `[0, d)` to integers, preserving the explicit dimension parameter.
-
 ## Definitions by cases
 
 Simple constructor-pattern functions can be written and rendered by cases:
@@ -853,27 +690,6 @@ fallback. The round-trip checker elaborates the actual printed declaration and
 compares the type and every constructor, preserving names, order, binder
 implicitness, universes, and the parameter/index split. Mutual, nested, and unsafe
 inductive declarations currently report an explicit unsupported-form error.
-
-## Real-algebraic complexity example
-
-[Examples/Canny.lean](Examples/Canny.lean) adapts the unified abstract from
-[lean-canny at commit 6b758a2](https://github.com/edemaine/lean-canny/blob/6b758a2abff2b2ef69d245dad37505f9fb790921/LeanCanny/Abstract.lean).
-It covers integer polynomial expressions, Boolean formulas and real solution
-sets, ETR and ∃∀ℝ, whole-space connectivity, and point reachability. The seven
-theorem statements include Canny's PSPACE bounds and the counting-hierarchy
-bounds attributed upstream to OpenAI. The source attribution and
-[Apache 2.0 license](Examples/Canny.LICENSE) are retained.
-
-This example imports `Examples.Wang` and declares the interfaces for binary
-encodings, polynomial-time reductions, PSPACE, and counting levels directly in
-`LeanCanny.Abstract`. The interfaces stand in for CSLib Frontier, and their
-docstrings describe the intended machine semantics and encoding layouts.
-All seven theorem proofs use `sorry`, as in the tiling examples.
-`python test.py` checks the renderings relative to the declared interfaces.
-
-[Canny.mean](Examples/Canny.mean) contains the Mean output.
-[Canny.compare](Examples/Canny.compare) pairs all 28 checked renderings with
-Lean. Both views include constructor signatures for the inductive syntax types.
 
 ## Compositional syntax
 
@@ -1353,22 +1169,75 @@ Predicate subjects render recursively, including function bodies:
 
 This means `REPred (fun x : α => ¬ p x)`. Parentheses keep the outer adjective
 outside the function body. Negated generic predicate applications use
-`does not satisfy` or `do not satisfy`; registered adjectives retain `is not`
-or `are not`. General negations remain ordinary Lean.
+`does not satisfy` or `do not satisfy`. Most registered adjectives use `is not`
+or `are not`. Mean writes `¬(S is connected or empty)` to make the scope of
+negation clear. General negations remain ordinary Lean.
+
+## What is checked, and what still needs review?
+
+The renderer reads `Lean.Expr`, where names and implicit arguments have been
+resolved, rather than translating source text. It is implemented separately from
+the forward syntax macros. This gives two implementations to compare, although
+independence alone is not a correctness guarantee.
+
+Every successful rendering is checked by parsing its actual output text.
+For expressions and theorem statements, Mean elaborates the text, tests
+definitional equality, and asks Lean's kernel to check an equality certificate.
+For Lean-to-Mean definitions, Mean elaborates a renamed copy of the complete
+printed command in a temporary environment. It checks the resulting type and value,
+function binder information, public parameter names, universe parameters, definition/abbreviation kind,
+effective reducibility, and safety against the original declaration. Expected
+metadata is read independently from Lean's environment. The temporary declaration
+and elaboration state are discarded afterward.
+
+These metadata checks are necessary because kernel definitional equality ignores
+properties such as implicit argument flags and declaration reducibility. The
+comparison permits renaming universe parameters, but does not specialize them to
+fixed levels. Checks reject unresolved metavariables and compared expressions
+containing `sorry`. A failed round trip produces an error instead of displayed
+output. Theorems are checked through their statements; their proofs may contain
+`sorry` without weakening that statement check.
+
+The guarantee covers these expressions and metadata, rather than every aspect of
+Lean behavior. Other attributes such as `[simp]` and instance registration,
+compiled code behavior, and performance are outside the current check. Unsupported
+changes to the checked metadata, such as dropping an `irreducible` attribute,
+cause rejection. The internal value-only annotation probe is separate from the
+final declaration check.
+
+**This checks preservation of formal meaning, not agreement with human intent.**
+The vocabulary still needs review. If both directions consistently use a misleading
+English phrase for a Lean concept, the round trip cannot detect that. A small,
+compositional collection of mappings makes this review more manageable.
+
+The graph example illustrates why conventions matter. `G.Path u v` permits a
+zero-length path, and the pairwise-path definition holds vacuously for an empty
+graph. It is equivalent to mathlib's `G.Preconnected`. Mathlib's `G.Connected`
+additionally requires a vertex. `Examples/MeanToLean.lean` proves both the first equivalence
+and the second under `[Nonempty V]`.
+
+Different phrasings can have exactly the same interpretation. The parser
+accepts both `for all` and `for every` with the same binding. Different
+*mathematical formulations* may require
+more than definitional equality: `Nonempty (G.Path u v)` and
+`∃ p : G.Path u v, True` are logically equivalent but not definitionally equal.
+Checked equivalence rules are a future extension. The renderer preserves
+`Nonempty T` as `T is a nonempty type`, rather than rewriting it to an existential.
+Similarly, `IsEmpty T` renders as `T is an empty type`. For lists, `xs ≠ []`
+and `xs = []` render as `xs is a nonempty list` and `xs is an empty list`.
 
 ## Current coverage and limitations
 
 The renderer recognizes graph, scalar, index, list, set, function, proof, and generic element
 subjects; paired universal quantifiers and single explicit quantifiers over arbitrary
-domains; positive and negative existential witnesses; optional
+domains; positive, negative, and unique existential witnesses; optional
 conditions; set comprehensions; finite sums; conjunctions, disjunctions, equivalences, and nondependent propositional implications;
 and functions with explicit, implicit, strict implicit, and instance binders, including nested and dependent functions.
 Functions also render inside otherwise ordinary Lean applications, constructors,
 and type expressions, for example
 `List.map (the function mapping a natural number n to n + 1) xs`.
 Their bodies use the same logical wording as standalone functions.
-Other native binder notation inside the Lean fallback, such as unique existence,
-retains its own syntax.
+Binder notation inside unsupported Lean syntax can retain its original form.
 It omits unused witness names and unnecessary generated parameter names, while
 preserving public parameter names, including graph carrier parameters.
 It substitutes local `let` aliases, so `E` may render as `G.edgeSet`.
@@ -1394,6 +1263,140 @@ parentheses remain necessary. For example, `(n = 0).` prevents the final `0.` fr
 being read as a Lean decimal token. Compound field projections may also need
 parentheses. English keywords such as `a`, `graph`, `satisfies`, `satisfy`, `satisfying`, and `does` are reserved after importing
 Mean; Lean identifiers with those names need escaping, as in `«a»`.
+
+## Case studies
+
+### Wang tiling example
+
+[Examples/Wang.lean](Examples/Wang.lean) adapts the formal abstract
+from [lean-wang at commit 64268a3](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LeanWang/Abstract.lean).
+It keeps the original nine definitions/abbreviations and compares the statements
+of co-RE-completeness and undecidability. The upstream attribution and
+[Apache 2.0 license](Examples/Wang.LICENSE) are retained.
+The [upstream license](https://github.com/edemaine/lean-wang/blob/64268a3aaaef3eac65559352ef94f62ab9c00482/LICENSE)
+is linked in `Wang.lean` and both generated headers. A local license copy accompanies
+the adapted source, as required by [Apache 2.0 §4(a)](https://www.apache.org/licenses/LICENSE-2.0#redistribution).
+
+Mean and lean-wang both use Lean/mathlib 4.35.0.
+The original lambda parameter `a` is renamed to `x` because Mean reserves `a`.
+The two theorem declarations are retained with `sorry` proofs and rendered by
+`#mean_compare`. Only their statements are checked here; the complete proofs
+remain upstream. The `sorry` warning is disabled locally for these two copied
+declarations, while other renderer warnings and errors remain checked.
+
+[Examples/Wang.mean](Examples/Wang.mean) contains the generated Mean output;
+[Examples/Wang.compare](Examples/Wang.compare) pairs it with the Lean input.
+Each rendering passes the usual checked round trip,
+and `python test.py` checks the exact output. This is a baseline for improving
+the translation of real mathematics; unsupported portions retain Lean syntax.
+The tiling definition renders existential and integer quantifiers and conjunctions.
+The complexity definitions use `an instance of typeclass Primcodable α` for their
+instance parameters. `CoRE` describes the function mapping `x` to `x does not satisfy p`
+as recursively enumerable. Named predicates without registered English wording
+use their Lean names after `satisfy` or `satisfies`. `CoREComplete` renders its
+function-valued universal and existential quantifiers, implication, conjunction,
+and equivalence in Mean.
+
+### Translation tiling example
+
+[Examples/TranslationTiling.lean](Examples/TranslationTiling.lean) adapts the
+[formal abstract at commit 79b39ab](https://github.com/edemaine/translation-tiling-paper/blob/79b39abcd4f6bd070610657d1c2ef187b3e2bd1a/lean/TranslationTiling/Abstract.lean)
+from [Tiling 3D by Translates of a Single Polycube is Undecidable](https://edemaine.github.io/translation-tiling-paper/).
+It retains all 13 definitions/abbreviations and nine theorem declarations from
+the November 12, 2026 update. They cover each fixed dimension `d ≥ 3`, lattice
+translations, and real translations with optional rotations and reflections.
+The reduction theorems now provide computable functions with explicit cube bounds.
+Rigid reductions preserve tileability for every permitted motion set containing
+all translations, with a dimension-dependent size factor and a sharper factor
+of 64000 in dimension three. The nine bridge proofs are replaced with
+`sorry`, as in Wang; the complete proofs remain upstream.
+
+The input imports [Examples/Wang.lean](Examples/Wang.lean) and uses
+`LeanWang.Abstract.CoREComplete` in its completeness statements. Upstream
+uses `LeanWang.CoREComplete`, which quantifies over all encoded source types of
+the same universe; the Wang abstract instead uses predicates on natural numbers
+as source problems. These are equivalent formulations here, but are not
+definitionally identical in Lean. This interface adaptation is recorded in the
+input's top comment. A companion `LeanWang.Abstract.CoREHard` definition is added
+in this example for the new hardness theorem, using the same source encoding.
+Its relation to the existing completeness definition is checked by `Iff.rfl`.
+The reduction statements likewise use `List LeanWang.Abstract.Tile`
+and `LeanWang.Abstract.TilesPlane` from our Wang example. Upstream uses lists of
+four-field Wang-tile structures; our abstract uses functions from `Fin 4` to `ℕ`.
+The correspondence preserves edge colors, list lengths, and tileability, but the
+types and predicates are not definitionally identical. No external Wang package is needed.
+Point binders `a`, `b` are renamed to `p`, `q` because Mean reserves `a`;
+`Connected` uses `x`, `y` for its outer endpoints to avoid shadowing.
+Mean and both upstream projects use Lean/mathlib 4.35.0.
+
+The pinned TranslationTiling repository does not declare a project-wide license.
+Its source link and this license status are recorded in the input's top comment
+and both output headers. The imported Wang example retains its Apache 2.0
+license and notices.
+
+[TranslationTiling.mean](Examples/TranslationTiling.mean) contains the checked
+Mean output; [TranslationTiling.compare](Examples/TranslationTiling.compare)
+pairs it with Lean input. `python test.py` checks all 23 comparisons, including
+the added hardness interface. Unsupported
+structures retain Lean syntax and pass the same round-trip checks.
+
+The November 12 update prompted these general rendering improvements:
+
+1. **Identify set literals locally.** The motion-policy condition in
+   `real_tiling_coRE_complete` needs the type of its finite set of sets. Compact
+   printing previously lost that information. Finite set literals now use
+   `the set {…}`, distinguishing `Set` from `Finset` while inferring the element
+   type from the surrounding statement. The checked
+   explicit-argument fallback remains available. `finiteSetChoice` is a regression
+   example for this distinction.
+2. **Normalize scalar cast targets and Euclidean coordinates.** In `Solid`, the
+   target `(fun i => ℝ) i` is beta-reduced before recognizing scalar vocabulary,
+   and coordinate access renders as `x i`, restoring
+   `p i as a real number ≤ x i`. Named type aliases and the Euclidean norm on
+   `RealPoint d` are preserved. A different local coordinate coercion triggers
+   the checked explicit fallback.
+3. **Extend bounded quantifiers to existence and add set-image wording.** `RealTiles`
+   uses “there is a subset T of motions,” “there is exactly one f ∈ T,” and
+   “the image of (Solid P) under f.” Uniqueness remains restricted to motions
+   in T; ordinary and negated existence support membership restrictions too.
+4. **Keep project-specific predicate wording local.** The generic subject-list rule
+   produces `P and motions satisfy RealTiles`; “P tiles real space using motions”
+   would express those roles. That wording, and names such as “co-RE-hard,”
+   belong with local declarations rather than global TranslationTiling rules.
+   Predicate definitions with implicit dimension parameters retain their current
+   function descriptions.
+5. **Add geometry vocabulary.** Euclidean spaces, bijective affine isometries,
+   linear parts, determinants, perpendicular bisectors, and reflections now have
+   general wording. The isometry type explicitly retains bijectivity and its
+   scalar field. Multiplication keeps its order: `t * r` applies r first, then t.
+   Reflection tests include the degenerate bisector case p = q.
+6. **Shorten collection properties.** `List.length (f T)` renders as
+   `the length of (f T)`; `Set.univ` names the set of all elements of its type.
+7. **Describe functions returning types clearly.** `Point`, `Prototile`, `RealPoint`,
+   and `Motion` use `the function mapping …` with a type description as the
+   result. In particular, `Point d` describes the type of functions from indices
+   in `[0, d)` to integers, preserving the explicit dimension parameter.
+
+### Canny's real-algebraic complexity bounds
+
+[Examples/Canny.lean](Examples/Canny.lean) adapts the unified abstract from
+[lean-canny at commit 6b758a2](https://github.com/edemaine/lean-canny/blob/6b758a2abff2b2ef69d245dad37505f9fb790921/LeanCanny/Abstract.lean).
+It covers integer polynomial expressions, Boolean formulas and real solution
+sets, ETR and ∃∀ℝ, whole-space connectivity, and point reachability. The seven
+theorem statements include Canny's PSPACE bounds and the counting-hierarchy
+bounds attributed upstream to OpenAI. The source attribution and
+[Apache 2.0 license](Examples/Canny.LICENSE) are retained.
+
+This example imports `Examples.Wang` and declares the interfaces for binary
+encodings, polynomial-time reductions, PSPACE, and counting levels directly in
+`LeanCanny.Abstract`. The interfaces stand in for CSLib Frontier, and their
+docstrings describe the intended machine semantics and encoding layouts.
+All seven theorem proofs use `sorry`, as in the tiling examples.
+`python test.py` checks the renderings relative to the declared interfaces.
+
+[Canny.mean](Examples/Canny.mean) contains the Mean output.
+[Canny.compare](Examples/Canny.compare) pairs all 28 checked renderings with
+Lean. Both views include constructor signatures for the inductive syntax types.
 
 ## Development direction
 
@@ -1481,8 +1484,5 @@ smaller vocabulary and falling back to Lean for unsupported expressions.
 | `Mean/Syntax.lean` | Mean → Lean grammar and interpretations |
 | `Mean/RoundTrip.lean` | Checks rendered text against its original Lean expression |
 | `Mean/Render.lean` | Lean → Mean renderer and display commands |
-| [Examples/MeanToLean.lean](Examples/MeanToLean.lean) | Forward-language examples, exact-meaning checks, and mathlib equivalence proofs |
-| [Examples/LeanToMean.lean](Examples/LeanToMean.lean) | Before/after examples and round-trip checks, including rejection of changed predicates and universe signatures |
+| [`Examples/`](Examples/) | Lean sources and generated views listed in the [example index](#example-index) |
 | `test.py` | Builds the project and checks the rendered examples against their expected output |
-| `Examples/*.mean` | Generated Mean output only, including exact formatting |
-| `Examples/*.compare` | Generated paired Lean/Mean comparisons |

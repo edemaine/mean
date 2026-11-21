@@ -1566,6 +1566,9 @@ def renderChecked (e : Expr) : TermElabM String :=
 private def comparisonText (before after : String) : String :=
   s!"\n-- LEAN INPUT:\n{before}\n-- MEAN OUTPUT:\n{after}"
 
+private def forwardComparisonText (before after : String) : String :=
+  s!"\n-- MEAN INPUT:\n{before}\n-- LEAN OUTPUT:\n{after}"
+
 private def sourceSlice (map : FileMap) (start stop : String.Pos.Raw) : String :=
   (String.Pos.Raw.extract map.source start stop).replace "\r\n" "\n"
 
@@ -1583,17 +1586,24 @@ private def declarationInputText (name : Name) (reconstructed : String) : TermEl
   return "-- Reconstructed declaration; original source is unavailable in this module.
 " ++ reconstructed
 
-private def showTerm (t : Syntax) (compare : Bool) : Command.CommandElabM Unit :=
-  Command.runTermElabM fun _ => do
+private def termSourceText? (t : Syntax) : TermElabM (Option String) := do
+  let some start := t.getPos? | return none
+  let some stop := t.getTailPos? | return none
+  return some (sourceSlice (← getFileMap) start stop)
+
+private def elaborateDisplayTerm (t : Syntax) : TermElabM Expr := do
   let e ← elabTerm t none
   synthesizeSyntheticMVarsNoPostponing
-  let e ← instantiateMVars e
+  instantiateMVars e
+
+private def showTerm (t : Syntax) (compare : Bool) : Command.CommandElabM Unit :=
+  Command.runTermElabM fun _ => do
+  let e ← elaborateDisplayTerm t
   let after ← renderChecked e
   if compare then
-    let map ← getFileMap
-    let before ← match t.getPos?, t.getTailPos? with
-      | some start, some stop => pure (sourceSlice map start stop)
-      | _, _ => do pure ("-- Reconstructed expression; original source is unavailable." ++
+    let before ← match ← termSourceText? t with
+      | some source => pure source
+      | none => do pure ("-- Reconstructed expression; original source is unavailable." ++
           "\n" ++ (← leanText e))
     logInfo (comparisonText before after)
   else logInfo after
@@ -1768,5 +1778,52 @@ elab "#mean_term " t:term : command => showTerm t false
 elab "#mean_term_compare " t:term : command => showTerm t true
 elab "#mean " declaration:ident : command => showDeclaration declaration false
 elab "#mean_compare " declaration:ident : command => showDeclaration declaration true
+
+private def checkedLeanText (e : Expr) : TermElabM String :=
+  withOptions (fun opts => opts.setBool `mean.renderProperties false |>.setBool `pp.proofs true) do
+    checkedRendering (leanText e) (RoundTrip.checkText e) fun _ =>
+      withOptions (fun opts => opts.setBool `pp.explicit true) (leanText e)
+
+elab "#lean_term_compare " t:term : command =>
+  Command.runTermElabM fun _ => do
+    let some source ← termSourceText? t | throwErrorAt t "expected an expression from the current file"
+    let text ← checkedLeanText (← elaborateDisplayTerm t)
+    logInfo (forwardComparisonText source text)
+
+def leanDeclarationText (info : ConstantInfo)
+    (printExpr : Expr → TermElabM String := fun e => leanText e) : TermElabM String := do
+  if let .inductInfo i := info then return ← renderInductiveSignature i false
+  let name ← declarationNameText info.name
+  withLevelNames info.levelParams do
+    let levels ← if info.levelParams.isEmpty then pure "" else do
+      let names ← info.levelParams.mapM fun level => nameText level
+      pure (".{" ++ String.intercalate ", " names ++ "}")
+    let signature ← withOptions (fun opts => opts.setBool `pp.piBinderNames true
+      |>.setBool `pp.piBinderNames.hygienic false) (printExpr info.type)
+    let valueText (keyword : String) (value : Expr) : TermElabM String := do
+      return s!"{keyword} {name}{levels} : {signature} :=\n{indented (← printExpr value)}"
+    match info with
+    | .defnInfo d =>
+      let kind := if d.hints.isAbbrev then "abbrev" else "def"
+      let safety := match d.safety with
+        | .unsafe => "unsafe "
+        | .partial => "partial "
+        | .safe => ""
+      valueText (safety ++ kind) d.value
+    | .thmInfo thm => valueText "theorem" thm.value
+    | .axiomInfo ax => do
+      let keyword := if ax.isUnsafe then "unsafe axiom" else "axiom"
+      pure s!"{keyword} {name}{levels} : {signature}"
+    | _ => throwError "expected a definition, theorem, axiom, or inductive type"
+
+elab "#lean_compare " declaration:ident : command =>
+  Command.liftTermElabM do
+    let n ← realizeGlobalConstNoOverloadWithInfo declaration
+    let some source ← sourceDeclarationText? n
+      | throwErrorAt declaration "expected a declaration from the current file"
+    let info ← getConstInfo n
+    if let .inductInfo _ := info then
+      throwErrorAt declaration "expected a definition, theorem, or axiom"
+    logInfo (forwardComparisonText source (← leanDeclarationText info checkedLeanText))
 
 end Mean.Render

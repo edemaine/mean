@@ -1,0 +1,3717 @@
+-- Automatically generated from Examples/MeanToLean.lean by python test.py --update.
+-- Lean output is printed from the elaborated forward tests.
+
+-- MEAN INPUT:
+the length of xs
+-- LEAN OUTPUT:
+xs.length
+
+-- MEAN INPUT:
+the set of all elements of A
+-- LEAN OUTPUT:
+Set.univ
+
+-- MEAN INPUT:
+the set {x, y}
+-- LEAN OUTPUT:
+{x, y}
+
+-- MEAN INPUT:
+the complement of s
+-- LEAN OUTPUT:
+sᶜ
+
+-- MEAN INPUT:
+the concatenation of xs and ys
+-- LEAN OUTPUT:
+Fin.append xs ys
+
+-- MEAN INPUT:
+the union over natural numbers n of the union over indices i in [0, n) of S n i
+-- LEAN OUTPUT:
+⋃ (n : ℕ), ⋃ (i : Fin n), S n i
+
+-- MEAN INPUT:
+the union over n in s of S n
+-- LEAN OUTPUT:
+⋃ n ∈ s, S n
+
+-- MEAN INPUT:
+the intersection over n in s of S n
+-- LEAN OUTPUT:
+⋂ n ∈ s, S n
+
+-- MEAN INPUT:
+the union over natural numbers r and s of S r s
+-- LEAN OUTPUT:
+let sharedType := ℕ;
+⋃ (r : sharedType), ⋃ (s : sharedType), S r s
+
+-- MEAN INPUT:
+the set {x}
+-- LEAN OUTPUT:
+{x}
+
+-- MEAN INPUT:
+the set ∅
+-- LEAN OUTPUT:
+∅
+
+-- MEAN INPUT:
+for every t ∈ the set {s, ∅}: t ⊆ s
+-- LEAN OUTPUT:
+∀ t ∈ {s, ∅}, t ⊆ s
+
+-- MEAN INPUT:
+the real Euclidean space of dimension d
+-- LEAN OUTPUT:
+EuclideanSpace ℝ (Fin d)
+
+-- MEAN INPUT:
+the type of bijective affine isometries from Space to Space over Real
+-- LEAN OUTPUT:
+Space ≃ᵃⁱ[ℝ] Space
+
+-- MEAN INPUT:
+the linear part of f
+-- LEAN OUTPUT:
+f.linear
+
+-- MEAN INPUT:
+the determinant of (the linear part of f)
+-- LEAN OUTPUT:
+(LinearEquiv.det : (Space ≃ₗ[ℝ] Space) → ℝˣ) f.linear
+
+-- MEAN INPUT:
+the determinant of L
+-- LEAN OUTPUT:
+(LinearMap.det : (Space →ₗ[ℝ] Space) → ℝ) L
+
+-- MEAN INPUT:
+the perpendicular bisector of p and q
+-- LEAN OUTPUT:
+AffineSubspace.perpBisector p q
+
+-- MEAN INPUT:
+the reflection across (the perpendicular bisector of p and q)
+-- LEAN OUTPUT:
+EuclideanGeometry.reflection (AffineSubspace.perpBisector p q)
+
+-- MEAN INPUT:
+the reflection across (the perpendicular bisector of p and p)
+-- LEAN OUTPUT:
+EuclideanGeometry.reflection (AffineSubspace.perpBisector p p)
+
+-- MEAN INPUT:
+the reflection across (the perpendicular bisector of p and q)
+-- LEAN OUTPUT:
+EuclideanGeometry.reflection (AffineSubspace.perpBisector p q)
+
+-- MEAN INPUT:
+the image of s under f
+-- LEAN OUTPUT:
+f '' s
+
+-- MEAN INPUT:
+the image of s under f
+-- LEAN OUTPUT:
+(⇑f : Space → Space) '' s
+
+-- MEAN INPUT:
+there is x ∈ s such that P x
+-- LEAN OUTPUT:
+∃ x ∈ s, P x
+
+-- MEAN INPUT:
+there is n ∈ xs
+-- LEAN OUTPUT:
+∃ n ∈ xs, True
+
+-- MEAN INPUT:
+there is exactly one x ∈ s such that P x
+-- LEAN OUTPUT:
+∃! x : A, x ∈ s ∧ P x
+
+-- MEAN INPUT:
+there is a unique x ∈ s such that P x
+-- LEAN OUTPUT:
+∃! x : A, x ∈ s ∧ P x
+
+-- MEAN INPUT:
+there is no x ∈ s such that P x
+-- LEAN OUTPUT:
+¬∃ x ∈ s, P x
+
+-- MEAN INPUT:
+there is a subset t of s such that P t
+-- LEAN OUTPUT:
+∃ t ⊆ s, P t
+
+-- MEAN INPUT:
+there is no subset t of s
+-- LEAN OUTPUT:
+¬∃ t ⊆ s, True
+
+-- MEAN INPUT:
+the type of functions from indices in [0, d) to Int
+-- LEAN OUTPUT:
+Fin d → ℤ
+
+-- MEAN INPUT:
+the function mapping a natural number d to the type of functions from indices in [0, d) to Int
+-- LEAN OUTPUT:
+fun (d : ℕ) => Fin d → ℤ
+
+-- MEAN INPUT:
+the function mapping a natural number d to Fin (d + 1)
+-- LEAN OUTPUT:
+fun (d : ℕ) => Fin (d + 1)
+
+-- MEAN INPUT:
+log base 2 of x
+-- LEAN OUTPUT:
+Real.logb 2 x
+
+-- MEAN INPUT:
+log base 2 of (ln x)
+-- LEAN OUTPUT:
+Real.logb 2 (ln x)
+
+-- MEAN INPUT:
+log base b of x
+-- LEAN OUTPUT:
+Real.logb b x
+
+-- MEAN INPUT:
+log base 2 of (log base 2 of x)
+-- LEAN OUTPUT:
+Real.logb 2 (Real.logb 2 x)
+
+-- MEAN INPUT:
+log base (b + 1) of (x + 4)
+-- LEAN OUTPUT:
+Real.logb (b + 1) (x + 4)
+
+-- MEAN INPUT:
+log base 2 of x
+-- LEAN OUTPUT:
+Real.logb 2 x
+
+-- MEAN INPUT:
+log base 2 of y
+-- LEAN OUTPUT:
+Real.logb 2 y
+
+-- MEAN INPUT:
+log base 2 of x
+-- LEAN OUTPUT:
+Real.logb 2 x
+
+-- MEAN INPUT:
+log base 2 of x ≤ 3 and x > 0
+-- LEAN OUTPUT:
+Real.logb 2 x ≤ 3 ∧ x > 0
+
+-- MEAN INPUT:
+the transitive closure of R
+-- LEAN OUTPUT:
+Relation.TransGen R
+
+-- MEAN INPUT:
+the reflexive closure of R
+-- LEAN OUTPUT:
+Relation.ReflGen R
+
+-- MEAN INPUT:
+the symmetric closure of R
+-- LEAN OUTPUT:
+Relation.SymmGen R
+
+-- MEAN INPUT:
+the equivalence closure of R
+-- LEAN OUTPUT:
+Relation.EqvGen R
+
+-- MEAN INPUT:
+x is related to y by the transitive closure of R
+-- LEAN OUTPUT:
+Relation.TransGen R x y
+
+-- MEAN INPUT:
+x is related to y by the reflexive closure of R
+-- LEAN OUTPUT:
+Relation.ReflGen R x y
+
+-- MEAN INPUT:
+x is related to y by the symmetric closure of R
+-- LEAN OUTPUT:
+Relation.SymmGen R x y
+
+-- MEAN INPUT:
+x is related to y by the equivalence closure of R
+-- LEAN OUTPUT:
+Relation.EqvGen R x y
+
+-- MEAN INPUT:
+x is not related to y by the transitive closure of R
+-- LEAN OUTPUT:
+¬Relation.TransGen R x y
+
+-- MEAN INPUT:
+x is not related to y by the reflexive closure of R
+-- LEAN OUTPUT:
+¬Relation.ReflGen R x y
+
+-- MEAN INPUT:
+x is not related to y by the symmetric closure of R
+-- LEAN OUTPUT:
+¬Relation.SymmGen R x y
+
+-- MEAN INPUT:
+x is not related to y by the equivalence closure of R
+-- LEAN OUTPUT:
+¬Relation.EqvGen R x y
+
+-- MEAN INPUT:
+x is related to y by the transitive closure of R
+-- LEAN OUTPUT:
+Relation.TransGen R x y
+
+-- MEAN INPUT:
+x is related to x by the reflexive closure of R
+-- LEAN OUTPUT:
+Relation.ReflGen R x x
+
+-- MEAN INPUT:
+x is related to y by the symmetric closure of R
+-- LEAN OUTPUT:
+Relation.SymmGen R x y
+
+-- MEAN INPUT:
+x is related to x by the equivalence closure of R
+-- LEAN OUTPUT:
+Relation.EqvGen R x x
+
+-- MEAN INPUT:
+x is related to y by the reflexive closure of R and P
+-- LEAN OUTPUT:
+Relation.ReflGen R x y ∧ P
+
+-- MEAN INPUT:
+P or x is not related to y by the equivalence closure of R
+-- LEAN OUTPUT:
+P ∨ ¬Relation.EqvGen R x y
+
+-- MEAN INPUT:
+the composition of R followed by S
+-- LEAN OUTPUT:
+Relation.Comp R S
+
+-- MEAN INPUT:
+the equivalence closure of (the transitive closure of R)
+-- LEAN OUTPUT:
+Relation.EqvGen (Relation.TransGen R)
+
+-- MEAN INPUT:
+the composition of (the reflexive closure of R) followed by (the symmetric closure of S)
+-- LEAN OUTPUT:
+Relation.Comp (Relation.ReflGen R) (Relation.SymmGen S)
+
+-- MEAN INPUT:
+x is related to z by the composition of R followed by S
+-- LEAN OUTPUT:
+Relation.Comp R S x z
+
+-- MEAN INPUT:
+x is not related to z by the composition of R followed by S
+-- LEAN OUTPUT:
+¬Relation.Comp R S x z
+
+-- MEAN INPUT:
+x is related to z by the composition of R followed by S
+-- LEAN OUTPUT:
+Relation.Comp R S x z
+
+-- MEAN INPUT:
+P and x is related to z by the composition of R followed by S
+-- LEAN OUTPUT:
+P ∧ Relation.Comp R S x z
+
+-- MEAN INPUT:
+0 is related to 2 by the composition of
+    (the function mapping a natural number x and a natural number y to x + 1 = y)
+    followed by
+    (the function mapping a natural number x and a natural number y to x < y)
+-- LEAN OUTPUT:
+Relation.Comp (fun (x y : ℕ) => x + 1 = y) (fun (x y : ℕ) => x < y) 0 2
+
+-- MEAN INPUT:
+x is related to y by R
+-- LEAN OUTPUT:
+R x y
+
+-- MEAN INPUT:
+x is related to y by the reflexive transitive closure of R
+-- LEAN OUTPUT:
+Relation.ReflTransGen R x y
+
+-- MEAN INPUT:
+x is not related to y by the reflexive transitive closure of R
+-- LEAN OUTPUT:
+¬Relation.ReflTransGen R x y
+
+-- MEAN INPUT:
+the reflexive transitive closure of R
+-- LEAN OUTPUT:
+Relation.ReflTransGen R
+
+-- MEAN INPUT:
+x is related to x by the reflexive transitive closure of R
+-- LEAN OUTPUT:
+Relation.ReflTransGen R x x
+
+-- MEAN INPUT:
+x is related to y by the reflexive transitive closure of R
+-- LEAN OUTPUT:
+Relation.ReflTransGen R x y
+
+-- MEAN INPUT:
+n is related to m by the reflexive transitive closure of
+      (the function mapping a natural number x and a natural number y to x + 1 = y)
+-- LEAN OUTPUT:
+Relation.ReflTransGen (fun (x y : ℕ) => x + 1 = y) n m
+
+-- MEAN INPUT:
+P and x is related to y by the reflexive transitive closure of R
+-- LEAN OUTPUT:
+P ∧ Relation.ReflTransGen R x y
+
+-- MEAN INPUT:
+x is related to y by the reflexive transitive closure of R and P
+-- LEAN OUTPUT:
+Relation.ReflTransGen R x y ∧ P
+
+-- MEAN INPUT:
+P or x is not related to y by the reflexive transitive closure of R
+-- LEAN OUTPUT:
+P ∨ ¬Relation.ReflTransGen R x y
+
+-- MEAN INPUT:
+n + 1 is related to m * 2 by the reflexive transitive closure of LT.lt
+-- LEAN OUTPUT:
+Relation.ReflTransGen LT.lt (n + 1) (m * 2)
+
+-- MEAN INPUT:
+u and v are Adjacent
+-- LEAN OUTPUT:
+Adjacent u v
+
+-- MEAN INPUT:
+u and v are not Adjacent
+-- LEAN OUTPUT:
+¬Adjacent u v
+
+-- MEAN INPUT:
+n and z are ordered
+-- LEAN OUTPUT:
+ordered n z
+
+-- MEAN INPUT:
+x and y are same
+-- LEAN OUTPUT:
+same x y
+
+-- MEAN INPUT:
+n and i are dependent
+-- LEAN OUTPUT:
+dependent n i
+
+-- MEAN INPUT:
+u and v are r
+-- LEAN OUTPUT:
+r u v
+
+-- MEAN INPUT:
+u + 1 and v * 2 are Adjacent
+-- LEAN OUTPUT:
+Adjacent (u + 1) (v * 2)
+
+-- MEAN INPUT:
+u and v are (fun x y : Nat => x < y)
+-- LEAN OUTPUT:
+(fun (x y : ℕ) => x < y) u v
+
+-- MEAN INPUT:
+u and v are (ternary 3)
+-- LEAN OUTPUT:
+ternary 3 u v
+
+-- MEAN INPUT:
+(P and Q) and R are iffRelated
+-- LEAN OUTPUT:
+iffRelated (P ∧ Q) R
+
+-- MEAN INPUT:
+P and (u and v are Adjacent)
+-- LEAN OUTPUT:
+P ∧ Adjacent u v
+
+-- MEAN INPUT:
+u and v are Adjacent and P
+-- LEAN OUTPUT:
+Adjacent u v ∧ P
+
+-- MEAN INPUT:
+u and v are Adjacent and v and w are Adjacent
+-- LEAN OUTPUT:
+Adjacent u v ∧ Adjacent v w
+
+-- MEAN INPUT:
+P or u and v are not Adjacent
+-- LEAN OUTPUT:
+P ∨ ¬Adjacent u v
+
+-- MEAN INPUT:
+u and v are Adjacent if and only if P
+-- LEAN OUTPUT:
+Adjacent u v ↔ P
+
+-- MEAN INPUT:
+if u and v are Adjacent then v and u are not Adjacent
+-- LEAN OUTPUT:
+Adjacent u v → ¬Adjacent v u
+
+-- MEAN INPUT:
+P and Q and R
+-- LEAN OUTPUT:
+P ∧ Q ∧ R
+
+-- MEAN INPUT:
+u and v and w are ternary
+-- LEAN OUTPUT:
+ternary u v w
+
+-- MEAN INPUT:
+u and v and w are not ternary
+-- LEAN OUTPUT:
+¬ternary u v w
+
+-- MEAN INPUT:
+u and v and w and z are four
+-- LEAN OUTPUT:
+four u v w z
+
+-- MEAN INPUT:
+n and z and b are mixedTernary
+-- LEAN OUTPUT:
+mixedTernary n z b
+
+-- MEAN INPUT:
+x and y and z are sameThree
+-- LEAN OUTPUT:
+sameThree x y z
+
+-- MEAN INPUT:
+P and Q and (u and v and w are ternary)
+-- LEAN OUTPUT:
+P ∧ Q ∧ ternary u v w
+
+-- MEAN INPUT:
+(u and v and w are ternary) and P
+-- LEAN OUTPUT:
+ternary u v w ∧ P
+
+-- MEAN INPUT:
+P or (u and v and w are not ternary)
+-- LEAN OUTPUT:
+P ∨ ¬ternary u v w
+
+-- MEAN INPUT:
+(u and v are Adjacent) and (u and v and w are ternary)
+-- LEAN OUTPUT:
+Adjacent u v ∧ ternary u v w
+
+-- MEAN INPUT:
+P and Q and R are r
+-- LEAN OUTPUT:
+r P Q R
+
+-- MEAN INPUT:
+Definition: a natural number n satisfies zero if (n = 0).
+-- LEAN OUTPUT:
+def zero : (n : ℕ) → Prop :=
+  fun (n : ℕ) => n = 0
+
+-- MEAN INPUT:
+Definition: natural numbers x and y satisfy less if (x < y).
+-- LEAN OUTPUT:
+def less : (x y : ℕ) → Prop :=
+  fun (x y : ℕ) => x < y
+
+-- MEAN INPUT:
+Abbreviation: a natural number n satisfies nonzero if (n ≠ 0).
+-- LEAN OUTPUT:
+abbrev nonzero : (n : ℕ) → Prop :=
+  fun (n : ℕ) => n ≠ 0
+
+-- MEAN INPUT:
+Abbreviation: natural numbers x and y satisfy same if (x = y).
+-- LEAN OUTPUT:
+abbrev same : (x y : ℕ) → Prop :=
+  fun (x y : ℕ) => x = y
+
+-- MEAN INPUT:
+Definition: a natural number n and an index i in [0, n + 1) satisfy atEnd if (i.val = n).
+-- LEAN OUTPUT:
+def atEnd : (n : ℕ) → (i : Fin (n + 1)) → Prop :=
+  fun (n : ℕ) (i : Fin (n + 1)) => (↑i : ℕ) = n
+
+-- MEAN INPUT:
+x satisfies P
+-- LEAN OUTPUT:
+P x
+
+-- MEAN INPUT:
+x is P
+-- LEAN OUTPUT:
+P x
+
+-- MEAN INPUT:
+x does not satisfy P
+-- LEAN OUTPUT:
+¬P x
+
+-- MEAN INPUT:
+x is not P
+-- LEAN OUTPUT:
+¬P x
+
+-- MEAN INPUT:
+xs satisfies P
+-- LEAN OUTPUT:
+P xs
+
+-- MEAN INPUT:
+u and v satisfy Adjacent
+-- LEAN OUTPUT:
+Adjacent u v
+
+-- MEAN INPUT:
+u and v are Adjacent
+-- LEAN OUTPUT:
+Adjacent u v
+
+-- MEAN INPUT:
+u and v do not satisfy Adjacent
+-- LEAN OUTPUT:
+¬Adjacent u v
+
+-- MEAN INPUT:
+u and v are not Adjacent
+-- LEAN OUTPUT:
+¬Adjacent u v
+
+-- MEAN INPUT:
+u and (Id.run do return v) do not satisfy Adjacent
+-- LEAN OUTPUT:
+¬Adjacent u (pure v).run
+
+-- MEAN INPUT:
+u + 1 and v * 2 satisfy Adjacent
+-- LEAN OUTPUT:
+Adjacent (u + 1) (v * 2)
+
+-- MEAN INPUT:
+n and z satisfy ordered
+-- LEAN OUTPUT:
+ordered n z
+
+-- MEAN INPUT:
+n and i satisfy R
+-- LEAN OUTPUT:
+R n i
+
+-- MEAN INPUT:
+u and v and w satisfy ternary
+-- LEAN OUTPUT:
+ternary u v w
+
+-- MEAN INPUT:
+u and v and w do not satisfy ternary
+-- LEAN OUTPUT:
+¬ternary u v w
+
+-- MEAN INPUT:
+u and v and w and z satisfy four
+-- LEAN OUTPUT:
+four u v w z
+
+-- MEAN INPUT:
+u satisfies (ternary v w)
+-- LEAN OUTPUT:
+ternary v w u
+
+-- MEAN INPUT:
+P and (u and v satisfy Adjacent)
+-- LEAN OUTPUT:
+P ∧ Adjacent u v
+
+-- MEAN INPUT:
+(u and v satisfy Adjacent) and P
+-- LEAN OUTPUT:
+Adjacent u v ∧ P
+
+-- MEAN INPUT:
+P or (u and v and w do not satisfy ternary)
+-- LEAN OUTPUT:
+P ∨ ¬ternary u v w
+
+-- MEAN INPUT:
+P and Q and R satisfy r
+-- LEAN OUTPUT:
+r P Q R
+
+-- MEAN INPUT:
+Definition: wrap is the function mapping a natural number n to n as Foo.
+-- LEAN OUTPUT:
+def wrap : (n : ℕ) → Foo :=
+  fun (n : ℕ) => (↑n : Foo)
+
+-- MEAN INPUT:
+n as Foo
+-- LEAN OUTPUT:
+(↑n : Foo)
+
+-- MEAN INPUT:
+(n + 1) as Foo
+-- LEAN OUTPUT:
+(↑(n + 1) : Foo)
+
+-- MEAN INPUT:
+(n as Foo) as Bar
+-- LEAN OUTPUT:
+(↑(↑n : Foo) : Bar)
+
+-- MEAN INPUT:
+n as Foo
+-- LEAN OUTPUT:
+(↑n : Foo)
+
+-- MEAN INPUT:
+n as Foo
+-- LEAN OUTPUT:
+(↑n : Foo)
+
+-- MEAN INPUT:
+n as Foo
+-- LEAN OUTPUT:
+(↑n : Foo)
+
+-- MEAN INPUT:
+x as Box A
+-- LEAN OUTPUT:
+(↑x : Box A)
+
+-- MEAN INPUT:
+f as Box (Nat → Nat)
+-- LEAN OUTPUT:
+(↑f : Box (ℕ → ℕ))
+
+-- MEAN INPUT:
+x as B
+-- LEAN OUTPUT:
+Coe.coe x
+
+-- MEAN INPUT:
+for almost every element x of A satisfying p with respect to μ: q x
+-- LEAN OUTPUT:
+∀ᵐ (x : A) ∂μ, p x → q x
+
+-- MEAN INPUT:
+for almost every element x of A with respect to μ satisfying p: q x
+-- LEAN OUTPUT:
+∀ᵐ (x : A) ∂μ, p x → q x
+
+-- MEAN INPUT:
+for almost every element x of A satisfying p with respect to μ where q x: x = x
+-- LEAN OUTPUT:
+∀ᵐ (x : A) ∂μ, p x → q x → x = x
+
+-- MEAN INPUT:
+for almost every element of A satisfying p with respect to μ: True
+-- LEAN OUTPUT:
+∀ᵐ (existentialWitness : A) ∂μ, p existentialWitness → True
+
+-- MEAN INPUT:
+for almost every element x of A satisfying p with respect to (μ + ν): q x
+-- LEAN OUTPUT:
+∀ᵐ (x : A) ∂μ + ν, p x → q x
+
+-- MEAN INPUT:
+for almost every element x of A satisfying p with respect to μ:
+      for almost every element y of A satisfying q with respect to ν: x = y
+-- LEAN OUTPUT:
+∀ᵐ (x : A) ∂μ, p x → ∀ᵐ (y : A) ∂ν, q y → x = y
+
+-- MEAN INPUT:
+for almost every element x of A with respect to μ: p x
+-- LEAN OUTPUT:
+∀ᵐ (x : A) ∂μ, p x
+
+-- MEAN INPUT:
+for almost every element x of A with respect to μ where p x: q x
+-- LEAN OUTPUT:
+∀ᵐ (x : A) ∂μ, p x → q x
+
+-- MEAN INPUT:
+for almost every element x of A with respect to μ:
+    for almost every element y of A with respect to ν: p x ∧ q y
+-- LEAN OUTPUT:
+∀ᵐ (x : A) ∂μ, ∀ᵐ (y : A) ∂ν, p x ∧ q y
+
+-- MEAN INPUT:
+for almost every element of A with respect to μ: p existentialWitness
+-- LEAN OUTPUT:
+∀ᵐ (existentialWitness_1 : A) ∂μ, p existentialWitness
+
+-- MEAN INPUT:
+for almost every element x of A with respect to (μ + ν): p x
+-- LEAN OUTPUT:
+∀ᵐ (x : A) ∂μ + ν, p x
+
+-- MEAN INPUT:
+for almost every element x of A satisfying p: x = x
+-- LEAN OUTPUT:
+∀ᵐ (x : A), p x → x = x
+
+-- MEAN INPUT:
+for almost every element x of A: p x
+-- LEAN OUTPUT:
+∀ᵐ (x : A), p x
+
+-- MEAN INPUT:
+for almost every element x of A where p x: x = x
+-- LEAN OUTPUT:
+∀ᵐ (x : A), p x → x = x
+
+-- MEAN INPUT:
+for almost every element x of A: there is a unique element y of A such that y = x
+-- LEAN OUTPUT:
+∀ᵐ (x : A), ∃! y : A, y = x
+
+-- MEAN INPUT:
+for almost every function q from Nat to Prop satisfying P with respect to μ: q 0
+-- LEAN OUTPUT:
+∀ᵐ (q : ℕ → Prop) ∂μ, P q → q 0
+
+-- MEAN INPUT:
+z as a real number
+-- LEAN OUTPUT:
+(↑z : ℝ)
+
+-- MEAN INPUT:
+n as an integer
+-- LEAN OUTPUT:
+(↑n : ℤ)
+
+-- MEAN INPUT:
+q as a real number
+-- LEAN OUTPUT:
+(↑q : ℝ)
+
+-- MEAN INPUT:
+x as a complex number
+-- LEAN OUTPUT:
+(↑x : ℂ)
+
+-- MEAN INPUT:
+i as a natural number
+-- LEAN OUTPUT:
+(↑i : ℕ)
+
+-- MEAN INPUT:
+(z + 1) as a real number
+-- LEAN OUTPUT:
+(↑(z + 1) : ℝ)
+
+-- MEAN INPUT:
+(n - m) as an integer
+-- LEAN OUTPUT:
+(↑(n - m) : ℤ)
+
+-- MEAN INPUT:
+-z as a real number
+-- LEAN OUTPUT:
+(↑(-z) : ℝ)
+
+-- MEAN INPUT:
+(n as an integer) as a real number
+-- LEAN OUTPUT:
+(↑(↑n : ℤ) : ℝ)
+
+-- MEAN INPUT:
+z as a real number
+-- LEAN OUTPUT:
+(↑z : ℝ)
+
+-- MEAN INPUT:
+z as a real number
+-- LEAN OUTPUT:
+(↑z : ℝ)
+
+-- MEAN INPUT:
+p i as a real number
+-- LEAN OUTPUT:
+(↑(p i) : ℝ)
+
+-- MEAN INPUT:
+z as a real number
+-- LEAN OUTPUT:
+(↑z : ℝ)
+
+-- MEAN INPUT:
+Definition: zeros is the set of elements n of Nat such that (n = 0).
+-- LEAN OUTPUT:
+def zeros : Set ℕ :=
+  {n : ℕ | n = 0}
+
+-- MEAN INPUT:
+the set of elements x of A such that p x
+-- LEAN OUTPUT:
+{x : A | p x}
+
+-- MEAN INPUT:
+the set of elements of Nat such that True
+-- LEAN OUTPUT:
+{_anonymousParameter : ℕ | True}
+
+-- MEAN INPUT:
+the set of elements of Nat such that False
+-- LEAN OUTPUT:
+{_anonymousParameter : ℕ | False}
+
+-- MEAN INPUT:
+the set of elements x of Nat such that x > 0
+-- LEAN OUTPUT:
+{x : ℕ | x > 0}
+
+-- MEAN INPUT:
+the set of elements of Nat such that _anonymousParameter = 0
+-- LEAN OUTPUT:
+{_anonymousParameter_1 : ℕ | _anonymousParameter = 0}
+
+-- MEAN INPUT:
+the set of elements «a» of Nat such that «a» = 0
+-- LEAN OUTPUT:
+{«a» : ℕ | «a» = 0}
+
+-- MEAN INPUT:
+the set of elements S of (the type of sets of natural numbers) such that 0 ∈ S
+-- LEAN OUTPUT:
+{S : Set ℕ | 0 ∈ S}
+
+-- MEAN INPUT:
+the set of elements n of Nat such that n > 0
+-- LEAN OUTPUT:
+{n : ℕ | n > 0}
+
+-- MEAN INPUT:
+the set of elements n of Nat such that n > 0
+-- LEAN OUTPUT:
+{n : ℕ | n > 0}
+
+-- MEAN INPUT:
+the set of elements m of Nat such that m > 0
+-- LEAN OUTPUT:
+{m : ℕ | m > 0}
+
+-- MEAN INPUT:
+the set of elements f of (Nat → Nat) such that f 0 = 0
+-- LEAN OUTPUT:
+{f : ℕ → ℕ | f 0 = 0}
+
+-- MEAN INPUT:
+the set of functions f from natural numbers to ℕ such that f 0 = 0
+-- LEAN OUTPUT:
+{f : ℕ → ℕ | f 0 = 0}
+
+-- MEAN INPUT:
+Abbreviation: a Family is a set of Point elements.
+-- LEAN OUTPUT:
+abbrev Family : Type :=
+  Set Point
+
+-- MEAN INPUT:
+Definition: a set S of Point elements is reflexive if S = S.
+-- LEAN OUTPUT:
+def reflexive : (S : Set Point) → Prop :=
+  fun (S : Set Point) => S = S
+
+-- MEAN INPUT:
+the type of sets of natural numbers
+-- LEAN OUTPUT:
+Set ℕ
+
+-- MEAN INPUT:
+the type of sets of A elements
+-- LEAN OUTPUT:
+Set A
+
+-- MEAN INPUT:
+the type of sets of (Nat → Bool) elements
+-- LEAN OUTPUT:
+Set (ℕ → Bool)
+
+-- MEAN INPUT:
+the function mapping a set S of functions from indices in [0, 3) to ℝ to S
+-- LEAN OUTPUT:
+fun (S : Set (Fin 3 → ℝ)) => S
+
+-- MEAN INPUT:
+the function mapping a set S of natural numbers to S
+-- LEAN OUTPUT:
+fun (S : Set ℕ) => S
+
+-- MEAN INPUT:
+the function mapping an implicit set S of integers to S
+-- LEAN OUTPUT:
+fun {S : Set ℤ} => S
+
+-- MEAN INPUT:
+the function mapping a strictly implicit set S of booleans to S
+-- LEAN OUTPUT:
+fun ⦃S : Set Bool⦄ => S
+
+-- MEAN INPUT:
+for every set S of integers where 0 ∈ S: 0 ∈ S
+-- LEAN OUTPUT:
+∀ (S : Set ℤ), 0 ∈ S → 0 ∈ S
+
+-- MEAN INPUT:
+there is a set T of Point elements such that T = ∅
+-- LEAN OUTPUT:
+∃ (T : Set Point), T = ∅
+
+-- MEAN INPUT:
+there is no set of natural numbers
+-- LEAN OUTPUT:
+¬∃ (existentialWitness : Set ℕ), True
+
+-- MEAN INPUT:
+there is a unique set S of natural numbers such that S = ∅
+-- LEAN OUTPUT:
+∃! S : Set ℕ, S = ∅
+
+-- MEAN INPUT:
+there is a set of natural numbers such that existentialWitness = ∅
+-- LEAN OUTPUT:
+∃ (existentialWitness_1 : Set ℕ), existentialWitness = ∅
+
+-- MEAN INPUT:
+the function mapping a function f from sets of Point elements
+    to sets of natural numbers to f
+-- LEAN OUTPUT:
+fun (f : Set Point → Set ℕ) => f
+
+-- MEAN INPUT:
+the function mapping a function f from lists of Point elements and
+    sets of Point elements to booleans to f
+-- LEAN OUTPUT:
+fun (f : List Point → Set Point → Bool) => f
+
+-- MEAN INPUT:
+there is an element x of A satisfying P
+-- LEAN OUTPUT:
+∃ (x : A), P x
+
+-- MEAN INPUT:
+there is an element x of A satisfying P such that Q x
+-- LEAN OUTPUT:
+∃ (x : A), P x ∧ Q x
+
+-- MEAN INPUT:
+there is a natural number satisfying P
+-- LEAN OUTPUT:
+∃ (existentialWitness : ℕ), P existentialWitness
+
+-- MEAN INPUT:
+there is a natural number n satisfying P such that True
+-- LEAN OUTPUT:
+∃ (n : ℕ), P n ∧ True
+
+-- MEAN INPUT:
+there is a function f from Nat to Nat satisfying P such that f 0 = 0
+-- LEAN OUTPUT:
+∃ (f : ℕ → ℕ), P f ∧ f 0 = 0
+
+-- MEAN INPUT:
+there is a unique element x of A satisfying P
+-- LEAN OUTPUT:
+∃! x : A, P x
+
+-- MEAN INPUT:
+there is exactly one element x of A satisfying P such that Q x
+-- LEAN OUTPUT:
+∃! x : A, P x ∧ Q x
+
+-- MEAN INPUT:
+there is a unique element x of A satisfying P such that True
+-- LEAN OUTPUT:
+∃! x : A, P x ∧ True
+
+-- MEAN INPUT:
+there is no element x of A satisfying P
+-- LEAN OUTPUT:
+¬∃ (x : A), P x
+
+-- MEAN INPUT:
+there is no element x of A satisfying P such that Q x
+-- LEAN OUTPUT:
+¬∃ (x : A), P x ∧ Q x
+
+-- MEAN INPUT:
+there is x ∈ s satisfying P
+-- LEAN OUTPUT:
+∃ x ∈ s, P x
+
+-- MEAN INPUT:
+there is x ∈ s satisfying P such that Q x
+-- LEAN OUTPUT:
+∃ x ∈ s, P x ∧ Q x
+
+-- MEAN INPUT:
+there is a unique x ∈ s satisfying P
+-- LEAN OUTPUT:
+∃! x : A, x ∈ s ∧ P x
+
+-- MEAN INPUT:
+there is exactly one x ∈ s satisfying P such that Q x
+-- LEAN OUTPUT:
+∃! x : A, x ∈ s ∧ P x ∧ Q x
+
+-- MEAN INPUT:
+there is no x ∈ s satisfying P
+-- LEAN OUTPUT:
+¬∃ x ∈ s, P x
+
+-- MEAN INPUT:
+there is a subset T of s satisfying P
+-- LEAN OUTPUT:
+∃ T ⊆ s, P T
+
+-- MEAN INPUT:
+there is no subset T of s satisfying P
+-- LEAN OUTPUT:
+¬∃ T ⊆ s, P T
+
+-- MEAN INPUT:
+there is exactly one T ⊆ s satisfying P
+-- LEAN OUTPUT:
+∃! T : Set ℕ, T ⊆ s ∧ P T
+
+-- MEAN INPUT:
+there is a unique element x of A such that p x
+-- LEAN OUTPUT:
+∃! x : A, p x
+
+-- MEAN INPUT:
+there is exactly one element x of A such that p x
+-- LEAN OUTPUT:
+∃! x : A, p x
+
+-- MEAN INPUT:
+there is a unique integer n such that n = 0
+-- LEAN OUTPUT:
+∃! n : ℤ, n = 0
+
+-- MEAN INPUT:
+there is a unique index in [0, 1)
+-- LEAN OUTPUT:
+∃! existentialWitness : Fin 1, True
+
+-- MEAN INPUT:
+there is a unique natural number such that existentialWitness = 0
+-- LEAN OUTPUT:
+∃! existentialWitness_1 : ℕ, existentialWitness = 0
+
+-- MEAN INPUT:
+there is exactly one element x of A such that p x
+-- LEAN OUTPUT:
+∃! x : A, p x
+
+-- MEAN INPUT:
+there is exactly one natural number n such that n = 0
+-- LEAN OUTPUT:
+∃! n : ℕ, n = 0
+
+-- MEAN INPUT:
+there is exactly one index in [0, 1)
+-- LEAN OUTPUT:
+∃! existentialWitness : Fin 1, True
+
+-- MEAN INPUT:
+there is exactly one natural number such that False
+-- LEAN OUTPUT:
+∃! existentialWitness : ℕ, False
+
+-- MEAN INPUT:
+there is exactly one list xs of natural numbers such that xs = []
+-- LEAN OUTPUT:
+∃! xs : List ℕ, xs = []
+
+-- MEAN INPUT:
+there is exactly one function f from Nat to Nat such that f 0 = 0
+-- LEAN OUTPUT:
+∃! f : ℕ → ℕ, f 0 = 0
+
+-- MEAN INPUT:
+there is exactly one proof h that P such that h = h
+-- LEAN OUTPUT:
+∃! h : P, h = h
+
+-- MEAN INPUT:
+there is exactly one natural number such that existentialWitness = 0
+-- LEAN OUTPUT:
+∃! existentialWitness_1 : ℕ, existentialWitness = 0
+
+-- MEAN INPUT:
+for every testElements x of A: P x
+-- LEAN OUTPUT:
+∀ (x : A), P x
+
+-- MEAN INPUT:
+for every testElements x of A satisfying P: x = x
+-- LEAN OUTPUT:
+∀ (x : A), P x → x = x
+
+-- MEAN INPUT:
+for all testPair x and y of A satisfying R: x = x
+-- LEAN OUTPUT:
+∀ (x y : A), R x y → x = x
+
+-- MEAN INPUT:
+for every testMembers n of s satisfying P where n = 0: n = n
+-- LEAN OUTPUT:
+∀ n ∈ s, P n → n = 0 → n = n
+
+-- MEAN INPUT:
+for every testDependent n and i satisfying R: i = i
+-- LEAN OUTPUT:
+∀ (n : ℕ) (i : Fin n), R n i → i = i
+
+-- MEAN INPUT:
+for every testElements n of Nat satisfying P:
+      ∀ m : Nat, n + m = quantifiedBodyMarker
+-- LEAN OUTPUT:
+∀ (n : ℕ), P n → ∀ (m : ℕ), n + m = quantifiedBodyMarker
+
+-- MEAN INPUT:
+for every function q from Nat to Prop satisfying P: q 0
+-- LEAN OUTPUT:
+∀ (q : ℕ → Prop), P q → q 0
+
+-- MEAN INPUT:
+for all natural number n satisfying P: n = n
+-- LEAN OUTPUT:
+∀ (n : ℕ), P n → n = n
+
+-- MEAN INPUT:
+for every natural number satisfying P: True
+-- LEAN OUTPUT:
+∀ (existentialWitness : ℕ), P existentialWitness → True
+
+-- MEAN INPUT:
+for every element x of A satisfying P: x = x
+-- LEAN OUTPUT:
+∀ (x : A), P x → x = x
+
+-- MEAN INPUT:
+for every list xs of natural numbers satisfying P: xs = xs
+-- LEAN OUTPUT:
+∀ (xs : List ℕ), P xs → xs = xs
+
+-- MEAN INPUT:
+for every n ∈ s satisfying P: n = n
+-- LEAN OUTPUT:
+∀ n ∈ s, P n → n = n
+
+-- MEAN INPUT:
+for every superset S of s satisfying P: S = S
+-- LEAN OUTPUT:
+∀ (S : Set ℕ), s ⊆ S → P S → S = S
+
+-- MEAN INPUT:
+for every set S ⊇ s satisfying P: S = S
+-- LEAN OUTPUT:
+∀ (S : Set ℕ), s ⊆ S → P S → S = S
+
+-- MEAN INPUT:
+for all natural numbers x and y satisfying R: x = x
+-- LEAN OUTPUT:
+∀ (x y : ℕ), R x y → x = x
+
+-- MEAN INPUT:
+for every x and y in A satisfying R: x = x
+-- LEAN OUTPUT:
+∀ (x y : A), R x y → x = x
+
+-- MEAN INPUT:
+for all vertices x and y of G satisfying R: x = x
+-- LEAN OUTPUT:
+∀ (x y : G.V), R x y → x = x
+
+-- MEAN INPUT:
+for every natural number n satisfying P where Q n: n = n
+-- LEAN OUTPUT:
+∀ (n : ℕ), P n → Q n → n = n
+
+-- MEAN INPUT:
+for every natural number n satisfying (R m): n = n
+-- LEAN OUTPUT:
+∀ (n : ℕ), R m n → n = n
+
+-- MEAN INPUT:
+for every superset S of s: P S
+-- LEAN OUTPUT:
+∀ (S : Set A), s ⊆ S → P S
+
+-- MEAN INPUT:
+for all superset S of s: P S
+-- LEAN OUTPUT:
+∀ (S : Set A), s ⊆ S → P S
+
+-- MEAN INPUT:
+for every set S ⊇ s: P S
+-- LEAN OUTPUT:
+∀ (S : Set A), s ⊆ S → P S
+
+-- MEAN INPUT:
+for all S ⊇ s: P S
+-- LEAN OUTPUT:
+∀ (S : Set A), s ⊆ S → P S
+
+-- MEAN INPUT:
+for every superset S of s ∪ t: P S
+-- LEAN OUTPUT:
+∀ (S : Set A), s ∪ t ⊆ S → P S
+
+-- MEAN INPUT:
+for every superset S of s where Q S: P S
+-- LEAN OUTPUT:
+∀ (S : Set A), s ⊆ S → Q S → P S
+
+-- MEAN INPUT:
+for every superset S of s: for every superset T of S: P T
+-- LEAN OUTPUT:
+∀ (S : Set A), s ⊆ S → ∀ (T : Set A), S ⊆ T → P T
+
+-- MEAN INPUT:
+for every p ∈ P: p ∈ P
+-- LEAN OUTPUT:
+∀ p ∈ P, p ∈ P
+
+-- MEAN INPUT:
+for all p ∈ P: p ∈ P
+-- LEAN OUTPUT:
+∀ p ∈ P, p ∈ P
+
+-- MEAN INPUT:
+for every n ∈ xs: n ∈ xs
+-- LEAN OUTPUT:
+∀ n ∈ xs, n ∈ xs
+
+-- MEAN INPUT:
+for every n ∈ s: n ∈ s
+-- LEAN OUTPUT:
+∀ n ∈ s, n ∈ s
+
+-- MEAN INPUT:
+for every p ∈ (P ∩ Q): p ∈ P
+-- LEAN OUTPUT:
+∀ p ∈ P ∩ Q, p ∈ P
+
+-- MEAN INPUT:
+for every p ∈ P where Q p: p ∈ P
+-- LEAN OUTPUT:
+∀ p ∈ P, Q p → p ∈ P
+
+-- MEAN INPUT:
+for every p ∈ P:
+      for every q ∈ P: p = q → q = p
+-- LEAN OUTPUT:
+∀ p ∈ P, ∀ q ∈ P, p = q → q = p
+
+-- MEAN INPUT:
+for every p ∈ P: for every q ∈ (Q p): q ∈ Q p
+-- LEAN OUTPUT:
+∀ p ∈ P, ∀ q ∈ Q p, q ∈ Q p
+
+-- MEAN INPUT:
+for every element p of A where p ∈ P: p ∈ P
+-- LEAN OUTPUT:
+∀ p ∈ P, p ∈ P
+
+-- MEAN INPUT:
+for all natural numbers n and m where n ≤ m: n ≤ m
+-- LEAN OUTPUT:
+∀ (n m : ℕ), n ≤ m → n ≤ m
+
+-- MEAN INPUT:
+for every index i into xs where xs[i] > 0: xs[i] ≥ 1
+-- LEAN OUTPUT:
+∀ (i : Fin xs.length), xs[i] > 0 → xs[i] ≥ 1
+
+-- MEAN INPUT:
+for every function f from Nat to Nat where f 0 = 0: f 0 ≤ 1
+-- LEAN OUTPUT:
+∀ (f : ℕ → ℕ), f 0 = 0 → f 0 ≤ 1
+
+-- MEAN INPUT:
+for every proof h that P where h = h: h = h
+-- LEAN OUTPUT:
+∀ (h : P), h = h → h = h
+
+-- MEAN INPUT:
+for every natural number n where (for every natural number m: n ≤ m): n = 0
+-- LEAN OUTPUT:
+∀ (n : ℕ), (∀ (m : ℕ), n ≤ m) → n = 0
+
+-- MEAN INPUT:
+for every natural number n where (there is a natural number m such that n = m): n = n
+-- LEAN OUTPUT:
+∀ (n : ℕ), (∃ (m : ℕ), n = m) → n = n
+
+-- MEAN INPUT:
+for every natural number n where P n if and only if Q n: P n → Q n
+-- LEAN OUTPUT:
+∀ (n : ℕ), (P n ↔ Q n) → P n → Q n
+
+-- MEAN INPUT:
+for every element p of A where p ∈ P:
+      for every element q of A where q ∈ P: p = q → q = p
+-- LEAN OUTPUT:
+∀ p ∈ P, ∀ q ∈ P, p = q → q = p
+
+-- MEAN INPUT:
+for every natural number n where n > 0: n ≥ 1
+-- LEAN OUTPUT:
+∀ n > 0, n ≥ 1
+
+-- MEAN INPUT:
+the sum over indices i in [0, 3) of |«a» i - b i|
+-- LEAN OUTPUT:
+∑ i : Fin 3, |«a» i - b i|
+
+-- MEAN INPUT:
+the sum over indices i in [0, 3) of f i + 1
+-- LEAN OUTPUT:
+∑ i : Fin 3, (f i + 1)
+
+-- MEAN INPUT:
+the sum over indices i in [0, 3) of f i
+-- LEAN OUTPUT:
+∑ i : Fin 3, f i
+
+-- MEAN INPUT:
+the sum over indices i into xs of xs[i]
+-- LEAN OUTPUT:
+∑ i : Fin xs.length, xs[i]
+
+-- MEAN INPUT:
+the sum over indices i into xs of xs[i]
+-- LEAN OUTPUT:
+∑ i : Fin xs.size, xs[i]
+
+-- MEAN INPUT:
+the sum over elements x of α of f x
+-- LEAN OUTPUT:
+∑ x : α, f x
+
+-- MEAN INPUT:
+the sum over i in s of i + 1
+-- LEAN OUTPUT:
+∑ i ∈ s, (i + 1)
+
+-- MEAN INPUT:
+the sum over indices i in [0, 3) of f i
+-- LEAN OUTPUT:
+∑ i : Fin 3, f i
+
+-- MEAN INPUT:
+indices [0, n)
+-- LEAN OUTPUT:
+Fin n
+
+-- MEAN INPUT:
+indices [0, 0)
+-- LEAN OUTPUT:
+Fin 0
+
+-- MEAN INPUT:
+indices [0, 1)
+-- LEAN OUTPUT:
+Fin 1
+
+-- MEAN INPUT:
+indices [0, n + m)
+-- LEAN OUTPUT:
+Fin (n + m)
+
+-- MEAN INPUT:
+the type of indices in [0, n)
+-- LEAN OUTPUT:
+Fin n
+
+-- MEAN INPUT:
+the type of indices in [0, 0)
+-- LEAN OUTPUT:
+Fin 0
+
+-- MEAN INPUT:
+the type of indices into xs
+-- LEAN OUTPUT:
+Fin xs.length
+
+-- MEAN INPUT:
+the type of indices into xs
+-- LEAN OUTPUT:
+Fin xs.size
+
+-- MEAN INPUT:
+Abbreviation: Four is indices [0, 4).
+-- LEAN OUTPUT:
+abbrev Four : Type :=
+  Fin 4
+
+-- MEAN INPUT:
+Definition: value is the function mapping a natural number n and
+  an index i in [0, n) to i.val.
+-- LEAN OUTPUT:
+def value : (n : ℕ) → (i : Fin n) → ℕ :=
+  fun (n : ℕ) (i : Fin n) => (↑i : ℕ)
+
+-- MEAN INPUT:
+Definition: lookup is the function mapping a list xs of natural numbers and
+  an index i into xs to xs[i].
+-- LEAN OUTPUT:
+def lookup : (xs : List ℕ) → (i : Fin xs.length) → ℕ :=
+  fun (xs : List ℕ) (i : Fin xs.length) => xs[i]
+
+-- MEAN INPUT:
+Definition: arrayLookup is the function mapping an element xs of Array Nat and
+  an index i into xs to xs[i].
+-- LEAN OUTPUT:
+def arrayLookup : (xs : Array ℕ) → (i : Fin xs.size) → ℕ :=
+  fun (xs : Array ℕ) (i : Fin xs.size) => xs[i]
+
+-- MEAN INPUT:
+Definition: implicitValue is the function mapping a natural number n and
+  an implicit index i in [0, n) to i.val.
+-- LEAN OUTPUT:
+def implicitValue : (n : ℕ) → {i : Fin n} → ℕ :=
+  fun (n : ℕ) {i : Fin n} => (↑i : ℕ)
+
+-- MEAN INPUT:
+Definition: strictValue is the function mapping a natural number n and
+  a strictly implicit index i in [0, n) to i.val.
+-- LEAN OUTPUT:
+def strictValue : (n : ℕ) → ⦃i : Fin n⦄ → ℕ :=
+  fun (n : ℕ) ⦃i : Fin n⦄ => (↑i : ℕ)
+
+-- MEAN INPUT:
+Definition: an index i in [0, 4) is first if (i.val = 0).
+-- LEAN OUTPUT:
+def first : (i : Fin 4) → Prop :=
+  fun (i : Fin 4) => (↑i : ℕ) = 0
+
+-- MEAN INPUT:
+the function mapping an index in [0, 3) to true
+-- LEAN OUTPUT:
+fun (_anonymousParameter : Fin 3) => true
+
+-- MEAN INPUT:
+the function mapping an index into xs to true
+-- LEAN OUTPUT:
+fun (_anonymousParameter : Fin xs.length) => true
+
+-- MEAN INPUT:
+the function mapping an implicit index i into xs to i.val
+-- LEAN OUTPUT:
+fun {i : Fin xs.length} => (↑i : ℕ)
+
+-- MEAN INPUT:
+the function mapping a strictly implicit index i into xs to i.val
+-- LEAN OUTPUT:
+fun ⦃i : Fin xs.size⦄ => (↑i : ℕ)
+
+-- MEAN INPUT:
+for every index i in [0, n): i.val < n
+-- LEAN OUTPUT:
+∀ (i : Fin n), (↑i : ℕ) < n
+
+-- MEAN INPUT:
+for every index i into xs: xs[i] = xs[i]
+-- LEAN OUTPUT:
+∀ (i : Fin xs.length), xs[i] = xs[i]
+
+-- MEAN INPUT:
+there is an index i into xs such that xs[i] = 3
+-- LEAN OUTPUT:
+∃ (i : Fin xs.size), xs[i] = 3
+
+-- MEAN INPUT:
+there is an index in [0, n)
+-- LEAN OUTPUT:
+∃ (existentialWitness : Fin n), True
+
+-- MEAN INPUT:
+there is no index in [0, 0)
+-- LEAN OUTPUT:
+¬∃ (existentialWitness : Fin 0), True
+
+-- MEAN INPUT:
+for every index i into xs: i ∈ ys
+-- LEAN OUTPUT:
+∀ (i : Fin xs.length), i ∈ ys
+
+-- MEAN INPUT:
+the function mapping a list xs of natural numbers to xs
+-- LEAN OUTPUT:
+fun (xs : List ℕ) => xs
+
+-- MEAN INPUT:
+the function mapping an implicit list xs of integers to xs
+-- LEAN OUTPUT:
+fun {xs : List ℤ} => xs
+
+-- MEAN INPUT:
+the function mapping a strictly implicit list xs of booleans to xs
+-- LEAN OUTPUT:
+fun ⦃xs : List Bool⦄ => xs
+
+-- MEAN INPUT:
+for every list xs of rational numbers: xs = xs
+-- LEAN OUTPUT:
+∀ (xs : List ℚ), xs = xs
+
+-- MEAN INPUT:
+there is a list of real numbers
+-- LEAN OUTPUT:
+∃ (existentialWitness : List ℝ), True
+
+-- MEAN INPUT:
+there is no list xs of complex numbers such that xs = []
+-- LEAN OUTPUT:
+¬∃ (xs : List ℂ), xs = []
+
+-- MEAN INPUT:
+Abbreviation: Naturals is the type of lists of natural numbers.
+-- LEAN OUTPUT:
+abbrev Naturals : Type :=
+  List ℕ
+
+-- MEAN INPUT:
+the type of lists of A elements
+-- LEAN OUTPUT:
+List A
+
+-- MEAN INPUT:
+the type of lists of (the type of lists of A elements) elements
+-- LEAN OUTPUT:
+List (List A)
+
+-- MEAN INPUT:
+the type of lists of (Nat → Nat) elements
+-- LEAN OUTPUT:
+List (ℕ → ℕ)
+
+-- MEAN INPUT:
+the type of lists of (the type of lists of natural numbers) elements
+-- LEAN OUTPUT:
+List (List ℕ)
+
+-- MEAN INPUT:
+the type of lists of (indices [0, n)) elements
+-- LEAN OUTPUT:
+List (Fin n)
+
+-- MEAN INPUT:
+the type of lists of natural numbers
+-- LEAN OUTPUT:
+List ℕ
+
+-- MEAN INPUT:
+the type of lists of integers
+-- LEAN OUTPUT:
+List ℤ
+
+-- MEAN INPUT:
+the function mapping a function f from (the type of lists of natural numbers) to Nat to f []
+-- LEAN OUTPUT:
+fun (f : List ℕ → ℕ) => f []
+
+-- MEAN INPUT:
+the type of natural numbers
+-- LEAN OUTPUT:
+ℕ
+
+-- MEAN INPUT:
+the type of integers
+-- LEAN OUTPUT:
+ℤ
+
+-- MEAN INPUT:
+the type of booleans
+-- LEAN OUTPUT:
+Bool
+
+-- MEAN INPUT:
+Abbreviation: a Prototile is a list of Point elements.
+-- LEAN OUTPUT:
+abbrev Prototile : Type :=
+  List Point
+
+-- MEAN INPUT:
+Definition: a PrototileDef is a list of Point elements.
+-- LEAN OUTPUT:
+def PrototileDef : Type :=
+  List Point
+
+-- MEAN INPUT:
+Abbreviation: a Direction is an index in [0, 4).
+-- LEAN OUTPUT:
+abbrev Direction : Type :=
+  Fin 4
+
+-- MEAN INPUT:
+Definition: an Index is an index in [0, 4).
+-- LEAN OUTPUT:
+def Index : Type :=
+  Fin 4
+
+-- MEAN INPUT:
+Abbreviation: an Integer is an integer.
+-- LEAN OUTPUT:
+abbrev Integer : Type :=
+  ℤ
+
+-- MEAN INPUT:
+Definition: a Boolean is a boolean.
+-- LEAN OUTPUT:
+def Boolean : Type :=
+  Bool
+
+-- MEAN INPUT:
+Abbreviation: a Map is a function from Nat to Nat.
+-- LEAN OUTPUT:
+abbrev Map : Type :=
+  ℕ → ℕ
+
+-- MEAN INPUT:
+Abbreviation: a Coordinate is an element of (Fin 3).
+-- LEAN OUTPUT:
+abbrev Coordinate : Type :=
+  Fin 3
+
+-- MEAN INPUT:
+Definition: a Trivial is a proof that True.
+-- LEAN OUTPUT:
+def Trivial : Prop :=
+  True
+
+-- MEAN INPUT:
+Abbreviation: an Instance is an instance of typeclass Inhabited Nat.
+-- LEAN OUTPUT:
+abbrev Instance : Type :=
+  Inhabited ℕ
+
+-- MEAN INPUT:
+Abbreviation: a Universe is an element of Type.
+-- LEAN OUTPUT:
+abbrev Universe : Type 1 :=
+  Type
+
+-- MEAN INPUT:
+Abbreviation: a Position is an index into xs.
+-- LEAN OUTPUT:
+abbrev Position : (xs : List ℕ) → Type :=
+  fun (xs : List ℕ) => Fin xs.length
+
+-- MEAN INPUT:
+Abbreviation: a Route is a path in G from u to v.
+-- LEAN OUTPUT:
+abbrev Route.{u} : {V : Type u} → (G : SimpleGraph V) → (u v : V) → Type u :=
+  fun {V : Type u} (G : SimpleGraph V) (u v : V) => G.Path u v
+
+-- MEAN INPUT:
+Abbreviation: a Point is a function from indices in [0, 3) to ℤ.
+-- LEAN OUTPUT:
+abbrev Point : Type :=
+  Fin 3 → ℤ
+
+-- MEAN INPUT:
+Abbreviation: a Reindexer is a function from indices in [0, 3) to indices in [0, 4).
+-- LEAN OUTPUT:
+abbrev Reindexer : Type :=
+  Fin 3 → Fin 4
+
+-- MEAN INPUT:
+Definition: a Consumer is a function from lists of natural numbers to ℤ.
+-- LEAN OUTPUT:
+def Consumer : Type :=
+  List ℕ → ℤ
+
+-- MEAN INPUT:
+Abbreviation: a Curried is a function from natural numbers and indices in [0, 3) to integers.
+-- LEAN OUTPUT:
+abbrev Curried : Type :=
+  ℕ → Fin 3 → ℤ
+
+-- MEAN INPUT:
+the function mapping a function f from natural numbers to integers to f
+-- LEAN OUTPUT:
+fun (f : ℕ → ℤ) => f
+
+-- MEAN INPUT:
+the function mapping a function f from indices in [0, 3) to lists of natural numbers and
+    a boolean b to (f 0, b)
+-- LEAN OUTPUT:
+fun (f : Fin 3 → List ℕ) (b : Bool) => (f 0, b)
+
+-- MEAN INPUT:
+the function mapping a function f from lists of (Nat → Nat) elements to ℕ to f
+-- LEAN OUTPUT:
+fun (f : List (ℕ → ℕ) → ℕ) => f
+
+-- MEAN INPUT:
+the function mapping a function f from (Nat → Nat) to indices in [0, 3) to f
+-- LEAN OUTPUT:
+fun (f : (ℕ → ℕ) → Fin 3) => f
+
+-- MEAN INPUT:
+the function mapping a function f from indices into xs to ℤ to f
+-- LEAN OUTPUT:
+fun (f : Fin xs.length → ℤ) => f
+
+-- MEAN INPUT:
+the function mapping a function f from ℕ to indices into xs to f
+-- LEAN OUTPUT:
+fun (f : ℕ → Fin xs.size) => f
+
+-- MEAN INPUT:
+the function mapping a function f from lists of A elements to Prop to f
+-- LEAN OUTPUT:
+fun (f : List A → Prop) => f
+
+-- MEAN INPUT:
+the function mapping a function f from (the type of indices in [0, 3)) to ℤ to f
+-- LEAN OUTPUT:
+fun (f : Fin 3 → ℤ) => f
+
+-- MEAN INPUT:
+Definition: elements «a» and b of Point are adjacent if
+  (the sum over indices i in [0, 3) of |«a» i - b i| = 1).
+-- LEAN OUTPUT:
+def adjacent : («a» b : Point) → Prop :=
+  fun («a» b : Point) => ∑ i : Fin 3, |«a» i - b i| = 1
+
+-- MEAN INPUT:
+Definition: natural numbers x and y and z are ordered if x ≤ y ∧ y ≤ z.
+-- LEAN OUTPUT:
+def ordered : (x y z : ℕ) → Prop :=
+  fun (x y z : ℕ) => x ≤ y ∧ y ≤ z
+
+-- MEAN INPUT:
+Abbreviation: integers x and y are equalIntegers if x = y.
+-- LEAN OUTPUT:
+abbrev equalIntegers : (x y : ℤ) → Prop :=
+  fun (x y : ℤ) => x = y
+
+-- MEAN INPUT:
+Definition: indices i and j in [0, 3) are sameIndex if i = j.
+-- LEAN OUTPUT:
+def sameIndex : (i j : Fin 3) → Prop :=
+  fun (i j : Fin 3) => i = j
+
+-- MEAN INPUT:
+Definition: a natural number n and an index i in [0, n) are below if i.val < n.
+-- LEAN OUTPUT:
+def below : (n : ℕ) → (i : Fin n) → Prop :=
+  fun (n : ℕ) (i : Fin n) => (↑i : ℕ) < n
+
+-- MEAN INPUT:
+Definition: an element T of Type and an element x of T are reflexivePair if x = x.
+-- LEAN OUTPUT:
+def reflexivePair : (T : Type) → (x : T) → Prop :=
+  fun (T : Type) (x : T) => x = x
+
+-- MEAN INPUT:
+Definition: a natural number n and a proof h that n > 0 are positivePair if n ≥ 1 ∧ h = h.
+-- LEAN OUTPUT:
+def positivePair : (n : ℕ) → (h : n > 0) → Prop :=
+  fun (n : ℕ) (h : n > 0) => n ≥ 1 ∧ h = h
+
+-- MEAN INPUT:
+Definition: a natural number x and a natural number y are ignoresSecond if x = x.
+-- LEAN OUTPUT:
+def ignoresSecond : (x y : ℕ) → Prop :=
+  fun (x y : ℕ) => x = x
+
+-- MEAN INPUT:
+Definition: a function f from ℕ and ℕ to ℕ and a boolean b are mixed if f 0 0 = 0 ∧ b = true.
+-- LEAN OUTPUT:
+def mixed : (f : ℕ → ℕ → ℕ) → (b : Bool) → Prop :=
+  fun (f : ℕ → ℕ → ℕ) (b : Bool) => f 0 0 = 0 ∧ b = true
+
+-- MEAN INPUT:
+Definition: elements T and x of T are shadowType if T = x.
+-- LEAN OUTPUT:
+def shadowType : (T : Type) → (T_1 x : T) → Prop :=
+  fun (T : Type) (T_1 x : T) => T_1 = x
+
+-- MEAN INPUT:
+n is FooPred
+-- LEAN OUTPUT:
+FooPred n
+
+-- MEAN INPUT:
+n is not FooPred
+-- LEAN OUTPUT:
+¬FooPred n
+
+-- MEAN INPUT:
+x is accepts
+-- LEAN OUTPUT:
+accepts x
+
+-- MEAN INPUT:
+x is p
+-- LEAN OUTPUT:
+p x
+
+-- MEAN INPUT:
+x is not p
+-- LEAN OUTPUT:
+¬p x
+
+-- MEAN INPUT:
+(P and Q) is not p
+-- LEAN OUTPUT:
+¬p (P ∧ Q)
+
+-- MEAN INPUT:
+n is (relates m)
+-- LEAN OUTPUT:
+relates m n
+
+-- MEAN INPUT:
+T is not finite
+-- LEAN OUTPUT:
+¬Finite T
+
+-- MEAN INPUT:
+f is computable
+-- LEAN OUTPUT:
+Computable f
+
+-- MEAN INPUT:
+p is computable
+-- LEAN OUTPUT:
+ComputablePred p
+
+-- MEAN INPUT:
+p is not computable
+-- LEAN OUTPUT:
+¬ComputablePred p
+
+-- MEAN INPUT:
+p is recursively enumerable
+-- LEAN OUTPUT:
+REPred p
+
+-- MEAN INPUT:
+p is not recursively enumerable
+-- LEAN OUTPUT:
+¬REPred p
+
+-- MEAN INPUT:
+(the function mapping a natural number n to n is not p) is recursively enumerable
+-- LEAN OUTPUT:
+REPred fun (n : ℕ) => ¬p n
+
+-- MEAN INPUT:
+(the function mapping a natural number n to n + 1) is computable
+-- LEAN OUTPUT:
+Computable fun (n : ℕ) => n + 1
+
+-- MEAN INPUT:
+Definition: double is the function mapping a natural number n to 2 * n.
+-- LEAN OUTPUT:
+def double : (n : ℕ) → ℕ :=
+  fun (n : ℕ) => 2 * n
+
+-- MEAN INPUT:
+Definition: answer is the integer 42.
+-- LEAN OUTPUT:
+def answer : ℤ :=
+  42
+
+-- MEAN INPUT:
+Definition: naturalAnswer is the natural number 42.
+-- LEAN OUTPUT:
+def naturalAnswer : ℕ :=
+  42
+
+-- MEAN INPUT:
+Definition: negativeAnswer is the integer -42.
+-- LEAN OUTPUT:
+def negativeAnswer : ℤ :=
+  -42
+
+-- MEAN INPUT:
+Definition: rationalAnswer is the rational number 42.
+-- LEAN OUTPUT:
+def rationalAnswer : ℚ :=
+  42
+
+-- MEAN INPUT:
+Definition: realAnswer is the real number 42.
+-- LEAN OUTPUT:
+def realAnswer : ℝ :=
+  42
+
+-- MEAN INPUT:
+Definition: complexAnswer is the complex number 42.
+-- LEAN OUTPUT:
+def complexAnswer : ℂ :=
+  42
+
+-- MEAN INPUT:
+Definition: booleanAnswer is the boolean true.
+-- LEAN OUTPUT:
+def booleanAnswer : Bool :=
+  true
+
+-- MEAN INPUT:
+Definition: decimalAnswer is the rational number 1.5.
+-- LEAN OUTPUT:
+def decimalAnswer : ℚ :=
+  1.5
+
+-- MEAN INPUT:
+Definition: negativeDecimalAnswer is the rational number -1.5.
+-- LEAN OUTPUT:
+def negativeDecimalAnswer : ℚ :=
+  -1.5
+
+-- MEAN INPUT:
+Definition: exponentAnswer is the real number 42.e2.
+-- LEAN OUTPUT:
+def exponentAnswer : ℝ :=
+  42e2
+
+-- MEAN INPUT:
+Definition: underscoreAnswer is the integer 1_000.
+-- LEAN OUTPUT:
+def underscoreAnswer : ℤ :=
+  1000
+
+-- MEAN INPUT:
+Definition: hexAnswer is the integer 0x2a.
+-- LEAN OUTPUT:
+def hexAnswer : ℤ :=
+  42
+
+-- MEAN INPUT:
+Definition: computedAnswer is the integer (2 + 3).
+-- LEAN OUTPUT:
+def computedAnswer : ℤ :=
+  2 + 3
+
+-- MEAN INPUT:
+the integer (2 * n)
+-- LEAN OUTPUT:
+2 * n
+
+-- MEAN INPUT:
+the integer 42
+-- LEAN OUTPUT:
+(42 : ℤ)
+
+-- MEAN INPUT:
+the integer -42
+-- LEAN OUTPUT:
+(-42 : ℤ)
+
+-- MEAN INPUT:
+the integer 2
+-- LEAN OUTPUT:
+(2 : ℤ)
+
+-- MEAN INPUT:
+the boolean false
+-- LEAN OUTPUT:
+false
+
+-- MEAN INPUT:
+Definition: add is the function mapping a natural number n to
+  the function mapping a natural number m to n + m.
+-- LEAN OUTPUT:
+def add : (n m : ℕ) → ℕ :=
+  fun (n m : ℕ) => n + m
+
+-- MEAN INPUT:
+Definition: addCurried is the function mapping a natural number n and a natural number m to n + m.
+-- LEAN OUTPUT:
+def addCurried : (n m : ℕ) → ℕ :=
+  fun (n m : ℕ) => n + m
+
+-- MEAN INPUT:
+Definition: mixedSum is the function mapping a natural number n and an integer z to n + z.
+-- LEAN OUTPUT:
+def mixedSum : (n : ℕ) → (z : ℤ) → ℤ :=
+  fun (n : ℕ) (z : ℤ) => (↑n : ℤ) + z
+
+-- MEAN INPUT:
+Definition: sumThree is the function mapping a natural number x and
+  a natural number y and a natural number z to x + y + z.
+-- LEAN OUTPUT:
+def sumThree : (x y z : ℕ) → ℕ :=
+  fun (x y z : ℕ) => x + y + z
+
+-- MEAN INPUT:
+Definition: constantInteger is the function : Nat → Bool → Int mapping
+  a natural number _n and a boolean _b to (0).
+-- LEAN OUTPUT:
+def constantInteger : (_n : ℕ) → (_b : Bool) → ℤ :=
+  fun (_n : ℕ) (_b : Bool) => 0
+
+-- MEAN INPUT:
+Definition: integerDouble is the function mapping an integer n to 2 * n.
+-- LEAN OUTPUT:
+def integerDouble : (n : ℤ) → ℤ :=
+  fun (n : ℤ) => 2 * n
+
+-- MEAN INPUT:
+Definition: rationalDouble is the function mapping a rational number x to 2 * x.
+-- LEAN OUTPUT:
+def rationalDouble : (x : ℚ) → ℚ :=
+  fun (x : ℚ) => 2 * x
+
+-- MEAN INPUT:
+Definition: realDouble is the function mapping a real number x to 2 * x.
+-- LEAN OUTPUT:
+def realDouble : (x : ℝ) → ℝ :=
+  fun (x : ℝ) => 2 * x
+
+-- MEAN INPUT:
+Definition: complexDouble is the function mapping a complex number z to 2 * z.
+-- LEAN OUTPUT:
+def complexDouble : (z : ℂ) → ℂ :=
+  fun (z : ℂ) => 2 * z
+
+-- MEAN INPUT:
+Definition: booleanIdentity is the function mapping a boolean b to b.
+-- LEAN OUTPUT:
+def booleanIdentity : (b : Bool) → Bool :=
+  fun (b : Bool) => b
+
+-- MEAN INPUT:
+Definition: isZero is the function mapping a natural number n to (n = 0).
+-- LEAN OUTPUT:
+def isZero : (n : ℕ) → Prop :=
+  fun (n : ℕ) => n = 0
+
+-- MEAN INPUT:
+Definition: indexValue is the function mapping a natural number n to
+  the function mapping an element i of (Fin n) to i.val.
+-- LEAN OUTPUT:
+def indexValue : (n : ℕ) → (i : Fin n) → ℕ :=
+  fun (n : ℕ) (i : Fin n) => (↑i : ℕ)
+
+-- MEAN INPUT:
+Definition: indexCurried is the function mapping a natural number n and
+  an element i of (Fin n) to i.val.
+-- LEAN OUTPUT:
+def indexCurried : (n : ℕ) → (i : Fin n) → ℕ :=
+  fun (n : ℕ) (i : Fin n) => (↑i : ℕ)
+
+-- MEAN INPUT:
+the function : (n : Nat) → Fin n → Nat mapping
+    a natural number n and an element i of (Fin n) to i.val
+-- LEAN OUTPUT:
+fun (n : ℕ) (i : Fin n) => (↑i : ℕ)
+
+-- MEAN INPUT:
+Definition: zeroInteger is the function : Nat → Int mapping a natural number _n to (0).
+-- LEAN OUTPUT:
+def zeroInteger : (_n : ℕ) → ℤ :=
+  fun (_n : ℕ) => 0
+
+-- MEAN INPUT:
+Definition: implicitAdd is the function mapping a natural number n and
+  an implicit natural number m to n + m.
+-- LEAN OUTPUT:
+def implicitAdd : (n : ℕ) → {m : ℕ} → ℕ :=
+  fun (n : ℕ) {m : ℕ} => n + m
+
+-- MEAN INPUT:
+Definition: implicitIndex is the function mapping an implicit natural number n and
+  an element i of (Fin n) to i.val.
+-- LEAN OUTPUT:
+def implicitIndex : {n : ℕ} → (i : Fin n) → ℕ :=
+  fun {n : ℕ} (i : Fin n) => (↑i : ℕ)
+
+-- MEAN INPUT:
+Definition: implicitIntegerNext is the function mapping an implicit integer x to (x + 1).
+-- LEAN OUTPUT:
+def implicitIntegerNext : {x : ℤ} → ℤ :=
+  fun {x : ℤ} => x + 1
+
+-- MEAN INPUT:
+Definition: implicitConstant is the function : Nat → {_m : Nat} → Int mapping
+  a natural number _n and an implicit natural number _m to (0).
+-- LEAN OUTPUT:
+def implicitConstant : (_n : ℕ) → {_m : ℕ} → ℤ :=
+  fun (_n : ℕ) {_m : ℕ} => 0
+
+-- MEAN INPUT:
+the function mapping an implicit integer x and a boolean b to
+    if b then x else -x
+-- LEAN OUTPUT:
+fun {x : ℤ} (b : Bool) => if b = true then x else -x
+
+-- MEAN INPUT:
+Definition: strictIndex is the function mapping a strictly implicit natural number n and
+  an element i of Fin n to i.val.
+-- LEAN OUTPUT:
+def strictIndex : ⦃n : ℕ⦄ → (i : Fin n) → ℕ :=
+  fun ⦃n : ℕ⦄ (i : Fin n) => (↑i : ℕ)
+
+-- MEAN INPUT:
+Definition: strictConstant is the function : ⦃n : Nat⦄ → Fin n → Int mapping
+  a strictly implicit natural number n and an element _i of Fin n to (0).
+-- LEAN OUTPUT:
+def strictConstant : ⦃n : ℕ⦄ → (_i : Fin n) → ℤ :=
+  fun ⦃n : ℕ⦄ (_i : Fin n) => 0
+
+-- MEAN INPUT:
+Definition: strictAdd is the function mapping a natural number n and
+  a strictly implicit natural number m to n + m.
+-- LEAN OUTPUT:
+def strictAdd : (n : ℕ) → ⦃m : ℕ⦄ → ℕ :=
+  fun (n : ℕ) ⦃m : ℕ⦄ => n + m
+
+-- MEAN INPUT:
+the function mapping a strictly implicit integer x and a boolean b to
+    if b then x else -x
+-- LEAN OUTPUT:
+fun ⦃x : ℤ⦄ (b : Bool) => if b = true then x else -x
+
+-- MEAN INPUT:
+Definition: strictIdentity is the function mapping a strictly implicit element T of Type and
+  an element x of T to x.
+-- LEAN OUTPUT:
+def strictIdentity : ⦃T : Type⦄ → (x : T) → T :=
+  fun ⦃T : Type⦄ (x : T) => x
+
+-- MEAN INPUT:
+the function : Nat → Int mapping a natural number _n to 0
+-- LEAN OUTPUT:
+fun (_n : ℕ) => 0
+
+-- MEAN INPUT:
+the function : Nat → Prop mapping a natural number n to n = 0
+-- LEAN OUTPUT:
+fun (n : ℕ) => n = 0
+
+-- MEAN INPUT:
+the function : (n : Nat) → Fin n → Nat mapping a natural number n to
+    the function : Fin n → Nat mapping an element i of (Fin n) to i.val
+-- LEAN OUTPUT:
+fun (n : ℕ) (i : Fin n) => (↑i : ℕ)
+
+-- MEAN INPUT:
+the function : Nat → Int mapping a natural number n to n
+-- LEAN OUTPUT:
+fun (n : ℕ) => (↑n : ℤ)
+
+-- MEAN INPUT:
+the function mapping a natural number n to 2 * n
+-- LEAN OUTPUT:
+fun (n : ℕ) => 2 * n
+
+-- MEAN INPUT:
+(the function mapping a natural number n to n + 1) is injective
+-- LEAN OUTPUT:
+Function.Injective fun (n : ℕ) => n + 1
+
+-- MEAN INPUT:
+the function mapping an implicit element _x of T and an element y of T to y
+-- LEAN OUTPUT:
+fun {_x : T} (y : T) => y
+
+-- MEAN INPUT:
+the function mapping a strictly implicit element _x of T and an element y of T to y
+-- LEAN OUTPUT:
+fun ⦃_x : T⦄ (y : T) => y
+
+-- MEAN INPUT:
+the function mapping an implicit element S of Sort u and an element x of S to x
+-- LEAN OUTPUT:
+fun {S : Sort u} (x : S) => x
+
+-- MEAN INPUT:
+the function mapping an implicit element V of Type and an element G of SimpleGraph V to G
+-- LEAN OUTPUT:
+fun {V : Type} (G : SimpleGraph V) => G
+
+-- MEAN INPUT:
+Definition: implicitIdentityOnT is the function mapping an implicit element x of T to x.
+-- LEAN OUTPUT:
+def implicitIdentityOnT.{u} : {T : Sort u} → {x : T} → T :=
+  fun {T : Sort u} {x : T} => x
+
+-- MEAN INPUT:
+the function mapping an element x of T and a natural number _n to x
+-- LEAN OUTPUT:
+fun (x : T) (_n : ℕ) => x
+
+-- MEAN INPUT:
+the function mapping an element _x of T and an element y of T to y
+-- LEAN OUTPUT:
+fun (_x y : T) => y
+
+-- MEAN INPUT:
+the function mapping an element h of (P and Q) and a boolean _b to h
+-- LEAN OUTPUT:
+fun (h : P ∧ Q) (_b : Bool) => h
+
+-- MEAN INPUT:
+the function mapping a natural number _n and a natural number _n to _n
+-- LEAN OUTPUT:
+fun (_n _n_1 : ℕ) => _n_1
+
+-- MEAN INPUT:
+the function : T → T mapping an element x of T to x
+-- LEAN OUTPUT:
+fun (x : T) => x
+
+-- MEAN INPUT:
+Definition: identityOnT is the function mapping an element x of T to x.
+-- LEAN OUTPUT:
+def identityOnT.{u} : {T : Sort u} → (x : T) → T :=
+  fun {T : Sort u} (x : T) => x
+
+-- MEAN INPUT:
+Definition: shifted is the function mapping a natural number n to n + offset.
+-- LEAN OUTPUT:
+def shifted : (offset n : ℕ) → ℕ :=
+  fun (offset n : ℕ) => n + offset
+
+-- MEAN INPUT:
+the function mapping a natural number offset to offset + 1
+-- LEAN OUTPUT:
+fun (offset : ℕ) => offset + 1
+
+-- MEAN INPUT:
+Definition: graphVertices is the function mapping a simple graph G to G.V.
+-- LEAN OUTPUT:
+def graphVertices.{u_1} : {Vertex : Type u_1} → (G : SimpleGraph Vertex) → Type u_1 :=
+  fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => G.V
+
+-- MEAN INPUT:
+Definition: graphEdges is the function mapping a simple graph G = (V, E) to E.
+-- LEAN OUTPUT:
+def graphEdges.{u_1} : {V : Type u_1} → (G : SimpleGraph V) → Set (Sym2 V) :=
+  fun {V : Type u_1} (G : SimpleGraph V) =>
+    have E := G.edgeSet;
+    E
+
+-- MEAN INPUT:
+Definition: adjacent is the function mapping a simple graph G = (V, E) and
+  an element u of V and an element v of V to s(u, v) ∈ E.
+-- LEAN OUTPUT:
+def adjacent.{u_1} : {V : Type u_1} → (G : SimpleGraph V) → (u v : V) → Prop :=
+  fun {V : Type u_1} (G : SimpleGraph V) =>
+    have E := G.edgeSet;
+    fun (u v : V) => s(u, v) ∈ E
+
+-- MEAN INPUT:
+Definition: an element i of Fin 3 is indexReflexive if i = i.
+-- LEAN OUTPUT:
+def indexReflexive : (i : Fin 3) → Prop :=
+  fun (i : Fin 3) => i = i
+
+-- MEAN INPUT:
+Definition: a list xs of Token elements is emptyList if xs = [].
+-- LEAN OUTPUT:
+def emptyList : (xs : List Token) → Prop :=
+  fun (xs : List Token) => xs = []
+
+-- MEAN INPUT:
+Definition: copyList is the function mapping a list xs of Token elements to xs.
+-- LEAN OUTPUT:
+def copyList : (xs : List Token) → List Token :=
+  fun (xs : List Token) => xs
+
+-- MEAN INPUT:
+Definition: polymorphicCopy is the function mapping an implicit element A of Type u and
+  a list xs of A elements to xs.
+-- LEAN OUTPUT:
+def polymorphicCopy.{u} : {A : Type u} → (xs : List A) → List A :=
+  fun {A : Type u} (xs : List A) => xs
+
+-- MEAN INPUT:
+Definition: implicitLength is the function mapping an implicit list xs of Token elements and
+  a natural number n to xs.length + n.
+-- LEAN OUTPUT:
+def implicitLength : {xs : List Token} → (n : ℕ) → ℕ :=
+  fun {xs : List Token} (n : ℕ) => xs.length + n
+
+-- MEAN INPUT:
+Definition: strictLength is the function mapping a strictly implicit list xs of Token elements and
+  a natural number n to xs.length + n.
+-- LEAN OUTPUT:
+def strictLength : ⦃xs : List Token⦄ → (n : ℕ) → ℕ :=
+  fun ⦃xs : List Token⦄ (n : ℕ) => xs.length + n
+
+-- MEAN INPUT:
+the function mapping a list xs of Nat elements and
+    an element i of Fin xs.length to xs[i]
+-- LEAN OUTPUT:
+fun (xs : List ℕ) (i : Fin xs.length) => xs[i]
+
+-- MEAN INPUT:
+the function mapping a list xs of (Fin n) elements to xs
+-- LEAN OUTPUT:
+fun (xs : List (Fin n)) => xs
+
+-- MEAN INPUT:
+the function mapping a list fs of (Nat → Nat) elements to fs.length
+-- LEAN OUTPUT:
+fun (fs : List (ℕ → ℕ)) => fs.length
+
+-- MEAN INPUT:
+Definition: diagonal is the function mapping a function f from Nat and Nat to Nat and
+  a natural number n to f n n.
+-- LEAN OUTPUT:
+def diagonal : (f : ℕ → ℕ → ℕ) → (n : ℕ) → ℕ :=
+  fun (f : ℕ → ℕ → ℕ) (n : ℕ) => f n n
+
+-- MEAN INPUT:
+Definition: a function f from Nat and Nat to Nat is diagonalZero if (f 0 0 = 0).
+-- LEAN OUTPUT:
+def diagonalZero : (f : ℕ → ℕ → ℕ) → Prop :=
+  fun (f : ℕ → ℕ → ℕ) => f 0 0 = 0
+
+-- MEAN INPUT:
+Definition: implicitApply is the function mapping an implicit function f from Nat to Nat and
+  a natural number n to f n.
+-- LEAN OUTPUT:
+def implicitApply : {f : ℕ → ℕ} → (n : ℕ) → ℕ :=
+  fun {f : ℕ → ℕ} (n : ℕ) => f n
+
+-- MEAN INPUT:
+Definition: strictApply is the function mapping a strictly implicit function f from Nat to Nat and
+  a natural number n to f n.
+-- LEAN OUTPUT:
+def strictApply : ⦃f : ℕ → ℕ⦄ → (n : ℕ) → ℕ :=
+  fun ⦃f : ℕ → ℕ⦄ (n : ℕ) => f n
+
+-- MEAN INPUT:
+the function mapping a function f from (Nat × Nat) to Nat to f (0, 0)
+-- LEAN OUTPUT:
+fun (f : ℕ × ℕ → ℕ) => f (0, 0)
+
+-- MEAN INPUT:
+the function mapping a function f from (Nat → Nat) to Nat to f Nat.succ
+-- LEAN OUTPUT:
+fun (f : (ℕ → ℕ) → ℕ) => f Nat.succ
+
+-- MEAN INPUT:
+there is a list xs of Token elements such that xs = []
+-- LEAN OUTPUT:
+∃ (xs : List Token), xs = []
+
+-- MEAN INPUT:
+there is a list of Token elements
+-- LEAN OUTPUT:
+∃ (existentialWitness : List Token), True
+
+-- MEAN INPUT:
+there is no list of Token elements
+-- LEAN OUTPUT:
+¬∃ (existentialWitness : List Token), True
+
+-- MEAN INPUT:
+there is no list xs of Token elements such that xs = []
+-- LEAN OUTPUT:
+¬∃ (xs : List Token), xs = []
+
+-- MEAN INPUT:
+there is a function f from Int and Int to Token such that f = f
+-- LEAN OUTPUT:
+∃ (f : ℤ → ℤ → Token), f = f
+
+-- MEAN INPUT:
+there is a function from Nat to Nat
+-- LEAN OUTPUT:
+∃ (existentialWitness : ℕ → ℕ), True
+
+-- MEAN INPUT:
+there is no function from Nat to Nat
+-- LEAN OUTPUT:
+¬∃ (existentialWitness : ℕ → ℕ), True
+
+-- MEAN INPUT:
+there is no function f from Nat to Nat such that f 0 = 0
+-- LEAN OUTPUT:
+¬∃ (f : ℕ → ℕ), f 0 = 0
+
+-- MEAN INPUT:
+there is a list of Token elements such that xs = xs
+-- LEAN OUTPUT:
+∃ (existentialWitness : List Token), xs = xs
+
+-- MEAN INPUT:
+the function mapping a natural number and an implicit integer and
+    a strictly implicit boolean to true
+-- LEAN OUTPUT:
+fun (_anonymousParameter : ℕ) {_anonymousParameter_1 : ℤ} ⦃_anonymousParameter_2 : Bool⦄ => true
+
+-- MEAN INPUT:
+the function mapping an element of Nat and an implicit element of Bool and
+    a strictly implicit element of Int to true
+-- LEAN OUTPUT:
+fun (_anonymousParameter : ℕ) {_anonymousParameter_1 : Bool} ⦃_anonymousParameter_2 : ℤ⦄ => true
+
+-- MEAN INPUT:
+the function mapping a proof that True and an implicit proof that True and
+    a strictly implicit proof that True to true
+-- LEAN OUTPUT:
+fun (_anonymousParameter : True) {_anonymousParameter_1 : True} ⦃_anonymousParameter_2 : True⦄ => true
+
+-- MEAN INPUT:
+the function mapping a list of Nat elements and an implicit list of Bool elements and
+    a strictly implicit list of Int elements to true
+-- LEAN OUTPUT:
+fun (_anonymousParameter : List ℕ) {_anonymousParameter_1 : List Bool} ⦃_anonymousParameter_2 : List ℤ⦄ => true
+
+-- MEAN INPUT:
+the function mapping a function from Nat to Nat and
+    an implicit function from Int to Int and a strictly implicit function from Bool to Bool to true
+-- LEAN OUTPUT:
+fun (_anonymousParameter : ℕ → ℕ) {_anonymousParameter_1 : ℤ → ℤ} ⦃_anonymousParameter_2 : Bool → Bool⦄ => true
+
+-- MEAN INPUT:
+the function mapping a natural number and a natural number to _anonymousParameter
+-- LEAN OUTPUT:
+fun (_anonymousParameter_1 _anonymousParameter_2 : ℕ) => _anonymousParameter
+
+-- MEAN INPUT:
+Definition: anonymousNatural is the function mapping a natural number to true.
+-- LEAN OUTPUT:
+def anonymousNatural : ℕ → Bool :=
+  fun (_anonymousParameter : ℕ) => true
+
+-- MEAN INPUT:
+Definition: a natural number is constantPredicate if True.
+-- LEAN OUTPUT:
+def constantPredicate : ℕ → Prop :=
+  fun (_anonymousParameter : ℕ) => True
+
+-- MEAN INPUT:
+Definition: a simple graph is constantGraph if True.
+-- LEAN OUTPUT:
+def constantGraph.{u_1} : {Vertex : Type u_1} → SimpleGraph Vertex → Prop :=
+  fun {Vertex : Type u_1} (_anonymousParameter : SimpleGraph Vertex) => True
+
+-- MEAN INPUT:
+Definition: a simple graph = (V, E) is inhabitedCarrier if V is nonempty.
+-- LEAN OUTPUT:
+def inhabitedCarrier.{u_1} : {V : Type u_1} → SimpleGraph V → Prop :=
+  fun {V : Type u_1} (_anonymousParameter : SimpleGraph V) =>
+    have E := _anonymousParameter.edgeSet;
+    Nonempty V
+
+-- MEAN INPUT:
+Definition: defaultValue is the function mapping an implicit element A of Type u and
+  an instance of typeclass Inhabited A to (default : A).
+-- LEAN OUTPUT:
+def defaultValue.{u} : {A : Type u} → [Inhabited A] → A :=
+  fun {A : Type u} [Inhabited A] => default
+
+-- MEAN INPUT:
+Definition: chosenValue is the function mapping an implicit element A of Type u and
+  an instance inst of typeclass Inhabited A to @default A inst.
+-- LEAN OUTPUT:
+def chosenValue.{u} : {A : Type u} → [inst : Inhabited A] → A :=
+  fun {A : Type u} [Inhabited A] => default
+
+-- MEAN INPUT:
+the function mapping an instance of typeclass Fact True to true
+-- LEAN OUTPUT:
+fun [Fact True] => true
+
+-- MEAN INPUT:
+there is an instance of typeclass Inhabited Nat
+-- LEAN OUTPUT:
+∃ (existentialWitness : Inhabited ℕ), True
+
+-- MEAN INPUT:
+there is an instance inst of typeclass Inhabited Nat such that inst.default = 7
+-- LEAN OUTPUT:
+∃ (inst : Inhabited ℕ), default = 7
+
+-- MEAN INPUT:
+there is no instance of typeclass Inhabited Nat
+-- LEAN OUTPUT:
+¬∃ (existentialWitness : Inhabited ℕ), True
+
+-- MEAN INPUT:
+the function mapping a path p in G from u to v to p
+-- LEAN OUTPUT:
+fun (p : G.Path u v) => p
+
+-- MEAN INPUT:
+the function mapping an implicit path p in G from u to v to p
+-- LEAN OUTPUT:
+fun {p : G.Path u v} => p
+
+-- MEAN INPUT:
+the function mapping a strictly implicit path p in G from u to v to p
+-- LEAN OUTPUT:
+fun ⦃p : G.Path u v⦄ => p
+
+-- MEAN INPUT:
+Definition: identity is the function mapping a proof h that P to h.
+-- LEAN OUTPUT:
+def identity : ∀ (P : Prop) (h : P), P :=
+  fun (P : Prop) (h : P) => h
+
+-- MEAN INPUT:
+Definition: implicitIdentity is the function mapping an implicit proof h that P to h.
+-- LEAN OUTPUT:
+def implicitIdentity : ∀ (P : Prop) {h : P}, P :=
+  fun (P : Prop) {h : P} => h
+
+-- MEAN INPUT:
+Definition: strictIdentity is the function mapping a strictly implicit proof h that P and
+  a proof _eq that h = h to h.
+-- LEAN OUTPUT:
+def strictIdentity : ∀ (P : Prop) ⦃h : P⦄ (_eq : h = h), P :=
+  fun (P : Prop) ⦃h : P⦄ (_eq : h = h) => h
+
+-- MEAN INPUT:
+the function mapping a proof h that (P and Q) and a boolean _b to h
+-- LEAN OUTPUT:
+fun (h : P ∧ Q) (_b : Bool) => h
+
+-- MEAN INPUT:
+the function mapping an element h of P to h
+-- LEAN OUTPUT:
+fun (h : P) => h
+
+-- MEAN INPUT:
+Definition: a proof h that True is reflexive if h = h.
+-- LEAN OUTPUT:
+def reflexive : (h : True) → Prop :=
+  fun (h : True) => h = h
+
+-- MEAN INPUT:
+Definition: zero is the function : True → Int mapping a proof _h that True to (0).
+-- LEAN OUTPUT:
+def zero : (_h : True) → ℤ :=
+  fun (_h : True) => 0
+
+-- MEAN INPUT:
+Abbreviation: Natural is Nat.
+-- LEAN OUTPUT:
+abbrev Natural : Type :=
+  ℕ
+
+-- MEAN INPUT:
+Abbreviation: answer is the integer 42.
+-- LEAN OUTPUT:
+abbrev answer : ℤ :=
+  42
+
+-- MEAN INPUT:
+Abbreviation: a natural number n is zero if (n = 0).
+-- LEAN OUTPUT:
+abbrev zero : (n : ℕ) → Prop :=
+  fun (n : ℕ) => n = 0
+
+-- MEAN INPUT:
+Abbreviation: double is the function mapping a natural number n to 2 * n.
+-- LEAN OUTPUT:
+abbrev double : (n : ℕ) → ℕ :=
+  fun (n : ℕ) => 2 * n
+
+-- MEAN INPUT:
+Abbreviation: zeroInteger is the function : Nat → Int mapping a natural number _n to (0).
+-- LEAN OUTPUT:
+abbrev zeroInteger : (_n : ℕ) → ℤ :=
+  fun (_n : ℕ) => 0
+
+-- MEAN INPUT:
+Abbreviation: a simple graph G is pathLinked if
+  for all vertices u and v of G: there is a path in G from u to v.
+-- LEAN OUTPUT:
+abbrev pathLinked.{u_1} : {Vertex : Type u_1} → (G : SimpleGraph Vertex) → Prop :=
+  fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => ∀ (u v : G.V), ∃ (existentialWitness : G.Path u v), True
+
+-- MEAN INPUT:
+there is a proof that P
+-- LEAN OUTPUT:
+∃ (_ : P), True
+
+-- MEAN INPUT:
+there is a proof h that P such that h = h
+-- LEAN OUTPUT:
+∃ (h : P), h = h
+
+-- MEAN INPUT:
+there is no proof that P
+-- LEAN OUTPUT:
+¬∃ (_ : P), True
+
+-- MEAN INPUT:
+there is no proof h that P such that h = h
+-- LEAN OUTPUT:
+¬∃ (h : P), h = h
+
+-- MEAN INPUT:
+there is a proof that (P and Q)
+-- LEAN OUTPUT:
+∃ (_ : P ∧ Q), True
+
+-- MEAN INPUT:
+there is a proof that P such that existentialWitness = 0
+-- LEAN OUTPUT:
+∃ (_ : P), existentialWitness = 0
+
+-- MEAN INPUT:
+there is a proof h that n > 0 such that h = h
+-- LEAN OUTPUT:
+∃ (h : n > 0), h = h
+
+-- MEAN INPUT:
+there is an element of P
+-- LEAN OUTPUT:
+∃ (_ : P), True
+
+-- MEAN INPUT:
+there is a proof that P
+-- LEAN OUTPUT:
+∃ (_ : P), True
+
+-- MEAN INPUT:
+Theorem natTrans3:
+  for all natural numbers x and y:
+    for all natural numbers z and w:
+      if x = y and z = y and z = w then x = w
+Proof: by
+  intro x y z w ⟨hxy, hzy, hzw⟩
+  exact hxy.trans (hzy.symm.trans hzw)
+-- LEAN OUTPUT:
+theorem natTrans3 : ∀ (x y z w : ℕ), x = y ∧ z = y ∧ z = w → x = w :=
+  fun (x y z w : ℕ) (h : x = y ∧ z = y ∧ z = w) =>
+    match h with
+    | ⟨hxy, ⟨hzy, hzw⟩⟩ => Eq.trans hxy (Eq.trans (Eq.symm hzy) hzw)
+
+-- MEAN INPUT:
+Theorem zeroExists:
+  there is a natural number n such that n = 0
+Proof:
+  ⟨0, rfl⟩
+-- LEAN OUTPUT:
+theorem zeroExists : ∃ (n : ℕ), n = 0 :=
+  Exists.intro 0 rfl
+
+-- MEAN INPUT:
+Axiom assumedZero:
+  there is a natural number n such that n = 0
+-- LEAN OUTPUT:
+axiom assumedZero : ∃ (n : ℕ), n = 0
+
+-- MEAN INPUT:
+for every natural number n:
+    we have an injective function from indices in [0, n) to lists of booleans
+-- LEAN OUTPUT:
+(n : ℕ) → Fin n ↪ List Bool
+
+-- MEAN INPUT:
+Axiom selectFirst.{u, v}:
+  {α : Type u} → {β : Type v} → (x : α) → β → α
+-- LEAN OUTPUT:
+axiom selectFirst.{u, v} : {α : Type u} → {β : Type v} → (x : α) → β → α
+
+-- MEAN INPUT:
+with implicit type parameters α and β:
+    we have a function from lists of α elements to lists of β elements
+-- LEAN OUTPUT:
+{α β : Type} → List α → List β
+
+-- MEAN INPUT:
+unsafe Axiom unsafeNumber: ℕ
+-- LEAN OUTPUT:
+unsafe axiom unsafeNumber : ℕ
+
+-- MEAN INPUT:
+Lemma natAddZero:
+  for every natural number n:
+    n + 0 = n
+Proof: by
+  intro n
+  rfl
+-- LEAN OUTPUT:
+theorem natAddZero : ∀ (n : ℕ), n + 0 = n :=
+  fun (n : ℕ) => Eq.refl (n + 0)
+
+-- MEAN INPUT:
+Example:
+  for every natural number n:
+    n + 0 = n
+Proof: natAddZero
+-- LEAN OUTPUT:
+example : ∀ (n : ℕ), n + 0 = n :=
+  natAddZero
+
+-- MEAN INPUT:
+Example:
+  there is a natural number n such that n = 0
+Proof: by
+  exact zeroExists
+-- LEAN OUTPUT:
+example : ∃ (n : ℕ), n = 0 :=
+  by
+    exact zeroExists
+
+-- MEAN INPUT:
+Lemma edgeSubsetSelf:
+  the edge set of G ⊆ the edge set of G
+Proof: by
+  intro e he
+  exact he
+-- LEAN OUTPUT:
+theorem edgeSubsetSelf.{u_1} : ∀ {V : Type u_1} (G : SimpleGraph V), G.edgeSet ⊆ G.edgeSet :=
+  fun {V : Type u_1} (G : SimpleGraph V) ⦃e : Sym2 V⦄ (he : e ∈ G.edgeSet) => he
+
+-- MEAN INPUT:
+Example:
+  the edge set of G ⊆ the edge set of G
+Proof: edgeSubsetSelf G
+-- LEAN OUTPUT:
+example : G.edgeSet ⊆ G.edgeSet :=
+  edgeSubsetSelf G
+
+-- MEAN INPUT:
+for every function q from Nat to Prop:
+    if q 0 then there is a function r from Nat to Nat such that
+      for every natural number n: q n if and only if q (r n)
+-- LEAN OUTPUT:
+∀ (q : ℕ → Prop), q 0 → ∃ (r : ℕ → ℕ), ∀ (n : ℕ), q n ↔ q (r n)
+
+-- MEAN INPUT:
+for all list xs of Nat elements:
+    for every element i of Fin xs.length: xs[i] = xs[i]
+-- LEAN OUTPUT:
+∀ (xs : List ℕ) (i : Fin xs.length), xs[i] = xs[i]
+
+-- MEAN INPUT:
+for every element x of A: x = x
+-- LEAN OUTPUT:
+∀ (x : A), x = x
+
+-- MEAN INPUT:
+for every proof h that P: h = h
+-- LEAN OUTPUT:
+∀ (h : P), h = h
+
+-- MEAN INPUT:
+for every instance inst of typeclass Inhabited Nat: inst.default = 0
+-- LEAN OUTPUT:
+∀ (inst : Inhabited ℕ), default = 0
+
+-- MEAN INPUT:
+for all path p in G from u to v: p = p
+-- LEAN OUTPUT:
+∀ (p : G.Path u v), p = p
+
+-- MEAN INPUT:
+for every function from Nat and Nat to Nat: True
+-- LEAN OUTPUT:
+∀ (existentialWitness : ℕ → ℕ → ℕ), True
+
+-- MEAN INPUT:
+for every element of Bool: existentialWitness = 0
+-- LEAN OUTPUT:
+∀ (existentialWitness_1 : Bool), existentialWitness = 0
+
+-- MEAN INPUT:
+P and Q or R
+-- LEAN OUTPUT:
+P ∧ Q ∨ R
+
+-- MEAN INPUT:
+P or Q and R
+-- LEAN OUTPUT:
+P ∨ Q ∧ R
+
+-- MEAN INPUT:
+P and Q and R
+-- LEAN OUTPUT:
+P ∧ Q ∧ R
+
+-- MEAN INPUT:
+(P or Q) and R
+-- LEAN OUTPUT:
+(P ∨ Q) ∧ R
+
+-- MEAN INPUT:
+if P then Q and R
+-- LEAN OUTPUT:
+P → Q ∧ R
+
+-- MEAN INPUT:
+if P then if Q then R
+-- LEAN OUTPUT:
+P → Q → R
+
+-- MEAN INPUT:
+if (if P then Q) then R
+-- LEAN OUTPUT:
+(P → Q) → R
+
+-- MEAN INPUT:
+P and Q if and only if R
+-- LEAN OUTPUT:
+P ∧ Q ↔ R
+
+-- MEAN INPUT:
+P if and only if Q or R
+-- LEAN OUTPUT:
+P ↔ Q ∨ R
+
+-- MEAN INPUT:
+(P if and only if Q) if and only if R
+-- LEAN OUTPUT:
+(P ↔ Q) ↔ R
+
+-- MEAN INPUT:
+P if and only if (Q if and only if R)
+-- LEAN OUTPUT:
+P ↔ (Q ↔ R)
+
+-- MEAN INPUT:
+(if P then Q) if and only if R
+-- LEAN OUTPUT:
+P → Q ↔ R
+
+-- MEAN INPUT:
+if P then (Q if and only if R)
+-- LEAN OUTPUT:
+P → (Q ↔ R)
+
+-- MEAN INPUT:
+Definition:
+  a natural number n is zeroOrPositive if
+    n = 0 or (if n ≠ 0 then n > 0).
+-- LEAN OUTPUT:
+def zeroOrPositive : (n : ℕ) → Prop :=
+  fun (n : ℕ) => n = 0 ∨ (n ≠ 0 → n > 0)
+
+-- MEAN INPUT:
+Definition:
+  a simple graph G is preconnectedViaVertices if
+    for all vertices u and v of G:
+      there is a path in G from u to v.
+-- LEAN OUTPUT:
+def preconnectedViaVertices.{u_1} : {Vertex : Type u_1} → (G : SimpleGraph Vertex) → Prop :=
+  fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => ∀ (u v : G.V), ∃ (existentialWitness : G.Path u v), True
+
+-- MEAN INPUT:
+Definition:
+  a simple graph G = (V, E) is preconnected if
+    for every u and v in V:
+      there is a path in G from u to v.
+-- LEAN OUTPUT:
+def preconnected.{u_1} : {V : Type u_1} → (G : SimpleGraph V) → Prop :=
+  fun {V : Type u_1} (G : SimpleGraph V) =>
+    have E := G.edgeSet;
+    ∀ (u v : V), ∃ (existentialWitness : G.Path u v), True
+
+-- MEAN INPUT:
+Definition:
+  a simple graph G = (V, E) is preconnectedWithNamedParts if
+    for all vertices u and v of G:
+      there is a path in G from u to v.
+-- LEAN OUTPUT:
+def preconnectedWithNamedParts.{u_1} : {V : Type u_1} → (G : SimpleGraph V) → Prop :=
+  fun {V : Type u_1} (G : SimpleGraph V) =>
+    have E := G.edgeSet;
+    ∀ (u v : G.V), ∃ (existentialWitness : G.Path u v), True
+
+-- MEAN INPUT:
+there is a path _p in G from u to v
+-- LEAN OUTPUT:
+∃ (_p : G.Path u v), True
+
+-- MEAN INPUT:
+there is a path p in G from u to v such that p.val.length = 0
+-- LEAN OUTPUT:
+∃ (p : G.Path u v), (↑p : G.Walk u v).length = 0
+
+-- MEAN INPUT:
+there is a path in G from u to v such that u = v
+-- LEAN OUTPUT:
+∃ (existentialWitness : G.Path u v), u = v
+
+-- MEAN INPUT:
+there is a path in G from u to v such that existentialWitness = 0
+-- LEAN OUTPUT:
+∃ (existentialWitness_1 : G.Path u v), existentialWitness = 0
+
+-- MEAN INPUT:
+Definition:
+  a boolean x is trueBoolean if x = true.
+-- LEAN OUTPUT:
+def trueBoolean : (x : Bool) → Prop :=
+  fun (x : Bool) => x = true
+
+-- MEAN INPUT:
+there is a boolean x such that x = true
+-- LEAN OUTPUT:
+∃ (x : Bool), x = true
+
+-- MEAN INPUT:
+there is a boolean
+-- LEAN OUTPUT:
+∃ (existentialWitness : Bool), True
+
+-- MEAN INPUT:
+there is a natural number n such that n = 0
+-- LEAN OUTPUT:
+∃ (n : ℕ), n = 0
+
+-- MEAN INPUT:
+there is a natural number
+-- LEAN OUTPUT:
+∃ (existentialWitness : ℕ), True
+
+-- MEAN INPUT:
+there is an element x of α such that P x
+-- LEAN OUTPUT:
+∃ (x : α), P x
+
+-- MEAN INPUT:
+there is an element of α
+-- LEAN OUTPUT:
+∃ (existentialWitness : α), True
+
+-- MEAN INPUT:
+there is a natural number n such that
+      there is a natural number m such that m = n + 1
+-- LEAN OUTPUT:
+∃ (n : ℕ) (m : ℕ), m = n + 1
+
+-- MEAN INPUT:
+Definition:
+  a simple graph G is zeroLengthLinked if
+    for all vertices u and v of G:
+      there is a path p in G from u to v such that (p.val.length = 0).
+-- LEAN OUTPUT:
+def zeroLengthLinked.{u_1} : {Vertex : Type u_1} → (G : SimpleGraph Vertex) → Prop :=
+  fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => ∀ (u v : G.V), ∃ (p : G.Path u v), (↑p : G.Walk u v).length = 0
+
+-- MEAN INPUT:
+for all vertices x and y of G: there is a path in G from x to y
+-- LEAN OUTPUT:
+∀ (x y : G.V), ∃ (existentialWitness : G.Path x y), True
+
+-- MEAN INPUT:
+for every vertices x and y of G: there is a path in G from x to y
+-- LEAN OUTPUT:
+∀ (x y : G.V), ∃ (existentialWitness : G.Path x y), True
+
+-- MEAN INPUT:
+for all x and y in V: there is a path in G from x to y
+-- LEAN OUTPUT:
+∀ (x y : V), ∃ (existentialWitness : G.Path x y), True
+
+-- MEAN INPUT:
+Definition:
+  a natural number n is zero if (n = 0).
+-- LEAN OUTPUT:
+def zero : (n : ℕ) → Prop :=
+  fun (n : ℕ) => n = 0
+
+-- MEAN INPUT:
+Definition:
+  an element n of Nat is zeroViaType if (n = 0).
+-- LEAN OUTPUT:
+def zeroViaType : (n : ℕ) → Prop :=
+  fun (n : ℕ) => n = 0
+
+-- MEAN INPUT:
+Definition:
+  a natural number n is boundsPairSums if
+    for all x and y in Nat: x + y ≤ n.
+-- LEAN OUTPUT:
+def boundsPairSums : (n : ℕ) → Prop :=
+  fun (n : ℕ) => ∀ (x y : ℕ), x + y ≤ n
+
+-- MEAN INPUT:
+Definition:
+  a simple graph H = (W, F) is linked if
+    for every x and y in W:
+      there is a path in H from x to y.
+-- LEAN OUTPUT:
+def linked.{u_1} : {W : Type u_1} → (H : SimpleGraph W) → Prop :=
+  fun {W : Type u_1} (H : SimpleGraph W) =>
+    have F := H.edgeSet;
+    ∀ (x y : W), ∃ (existentialWitness : H.Path x y), True
+
+-- MEAN INPUT:
+Definition:
+  a simple graph G = (V, E) is edgeless if
+    E = ∅.
+-- LEAN OUTPUT:
+def edgeless.{u_1} : {V : Type u_1} → (G : SimpleGraph V) → Prop :=
+  fun {V : Type u_1} (G : SimpleGraph V) =>
+    have E := G.edgeSet;
+    E = ∅
+
+-- MEAN INPUT:
+for every u and v in V: there is a path in G from u to v
+-- LEAN OUTPUT:
+∀ (u v : V), ∃ (existentialWitness : G.Path u v), True
+
+-- MEAN INPUT:
+Definition:
+  an integer x is intZeroFromMean if (x = 0).
+-- LEAN OUTPUT:
+def intZeroFromMean : (x : ℤ) → Prop :=
+  fun (x : ℤ) => x = 0
+
+-- MEAN INPUT:
+there is an integer x such that x = 0
+-- LEAN OUTPUT:
+∃ (x : ℤ), x = 0
+
+-- MEAN INPUT:
+there is an integer
+-- LEAN OUTPUT:
+∃ (existentialWitness : ℤ), True
+
+-- MEAN INPUT:
+Definition:
+  a rational number x is ratZeroFromMean if (x = 0).
+-- LEAN OUTPUT:
+def ratZeroFromMean : (x : ℚ) → Prop :=
+  fun (x : ℚ) => x = 0
+
+-- MEAN INPUT:
+there is a rational number x such that x = 0
+-- LEAN OUTPUT:
+∃ (x : ℚ), x = 0
+
+-- MEAN INPUT:
+there is a rational number
+-- LEAN OUTPUT:
+∃ (existentialWitness : ℚ), True
+
+-- MEAN INPUT:
+Definition:
+  a real number x is realZeroFromMean if (x = 0).
+-- LEAN OUTPUT:
+def realZeroFromMean : (x : ℝ) → Prop :=
+  fun (x : ℝ) => x = 0
+
+-- MEAN INPUT:
+there is a real number x such that x = 0
+-- LEAN OUTPUT:
+∃ (x : ℝ), x = 0
+
+-- MEAN INPUT:
+there is a real number
+-- LEAN OUTPUT:
+∃ (existentialWitness : ℝ), True
+
+-- MEAN INPUT:
+Definition:
+  a complex number x is complexZeroFromMean if (x = 0).
+-- LEAN OUTPUT:
+def complexZeroFromMean : (x : ℂ) → Prop :=
+  fun (x : ℂ) => x = 0
+
+-- MEAN INPUT:
+there is a complex number x such that x = 0
+-- LEAN OUTPUT:
+∃ (x : ℂ), x = 0
+
+-- MEAN INPUT:
+there is a complex number
+-- LEAN OUTPUT:
+∃ (existentialWitness : ℂ), True
+
+-- MEAN INPUT:
+for every natural number x: x = x
+-- LEAN OUTPUT:
+∀ (x : ℕ), x = x
+
+-- MEAN INPUT:
+for all natural numbers x and y: x = y
+-- LEAN OUTPUT:
+∀ (x y : ℕ), x = y
+
+-- MEAN INPUT:
+for every integer x: x = x
+-- LEAN OUTPUT:
+∀ (x : ℤ), x = x
+
+-- MEAN INPUT:
+for all integers x and y: x = y
+-- LEAN OUTPUT:
+∀ (x y : ℤ), x = y
+
+-- MEAN INPUT:
+for every rational number x: x = x
+-- LEAN OUTPUT:
+∀ (x : ℚ), x = x
+
+-- MEAN INPUT:
+for all rational numbers x and y: x = y
+-- LEAN OUTPUT:
+∀ (x y : ℚ), x = y
+
+-- MEAN INPUT:
+for every real number x: x = x
+-- LEAN OUTPUT:
+∀ (x : ℝ), x = x
+
+-- MEAN INPUT:
+for all real numbers x and y: x = y
+-- LEAN OUTPUT:
+∀ (x y : ℝ), x = y
+
+-- MEAN INPUT:
+for every complex number x: x = x
+-- LEAN OUTPUT:
+∀ (x : ℂ), x = x
+
+-- MEAN INPUT:
+for all complex numbers x and y: x = y
+-- LEAN OUTPUT:
+∀ (x y : ℂ), x = y
+
+-- MEAN INPUT:
+for every boolean x: x = x
+-- LEAN OUTPUT:
+∀ (x : Bool), x = x
+
+-- MEAN INPUT:
+for all booleans x and y: x = y
+-- LEAN OUTPUT:
+∀ (x y : Bool), x = y
+
+-- MEAN INPUT:
+there is no real number x such that x * x < 0
+-- LEAN OUTPUT:
+¬∃ (x : ℝ), x * x < 0
+
+-- MEAN INPUT:
+there is no element of T
+-- LEAN OUTPUT:
+¬∃ (existentialWitness : T), True
+
+-- MEAN INPUT:
+there is no element x of T such that P x
+-- LEAN OUTPUT:
+¬∃ (x : T), P x
+
+-- MEAN INPUT:
+there is no path in G from u to v
+-- LEAN OUTPUT:
+¬∃ (existentialWitness : G.Path u v), True
+
+-- MEAN INPUT:
+there is no path p in G from u to v such that p.val.length = 0
+-- LEAN OUTPUT:
+¬∃ (p : G.Path u v), (↑p : G.Walk u v).length = 0
+
+-- MEAN INPUT:
+there is no element of Empty
+-- LEAN OUTPUT:
+¬∃ (existentialWitness : Empty), True
+
+-- MEAN INPUT:
+Definition:
+  a real number x is hasNoSmallerSquare if
+    there is no real number y such that y * y < x.
+-- LEAN OUTPUT:
+def hasNoSmallerSquare : (x : ℝ) → Prop :=
+  fun (x : ℝ) => ¬∃ (y : ℝ), y * y < x
+
+-- MEAN INPUT:
+there is no natural number
+-- LEAN OUTPUT:
+¬∃ (existentialWitness : ℕ), True
+
+-- MEAN INPUT:
+there is no integer
+-- LEAN OUTPUT:
+¬∃ (existentialWitness : ℤ), True
+
+-- MEAN INPUT:
+there is no rational number
+-- LEAN OUTPUT:
+¬∃ (existentialWitness : ℚ), True
+
+-- MEAN INPUT:
+there is no real number
+-- LEAN OUTPUT:
+¬∃ (existentialWitness : ℝ), True
+
+-- MEAN INPUT:
+there is no complex number
+-- LEAN OUTPUT:
+¬∃ (existentialWitness : ℂ), True
+
+-- MEAN INPUT:
+there is no boolean
+-- LEAN OUTPUT:
+¬∃ (existentialWitness : Bool), True
+
+-- MEAN INPUT:
+T is a nonempty type
+-- LEAN OUTPUT:
+Nonempty T
+
+-- MEAN INPUT:
+T is an empty type
+-- LEAN OUTPUT:
+IsEmpty T
+
+-- MEAN INPUT:
+s is a nonempty set
+-- LEAN OUTPUT:
+s.Nonempty
+
+-- MEAN INPUT:
+s is an empty set
+-- LEAN OUTPUT:
+(fun (s : Set T) => s = ∅) s
+
+-- MEAN INPUT:
+T is not a nonempty type
+-- LEAN OUTPUT:
+¬Nonempty T
+
+-- MEAN INPUT:
+T is not an empty type
+-- LEAN OUTPUT:
+¬IsEmpty T
+
+-- MEAN INPUT:
+T is nonempty
+-- LEAN OUTPUT:
+Nonempty T
+
+-- MEAN INPUT:
+T is empty
+-- LEAN OUTPUT:
+IsEmpty T
+
+-- MEAN INPUT:
+T is nonempty and P
+-- LEAN OUTPUT:
+Nonempty T ∧ P
+
+-- MEAN INPUT:
+if T is empty then P
+-- LEAN OUTPUT:
+IsEmpty T → P
+
+-- MEAN INPUT:
+(Fin n) is nonempty
+-- LEAN OUTPUT:
+Nonempty (Fin n)
+
+-- MEAN INPUT:
+(Fin n) is empty
+-- LEAN OUTPUT:
+IsEmpty (Fin n)
+
+-- MEAN INPUT:
+xs is a nonempty list
+-- LEAN OUTPUT:
+xs ≠ []
+
+-- MEAN INPUT:
+xs is an empty list
+-- LEAN OUTPUT:
+xs = []
+
+-- MEAN INPUT:
+xs is nonempty
+-- LEAN OUTPUT:
+xs ≠ []
+
+-- MEAN INPUT:
+xs is empty
+-- LEAN OUTPUT:
+xs = []
+
+-- MEAN INPUT:
+xs is not a nonempty list
+-- LEAN OUTPUT:
+¬xs ≠ []
+
+-- MEAN INPUT:
+xs is not an empty list
+-- LEAN OUTPUT:
+¬xs = []
+
+-- MEAN INPUT:
+xs is not nonempty
+-- LEAN OUTPUT:
+¬xs ≠ []
+
+-- MEAN INPUT:
+xs is not empty
+-- LEAN OUTPUT:
+¬xs = []
+
+-- MEAN INPUT:
+f n is a nonempty list
+-- LEAN OUTPUT:
+f n ≠ []
+
+-- MEAN INPUT:
+f n is an empty list
+-- LEAN OUTPUT:
+f n = []
+
+-- MEAN INPUT:
+xs is nonempty and f n is empty
+-- LEAN OUTPUT:
+xs ≠ [] ∧ f n = []
+
+-- MEAN INPUT:
+for every list ys of A elements: ys is empty or ys is nonempty
+-- LEAN OUTPUT:
+∀ (ys : List A), ys = [] ∨ ys ≠ []
+
+-- MEAN INPUT:
+xs is an empty list
+-- LEAN OUTPUT:
+xs = []
+
+-- MEAN INPUT:
+xs is nonempty
+-- LEAN OUTPUT:
+xs ≠ []
+
+-- MEAN INPUT:
+Definition:
+  a simple graph G is hasVertices if G.V is nonempty.
+-- LEAN OUTPUT:
+def hasVertices.{u_1} : {Vertex : Type u_1} → (G : SimpleGraph Vertex) → Prop :=
+  fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => Nonempty G.V
+
+-- MEAN INPUT:
+Definition:
+  a simple graph G is hasNoVertices if G.V is empty.
+-- LEAN OUTPUT:
+def hasNoVertices.{u_1} : {Vertex : Type u_1} → (G : SimpleGraph Vertex) → Prop :=
+  fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => IsEmpty G.V
+
+-- MEAN INPUT:
+T is finite
+-- LEAN OUTPUT:
+Finite T
+
+-- MEAN INPUT:
+T is infinite
+-- LEAN OUTPUT:
+Infinite T
+
+-- MEAN INPUT:
+T is countable
+-- LEAN OUTPUT:
+Countable T
+
+-- MEAN INPUT:
+f is injective
+-- LEAN OUTPUT:
+Function.Injective f
+
+-- MEAN INPUT:
+f is surjective
+-- LEAN OUTPUT:
+Function.Surjective f
+
+-- MEAN INPUT:
+f is bijective
+-- LEAN OUTPUT:
+Function.Bijective f
+
+-- MEAN INPUT:
+f is injective and f is surjective
+-- LEAN OUTPUT:
+Function.Injective f ∧ Function.Surjective f
+
+-- MEAN INPUT:
+Definition:
+  an element f of (Nat → Nat) is oneToOne if f is injective.
+-- LEAN OUTPUT:
+def oneToOne : (f : ℕ → ℕ) → Prop :=
+  fun (f : ℕ → ℕ) => Function.Injective f
+
+-- MEAN INPUT:
+the edge set of G
+-- LEAN OUTPUT:
+G.edgeSet
+
+-- MEAN INPUT:
+G's edge set
+-- LEAN OUTPUT:
+G.edgeSet
+
+-- MEAN INPUT:
+the vertex type of G
+-- LEAN OUTPUT:
+G.V
+
+-- MEAN INPUT:
+G's vertex type
+-- LEAN OUTPUT:
+G.V
+
+-- MEAN INPUT:
+the set of neighbors of u in G
+-- LEAN OUTPUT:
+G.neighborSet u
+
+-- MEAN INPUT:
+the neighbor set of u in G
+-- LEAN OUTPUT:
+G.neighborSet u
+
+-- MEAN INPUT:
+the set of u's neighbors in G
+-- LEAN OUTPUT:
+G.neighborSet u
+
+-- MEAN INPUT:
+the set of edges incident to u in G
+-- LEAN OUTPUT:
+G.incidenceSet u
+
+-- MEAN INPUT:
+the incidence set of u in G
+-- LEAN OUTPUT:
+G.incidenceSet u
+
+-- MEAN INPUT:
+the set of neighbors of u in (G ⊔ H)
+-- LEAN OUTPUT:
+(G ⊔ H).neighborSet u
+
+-- MEAN INPUT:
+u's neighbor set in G
+-- LEAN OUTPUT:
+G.neighborSet u
+
+-- MEAN INPUT:
+u's incidence set in G
+-- LEAN OUTPUT:
+G.incidenceSet u
+
+-- MEAN INPUT:
+the edge set of (G ⊔ H)
+-- LEAN OUTPUT:
+(G ⊔ H).edgeSet
+
+-- MEAN INPUT:
+G's edge set = ∅ and H's edge set = ∅
+-- LEAN OUTPUT:
+G.edgeSet = ∅ ∧ H.edgeSet = ∅
+
+-- MEAN INPUT:
+the vertex type of G is nonempty
+-- LEAN OUTPUT:
+Nonempty G.V
+
+-- MEAN INPUT:
+Definition:
+  a simple graph G is hasNoEdges if the edge set of G = ∅.
+-- LEAN OUTPUT:
+def hasNoEdges.{u_1} : {Vertex : Type u_1} → (G : SimpleGraph Vertex) → Prop :=
+  fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => G.edgeSet = ∅
+
+-- MEAN INPUT:
+Definition:
+  a simple graph G is hasNoEdgesPossessive if G's edge set = ∅.
+-- LEAN OUTPUT:
+def hasNoEdgesPossessive.{u_1} : {Vertex : Type u_1} → (G : SimpleGraph Vertex) → Prop :=
+  fun {Vertex : Type u_1} (G : SimpleGraph Vertex) => G.edgeSet = ∅
+
+-- MEAN INPUT:
+Inductive Tree (α : Type u) : Type u where
+  | leaf : α → Tree α
+  | branch : Tree α → Tree α → Tree α
+-- LEAN OUTPUT:
+inductive Tree (α : Type u) : Type u where
+  | leaf : α → Tree α
+  | branch : Tree α → Tree α → Tree α
+
+-- MEAN INPUT:
+Inductive Vector (α : Type u) : Nat → Type u where
+  | nil : Vector α 0
+  | cons : {n : Nat} → α → Vector α n → Vector α (n + 1)
+-- LEAN OUTPUT:
+inductive Vector (α : Type u) : ℕ → Type u where
+  | nil : Vector α 0
+  | cons : {n : ℕ} → α → Vector α n → Vector α (n + 1)
+
+-- MEAN INPUT:
+Inductive Empty : Type where
+-- LEAN OUTPUT:
+inductive Empty : Type where
+
+-- MEAN INPUT:
+Inductive «a» : Type where
+  | «is» : «a»
+-- LEAN OUTPUT:
+inductive «a» : Type where
+  | «is» : «a»
+
+-- MEAN INPUT:
+Inductive type Term parameterized by a natural number n
+with constructors:
+  const from an integer;
+  var from an index in [0, n);
+  add from two elements of Term n;
+  mul from two elements of Term n.
+-- LEAN OUTPUT:
+inductive Term (n : ℕ) : Type where
+  | const : ℤ → Term n
+  | var : Fin n → Term n
+  | add : Term n → Term n → Term n
+  | mul : Term n → Term n → Term n
+
+-- MEAN INPUT:
+Inductive type Color with constructors:
+  red;
+  green;
+  blue.
+-- LEAN OUTPUT:
+inductive Color : Type where
+  | red : Color
+  | green : Color
+  | blue : Color
+
+-- MEAN INPUT:
+Inductive family Vector parameterized by a type A
+indexed by a natural number
+with constructors:
+  nil to (Vector A 0);
+  cons from an implicit natural number n and an element x of A and an element xs of Vector A n
+    to Vector A (n + 1).
+-- LEAN OUTPUT:
+inductive Vector (A : Type) : ℕ → Type where
+  | nil : Vector A 0
+  | cons : {n : ℕ} → A → Vector A n → Vector A (n + 1)
+
+-- MEAN INPUT:
+Inductive type Tree parameterized by an element A of Type u
+with values in Type u
+with constructors:
+  leaf from an element of A;
+  branch from two elements of Tree A.
+-- LEAN OUTPUT:
+inductive Tree (A : Type u) : Type u where
+  | leaf : A → Tree A
+  | branch : Tree A → Tree A → Tree A
+
+-- MEAN INPUT:
+Inductive type Empty with constructors: .
+-- LEAN OUTPUT:
+inductive Empty : Type where
+
+-- MEAN INPUT:
+Inductive type Hidden parameterized by an implicit type A with constructors:
+  wrap from an element value of A.
+-- LEAN OUTPUT:
+inductive Hidden {A : Type} : Type where
+  | wrap : A → Hidden
+
+-- MEAN INPUT:
+Inductive type WithInstance parameterized by a type A and an instance inst of typeclass Inhabited A
+with constructors:
+  choose.
+-- LEAN OUTPUT:
+inductive WithInstance (A : Type) [inst : Inhabited A] : Type where
+  | choose : WithInstance A
+
+-- MEAN INPUT:
+Definition:
+  twice maps a natural number n to a natural number
+  by cases on n:
+    zero gives 0;
+    succ k gives (twice k + 2).
+-- LEAN OUTPUT:
+def twice : (n : ℕ) → ℕ :=
+  fun (n : ℕ) => Nat.brecOn n twice._f
+
+-- MEAN INPUT:
+Definition:
+  flip maps a boolean b to a boolean by cases on b:
+    false gives true;
+    true gives false.
+-- LEAN OUTPUT:
+def flip : (b : Bool) → Bool :=
+  fun (b : Bool) =>
+    match b with
+    | false => true
+    | true => false
+
+-- MEAN INPUT:
+Abbreviation:
+  bitValue maps a boolean b to a natural number by cases on b:
+    false gives 0;
+    true gives (1).
+-- LEAN OUTPUT:
+abbrev bitValue : (b : Bool) → ℕ :=
+  fun (b : Bool) =>
+    match b with
+    | false => 0
+    | true => 1
+
+-- MEAN INPUT:
+Definition:
+  choosePair maps a boolean b to an element of Nat × Nat by cases on b:
+    false gives (0, 0);
+    true gives (1, 1).
+-- LEAN OUTPUT:
+def choosePair : (b : Bool) → ℕ × ℕ :=
+  fun (b : Bool) =>
+    match b with
+    | false => (0, 0)
+    | true => (1, 1)
+
+-- MEAN INPUT:
+write p as (x, y); x + y
+-- LEAN OUTPUT:
+match p with
+| (x, y) => x + y
+
+-- MEAN INPUT:
+write p as (x, y); there is a natural number n such that n = x + y
+-- LEAN OUTPUT:
+match p with
+| (x, y) => ∃ (n : ℕ), n = x + y
