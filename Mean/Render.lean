@@ -835,6 +835,7 @@ private def predicateView? (e : Expr) : MetaM (Option PredicateView) := do
     (``Nonempty, 1, "a nonempty type"),
     (``IsEmpty, 1, "an empty type"),
     (``Set.Nonempty, 2, "a nonempty set"),
+    (``_root_.IsPreconnected, 3, "connected or empty"),
     (``Finite, 1, "finite"),
     (``Infinite, 1, "infinite"),
     (``Countable, 1, "countable"),
@@ -1227,13 +1228,17 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
           pure rendered
         else if rendered == (← propertyText subject) then atomText subject true
         else pure ("(" ++ rendered ++ ")")
+      let subjects := String.intercalate " and " texts
+      -- Negate the whole phrase so "or empty" stays inside the negation.
+      if negativePredicate && view.registered && positive.isAppOfArity ``_root_.IsPreconnected 3 then
+        return ← sentenceTail s!"¬({subjects} is {view.phrase})" sentenceEnd
       let singular := view.subjects.length == 1
       let verb := if view.registered then
           (if singular then "is" else "are") ++ (if negativePredicate then " not" else "")
         else if negativePredicate then
           if singular then "does not satisfy" else "do not satisfy"
         else if singular then "satisfies" else "satisfy"
-      return ← sentenceTail s!"{String.intercalate " and " texts} {verb} {view.phrase}" sentenceEnd
+      return ← sentenceTail s!"{subjects} {verb} {view.phrase}" sentenceEnd
     leafText e sentenceEnd
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in

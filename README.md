@@ -1228,6 +1228,7 @@ The renderer maintains an independent inverse mapping and checks each round trip
 | `an empty list` | `xs = []` | List |
 | `a nonempty set` | `Set.Nonempty` | Set |
 | `an empty set` | `S = ∅` | Set |
+| `connected or empty` | `IsPreconnected` | Set in a topological space |
 | `finite` | `Finite` | Type |
 | `infinite` | `Infinite` | Type |
 | `countable` | `Countable` | Type |

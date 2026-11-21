@@ -2246,6 +2246,16 @@ variable {T : Sort u} (P : Prop) (n : Nat)
 end
 
 section
+variable {X : Type u} [TopologicalSpace X] (S : Set X) (P : Prop)
+/-- info: S is connected or empty or P -/
+#guard_msgs in
+#mean_term IsPreconnected S ∨ P
+/-- info: ¬(S is connected or empty) -/
+#guard_msgs in
+#mean_term ¬ IsPreconnected S
+end
+
+section
 variable {A : Type u} (xs : List A) (f : Nat → List A) (n : Nat)
 /-- info: xs is a nonempty list -/
 #guard_msgs in

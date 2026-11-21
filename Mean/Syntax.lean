@@ -9,6 +9,7 @@ import Mathlib.Analysis.Normed.Affine.Isometry
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Geometry.Euclidean.Projection
 import Mathlib.LinearAlgebra.Determinant
+import Mathlib.Topology.Connected.Basic
 import Mathlib.Topology.Path
 import Lean
 
@@ -51,6 +52,7 @@ macro_rules
 /-! Adjectives share one application rule. New adjectives implement
 `adjectivePredicate%` with their Lean predicate; Lean checks the subject's type. -/
 declare_syntax_cat meanAdjective
+def connectedWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "connected " true
 syntax "nonempty" : meanAdjective
 syntax "empty" : meanAdjective
 syntax "a" "nonempty" "type" : meanAdjective
@@ -59,6 +61,7 @@ syntax "a" "nonempty" "list" : meanAdjective
 syntax "an" "empty" "list" : meanAdjective
 syntax "a" "nonempty" "set" : meanAdjective
 syntax "an" "empty" "set" : meanAdjective
+syntax connectedWord "or " "empty" : meanAdjective
 syntax "finite" : meanAdjective
 syntax "infinite" : meanAdjective
 syntax "countable" : meanAdjective
@@ -284,6 +287,7 @@ macro_rules
   | `(adjectivePredicate% empty) => `(IsEmpty)
   | `(adjectivePredicate% a nonempty set) => `(Set.Nonempty)
   | `(adjectivePredicate% an empty set) => `(fun (s : Set _) => s = ∅)
+  | `(adjectivePredicate% connected or empty) => `(_root_.IsPreconnected)
   | `(adjectivePredicate% finite) => `(Finite)
   | `(adjectivePredicate% infinite) => `(Infinite)
   | `(adjectivePredicate% countable) => `(Countable)

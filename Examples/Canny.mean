@@ -131,7 +131,7 @@ Definition:
   ConnectedFormulas is
     the function mapping a natural number n to
       the set of elements p of Formula n such that
-        p.solutionSet satisfies IsPreconnected.
+        p.solutionSet is connected or empty.
 
 Definition:
   ConnectedLanguage is
