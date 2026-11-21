@@ -264,7 +264,7 @@ Definition:
             p.existsForallSolutionSet is a nonempty set)
         under
         (the function mapping an element p of Formula (r + s) to
-            (encPair encUnary encBits) (r, (encFormula (r + s)) p)).
+            encPair encUnary encBits (r, encFormula (r + s) p)).
 
 -- LEAN INPUT:
 /-- Theorem (OpenAI, 2026): ∃∀ℝ belongs to CH.
@@ -302,7 +302,7 @@ Definition:
     the union over natural numbers n of
       the image of (ConnectedFormulas n) under
         (the function mapping an element p of Formula n to
-            (encPair encUnary encBits) (n, (encFormula n) p)).
+            encPair encUnary encBits (n, encFormula n p)).
 
 -- LEAN INPUT:
 /-- Theorem (Canny, 1988): connectivity of an integer semialgebraic set is in PSPACE,
@@ -352,7 +352,7 @@ Definition:
         the image of (ReachableEndpoints p) under
           (the function mapping an element x of Formula n × Formula n to
               write x as (p₁, p₂);
-              (encPair encUnary (encList encBits)) (n, [(encFormula n) p, (encFormula n) p₁, (encFormula n) p₂])).
+              encPair encUnary (encList encBits) (n, [encFormula n p, encFormula n p₁, encFormula n p₂])).
 
 -- LEAN INPUT:
 /-- Theorem (Canny, 1988): path connectivity between two formula-described points

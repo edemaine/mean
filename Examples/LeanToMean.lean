@@ -2168,9 +2168,13 @@ info: Axiom ordinaryAxiom:
 #mean_compare TheoremExamples.unsafeNumber
 #mean_term_compare Option (Fin 3 ↪ List Bool)
 section
-variable (f : ℕ ↪ ℕ)
+variable (f : ℕ ↪ ℕ) (pick : ℕ → ℕ ↪ ℕ)
 #mean_term_compare f 3
 #mean_term_compare (f : ℕ → ℕ)
+
+/-- info: pick 2 3 -/
+#guard_msgs in
+#mean_term pick 2 3
 end
 
 open Lean Elab Term in

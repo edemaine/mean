@@ -121,7 +121,7 @@ Definition:
             p.existsForallSolutionSet is a nonempty set)
         under
         (the function mapping an element p of Formula (r + s) to
-            (encPair encUnary encBits) (r, (encFormula (r + s)) p)).
+            encPair encUnary encBits (r, encFormula (r + s) p)).
 
 Theorem existsForallReal_in_CountingLevel:
   ExistsForallReal ∈ CountingLevel 60 encBits
@@ -138,7 +138,7 @@ Definition:
     the union over natural numbers n of
       the image of (ConnectedFormulas n) under
         (the function mapping an element p of Formula n to
-            (encPair encUnary encBits) (n, (encFormula n) p)).
+            encPair encUnary encBits (n, encFormula n p)).
 
 Theorem connectedLanguage_in_PSPACE:
   ConnectedLanguage ∈ PSPACE encBits
@@ -164,7 +164,7 @@ Definition:
         the image of (ReachableEndpoints p) under
           (the function mapping an element x of Formula n × Formula n to
               write x as (p₁, p₂);
-              (encPair encUnary (encList encBits)) (n, [(encFormula n) p, (encFormula n) p₁, (encFormula n) p₂])).
+              encPair encUnary (encList encBits) (n, [encFormula n p, encFormula n p₁, encFormula n p₂])).
 
 Theorem reachableLanguage_in_PSPACE:
   ReachableLanguage ∈ PSPACE encBits

@@ -391,7 +391,16 @@ def delabCoercion : Delab := do
   -- Applying a callable value lets Lean infer the function coercion again.
   -- A standalone coercion still needs its type to distinguish it from the value.
   if info.type == .coeFun && e.getAppNumArgs > info.numArgs then
-    return ← withOverApp info.numArgs (withNaryArg info.coercee delab)
+    let applied ← withOverApp info.numArgs (withNaryArg info.coercee delab)
+    let app := applied.raw
+    unless app.isOfKind ``Parser.Term.app do return applied
+    let head := app[0]
+    -- Join the two argument lists so an application head prints as `f x y`.
+    -- Keep the scope of an explicit head such as `(@f x) y`.
+    unless head.isOfKind ``Parser.Term.app && !head[0].isOfKind ``Parser.Term.explicit do
+      return applied
+    let args := head[1].getArgs ++ app[1].getArgs
+    return ⟨app.setArg 0 head[0] |>.setArg 1 (mkNullNode args)⟩
   guard <| info.type == .coe && e.getAppNumArgs == info.numArgs
   let value ← withNaryArg info.coercee delab
   if (← getOptions).getBool compactCaseBody false then return value
