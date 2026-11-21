@@ -3711,6 +3711,14 @@ match p with
 | (x, y) => x + y
 
 -- MEAN INPUT:
+the function mapping a natural number n and a pair (x, y) of elements of Nat to
+      n + x + y
+-- LEAN OUTPUT:
+fun (n : ℕ) (_anonymousParameter : ℕ × ℕ) =>
+  match _anonymousParameter with
+  | (x, y) => n + x + y
+
+-- MEAN INPUT:
 write p as (x, y); there is a natural number n such that n = x + y
 -- LEAN OUTPUT:
 match p with

@@ -286,6 +286,8 @@ and the body. Subjects may have different types, and more than two can be joined
 The renderer combines consecutive explicit, implicit, strict implicit, and instance function
 binders this way. Nested function phrases remain accepted. Parameter types such as
 `Type`, `Sort u`, `Fin n`, and `SimpleGraph V` need no surrounding parentheses.
+Use `the function mapping a pair (x, y) of elements of T to …` to bind both
+components of a `T × T` input in the function body.
 Parentheses delimit a conjunction used as a subject type, such as
 `a proof h that (P and Q)`, because `and` also separates parameters.
 

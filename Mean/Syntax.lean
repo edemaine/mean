@@ -734,8 +734,10 @@ def subjectNoun : Lean.Parser.Parser :=
     (Lean.Parser.categoryParser `meanWitnessNoun 0)
 
 declare_syntax_cat meanSubject
+def pairWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "pair "
 syntax "a" "simple" "graph" (ppSpace ident)? : meanSubject
 syntax "a" "simple" "graph" (ppSpace ident)? "=" "(" ident "," ident ")" : meanSubject
+syntax "a " pairWord "(" ident ", " ident ")" " of " "elements " "of " term : meanSubject
 syntax "a" subjectNoun : meanSubject
 syntax "an" subjectNoun : meanSubject
 syntax "an" "implicit" subjectNoun : meanSubject
@@ -746,6 +748,10 @@ private def parameterName (name : Option (Lean.TSyntax `ident)) : Lean.MacroM (L
   match name with
   | some name => pure name
   | none => `(ident| _anonymousParameter)
+
+private def pairFunction (left right : Lean.Ident) (ty body : Lean.Term) : Lean.MacroM Lean.Term := do
+  let pair ← parameterName none
+  `(fun ($pair : $ty × $ty) => match $pair:ident with | ($left, $right) => $body)
 
 /-- Keep binder separators out of an unparenthesized element type. -/
 def functionSubject : Lean.Parser.Parser :=
@@ -774,6 +780,8 @@ macro_rules
       `(functionOn% $subject => $body)
   | `(predicateOn% $subject:meanSubject => $body:term) =>
       `(functionOn% $subject => ($body : Prop))
+  | `(functionOn% a pair ($left:ident, $right:ident) of elements of $ty:term => $body:term) =>
+      pairFunction left right ty body
   | `(functionOn% a simple graph $[$g:ident]? => $body:term) => do
       let g ← parameterName g
       `(fun {Vertex : Type*} ($g : SimpleGraph Vertex) => $body)
@@ -832,6 +840,8 @@ syntax "Inductive" "family" ident
 /-- Extract typed binders through the existing function-subject extension hook. -/
 private partial def subjectBinders (subject : Lean.TSyntax `meanSubject) :
     Lean.MacroM (Array (Lean.TSyntax ``Lean.Parser.Term.bracketedBinder)) := do
+  if let `(meanSubject| a pair ($_:ident, $_:ident) of elements of $_:term) := subject then
+    Lean.Macro.throwErrorAt subject "a pair pattern needs a body"
   let mut expanded ← `(functionOn% $subject => True)
   for _ in [:100] do
     if let `(fun $binders* => $_:term) := expanded then
@@ -1202,9 +1212,8 @@ macro_rules
   | `(the set of functions $[$x:ident]? $signature:meanFunctionSignature such that $body:term) => do
       setComprehension x (← `(functionType% $signature)) body
   | `(the set of pairs ($left:ident, $right:ident) of elements of $ty:term such that $body:term) => do
-      let pair ← parameterName none
-      let body ← `(match $pair:ident with | ($left, $right) => $body)
-      setComprehension (some pair) (← `($ty × $ty)) body
+      let predicate ← pairFunction left right ty (← `(($body : Prop)))
+      `(Set.ofPred $predicate)
 
 macro_rules
   | `(forallOver% $binding:meanQuantified => $body:term) => do

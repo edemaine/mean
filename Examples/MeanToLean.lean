@@ -1789,6 +1789,11 @@ end CaseDefinitionExamples
 example (p : Nat × Nat) :
     (write p as (x, y); x + y) = (match p with | (x, y) => x + y) := rfl
 
+example :
+    (the function mapping a natural number n and a pair (x, y) of elements of Nat to
+      n + x + y) =
+    (fun (n : Nat) (p : Nat × Nat) => match p with | (x, y) => n + x + y) := rfl
+
 example (p : Nat × Nat) :
     (write p as (x, y); there is a natural number n such that n = x + y) =
       (match p with | (x, y) => ∃ n : Nat, n = x + y) := rfl

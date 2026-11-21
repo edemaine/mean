@@ -927,28 +927,6 @@ private def restrictedQuantifierText (heading : String) (body : Expr) (subjects 
   return s!"{heading}{suffix}:
 {indented (← renderBody body)}"
 
-/-- Share function wording and binding scope between plain and typed forms. -/
-private partial def functionText (n : Name) (ty body : Expr) (bi : BinderInfo)
-    (renderBody : Expr → MetaM String)
-    (annotation : Option String := none) : MetaM String := do
-  let (subjects, bodyText) ← go (.lam n ty body bi)
-  let signature := annotation.map (" : " ++ ·) |>.getD ""
-  return s!"the function{signature} mapping {String.intercalate " and " subjects} to\n{indented bodyText}"
-where
-  go (e : Expr) : MetaM (List String × String) := do
-    match e.consumeMData with
-    | .lam suggested ty body bi =>
-      let n ← freshName suggested
-      return ← withLocalDecl n bi ty fun x => do
-        let (subjects, bodyText) ← go (body.instantiate1 x)
-        let rest := if subjects.isEmpty then bodyText else
-          s!"the function mapping {String.intercalate " and " subjects} to {bodyText}"
-        let keepName := publicParameterName suggested || (← mentionsName rest n)
-        let subject ← subjectText ty (if keepName then some n else none) bi
-        return (subject :: subjects, bodyText)
-    | _ => pure ()
-    return ([], ← renderBody e)
-
 private def closureName? (e : Expr) (arity : Nat) : Option String :=
   if e.isAppOfArity ``Relation.ReflTransGen arity then some "reflexive transitive" else
   if e.isAppOfArity ``Relation.TransGen arity then some "transitive" else
@@ -982,7 +960,7 @@ private partial def relationOperatorText (e : Expr) : MetaM String := do
 /-- Recover a flat pair pattern from a matcher, checking that its alternative
 receives the two constructor fields in order. -/
 private def withPairMatch? (e : Expr)
-    (render : Expr → Name → Name → Expr → MetaM (Option String)) : MetaM (Option String) := do
+    (render : Expr → Name → Name → Expr → MetaM (Option α)) : MetaM (Option α) := do
   if pp.explicit.get (← getOptions) then return none
   let some matcher ← matchMatcherApp? e (alsoCasesOn := true) | return none
   unless matcher.discrs.size == 1 && matcher.altNumParams == #[2] &&
@@ -1013,6 +991,44 @@ private def renderPairMatch? (e : Expr) (renderBody : Expr → MetaM String) :
   withPairMatch? e fun scrutinee first second body => do
     let value ← atomText scrutinee
     return some s!"write {value} as ({← nameText first}, {← nameText second});\n{← renderBody body}"
+
+/-- Move an exhaustive match into a binding when the rest only uses its fields. -/
+private def withPairBinding? (ty : Expr) (instantiate : Expr → Expr)
+    (render : String → Expr → MetaM α) : MetaM (Option α) := do
+  unless ty.isAppOfArity ``Prod 2 && ty.getArg! 0 == ty.getArg! 1 do return none
+  withLocalDeclD (← mkFreshUserName `pair) ty fun pair =>
+    withPairMatch? (inlineLets (instantiate pair)) fun scrutinee first second body => do
+      unless scrutinee == pair && !body.containsFVar pair.fvarId! do return none
+      let item ← subjectTypeText (ty.getArg! 0)
+      let names := s!"({← nameText first}, {← nameText second})"
+      some <$> render s!"{names} of elements of {item}" body
+
+/-- Share function wording and binding scope between plain and typed forms. -/
+private partial def functionText (n : Name) (ty body : Expr) (bi : BinderInfo)
+    (renderBody : Expr → MetaM String)
+    (annotation : Option String := none) : MetaM String := do
+  let (subjects, bodyText) ← go (.lam n ty body bi)
+  let signature := annotation.map (" : " ++ ·) |>.getD ""
+  return s!"the function{signature} mapping {String.intercalate " and " subjects} to\n{indented bodyText}"
+where
+  go (e : Expr) : MetaM (List String × String) := do
+    match e.consumeMData with
+    | .lam suggested ty body bi =>
+      if bi == .default && !publicParameterName suggested then
+        let paired ← withPairBinding? ty body.instantiate1 fun description body => do
+          let (subjects, bodyText) ← go body
+          return (s!"a pair {description}" :: subjects, bodyText)
+        if let some rendered := paired then return rendered
+      let n ← freshName suggested
+      return ← withLocalDecl n bi ty fun x => do
+        let (subjects, bodyText) ← go (body.instantiate1 x)
+        let rest := if subjects.isEmpty then bodyText else
+          s!"the function mapping {String.intercalate " and " subjects} to {bodyText}"
+        let keepName := publicParameterName suggested || (← mentionsName rest n)
+        let subject ← subjectText ty (if keepName then some n else none) bi
+        return (subject :: subjects, bodyText)
+    | _ => pure ()
+    return ([], ← renderBody e)
 
 /-- Recognize supported logical structure without unfolding mathematical constants.
 Embedded implications stay inline; standalone implications introduce a block.
@@ -1124,15 +1140,10 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
       let args := e.getAppArgs
       let ty := args[0]!
       let predicate := args[1]!
-      if ty.isAppOfArity ``Prod 2 && ty.getArg! 0 == ty.getArg! 1 then
-        let pairs ← withLocalDeclD (← mkFreshUserName `pair) ty fun pair =>
-          withPairMatch? (inlineLets (predicate.beta #[pair])) fun scrutinee first second body => do
-            unless scrutinee == pair && !body.containsFVar pair.fvarId! do return none
-            let item ← subjectTypeText (ty.getArg! 0)
-            let names := s!"({← nameText first}, {← nameText second})"
-            return some s!"the set of pairs {names} of elements of {item} such that
+      let pairs ← withPairBinding? ty (fun pair => predicate.beta #[pair]) fun description body =>
+        return s!"the set of pairs {description} such that
 {indented (← renderExpr body sentenceEnd)}"
-        if let some text := pairs then return text
+      if let some text := pairs then return text
       let suggested := match predicate.consumeMData with
         | .lam n _ _ _ => n
         | _ => `x
