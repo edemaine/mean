@@ -908,6 +908,49 @@ variable (A B : Type u) [Coe A B] (x : A)
 #mean_term_compare (x : B)
 end
 
+section
+variable (S : Set Nat) (y : S)
+
+/--
+info: for every element x of S:
+  x = y
+-/
+#guard_msgs in
+#mean_term ∀ x : S, x = y
+
+/-- info: S as Type -/
+#guard_msgs in
+#mean_term (S : Type)
+end
+
+/-- info: the real interval [0, 2] -/
+#guard_msgs in
+#mean_term Set.Icc (0 : ℝ) 2
+
+/-- info: the real interval [0, 2) -/
+#guard_msgs in
+#mean_term Set.Ico (0 : ℝ) 2
+
+/-- info: the real interval (0, 2] -/
+#guard_msgs in
+#mean_term Set.Ioc (0 : ℝ) 2
+
+/-- info: the real interval (0, 2) -/
+#guard_msgs in
+#mean_term Set.Ioo (0 : ℝ) 2
+
+/--
+info: for every element x of the real interval [0, 2]:
+  for every element y of the real interval [0, 2):
+    for every element z of the real interval (0, 2]:
+      for every element w of the real interval (0, 2):
+        x = x and y = y and z = z and w = w
+-/
+#guard_msgs in
+#mean_term ∀ (x : Set.Icc (0 : ℝ) 2) (y : Set.Ico (0 : ℝ) 2)
+    (z : Set.Ioc (0 : ℝ) 2) (w : Set.Ioo (0 : ℝ) 2),
+  x = x ∧ y = y ∧ z = z ∧ w = w
+
 open Lean Elab Term in
 run_elab do
   let invalid ← withoutModifyingState do

@@ -100,6 +100,13 @@ macro_rules
 /-! General set and geometry expressions use contextual words after `the`. -/
 def imageWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "image "
 def complementWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "complement "
+def realIntervalWords : Lean.Parser.Parser :=
+  Lean.Parser.nonReservedSymbol "real " >> Lean.Parser.nonReservedSymbol "interval "
+declare_syntax_cat meanIntervalBounds
+syntax "[" term ", " term "]" : meanIntervalBounds
+syntax "[" term ", " term ")" : meanIntervalBounds
+syntax "(" term ", " term "]" : meanIntervalBounds
+syntax "(" term ", " term ")" : meanIntervalBounds
 def concatenationWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "concatenation "
 def lengthWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "length "
 def underWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "under "
@@ -120,6 +127,7 @@ def reflectionWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "reflec
 def acrossWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "across "
 syntax:max "the " imageWord "of " term:arg ppSpace underWord term:arg : term
 syntax:max "the " complementWord "of " term:arg : term
+syntax:max "the " realIntervalWords meanIntervalBounds : term
 syntax:max "the " concatenationWord "of " term:arg " and " term:arg : term
 syntax:max "the " lengthWord "of " term:arg : term
 syntax:max "the " "set " "of " "all " "elements " "of " term:arg : term
@@ -133,6 +141,14 @@ syntax:max "the " reflectionWord acrossWord term:arg : term
 macro_rules
   | `(the image of $s:term under $f:term) => `(Set.image $f $s)
   | `(the complement of $s:term) => `(Compl.compl ($s : Set _))
+  | `(the real interval [$lower:term, $upper:term]) =>
+    `(Set.Icc ($lower : Real) ($upper : Real))
+  | `(the real interval [$lower:term, $upper:term)) =>
+    `(Set.Ico ($lower : Real) ($upper : Real))
+  | `(the real interval ($lower:term, $upper:term]) =>
+    `(Set.Ioc ($lower : Real) ($upper : Real))
+  | `(the real interval ($lower:term, $upper:term)) =>
+    `(Set.Ioo ($lower : Real) ($upper : Real))
   | `(the concatenation of $xs:term and $ys:term) => `(Fin.append $xs $ys)
   | `(the length of $xs:term) => `(List.length $xs)
   | `(the set of all elements of $ty:term) => `((Set.univ : Set $ty))

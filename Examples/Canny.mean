@@ -154,7 +154,7 @@ Definition:
             p₁.solutionSet = the set {x_1} and
             p₂.solutionSet = the set {y} and
             there is an element γ of Path x_1 y such that
-              for every element t of (unitInterval as Type):
+              for every element t of the real interval [0, 1]:
                 γ t ∈ p.solutionSet.
 
 Definition:

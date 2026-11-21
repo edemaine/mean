@@ -153,7 +153,10 @@ type expression directly; parenthesize a function type, as in `f as (Nat → Nat
 Lean must have an appropriate coercion, such as a `Coe` instance. The renderer
 uses scalar nouns for known scalar targets and the type expression for other
 registered value coercions. Lean's function and sort coercion forms (`⇑`, `↥`)
-retain Lean notation.
+retain Lean notation. In a type position, Mean can omit a coercion that Lean
+infers, as in `for every element t of the real interval [0, 1]:`. Real interval
+phrases accept `[a, b]`, `[a, b)`, `(a, b]`, and `(a, b)`. A square bracket
+includes its endpoint, and a parenthesis excludes it.
 
 A scalar numeral can directly precede the definition's final period, as in
 `the integer 42.` or `the integer -42.`. Decimal fractions and scientific

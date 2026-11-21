@@ -68,6 +68,25 @@ def delabCollectionProperty : Delab := do
     `(the set of all elements of $ty)
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app.unitInterval, delab app.Set.Icc, delab app.Set.Ico, delab app.Set.Ioc, delab app.Set.Ioo]
+def delabRealInterval : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  guard <| !(pp.explicit.get (← getOptions))
+  let e ← getExpr
+  if e.isConstOf ``unitInterval then
+    `(the real interval [0, 1])
+  else
+    guard <| e.getAppNumArgs == 4 && (e.getArg! 0).isConstOf ``Real
+    let lower ← withNaryArg 2 delab
+    let upper ← withNaryArg 3 delab
+    match e.getAppFn.constName! with
+    | ``Set.Icc => `(the real interval [$lower, $upper])
+    | ``Set.Ico => `(the real interval [$lower, $upper))
+    | ``Set.Ioc => `(the real interval ($lower, $upper])
+    | ``Set.Ioo => `(the real interval ($lower, $upper))
+    | _ => failure
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app.EuclideanSpace, delab app.AffineIsometryEquiv]
 def delabGeometryType : Delab := do
   guard <| mean.renderProperties.get (← getOptions)
@@ -248,10 +267,25 @@ private def leanText (e : Expr) : MetaM String := do
 private def propertyText (e : Expr) : MetaM String :=
   withOptions (fun opts => opts.setBool `mean.renderProperties true) (leanText e)
 
+/-- In a type position, omit a coercion that elaboration can infer again. -/
+private def typeSurfaceExpr (ty : Expr) : MetaM Expr := do
+  if pp.explicit.get (← getOptions) then return ty
+  let .const name _ := ty.getAppFn | return ty
+  let some info ← getCoeFnInfo? name | return ty
+  unless info.type != .coeFun && ty.getAppNumArgs == info.numArgs do return ty
+  let value := ty.getArg! info.coercee
+  let inferred ← withoutModifyingState do
+    try
+      let some coerced ← coerceToSort? value | return false
+      isDefEq coerced ty
+    catch _ => return false
+  return if inferred then value else ty
+
 /-- Explicit names inside function types are part of their named-argument interface. -/
-private def typeText (e : Expr) : MetaM String :=
+private def typeText (e : Expr) : MetaM String := do
+  let textExpr ← typeSurfaceExpr e
   withOptions (fun opts => opts.setBool `pp.piBinderNames true
-    |>.setBool `pp.piBinderNames.hygienic false) (propertyText e)
+    |>.setBool `pp.piBinderNames.hygienic false) (propertyText textExpr)
 
 private def publicParameterName (n : Name) : Bool :=
   !n.isAnonymous && !n.hasMacroScopes && !n.isInaccessibleUserName
@@ -265,6 +299,7 @@ private def atomText (e : Expr) (propertySubject := false) (typeContext := false
     -- Noun descriptions and function endpoints accept full type applications.
     if typeContext && stx.isOfKind ``Parser.Term.app then return text
     if let `(the set $_:term) := stx then return text
+    if let `(the real interval $_:meanIntervalBounds) := stx then return text
   -- Property phrases bind tightly enough to be adjective subjects, but not application arguments.
   if propertySubject then
     match Parser.runParserCategory (← getEnv) `term text with
@@ -276,9 +311,10 @@ private def atomText (e : Expr) (propertySubject := false) (typeContext := false
     | .error _ => pure ()
   return "(" ++ text ++ ")"
 
-private def typeAtomText (e : Expr) : MetaM String :=
+private def typeAtomText (e : Expr) : MetaM String := do
+  let textExpr ← typeSurfaceExpr e
   withOptions (fun opts => opts.setBool `pp.piBinderNames true
-    |>.setBool `pp.piBinderNames.hygienic false) (atomText e (typeContext := true))
+    |>.setBool `pp.piBinderNames.hygienic false) (atomText textExpr (typeContext := true))
 
 private def indented (s : String) : String :=
   "  " ++ s.replace "\n" "\n  "
