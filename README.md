@@ -864,18 +864,16 @@ theorem statements include Canny's PSPACE bounds and the counting-hierarchy
 bounds attributed upstream to OpenAI. The source attribution and
 [Apache 2.0 license](Examples/Canny.LICENSE) are retained.
 
-This example imports `Examples.Wang` and runs under Mean's existing toolchain
-with `python test.py`. It does not depend on CSLib Frontier. Instead, an explicit
-`Background` namespace declares interfaces for binary encodings, polynomial-time
-reductions, PSPACE, and counting levels. Their intended meanings are documented;
-their machine semantics and encoding layouts are **not implemented or verified
-in this adaptation**. All seven theorem proofs are replaced by `sorry`, as in
-the tiling examples. This checks rendering of statements relative to those
-interfaces, not the upstream complexity proofs or equivalence with CSLib Frontier.
+This example imports `Examples.Wang` and declares the interfaces for binary
+encodings, polynomial-time reductions, PSPACE, and counting levels directly in
+`LeanCanny.Abstract`. The interfaces stand in for CSLib Frontier, and their
+docstrings describe the intended machine semantics and encoding layouts.
+All seven theorem proofs use `sorry`, as in the tiling examples.
+`python test.py` checks the renderings relative to the declared interfaces.
 
-[Canny.mean](Examples/Canny.mean) contains Mean output;
-[Canny.compare](Examples/Canny.compare) pairs its 21 checked renderings with Lean. The inductive syntax
-types include their constructor signatures in both views.
+[Canny.mean](Examples/Canny.mean) contains the Mean output.
+[Canny.compare](Examples/Canny.compare) pairs all 28 checked renderings with
+Lean. Both views include constructor signatures for the inductive syntax types.
 
 ## Compositional syntax
 

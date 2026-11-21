@@ -10,8 +10,8 @@ by p, q (or p₁, p₂) because Mean reserves a. See Canny.mean and Canny.compar
 for checked renderings, including the constructors of the inductive syntax types.
 
 Changes from upstream: replace CSLib Frontier's generated encodings and
-machine-based complexity definitions with the explicitly declared Background
-interfaces below. Their intended meanings are documented, not implemented or
+machine-based complexity definitions with the interfaces declared directly in
+LeanCanny.Abstract below. Their intended meanings are documented, not implemented or
 verified here. This adaptation is a rendering example, not a verification of
 complexity bounds or equivalence with CSLib Frontier. Replace all seven bridge
 proofs with sorry, as in Wang. Preserve the abstract's mathematical syntax,
