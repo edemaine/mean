@@ -148,11 +148,14 @@ Definition:
   ReachableEndpoints is
     the function mapping an implicit natural number n and an element p of Formula n to
       the set of elements x of Formula n × Formula n such that
-        match x with
-        | (p₁, p₂) =>
-          ∃ (x : the type of indices in [0, n) → ℝ) (y : the type of indices in [0, n) → ℝ),
-            p₁.solutionSet = the set {x} ∧
-              p₂.solutionSet = the set {y} ∧ ∃ (γ : Path x y), ∀ (t : unitInterval as Type), γ t ∈ p.solutionSet.
+        write x as (p₁, p₂);
+        there is a function x_1 from indices in [0, n) to ℝ such that
+          there is a function y from indices in [0, n) to ℝ such that
+            p₁.solutionSet = the set {x_1} and
+            p₂.solutionSet = the set {y} and
+            there is an element γ of Path x_1 y such that
+              for every element t of (unitInterval as Type):
+                γ t ∈ p.solutionSet.
 
 Definition:
   ReachableLanguage is
@@ -160,9 +163,8 @@ Definition:
       the union over elements p of (Formula n) of
         the image of (ReachableEndpoints p) under
           (the function mapping an element x of Formula n × Formula n to
-              match x with
-              | (p₁, p₂) =>
-                (encPair encUnary (encList encBits)) (n, [(encFormula n) p, (encFormula n) p₁, (encFormula n) p₂])).
+              write x as (p₁, p₂);
+              (encPair encUnary (encList encBits)) (n, [(encFormula n) p, (encFormula n) p₁, (encFormula n) p₂])).
 
 Theorem reachableLanguage_in_PSPACE:
   ReachableLanguage ∈ PSPACE encBits

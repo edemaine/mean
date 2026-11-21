@@ -922,6 +922,36 @@ private partial def relationOperatorText (e : Expr) : MetaM String := do
       else s!"the composition of {first} followed by {second}"
   propertyText e
 
+/-- Recover a flat pair pattern from a matcher, checking that its alternative
+receives the two constructor fields in order. -/
+private def renderPairMatch? (e : Expr) (renderBody : Expr → MetaM String) :
+    MetaM (Option String) := do
+  if pp.explicit.get (← getOptions) then return none
+  let some matcher ← matchMatcherApp? e (alsoCasesOn := true) | return none
+  unless matcher.discrs.size == 1 && matcher.altNumParams == #[2] &&
+      matcher.remaining.isEmpty do return none
+  let scrutinee := matcher.discrs[0]!
+  let ty ← whnf (← inferType scrutinee)
+  let .const ``Prod levels := ty.getAppFn | return none
+  let alt := matcher.alts[0]!
+  let .lam first ty₁ rest .default := alt.consumeMData | return none
+  let .lam second ty₂ body .default := rest.consumeMData | return none
+  let fields := ty.getAppArgs
+  let first ← freshName first
+  withLocalDeclD first ty₁ fun x => do
+    let second ← freshName second
+    let ty₂ := ty₂.instantiate1 x
+    withLocalDeclD second ty₂ fun y => do
+      let body := body.instantiateRev #[x, y]
+      let pair := mkAppN (mkConst ``Prod.mk levels) (fields ++ #[x, y])
+      let valid ← withoutModifyingState do
+        -- Reject nested patterns whose two binders have other meanings.
+        isDefEq ty₁ fields[0]! <&&> isDefEq ty₂ fields[1]! <&&>
+          isDefEq ({ matcher with discrs := #[pair] }.toExpr) body
+      unless valid do return none
+      let value ← atomText scrutinee
+      return some s!"write {value} as ({← nameText first}, {← nameText second});\n{← renderBody body}"
+
 /-- Recognize supported logical structure without unfolding mathematical constants.
 Embedded implications stay inline; standalone implications introduce a block.
 Quantifiers retain their block layout in either context. `atEnd` permits an
@@ -996,6 +1026,8 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
       leafText e sentenceEnd
   | _ =>
     -- Structural forms take precedence over the open-ended predicate fallback.
+    if let some text ← renderPairMatch? e (fun body => renderExpr body (sentenceEnd && atEnd)) then
+      return if atEnd then text else "(" ++ text ++ ")"
     let negativeRelation := e.isAppOfArity ``Not 1
     let relation := if negativeRelation then e.getAppArgs[0]!.consumeMData else e
     if ((closureName? relation 4).isSome || relation.isAppOfArity ``Relation.Comp 7) &&
@@ -1133,6 +1165,16 @@ partial def renderExpr (e : Expr) (sentenceEnd := false)
         else if singular then "satisfies" else "satisfy"
       return ← sentenceTail s!"{String.intercalate " and " texts} {verb} {view.phrase}" sentenceEnd
     leafText e sentenceEnd
+
+open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
+@[delab app]
+def delabPairMatch : Delab := do
+  guard <| mean.renderProperties.get (← getOptions)
+  let some text ← renderPairMatch? (← getExpr) (fun body => renderExpr body) | failure
+  let .ok stx := Parser.runParserCategory (← getEnv) `term text | failure
+  let phrase : Term := ⟨stx⟩
+  if (← getPos) == .root then return phrase
+  `(($phrase))
 
 open Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Delaborator.SubExpr in
 @[delab app.Set.ofPred]

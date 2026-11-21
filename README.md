@@ -791,6 +791,17 @@ checked rendering.
 For example, Canny's `Term.eval` and `Formula.solutionSet` expose their defining
 cases instead of Lean's generated `brecOn` recursors and helper definitions.
 
+Within an expression, `write` binds the names in a single exhaustive pattern:
+
+```lean
+write p as (x, y);
+x + y
+```
+
+Lean checks exhaustiveness as for a one-branch `match`. Mean renders flat pair
+matches this way and translates the body recursively. Use parentheses when the
+body must stop before an enclosing operator.
+
 ## Inductive types
 
 `#mean` and `#mean_compare` display the complete constructor interface of safe,

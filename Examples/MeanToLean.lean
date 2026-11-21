@@ -1785,3 +1785,10 @@ Definition:
     true gives (1, 1).
 example : choosePair true = (1, 1) := rfl
 end CaseDefinitionExamples
+
+example (p : Nat × Nat) :
+    (write p as (x, y); x + y) = (match p with | (x, y) => x + y) := rfl
+
+example (p : Nat × Nat) :
+    (write p as (x, y); there is a natural number n such that n = x + y) =
+      (match p with | (x, y) => ∃ n : Nat, n = x + y) := rfl

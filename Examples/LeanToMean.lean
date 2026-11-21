@@ -2617,3 +2617,11 @@ end CaseDefinitionExamples
 namespace CaseDefinitionExamples
 #mean_compare choosePair
 end CaseDefinitionExamples
+
+section PairMatchExamples
+variable (pair : ℕ × ℕ)
+
+#mean_term_compare some (match pair with | (x, y) => x + y)
+#mean_term_compare (match pair with | (x, y) => x = y) ∧ pair.1 = 0
+
+end PairMatchExamples

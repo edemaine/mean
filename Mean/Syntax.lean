@@ -503,6 +503,14 @@ macro_rules
   | `($value:term as an $noun:meanScalar) => `((↑($value) : scalarType% $noun))
   | `($value:term as $ty:term) => `((↑($value) : $ty))
 
+def writeWord : Lean.Parser.Parser := Lean.Parser.nonReservedSymbol "write " true
+
+/-- Bind a single exhaustive pattern for the rest of the expression. -/
+syntax writeWord term:71 " as " term ";" ppDedent(ppLine term) : term
+macro_rules
+  | `(write $value:term as $pat:term; $body:term) =>
+    `(match ($value) with | $pat => $body)
+
 declare_syntax_cat meanScalarDomain
 syntax meanScalar : meanScalarDomain
 declare_syntax_cat meanScalarPlural

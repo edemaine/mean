@@ -2503,3 +2503,11 @@ Definition:
     by cases on b:
       false gives (0, 0);
       true gives (1, 1).
+
+some
+  (write pair as (x, y);
+  x + y)
+
+(write pair as (x, y);
+x = y) and
+pair.1 = 0
